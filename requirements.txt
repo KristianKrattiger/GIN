@@ -1,0 +1,8 @@
+# Core inference
+llama-cpp-python>=0.2.0
+
+# Numerical
+numpy>=1.20
+
+# Dev / test
+pytest>=7.0
