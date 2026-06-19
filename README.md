@@ -1,4 +1,4 @@
-# GIN — Glissant Information Network
+# GIN — Grounded Information Network
 
 ## What this is
 
