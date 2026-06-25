@@ -1,4 +1,4 @@
-# GIN — Grounded Information Network
+# GIN — Grounded Intelligence Network
 
 ## What this is
 
