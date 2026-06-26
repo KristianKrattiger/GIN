@@ -4,12 +4,6 @@
 
 ---
 
-## 0. The shift in the name
-
-The early specs called it the **Generative** Intelligence Network. You're now calling it **Grounded** Intelligence Networks. Keep that. It records the correction you made last session — that you can't have productive divergence without a working anchored convergent model first. *Grounding comes first; divergence second; group convergence third.* "Generative" foregrounded the output. "Grounded" foregrounds the precondition, and the precondition is the actual thesis. The name now matches the architecture.
-
-So the one-sentence definition is:
-
 > **GIN is a federation of independent, place-rooted reasoning nodes that ground every claim in a traceable corpus, hold their disagreements legible instead of dissolving them, and arrive at convergence — when they do — relationally rather than by central decree.**
 
 Everything below is that sentence expanded in five directions.
