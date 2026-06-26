@@ -1,5 +1,5 @@
 # GIN Node Architecture
-### Generative Intelligence Network — Node Tier Specification v1.0
+### Grounded Intelligence Network — Node Tier Specification v1.0
 *Status: Active Design | June 2026*
 
 ---
