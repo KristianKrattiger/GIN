@@ -37,7 +37,7 @@ This is closer to a federation *directory* with semantic adapter-loading than to
 
 ## Related
 
-[[GIN_00_Reader]] · [[GIN_02_Productive_Divergence]] · [[GIN_04_TRAC]] · [[GIN_07_Governance_Validity]]
+[[GIN_00_Reader]] · [[GIN_02_Productive_Divergence]] · [[GIN_04_SEAR]] · [[GIN_07_Governance_Validity]]
 
 ## Back to Vault
 

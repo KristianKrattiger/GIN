@@ -1,0 +1,132 @@
+# Synthetic news-wire eval corpus for GIN tiered storage PoC.
+# Shared wire copy, controlled divergence, counterfactual probes, out-of-scope stubs.
+
+documents:
+  - id: incident_centralwire
+    outlet: CentralWire
+    title: Downtown incident response
+    eval_layer: realism
+    eval_tag: incident_divergence
+    chunks:
+      - |
+        RIVERPORT — Officials responded to a downtown incident Tuesday evening.
+        Emergency services confirmed 142 people received treatment at area hospitals.
+        Police said 23 arrests were made before midnight.
+        The mayor scheduled a briefing for Wednesday morning.
+
+  - id: incident_metrodaily
+    outlet: MetroDaily
+    title: Downtown incident response
+    eval_layer: realism
+    eval_tag: incident_divergence
+    chunks:
+      - |
+        RIVERPORT — Officials responded to a downtown incident Tuesday evening.
+        Emergency services confirmed 98 people received treatment at area hospitals.
+        Police said 11 arrests were made before midnight.
+        City council members demanded an independent review.
+
+  - id: incident_regionalpost
+    outlet: RegionalPost
+    title: Downtown incident response
+    eval_layer: realism
+    eval_tag: incident_divergence
+    chunks:
+      - |
+        RIVERPORT — Officials responded to a downtown incident Tuesday evening.
+        Emergency services confirmed 142 people received treatment at area hospitals.
+        Police said 11 arrests were made before midnight.
+        Union leaders called for expanded safety staffing downtown.
+
+  - id: election_centralwire
+    outlet: CentralWire
+    title: Harbor district referendum
+    eval_layer: realism
+    eval_tag: election_divergence
+    chunks:
+      - |
+        HARBORVIEW — The harbor district referendum passed by 842 votes after a long count.
+        Turnout reached 61 percent of registered voters.
+        The port authority said new zoning rules take effect in January.
+
+  - id: election_metrodaily
+    outlet: MetroDaily
+    title: Harbor district referendum
+    eval_layer: realism
+    eval_tag: election_divergence
+    chunks:
+      - |
+        HARBORVIEW — The harbor district referendum passed by 842 votes after a long count.
+        Turnout reached 58 percent of registered voters.
+        Opponents pledged to challenge the result in court.
+
+  - id: labor_bureau_report
+    outlet: NationalLaborBureau
+    title: Regional unemployment bulletin
+    eval_layer: counterfactual
+    eval_tag: unemployment_probe
+    chunks:
+      - |
+        The regional unemployment rate stood at 3.7 percent in the latest monthly survey.
+        Manufacturing added 1,200 jobs while retail shed 400 positions.
+        Analysts said seasonal hiring drove most of the net gain.
+
+  - id: labor_independent_survey
+    outlet: IndependentEconomicReview
+    title: Regional unemployment bulletin
+    eval_layer: counterfactual
+    eval_tag: unemployment_probe
+    chunks:
+      - |
+        The regional unemployment rate stood at 3.7 percent in the latest monthly survey.
+        Manufacturing added 1,200 jobs while retail shed 400 positions.
+        Independent reviewers warned the headline rate masked underemployment.
+
+  - id: transit_authority_update
+    outlet: TransitAuthority
+    title: North line extension update
+    eval_layer: realism
+    eval_tag: transit_realism
+    chunks:
+      - |
+        The north line extension opened to passengers on March 14.
+        Daily ridership on the first week averaged 18,400 boardings.
+        Fare integration with regional buses began the same day.
+
+  - id: weather_service_brief
+    outlet: CoastalWeatherService
+    title: Storm system advisory
+    eval_layer: realism
+    eval_tag: weather_realism
+    chunks:
+      - |
+        A coastal storm system is expected to bring sustained winds of 45 miles per hour.
+        Flood watches remain in effect for low-lying neighborhoods through Friday.
+        Residents were advised to secure outdoor equipment.
+
+  - id: out_of_scope_stub
+    outlet: ReferenceDesk
+    title: Mars rover mission timeline
+    eval_layer: out_of_scope
+    eval_tag: mars_probe
+    chunks:
+      - |
+        The Mars rover mission timeline lists a sample return launch window in 2031.
+        This document exists only to test out-of-corpus retrieval behavior.
+
+# chunk-level edges (first chunk of each doc unless noted)
+edges:
+  - src: incident_centralwire:0
+    dst: incident_metrodaily:0
+    type: contradicts
+    note: hospital treatment count and arrest count diverge after shared lede
+
+  - src: incident_centralwire:0
+    dst: incident_regionalpost:0
+    type: contradicts
+    note: arrest count diverges after shared treatment count
+
+  - src: election_centralwire:0
+    dst: election_metrodaily:0
+    type: contradicts
+    note: turnout percentage diverges after shared margin

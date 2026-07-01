@@ -22,19 +22,19 @@ The architecture moved from a MoE-style routing intuition toward a clean three-c
 
 ### 1.2 The three components
 
-**Relation-Finder (RF)**
-Proposes typed epistemic edges at any scope — local (intra-corpus) or cross-corpus (inter-node). Does not make edges. Proposes them. The distinction is load-bearing: RF's reliability profile and test method (edge precision/recall) is different from the Bookkeeper's, and fusing them would make the graph untestable as an independent artifact.
+**Cartographer**
+Proposes typed epistemic edges at any scope — local (intra-corpus) or cross-corpus (inter-node). Does not make edges. Proposes them. The distinction is load-bearing: the Cartographer's reliability profile and test method (edge precision/recall) is different from the Bookkeeper's, and fusing them would make the graph untestable as an independent artifact.
 
-RF runs a cheap relatedness gate before expensive pairwise alignment: embedding/entity/citation overlap assessed first. Negative assessments ("assessed, unrelated") are stored as valid graph content, not silence. If this isn't done, the same null gets re-litigated on every query.
+The Cartographer runs a cheap relatedness gate before expensive pairwise alignment: embedding/entity/citation overlap assessed first. Negative assessments ("assessed, unrelated") are stored as valid graph content, not silence. If this isn't done, the same null gets re-litigated on every query.
 
-Cross-corpus alignment is an explicit, expensive stage that belongs to RF — not hidden inside "receiving diffs." When a Tier 1 node queries a peer, RF owns the alignment work, proposes the edges it finds, and the Bookkeeper adjudicates.
+Cross-corpus alignment is an explicit, expensive stage that belongs to the Cartographer — not hidden inside "receiving diffs." When a Tier 1 node queries a peer, the Cartographer owns the alignment work, proposes the edges it finds, and the Bookkeeper adjudicates.
 
 **Bookkeeper**
 Sole admission gate. Maintains canonical graph state. Verifies anchor integrity. Enforces DAG invariants. Stamps provenance. Makes nothing.
 
 The admission gate is uniform for both local and federated edges — there is no separate local-trust / federated-trust path. This is the sovereignty membrane. The trust-link layer sits above it as a defined socket that governance fills later. The Bookkeeper is governance-ready without being governance-complete.
 
-The Bookkeeper's stored assessments also function as a federation cache. RF only performs live cross-corpus jumps on cache misses or staleness — making most federated queries fast and cheap.
+The Bookkeeper's stored assessments also function as a federation cache. The Cartographer only performs live cross-corpus jumps on cache misses or staleness — making most federated queries fast and cheap.
 
 **Reasoning Layer**
 Strictly read-only consumer of the verified graph. Produces grounded answers. Does not create edges.
@@ -52,9 +52,9 @@ For Phase 1: **Bookkeeper + one inference model**. One reasoning context means n
 ### 1.5 Falsifiability is now structural
 
 Each layer has independent measurable outputs:
-- RF: edge precision/recall
+- Cartographer: edge precision/recall
 - Bookkeeper: invariant maintenance (no cycles, anchor integrity, correct admit/deny)  
-- Reasoning: DRAC grounding rate over a fixed admitted graph
+- Reasoning: SEAR grounding rate over a fixed admitted graph
 
 You cannot hide an unfalsifiable claim in a stack where every layer's job is separately measurable.
 
@@ -270,7 +270,7 @@ These are not gaps in thinking. They are the identified frontier.
 1. ✅ SEAR Phase 1 scaffold validated (self-test passes, cursor logic correct)  
 2. 🔲 Synthetic corpus — verify fan-out/prune under long shared spans, specify zero-cursor fallback  
 3. 🔲 Live Mistral integration via llama-cpp-python (~half-day from current scaffold)  
-4. 🔲 DRAC grounding rate measured against RAG baseline — the number that makes GIN real  
+4. 🔲 SEAR grounding rate measured against RAG baseline — the number that makes GIN real  
 5. 🔲 Two-node divergence demo — same machinery, scope dialed to inter-corpus  
 6. 🔲 Bookkeeper + reasoning layer separation (Phase 2)  
 7. 🔲 Federation routing with sync metadata (Phase 3)  

@@ -1,6 +1,6 @@
 ---
 tags: [GIN, research, engineering, specs, quarantine]
-updated: 2026-06-13
+updated: 2026-06-29
 version: 0.4-preliminary
 status: working draft
 register: engineering
@@ -35,11 +35,12 @@ The conceptual papers argue. This register measures. Keeping them apart prevents
 - Latency distributions over intermittent topology.
 - Storage-media models and capacity.
 
-**Inference — TRAC** ([[GIN_04_TRAC]])
+**Inference — SEAR** ([[GIN_04_SEAR]])
 - Model sizes, adapter sizes, memory budgets.
-- Grammar definition and decoding implementation.
+- Grammar definition and decoding implementation. *(Cursor-based decode-time constraint implemented as SEAR in this repo — see [[GIN_ENG_01_SEAR_PoC_Spec]] Stage 1b note. Fabrication rate and prevention delta remain TBM.)*
 - Latency targets per mode (divergent surfacing vs convergent synthesis).
 - Selection-bias measurement method.
+- SEAR grounding rate vs RAG baseline — measurement infrastructure (retrieval manifests, synthesis manifests, guidance tags) now in place; measurement not yet run.
 
 **Federation** ([[GIN_03_Node_Identity]])
 - Adapter-switching cost and concurrency limits.
@@ -54,8 +55,8 @@ The conceptual papers argue. This register measures. Keeping them apart prevents
 **(v0.4) Mode routing** ([[GIN_02_Productive_Divergence]], [[GIN_07_Governance_Validity]])
 - How the empirical/situated classification is operationalised at query time given that the *criteria* are Council-set and non-neutral — i.e. the mechanism that applies a political decision, not the decision itself.
 
-**(ENG 01) TRAC PoC spec** ([[GIN_ENG_01_TRAC_PoC_Spec]])
-- All figures in [[GIN_ENG_01_TRAC_PoC_Spec]] are **TBM** (to be measured) under the promotion rule; that document is the staged build plan and metrics harness for TRAC, not a stated specification.
+**(ENG 01) SEAR PoC spec** ([[GIN_ENG_01_SEAR_PoC_Spec]])
+- All figures in [[GIN_ENG_01_SEAR_PoC_Spec]] are **TBM** (to be measured) under the promotion rule; that document is the staged build plan and metrics harness for SEAR, not a stated specification.
 
 **Sustainability**
 - Tier 1 standing costs: power, storage growth, curation labour.
@@ -76,7 +77,7 @@ Until all three hold, the item remains an *engineering issue* (nameable in mecha
 
 ## Related
 
-[[GIN_00_Reader]] · [[GIN_05_MOCAP]] · [[GIN_06_Mule_Architecture]] · [[GIN_09_Agentic_Layer]] · [[GIN_ENG_01_TRAC_PoC_Spec]]
+[[GIN_00_Reader]] · [[GIN_05_MOCAP]] · [[GIN_06_Mule_Architecture]] · [[GIN_09_Agentic_Layer]] · [[GIN_ENG_01_SEAR_PoC_Spec]]
 
 ## Back to Vault
 

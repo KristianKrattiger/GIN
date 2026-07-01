@@ -1,0 +1,10 @@
+[project]
+name = "gin"
+version = "0.1.0"
+requires-python = ">=3.10"
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+markers = [
+    "integration: tests requiring Postgres and optional embedding model",
+]

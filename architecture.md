@@ -1,0 +1,416 @@
+# GIN Architecture
+
+Technical architecture for the Grounded Information Network — what is implemented in this repository, how the pieces connect, and where the design is headed.
+
+For node-tier deployment specs and federation protocol detail, see [docs/GIN_Node_Architecture_v1.md](docs/GIN_Node_Architecture_v1.md).
+
+---
+
+## Design principles
+
+These constraints govern every component decision:
+
+1. **Complexity earns its place** — no layer exists for organizational convenience alone.
+2. **Plurality is the mechanism** — independent nodes produce genuinely different grounded outputs; avoid covert homogenization.
+3. **Honest by architecture** — SEAR constraints make hallucination structurally difficult; failures stay visible.
+4. **Minimalism as discipline** — prove the core before building governance UI or federation polish.
+5. **Provenance is first-class** — every claim traces to a content-addressed anchor.
+
+---
+
+## System overview
+
+GIN separates **what can be said** (corpus + graph), **what is admitted** (Bookkeeper), and **how answers are produced** (SEAR reasoning). This repository implements the corpus tier and SEAR reasoning layer; Bookkeeper admission and federation are designed but not yet built.
+
+```mermaid
+flowchart TB
+    subgraph ingest["Ingest pipeline"]
+        YAML["YAML corpus"]
+        COLD["Cold tier\nSHA-256 blobs"]
+        WARM["Warm tier\nPostgres metadata + edges"]
+        HOT["Hot tier\npgvector embeddings"]
+        YAML --> COLD
+        YAML --> WARM
+        YAML --> HOT
+    end
+
+    subgraph query["Query path"]
+        Q["User query"]
+        RET["Hybrid retrieval\nRRF dense + sparse"]
+        SYN["Synthesis bundle\nconvergent | divergent"]
+        MAT["Materialize SEAR Corpus"]
+        Q --> RET --> SYN --> MAT
+    end
+
+    subgraph sear["SEAR decode"]
+        PROMPT["Synthesis prompt"]
+        LLM["llama.cpp / Mistral"]
+        PROC["ExtractiveCopyConstraint"]
+        OUT["Attributed spans"]
+        MAT --> PROMPT --> LLM
+        LLM <-->|"mask illegal tokens"| PROC
+        PROC --> OUT
+    end
+
+    WARM --> RET
+    HOT --> RET
+    WARM --> SYN
+```
+
+---
+
+## Three-layer epistemic model
+
+The full GIN design assigns distinct responsibilities so no single component can inflate its own grounding record.
+
+| Layer | Responsibility | Writes canonical graph? | In this repo |
+|-------|----------------|-------------------------|--------------|
+| **Cartographer** | Proposes typed edges (`cites`, `contradicts`, `supersedes`, `translated_from`) | No | Edges ingested from YAML; automated discovery planned |
+| **Bookkeeper** | Verifies anchors, enforces DAG invariants, stamps provenance | Yes (sole writer) | Not implemented |
+| **Reasoning (SEAR)** | Read-only synthesis with exact span attribution | No | `sear/processor.py`, `scripts/corpus_generate.py` |
+
+The Reasoning layer may feed **proposals** back to discovery, but never writes canonical edges directly.
+
+---
+
+## Corpus tier
+
+Each GIN node holds a **four-tier corpus stack**. This repo implements three tiers locally; the graph layer is represented as relational edge rows pending Bookkeeper admission.
+
+### Cold tier — immutable archive
+
+**Module:** `gin/corpus/cold.py`  
+**Storage:** `data/cold/{hash[0:2]}/{hash}` (content-addressed, append-only)
+
+- Documents and chunks are stored as SHA-256-addressed blobs.
+- `content_hash` on warm-tier records points back to cold storage.
+- Enables tamper-evident provenance and Merkle manifest sync in the federation design.
+
+### Warm tier — structured records + full-text
+
+**Module:** `gin/corpus/warm.py`  
+**Storage:** Postgres tables `documents`, `chunks`, `edges`, `ingest_runs`
+
+- Document metadata: outlet, title, source URI, ingest timestamp.
+- Chunk records: text, `head_sentence`, `eval_layer`, `eval_tag`, `content_hash`.
+- Epistemic edges between chunks with typed relationships.
+- Generated `tsvector` column on `chunks.text` for BM25-style sparse retrieval.
+
+### Hot tier — dense embeddings
+
+**Module:** `gin/corpus/hot.py`  
+**Storage:** `chunks.embedding vector(384)` with HNSW index
+
+- Model: `sentence-transformers/all-MiniLM-L6-v2`
+- Embeddings computed at ingest time; query embedding at retrieval time.
+- Cosine distance search via pgvector.
+
+### Graph layer (planned)
+
+Target: Neo4j or Oxigraph for cross-corpus divergence queries. Currently, `edges` in Postgres serves the PoC; Bookkeeper admission will gate promotion to canonical graph state.
+
+---
+
+## Retrieval and synthesis
+
+**Module:** `gin/corpus/retrieve.py`
+
+### Hybrid retrieval
+
+Two parallel searches merge via **Reciprocal Rank Fusion** (k=60):
+
+1. **Dense** — pgvector cosine distance on chunk embeddings.
+2. **Sparse** — `plainto_tsquery` + `ts_rank` on generated `tsvector`.
+
+Optional filters (e.g. `eval_layer: realism`) apply to both legs.
+
+### Synthesis bundling
+
+`retrieve_for_synthesis()` expands seed hits into a `SynthesisBundle`:
+
+1. Retrieve top-`k_seed` chunks.
+2. Fetch `contradicts` and `cites` edges among seeds.
+3. Pull neighbor chunks linked by those edges.
+4. Classify mode:
+   - **divergent** — if any `contradicts` edge exists among seeds, or top hits are close in RRF score but from different outlets/documents.
+   - **convergent** — otherwise.
+5. Boost RRF scores for paired chunks; cap at `k_max`.
+
+**Module:** `gin/corpus/materialize.py` orders pair-adjacent hits, builds a SEAR `Corpus`, and computes `required_doc_groups` — frozensets of doc indices that must both be quoted when a `contradicts` edge links them.
+
+**Module:** `gin/corpus/prompts.py` assembles a metadata-only source manifest (chunk bodies live in the SEAR corpus, not the prompt) plus mode-specific task instructions.
+
+---
+
+## SEAR constrained decoding
+
+**Modules:** `sear/corpus.py`, `sear/processor.py`, `sear/connectives.py`
+
+### Corpus as grammar
+
+`Corpus` indexes each document as a token-id sequence and builds `start_index: token_id → [(doc_id, position), ...]`. The logits processor consults this index at every decode step; spans copy token-by-token from real corpus positions, sidestepping cross-document BPE boundary issues for the baseline.
+
+### Cursor finite-state machine
+
+`ExtractiveCopyConstraint` tracks three modes:
+
+| Mode | Behavior |
+|------|----------|
+| `BOUNDARY` | May start a new extractive span, emit EOS, or (after first closed span) emit connectives / cite markers |
+| `IN_SPAN` | Advance cursors; legal tokens = union of `continuation(doc, pos)` across live cursors |
+| `IN_CONNECTIVE` | Walk multi-token connective phrases (`but`, `whereas`, `on the other hand`, …) |
+
+On each step, all non-allowed vocabulary positions are masked to `-1e30`.
+
+### Span lifecycle
+
+1. **Start** — token must appear in `start_index` at an unused position.
+2. **Continue** — cursors fan out across documents sharing the prefix; prune when tokens diverge.
+3. **Close** — at `min_span_len`, allow `|` delimiter or EOS; record `Segment` with `(doc_id, start, end)` sources.
+4. **Divergence auto-close** — when `close_on_doc_divergence=True`, close early if cursors drop from multiple source documents to a subset (divergent mode).
+
+### Connectives and citations
+
+- **Connectives** — tokenizer-aligned phrase inventory stratified into contrastive, additive, and concessive categories; gated by edge type at materialisation time; only available after at least one closed extractive span.
+- **Cite markers** — `[1]`, `[2]`, … mapped to doc indices; emitted after spans to attribute bracket-style references.
+- **Used positions** — `(doc_id, position)` tuples are consumed after span close to prevent verbatim reuse of the same source span.
+
+### Attribution render
+
+`constraint.render(detok)` produces human-readable output:
+
+```
+"Emergency services confirmed 142 people received treatment"[1]  <- EXACT: CentralWire[12:24] [steered]
+  |  however
+"Emergency services confirmed 98 people received treatment"[2]  <- EXACT: MetroDaily[12:24] [steered]
+```
+
+`AMBIGUOUS` tags spans whose cursors survived from multiple documents at close time. `[steered]` / `[divergence-steered]` tags indicate the span start was guided by a retrieval heuristic rather than freely chosen by the model; no tag means free selection.
+
+---
+
+## Layered provenance record
+
+The "honest by architecture" property of SEAR applies precisely to the generation layer: given the retrieved corpus, output is verbatim extraction with exact span attribution. Three additional layers influence the output and each now contributes to a structured provenance record emitted alongside the attribution.
+
+### Retrieval manifest
+
+**Module:** `gin/corpus/retrieval_manifest.py`
+**Storage:** `data/retrieval_manifests/{hash[0:2]}/{hash}.json` (content-addressed)
+
+At synthesis time, `build_retrieval_manifest(query, bundle)` serialises the query string, its SHA-256 hash, synthesis mode, edge types present, and per-chunk retrieval ranks and RRF scores into a `RetrievalManifest`. The manifest is content-hashed — identical retrieval events produce the same hash and are stored once. `materialize_from_synthesis()` returns the manifest as a fourth value and stores `manifest_hash` on `SynthesisContext`.
+
+A **retrieval confidence floor** (`RETRIEVAL_CONFIDENCE_FLOOR = 0.010`) causes `retrieve_for_synthesis()` to raise `RetrievalConfidenceError` when the top RRF score falls below the absolute threshold, analogous to the zero-cursor grounding failure signal in SEAR. This prevents low-confidence retrieval from silently producing attributed-but-misleading output.
+
+### Edge-type-gated connectives
+
+**Module:** `sear/connectives.py`
+
+The connective inventory is stratified into `CONTRASTIVE_PHRASES`, `ADDITIVE_PHRASES`, and `CONCESSIVE_PHRASES`. `phrases_for_edge_types(edge_type_set)` selects the appropriate subset based on the epistemic relationships present in `bundle.edges`: a `contradicts` edge restricts the model to contrastive connectives; a `cites` edge admits additive and concessive phrases. The selected phrase set is built into the connective inventory at materialisation time and stored on `SynthesisContext` alongside `active_edge_types`. Connective framing is now constrained by the typed graph rather than free model choice.
+
+### Steering guidance tags
+
+**Module:** `sear/processor.py`
+
+`Segment` carries a `guidance` field (`""` free, `"steered"`, `"divergence-steered"`). In `_begin_span`, the opening cursor position is checked against `preferred_starts` and `divergence_starts`; the guidance string is recorded and attached to the closed segment. `render()` appends `[steered]` or `[divergence-steered]` to the attribution line, making the distinction between a model-chosen span and a heuristic-steered span visible in the output.
+
+### Synthesis manifest
+
+**Module:** `gin/corpus/synthesis_manifest.py`
+
+`render_synthesis_manifest(query, ctx, segments, render_output, retrieval_manifest=...)` assembles a single structured text record covering all four layers:
+
+```
+=== Synthesis Manifest ===
+
+--- Retrieval ---   manifest hash, mode, per-chunk ranks, confidence floor verdict
+--- Graph ---       active edges, required doc groups, groups-satisfied check
+--- Steering ---    connective mode (with edge-type derivation), preferred/forbidden starts
+--- Generation ---  span count, free vs steered vs divergence-steered breakdown
+--- Attribution --- verbatim render() output with [steered] tags
+```
+
+`scripts/corpus_generate.py` prints this record after every generation run.
+
+---
+
+## End-to-end data flow
+
+```
+YAML / ingest
+    → cold.store(bytes)           # content hash
+    → warm.upsert_document/chunk  # metadata + tsv
+    → hot.embed_and_store         # vector(384)
+
+Query
+    → retrieve_for_synthesis
+    → materialize_from_synthesis  # Corpus + SynthesisContext
+    → build_synthesis_prompt      # manifest + task
+    → ExtractiveCopyConstraint    # LogitsProcessor on llama.cpp
+    → finalize() + render()       # attribution record
+```
+
+**Entry point:** `scripts/corpus_generate.py`
+
+---
+
+## Database schema
+
+Defined in `docker/init-db.sql`:
+
+```
+documents
+  doc_id UUID PK
+  content_hash TEXT UNIQUE
+  outlet, title, source_uri, source_type, ingested_at
+
+chunks
+  chunk_id TEXT PK
+  doc_id → documents
+  text, head_sentence, eval_layer, eval_tag, content_hash
+  embedding vector(384)
+  tsv tsvector GENERATED
+
+edges
+  src_chunk_id, dst_chunk_id → chunks
+  edge_type, note
+  UNIQUE (src, dst, type)
+
+ingest_runs
+  run_id, status, stats_json, timestamps
+```
+
+Indexes: GIN on `tsv`, HNSW on `embedding`, B-tree on `eval_layer` and `doc_id`.
+
+---
+
+## Module map
+
+```
+GIN/
+├── gin/
+│   └── corpus/
+│       ├── cold.py                # SHA-256 blob store
+│       ├── warm.py                # Postgres CRUD, edges, ingest runs
+│       ├── hot.py                 # SentenceTransformer embeddings
+│       ├── db.py                  # Connection helpers, env config
+│       ├── models.py              # ChunkHit, SynthesisBundle, SynthesisContext, …
+│       ├── ingest.py              # YAML → tiered ingest pipeline
+│       ├── corpus_manager.py      # Local JSONL/txt ingest + immutable store
+│       ├── manifest.py            # Versioned snapshot manifests
+│       ├── retrieve.py            # Hybrid search + synthesis bundling + RetrievalConfidenceError
+│       ├── materialize.py         # ChunkHit[] → sear.Corpus + SynthesisContext
+│       ├── divergence.py          # Divergence zone + forbidden-start computation
+│       ├── relevance.py           # Query-sentence match scoring for span steering
+│       ├── prompts.py             # Synthesis prompt templates
+│       ├── retrieval_manifest.py  # Content-addressed retrieval event record
+│       └── synthesis_manifest.py  # Human-readable layered provenance render
+├── sear/
+│   ├── corpus.py            # Token-indexed document store
+│   ├── processor.py         # ExtractiveCopyConstraint FSM + Segment.guidance
+│   ├── connectives.py       # Stratified connective inventory (contrastive/additive/concessive)
+│   └── bias.py              # BiasedGINLogitsProcessor (logit nudge layer)
+├── scripts/                 # CLI entry points
+├── tests/                   # pytest suite
+├── data/
+│   ├── synthetic/           # YAML eval corpus
+│   ├── cold/                # Content-addressed blobs (gitignored content)
+│   └── retrieval_manifests/ # Content-addressed retrieval event records
+└── docker/
+    ├── docker-compose.yml   # pgvector Postgres
+    └── init-db.sql          # Schema bootstrap
+```
+
+---
+
+## Node topology (target deployment)
+
+```mermaid
+flowchart TB
+    T3A["Tier 3\nPhone / laptop\n1B–8B quantized"]
+    T3B["Tier 3\nChromebook"]
+    T2["Tier 2 relay\nfairlady\n7B–14B + anchor cache"]
+    T1A["Tier 1\nUniversity / archive\n14B–70B + full corpus"]
+    T1B["Tier 1\nResearch consortium"]
+
+    T3A --> T2
+    T3B --> T2
+    T2 -->|"gRPC / QUIC\nMerkle diff sync"| T1A
+    T2 --> T1B
+    T1A <-->|"divergence exchange"| T1B
+```
+
+| Tier | Corpus | Inference | Federation role |
+|------|--------|-----------|-----------------|
+| **1** | Full hot/warm/cold/graph | Large local model + SEAR adapter | Anchor custodian; publishes diffs |
+| **2** | Partial cache | Medium model on always-on relay | Cache-first routing; upstream delegation |
+| **3** | Personal cache + annotations | Small quantized model | Offline-first client; queues on disconnect |
+
+Federation syncs **anchor metadata** (topic fingerprints, cursor density, staleness) via Merkle-tree diffing — not full corpus transfer. Each node retains sovereignty over its own cold archive.
+
+---
+
+## Build phases
+
+### Phase 1 — Dense baseline (current)
+
+Prove SEAR behavior on stock Mistral with grammar-constrained extractive synthesis:
+
+- ✅ `ExtractiveCopyConstraint` with cursor fan-out, pruning, connectives, cites
+- ✅ Corpus tier PoC (Postgres + pgvector + cold store)
+- ✅ Hybrid retrieval and divergent/convergent synthesis modes
+- ✅ Live generation via `llama-cpp-python`
+- ✅ Layered provenance record (retrieval manifest, guidance tags, synthesis manifest)
+- ✅ Edge-type-gated connective vocabulary
+- ✅ Retrieval confidence floor (`RetrievalConfidenceError`)
+
+**Validation:** `pytest`, `python scripts/sear_phase1.py --selftest`
+
+### Phase 2 — Bookkeeper separation
+
+- Canonical graph admission gate
+- Cartographer proposals vs verified edges
+- Reasoning layer strictly read-only on graph state
+
+### Phase 3 — Federation
+
+- Two-node divergence demo (inter-corpus, same machinery)
+- Merkle diff sync of anchor metadata
+- Zero-cursor routing to peer nodes
+- SEAR grounding rate measurement vs RAG baseline
+
+### Phase 4 — SEAR training loop (Tier 1)
+
+Four-stage training per [docs/GIN_Node_Architecture_v1.md](docs/GIN_Node_Architecture_v1.md):
+
+1. Anchor extraction with retrieval traces
+2. Grammar-constrained SFT (`citation-before-claim`)
+3. Contrastive divergence pairs
+4. RLHF/DPO reward pass penalizing false synthesis of conflict
+
+---
+
+## Extension points
+
+| Hook | Location | Purpose |
+|------|----------|---------|
+| Embedding model | `gin/corpus/hot.py` `EMBEDDING_MODEL` | Swap retriever for domain-specific encoders |
+| Connective phrases | `sear/connectives.py` `CONTRASTIVE_PHRASES` / `ADDITIVE_PHRASES` / `CONCESSIVE_PHRASES` | Extend per-category connective vocabulary |
+| Connective gating | `sear/connectives.py` `phrases_for_edge_types()` | Map new edge types to connective categories |
+| Ambiguity threshold | `gin/corpus/retrieve.py` `AMBIGUITY_SCORE_DELTA` | Tune divergent mode sensitivity |
+| Retrieval confidence floor | `gin/corpus/retrieve.py` `RETRIEVAL_CONFIDENCE_FLOOR` | Minimum absolute RRF score before synthesis is declined |
+| `min_span_len` | `ExtractiveCopyConstraint` constructor | Minimum tokens before span close |
+| Eval layers | `gin/corpus/models.py` `EvalLayer` | Filter retrieval / ingest by corpus slice |
+| Zero-cursor fallback | `sear/processor.py` | Federation routing (planned) |
+| Retrieval manifest storage | `gin/corpus/retrieval_manifest.py` `retrieval_manifests_dir()` | Override manifest storage root |
+
+---
+
+## Related documents
+
+| Document | Focus |
+|----------|-------|
+| [docs/GIN_Node_Architecture_v1.md](docs/GIN_Node_Architecture_v1.md) | Tier 1/2/3 specs, SEAR training loop, federation protocol |
+| [docs/GIN_ENG_01_SEAR_PoC_Spec.md](docs/GIN_ENG_01_SEAR_PoC_Spec.md) | SEAR proof-of-concept engineering spec |
+| [docs/GIN_The_Whole_Frame.md](docs/GIN_The_Whole_Frame.md) | Program-level synthesis and roadmap honesty |
+| [docs/GIN_02_Productive_Divergence.md](docs/GIN_02_Productive_Divergence.md) | Divergence-as-feature thesis |

@@ -16,7 +16,7 @@ register: conceptual
 
 MOCAP addresses content by what it *is*, not where it lives. Each chunk of corpus material is identified by a cryptographic hash of its contents. A node requesting material asks for a hash, not a location; any peer holding that chunk can serve it; the requester verifies the chunk against the hash on receipt. This is content addressing in the established sense (IPFS, Reticulum, named-data networking), credited to that literature rather than claimed as novel.
 
-Content addressing earns its place in GIN for two reasons. First, **integrity**: a chunk that hashes correctly is the chunk that was published, which matters acutely given that every guarantee floats on corpus integrity ([[GIN_04_TRAC]], [[GIN_07_Governance_Validity]]). Second, **link tolerance**: on intermittent, low-bandwidth links, being able to fetch a verified chunk from whatever peer is reachable — rather than from a specific origin server — is what makes the network function at all.
+Content addressing earns its place in GIN for two reasons. First, **integrity**: a chunk that hashes correctly is the chunk that was published, which matters acutely given that every guarantee floats on corpus integrity ([[GIN_04_SEAR]], [[GIN_07_Governance_Validity]]). Second, **link tolerance**: on intermittent, low-bandwidth links, being able to fetch a verified chunk from whatever peer is reachable — rather than from a specific origin server — is what makes the network function at all.
 
 ---
 
@@ -36,7 +36,7 @@ A content-addressed chunk is self-verifying and origin-independent. That means i
 
 ## Related
 
-[[GIN_00_Reader]] · [[GIN_04_TRAC]] · [[GIN_06_Mule_Architecture]] · [[GIN_ENG_00_Engineering_Register]]
+[[GIN_00_Reader]] · [[GIN_04_SEAR]] · [[GIN_06_Mule_Architecture]] · [[GIN_ENG_00_Engineering_Register]]
 
 ## Back to Vault
 

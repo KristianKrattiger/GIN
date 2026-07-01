@@ -26,7 +26,7 @@ register: conceptual
 
 **Steelman.** A node faithfully grounded in a captured corpus produces confident, well-sourced falsehood. The guarantee is hollow.
 
-**Answer.** Conceded as the defining limit, lifted into the value proposition rather than buried ([[GIN_04_TRAC]], [[GIN_07_Governance_Validity]]). GIN promises legibility and governance of corpus politics, not truth.
+**Answer.** Conceded as the defining limit, lifted into the value proposition rather than buried ([[GIN_04_SEAR]], [[GIN_07_Governance_Validity]]). GIN promises legibility and governance of corpus politics, not truth.
 
 **Unsolved.** Corpus integrity is a governance property the architecture cannot technically enforce.
 
@@ -56,7 +56,7 @@ register: conceptual
 
 **Steelman.** For empirical science, a verified knowledge web competes with established indexes, preprint servers, and institutional repositories that already work.
 
-**Answer.** The differentiators are structural fidelity (an agent cannot fabricate a citation or result, [[GIN_04_TRAC]]), full provenance and derivation chains, surfaced negative results held in institutional corpora, and unified content-addressed traversal across fields and institutions ([[GIN_02_Productive_Divergence]], [[GIN_09_Agentic_Layer]]). It is not a better index; it is a substrate agents can synthesise over without hallucinating.
+**Answer.** The differentiators are structural fidelity (an agent cannot fabricate a citation or result, [[GIN_04_SEAR]]), full provenance and derivation chains, surfaced negative results held in institutional corpora, and unified content-addressed traversal across fields and institutions ([[GIN_02_Productive_Divergence]], [[GIN_09_Agentic_Layer]]). It is not a better index; it is a substrate agents can synthesise over without hallucinating.
 
 **Unsolved.** Adoption. Institutions with working repositories must be given enough value to integrate at the GIN layer, and the boundary between "needs the model" and "needs only retrieval" is undefined.
 
@@ -92,7 +92,7 @@ register: conceptual
 
 ## Related
 
-[[GIN_00_Reader]] · [[GIN_03_Node_Identity]] · [[GIN_04_TRAC]] · [[GIN_07_Governance_Validity]] · [[GIN_09_Agentic_Layer]] · [[GIN_10_Epistemic_Council]]
+[[GIN_00_Reader]] · [[GIN_03_Node_Identity]] · [[GIN_04_SEAR]] · [[GIN_07_Governance_Validity]] · [[GIN_09_Agentic_Layer]] · [[GIN_10_Epistemic_Council]]
 
 ## Back to Vault
 

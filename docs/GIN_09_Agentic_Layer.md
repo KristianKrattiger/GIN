@@ -8,13 +8,13 @@ register: conceptual
 
 # GIN 09 — Agentic Layer
 
-> Other AI agents consuming GIN as a substrate. In v0.3 this was a footnote to [[GIN_04_TRAC|TRAC]]'s friction dial. v0.4 makes it a first-class surface with its own access model, its own enforcement boundary, and its own governance — because at scale, agentic consumption is where GIN's guarantees are most stressed.
+> Other AI agents consuming GIN as a substrate. In v0.3 this was a footnote to [[GIN_04_SEAR|SEAR]]'s friction dial. v0.4 makes it a first-class surface with its own access model, its own enforcement boundary, and its own governance — because at scale, agentic consumption is where GIN's guarantees are most stressed.
 
 ---
 
 ## What agents do with GIN
 
-GIN is a knowledge substrate any agentic workflow can query rather than relying on a generic model or a commercial search index. The value an agent gets is provenance and divergence surfaced automatically: it does not have to do its own source triangulation, and it cannot (under [[GIN_04_TRAC]]) be handed a fabricated citation or an ungrounded claim.
+GIN is a knowledge substrate any agentic workflow can query rather than relying on a generic model or a commercial search index. The value an agent gets is provenance and divergence surfaced automatically: it does not have to do its own source triangulation, and it cannot (under [[GIN_04_SEAR]]) be handed a fabricated citation or an ungrounded claim.
 
 The two modes ([[GIN_02_Productive_Divergence]]) give agents two different substrates:
 
@@ -37,7 +37,7 @@ Human users are somewhat self-limiting. Agents are not. At scale, agentic consum
 
 1. **Query volume.** Many concurrent agents stress federation routing ([[GIN_03_Node_Identity]]) and transport ([[GIN_05_MOCAP]], [[GIN_06_Mule_Architecture]]) far harder than human traffic.
 2. **Adversarial probing.** Agents can probe corpus boundaries and attempt extraction systematically and tirelessly, in ways humans do not.
-3. **Friction-laundering.** An agent instructed to request maximally smooth output can strip GIN's surfaced disagreement before passing synthesis downstream. The hard rule that the dial cannot collapse a legitimate conflict ([[GIN_04_TRAC]]) holds *locally*, but the downstream consumer of the agent's output never sees the conflict the agent chose to flatten.
+3. **Friction-laundering.** An agent instructed to request maximally smooth output can strip GIN's surfaced disagreement before passing synthesis downstream. The hard rule that the dial cannot collapse a legitimate conflict ([[GIN_04_SEAR]]) holds *locally*, but the downstream consumer of the agent's output never sees the conflict the agent chose to flatten.
 4. **Poisoning incentive.** More agentic consumers means a poisoned node contaminates entire automated pipelines, not just individual human readers — raising the payoff of corpus attacks ([[GIN_07_Governance_Validity]]).
 
 ---
@@ -50,7 +50,7 @@ v0.4 answers these pressures with three constraints, in increasing order of arch
 
 **Inherited, restricted permissions.** An agent inherits its operating node's permissions; it cannot query beyond what that node is already entitled to see. Permission disputes stay inside the existing governance framework rather than spawning a parallel one.
 
-**Two access paths, both governed.** v0.3 leaned toward GIN-*native* agents only — agents built on TRAC so that grounding and structural-fidelity guarantees apply by default, with the friction dial controlled by GIN's rules and no dependency on third-party agent frameworks that could change or introduce their own alignment properties. v0.4 keeps the native path but adds a pragmatic second path that preserves the same control: an **agnostic, restrictive MCP server** that institutions connect their existing agent frameworks to.
+**Two access paths, both governed.** v0.3 leaned toward GIN-*native* agents only — agents built on SEAR so that grounding and structural-fidelity guarantees apply by default, with the friction dial controlled by GIN's rules and no dependency on third-party agent frameworks that could change or introduce their own alignment properties. v0.4 keeps the native path but adds a pragmatic second path that preserves the same control: an **agnostic, restrictive MCP server** that institutions connect their existing agent frameworks to.
 
 ---
 
@@ -77,7 +77,7 @@ Two principles govern the controls. First, **the behavioural criteria are publis
 
 ## Related
 
-[[GIN_00_Reader]] · [[GIN_02_Productive_Divergence]] · [[GIN_04_TRAC]] · [[GIN_07_Governance_Validity]] · [[GIN_10_Epistemic_Council]]
+[[GIN_00_Reader]] · [[GIN_02_Productive_Divergence]] · [[GIN_04_SEAR]] · [[GIN_07_Governance_Validity]] · [[GIN_10_Epistemic_Council]]
 
 ## Back to Vault
 

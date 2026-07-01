@@ -1,39 +1,254 @@
 # GIN — Grounded Intelligence Network
 
-## What this is
+GIN is a federation of independent, place-rooted reasoning nodes that ground every claim in a traceable corpus, hold their disagreements legible instead of dissolving them, and arrive at convergence — when they do — relationally rather than by central decree.
 
-GIN is a federation of independent, place-rooted reasoning nodes that ground every claim in a traceable corpus, hold their disagreements legible instead of dissolving them, and arrive at convergence — when they do — relationally rather than by central decree. It solves the problem of language model outputs that cannot be traced to verifiable source material: attribution in GIN is exact by construction, enforced at decode time, not inferred post-hoc from attention weights. Édouard Glissant's right to opacity — the refusal to treat total transparency as a condition of participation — is the philosophical charter for the network's design: nodes relate across their differences without being required to expose or homogenize their corpora.
+Attribution in GIN is **exact by construction**: enforced at decode time via cursor-based copy constraints, not inferred post-hoc from attention weights. Édouard Glissant's *right to opacity* — the refusal to treat total transparency as a condition of participation — is the philosophical charter: nodes relate across their differences without being required to expose or homogenize their corpora.
+
+For system design, data flow, and module-level detail, see **[architecture.md](architecture.md)**. Broader program documents live in [`docs/`](docs/).
+
+---
+
+## What this repository contains
+
+This repo is the **Phase 1 engineering scaffold**: a working corpus tier, hybrid retrieval, and SEAR constrained decoding on stock Mistral via `llama-cpp-python`. It proves extractive synthesis with span-level attribution before federation, graph admission, or attention surgery.
+
+| Package | Role |
+|---------|------|
+| [`sear/`](sear/) | SEAR inference core — token-indexed `Corpus`, `ExtractiveCopyConstraint` logits processor, stratified connective inventory, `BiasedGINLogitsProcessor` |
+| [`gin/corpus/`](gin/corpus/) | Corpus tier — cold/warm/hot storage, ingest, hybrid retrieval, synthesis bundling, layered provenance records |
+| [`scripts/`](scripts/) | CLI entry points for ingest, query, materialization, and live generation |
+| [`tests/`](tests/) | Unit tests for processor, retrieval, prompts, materialization, provenance |
+| [`data/synthetic/`](data/synthetic/) | YAML eval corpus (controlled divergence, counterfactual probes) |
+| [`docker/`](docker/) | Postgres + pgvector for local development |
+
+---
 
 ## SEAR — Sparse Epistemically Anchored Reasoning
 
-SEAR is the inference discipline that makes GIN honest by architecture rather than by instruction: the model may only emit token spans that occur verbatim in the corpus, and each emitted span carries a pointer back to its source position. Live cursors `(doc_id, position)` track which source spans remain consistent with what has been emitted so far; the legal next token at each decode step is the union of whatever tokens sit at `position + 1` across all live cursors. Attribution is exact by construction — the cursor set surviving to end-of-span is precisely the set of source documents the model drew from, a different epistemic guarantee than post-hoc attention tracing. Zero live cursors is a first-class signal: it means the corpus cannot support the current continuation, and it triggers either graceful termination or federation routing to a peer node whose corpus can ground the claim.
+SEAR is the inference discipline that makes GIN honest by architecture rather than by instruction.
 
-## Architecture
+- **Sparse** — the model may only emit token spans that occur verbatim in the retrieved corpus.
+- **Anchored** — each emitted span carries a pointer `(doc_id, start_pos, end_pos)` back to source positions.
+- **Cursor tracking** — live cursors `(doc_id, position)` track which source spans remain consistent with what has been emitted; the legal next token is the union of tokens at `position + 1` across all live cursors.
+- **Zero cursors** — a first-class grounding-failure signal: the corpus cannot support the current continuation. This triggers graceful termination or (in the full design) federation routing to a peer node.
 
-SEAR operates across three layers. The Relation-Finder proposes typed epistemic edges (`cites`, `contradicts`, `supersedes`, `translated_from`) between documents or across corpora; it does not write edges. The Bookkeeper is the sole admission gate: it maintains canonical graph state, verifies anchor integrity, enforces DAG invariants, and stamps provenance — it makes nothing. The Reasoning layer is a strictly read-only consumer of the verified graph; it produces grounded answers and may feed new proposals back through the discovery pipeline, but it never writes canonical edges. This separation makes each layer independently falsifiable and prevents the reasoning model from inflating its own grounding record.
+In **divergent** synthesis mode, when sources disagree, the constraint can auto-close spans when cursors diverge across documents and require citation of both sides of a `contradicts` edge.
 
-## Node topology
+---
 
-Tier 1 nodes are institutional anchors — universities, archives, research consortia — running full four-tier corpus stacks (hot vector index, warm structured records, cold content-addressed archive, graph layer) and 14B–70B base models fine-tuned locally. Tier 2 nodes are relays: fairlady, a Beelink mini PC running EndeavourOS on the Tailscale mesh, is the reference Tier 2 deployment, sitting between household thin clients and the wider federation with a 7B–14B model and a larger anchor cache. Tier 3 nodes are handheld and household clients running 1B–8B quantized models with personal corpus caches and an offline-first sync posture. The federation propagates anchored diffs, not corpora — nodes synchronize knowledge graph metadata (topic fingerprints, cursor density estimates, staleness timestamps) via Merkle-tree diffing, so each node retains sovereignty over its own corpus while the network stays coherent.
+## Quick start
 
-## Current build status
+### Prerequisites
 
-- ✅ SEAR Phase 1 scaffold validated (self-test passes, cursor logic correct)
-- 🔲 Synthetic corpus — verify fan-out/prune under long shared spans, specify zero-cursor fallback
-- 🔲 Live Mistral integration via llama-cpp-python (~half-day from current scaffold)
-- 🔲 DRAC grounding rate measured against RAG baseline — the number that makes GIN real
-- 🔲 Two-node divergence demo — same machinery, scope dialed to inter-corpus
-- 🔲 Bookkeeper + reasoning layer separation (Phase 2)
-- 🔲 Federation routing with sync metadata (Phase 3)
+- Python 3.11+
+- Docker (for Postgres + pgvector)
+- Optional: a local GGUF model (e.g. `Mistral-7B-Instruct-v0.3.Q4_K_M.gguf`) for live generation
+
+### 1. Environment
+
+```bash
+python -m venv venv
+source venv/bin/activate          # Windows: venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+### 2. Database
+
+```bash
+cd docker
+docker compose up -d
+```
+
+Default connection: `postgresql://gin:gin@localhost:5432/gin`  
+Override with `GIN_DATABASE_URL` in a `.env` file at the repo root.
+
+### 3. Ingest the synthetic corpus
+
+```bash
+python scripts/corpus_ingest.py --source data/synthetic
+```
+
+This writes content-addressed blobs to `data/cold/`, metadata and edges to Postgres, and dense embeddings (MiniLM-L6-v2, 384-dim) into pgvector.
+
+### 3b. Ingest local corpus files with manifest snapshots
+
+```bash
+python scripts/ingest.py --input-dir data/local_corpus --format auto
+```
+
+This writes immutable blobs to `data/corpus_store/` and publishes a versioned manifest under `data/manifests/manifest_v{N}.json`.
+
+### 4. Run tests (no model required)
+
+```bash
+pytest
+```
+
+SEAR cursor logic self-test:
+
+```bash
+python scripts/sear_phase1.py --selftest
+```
+
+### 5. Query the corpus
+
+```bash
+python scripts/corpus_query.py "downtown incident hospital treatment" -k 5
+```
+
+### 6. Live constrained generation
+
+```bash
+python scripts/corpus_generate.py \
+  --model /path/to/Mistral-7B-Instruct-v0.3.Q4_K_M.gguf \
+  --query "downtown incident hospital treatment"
+```
+
+Output includes raw generated text and an **attribution record** with `EXACT` vs `AMBIGUOUS` span tags and source positions.
+
+---
+
+## Configuration
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `GIN_DATABASE_URL` | `postgresql://gin:gin@localhost:5432/gin` | Postgres connection string |
+| `GIN_COLD_PATH` | `data/cold` | Content-addressed blob store root |
+
+---
+
+## Scripts
+
+| Script | Purpose |
+|--------|---------|
+| `scripts/sear_phase1.py` | SEAR baseline — `--selftest` (no model) or `--model` for two-doc Mistral demo |
+| `scripts/corpus_ingest.py` | Load YAML corpus into cold/warm/hot tiers |
+| `scripts/ingest.py` | Ingest local JSONL/txt into immutable store + versioned manifests |
+| `scripts/corpus_query.py` | Hybrid dense + sparse retrieval (RRF merge) |
+| `scripts/corpus_to_sear.py` | Materialize retrieved chunks into a SEAR `Corpus` (debug); supports `--manifest-version` with `--all` |
+| `scripts/corpus_generate.py` | End-to-end: retrieve → prompt → constrained llama.cpp generation |
+| `scripts/corpus_wipe.py` | Reset warm-tier data (development) |
+
+---
+
+## Synthetic corpus format
+
+YAML files under `data/synthetic/` define documents and epistemic edges:
+
+```yaml
+documents:
+  - id: incident_centralwire
+    outlet: CentralWire
+    title: Downtown incident response
+    eval_layer: realism
+    chunks:
+      - |
+        RIVERPORT — Officials responded to a downtown incident...
+
+edges:
+  - src: incident_centralwire:0
+    dst: incident_metrodaily:0
+    type: contradicts
+    note: conflicting hospital and arrest counts
+```
+
+`eval_layer` values: `realism`, `counterfactual`, `out_of_scope`, `convergent`.  
+Edge types: `cites`, `contradicts`, `supersedes`, `translated_from`.
+
+---
+
+## Manifest version handoff to cursor resolver
+
+The cursor resolver must read a manifest snapshot first, then load document text by `content_hash`. It should not scan storage directly.
+
+1. Run ingestion to create a new snapshot:
+
+```bash
+python scripts/ingest.py --input-dir data/local_corpus --format auto
+```
+
+2. Pick a manifest version (for reproducibility or rollback), then pass it when materializing resolver input:
+
+```bash
+python scripts/corpus_to_sear.py --all --manifest-version 3
+```
+
+`gin.corpus.materialize.materialize_all(..., manifest_version=3)` will hydrate the SEAR corpus from `data/manifests/manifest_v3.json`. Use an older version to roll back while keeping immutable blobs and prior manifests queryable.
+
+---
+
+## Architecture at a glance
+
+SEAR operates across three layers (full design; partial implementation in this repo):
+
+1. **Cartographer** — proposes typed epistemic edges; does not write canonical graph state.
+2. **Bookkeeper** — sole admission gate for verified graph edges, anchor integrity, DAG invariants.
+3. **Reasoning** — read-only consumer of the verified graph; produces grounded answers via SEAR.
+
+Every synthesis event produces a **layered provenance record** covering four layers: retrieval (content-addressed manifest with per-chunk RRF scores), graph (active edges and required-quote groups), steering (connective mode derived from edge types, preferred/forbidden starts), and generation (verbatim span attribution with free-vs-steered tags). See **[architecture.md — Layered provenance record](architecture.md#layered-provenance-record)**.
+
+**Node topology** (target deployment):
+
+| Tier | Role | Model | Corpus |
+|------|------|-------|--------|
+| 1 | Institutional anchor | 14B–70B | Full four-tier stack |
+| 2 | Relay (e.g. fairlady) | 7B–14B | Partial cache on Tailscale mesh |
+| 3 | Handheld / household | 1B–8B quantized | Personal cache, offline-first |
+
+Federation propagates **anchored diffs**, not full corpora — Merkle-tree metadata sync preserves node sovereignty.
+
+See **[architecture.md](architecture.md)** for data-flow diagrams, module map, and schema detail.
+
+---
+
+## Build status
+
+| Item | Status |
+|------|--------|
+| SEAR Phase 1 scaffold (cursor logic, masking, attribution render) | ✅ |
+| Corpus tier (cold / warm / hot in Postgres) | ✅ |
+| Corpus Manager ingestion (local JSONL/txt, immutable store) | ✅ |
+| Versioned manifest snapshots for resolver input | ✅ |
+| Manifest-version materialization path (`--manifest-version`) | ✅ |
+| Hybrid retrieval + synthesis bundling (convergent / divergent) | ✅ |
+| Live Mistral integration via llama-cpp-python | ✅ |
+| Synthetic corpus with controlled divergence | ✅ |
+| Stratified connective vocabulary (edge-type-gated) | ✅ |
+| Steering guidance tags on attribution record | ✅ |
+| Content-addressed retrieval manifests | ✅ |
+| Retrieval confidence floor (`RetrievalConfidenceError`) | ✅ |
+| Synthesis manifest — layered provenance record | ✅ |
+| SEAR grounding rate vs RAG baseline | 🔲 |
+| Two-node divergence demo (inter-corpus) | 🔲 |
+| Bookkeeper + reasoning layer separation (Phase 2) | 🔲 |
+| Federation routing with sync metadata (Phase 3) | 🔲 |
+
+---
 
 ## Stack
 
-- Python
-- llama-cpp-python
-- Mistral-7B-Instruct-v0.3 Q4_K_M GGUF
-- Tailscale mesh
-- fairlady (Beelink mini PC, EndeavourOS) as inference host
+- **Python** — application code
+- **Postgres + pgvector** — warm metadata, full-text (`tsvector`), dense embeddings
+- **sentence-transformers** — `all-MiniLM-L6-v2` query/document embeddings
+- **llama-cpp-python** — local GGUF inference with custom `LogitsProcessor`
+- **Mistral-7B-Instruct-v0.3** (Q4_K_M GGUF) — reference model for Phase 1
+- **Tailscale** — mesh networking for Tier 2 relay topology (deployment target)
 
-## Getting started
+---
 
-See `scripts/run_phase1.py`. Model setup instructions TBD. Run tests with `pytest`.
+## Documentation
+
+| Document | Contents |
+|----------|----------|
+| [architecture.md](architecture.md) | Technical architecture — corpus tier, SEAR, layered provenance record, module map |
+| [docs/GIN_ENG_01_SEAR_PoC_Spec.md](docs/GIN_ENG_01_SEAR_PoC_Spec.md) | SEAR proof-of-concept engineering spec and staged roadmap |
+| [docs/GIN_ENG_00_Engineering_Register.md](docs/GIN_ENG_00_Engineering_Register.md) | Engineering register — unmeasured specs and promotion rule |
+| [docs/GIN_Node_Architecture_v1.md](docs/GIN_Node_Architecture_v1.md) | Node tier specification (institutional / relay / client) |
+| [docs/GIN_The_Whole_Frame.md](docs/GIN_The_Whole_Frame.md) | Program synthesis — scale, governance, philosophy |
+| [docs/GIN_00_Reader.md](docs/GIN_00_Reader.md) | Reading order for the full doc set |
+
+---
+
+## License
+
+See [docs/GIN_12_Ecosystem_Licensing.md](docs/GIN_12_Ecosystem_Licensing.md) for the ecosystem licensing posture.

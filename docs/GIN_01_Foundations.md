@@ -42,7 +42,7 @@ This is not a contradiction to hide. It is the defining tension, and v0.4 puts i
 
 ## Caliche binding
 
-GIN inherits its values from [[CALICHE_INDEX|Caliche]] rather than re-arguing them. The remnant principle — *we use remnants to create something new* — grounds [[GIN_04_TRAC|TRAC]]'s extractive synthesis. The inheritance-and-acknowledgement ethic grounds the attribution requirement. The commitment to making seams visible rather than hiding them grounds transparent balkanization (see [[GIN_07_Governance_Validity]]). The values are not invented for GIN; they are Caliche expressed as infrastructure.
+GIN inherits its values from [[CALICHE_INDEX|Caliche]] rather than re-arguing them. The remnant principle — *we use remnants to create something new* — grounds [[GIN_04_SEAR|SEAR]]'s extractive synthesis. The inheritance-and-acknowledgement ethic grounds the attribution requirement. The commitment to making seams visible rather than hiding them grounds transparent balkanization (see [[GIN_07_Governance_Validity]]). The values are not invented for GIN; they are Caliche expressed as infrastructure.
 
 ## Related
 

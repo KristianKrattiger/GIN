@@ -271,5 +271,5 @@ This is the thing that demonstrates GIN's actual thesis — not "distributed RAG
 ---
 
 *Document lives in: Monolith / GIN / Architecture*
-*Prior document: DRAC Engineering Specifications (June 2026)*
+*Prior document: SEAR Engineering Specifications (June 2026)*
 *Next: Two-Node Divergence Demo — Build Spec*

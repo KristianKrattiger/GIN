@@ -28,7 +28,7 @@ The governance body holds both gradients. That is precisely what keeps utility-d
 
 - **Empirical researchers and labs** who would never use a plurality engine but will use a verified synthesis substrate.
 - **Agentic developers** building research tools on the Tier 1-gated MCP surface with provenance guarantees ([[GIN_09_Agentic_Layer]]).
-- **Journalists and policy researchers** who need the contested-knowledge map and can now cite to source under structural fidelity ([[GIN_04_TRAC]]).
+- **Journalists and policy researchers** who need the contested-knowledge map and can now cite to source under structural fidelity ([[GIN_04_SEAR]]).
 - **Sovereign and indigenous knowledge holders** who get a venue where their knowledge is surfaced in its own terms rather than translated away — conditional, as ever, on Tier 1 admission genuinely reaching them ([[GIN_11_Comparative_Case]]).
 
 ---

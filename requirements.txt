@@ -4,5 +4,12 @@ llama-cpp-python>=0.2.0
 # Numerical
 numpy>=1.20
 
+# Corpus tier
+psycopg[binary]>=3.1
+pgvector>=0.2
+sentence-transformers>=2.2
+pyyaml>=6.0
+python-dotenv>=1.0
+
 # Dev / test
 pytest>=7.0

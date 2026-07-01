@@ -63,7 +63,7 @@ Handing the validity layer to a standing council is the right move and also a da
 
 ## Corpus integrity: the limit that defines the system
 
-[[GIN_04_TRAC|TRAC]] is structurally faithful to its corpus, which means a captured corpus produces confident, well-grounded distortion. No technical mechanism in GIN can prevent this. Corpus integrity is a *governance* property, not an engineering one.
+[[GIN_04_SEAR|SEAR]] is structurally faithful to its corpus, which means a captured corpus produces confident, well-grounded distortion. No technical mechanism in GIN can prevent this. Corpus integrity is a *governance* property, not an engineering one.
 
 This is the boundary that defines what GIN is. **GIN does not promise truth.** It promises that the politics of corpus production are made legible, locally governed, and auditable. Lifting this admission into the value proposition, rather than confining it to a vulnerabilities section, was a v0.3 priority and remains one.
 
@@ -75,7 +75,7 @@ The internet is already balkanized — through the splinternet and through conce
 
 ## Related
 
-[[GIN_00_Reader]] · [[GIN_02_Productive_Divergence]] · [[GIN_04_TRAC]] · [[GIN_09_Agentic_Layer]] · [[GIN_10_Epistemic_Council]] · [[GIN_08_Adversarial_Analysis]]
+[[GIN_00_Reader]] · [[GIN_02_Productive_Divergence]] · [[GIN_04_SEAR]] · [[GIN_09_Agentic_Layer]] · [[GIN_10_Epistemic_Council]] · [[GIN_08_Adversarial_Analysis]]
 
 ## Back to Vault
 

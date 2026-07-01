@@ -65,17 +65,17 @@ The mode is not a property the router can infer neutrally. Whether a question is
 
 ## The Architecture
 
-### TRAC — Traceable Retrieval-Augmented Compiler
+### SEAR — Sparse Epistemically Anchored Reasoning
 
-TRAC is the inference layer. It constrains generation so that a node's output is assembled from, and grounded in, material that actually exists in its verified corpus. Grammar-constrained decoding restricts the model to extractive synthesis; ungrounded generation is structurally prevented rather than discouraged. When the corpus does not support an answer, TRAC emits an explicit failure state instead of fabricating fluent text.
+SEAR is the inference layer. It constrains generation so that a node's output is assembled from, and grounded in, material that actually exists in its verified corpus. Grammar-constrained decoding restricts the model to extractive synthesis; ungrounded generation is structurally prevented rather than discouraged. When the corpus does not support an answer, SEAR emits an explicit failure state instead of fabricating fluent text.
 
-**Structural fidelity, not determinism.** The accurate claim is that output is structurally grounded in corpus material — every claim traceable to a source the node holds. TRAC does not guarantee truth, and it does not eliminate selection bias. The honest and narrow claim is all that is made.
+**Structural fidelity, not determinism.** The accurate claim is that output is structurally grounded in corpus material — every claim traceable to a source the node holds. SEAR does not guarantee truth, and it does not eliminate selection bias. The honest and narrow claim is all that is made.
 
-> *If a corpus is captured or poisoned, TRAC will output the distortion with full structural grounding and high confidence. Structural fidelity to a corrupted corpus faithfully reproduces the corruption. Every technical guarantee in GIN floats on top of corpus integrity, which the architecture cannot technically enforce — only govern.*
+> *If a corpus is captured or poisoned, SEAR will output the distortion with full structural grounding and high confidence. Structural fidelity to a corrupted corpus faithfully reproduces the corruption. Every technical guarantee in GIN floats on top of corpus integrity, which the architecture cannot technically enforce — only govern.*
 
-**TRAC across the two modes.** In divergent mode, the corpus holds situated accounts and cross-node synthesis surfaces attributed conflict. In convergent mode, the corpus holds verified empirical knowledge and cross-node synthesis aggregates derivation chains, experimental results, and replication records. Structural fidelity does its strongest work here — an agent cannot fabricate a citation or invent a result.
+**SEAR across the two modes.** In divergent mode, the corpus holds situated accounts and cross-node synthesis surfaces attributed conflict. In convergent mode, the corpus holds verified empirical knowledge and cross-node synthesis aggregates derivation chains, experimental results, and replication records. Structural fidelity does its strongest work here — an agent cannot fabricate a citation or invent a result.
 
-**The friction dial.** TRAC output density is adjustable: dense, fully-attributed reports for research and agent-to-agent workflows; smoother synthesis for casual human communication. The dial adjusts presentation density, never grounding, and never the surfacing of legitimate conflict. A smoother output is still structurally faithful. The constraint that the dial cannot collapse a legitimate conflict into false consensus is a hard rule, not a preference.
+**The friction dial.** SEAR output density is adjustable: dense, fully-attributed reports for research and agent-to-agent workflows; smoother synthesis for casual human communication. The dial adjusts presentation density, never grounding, and never the surfacing of legitimate conflict. A smoother output is still structurally faithful. The constraint that the dial cannot collapse a legitimate conflict into false consensus is a hard rule, not a preference.
 
 ### Node Identity
 
@@ -266,7 +266,7 @@ Research-backbone integration accelerates already-connected institutions while t
 
 The Engineering Register (GIN ENG 00) is kept strictly separate from the conceptual papers. Every item below is **unmeasured**. A claim crosses into the engineering register only when measured, not when argued. Nothing in this brief constitutes a specification.
 
-Categories awaiting measurement: MOCAP frame layout and real link-frame overhead; duty-cycle math for sub-GHz ISM radio (EU 868 MHz 1%, US 915 MHz regional caps); physical transport latency distributions and carrier scheduling; TRAC model sizes, adapter sizes, memory budgets, and latency targets; adapter-switching costs and concurrency limits; MCP server anomaly-detection thresholds; suspension and appeals workflow timing; Tier 1 standing costs, power, and storage growth; break-even volume per deployment topology.
+Categories awaiting measurement: MOCAP frame layout and real link-frame overhead; duty-cycle math for sub-GHz ISM radio (EU 868 MHz 1%, US 915 MHz regional caps); physical transport latency distributions and carrier scheduling; SEAR model sizes, adapter sizes, memory budgets, and latency targets; adapter-switching costs and concurrency limits; MCP server anomaly-detection thresholds; suspension and appeals workflow timing; Tier 1 standing costs, power, and storage growth; break-even volume per deployment topology.
 
 ---
 
@@ -277,7 +277,7 @@ Categories awaiting measurement: MOCAP frame layout and real link-frame overhead
 | GIN 01 | Foundations | Philosophical ground; public-interest reframe; Caliche binding | Conceptual |
 | GIN 02 | Productive Divergence | Core principle; agonistic pluralism; empirical/situated routing; convergent/divergent duality | Conceptual |
 | GIN 03 | Node Identity | Epistemic-professional nodes; non-merging federated adapters | Conceptual |
-| GIN 04 | TRAC | Constrained inference; structural fidelity; the two modes; the agentic friction dial | Conceptual |
+| GIN 04 | SEAR | Constrained inference; structural fidelity; the two modes; the agentic friction dial | Conceptual |
 | GIN 05 | MOCAP | Content-addressed transport over constrained links | Conceptual |
 | GIN 06 | Mule Architecture | Physical transport as a network layer; multi-modal DTN | Conceptual |
 | GIN 07 | Governance & Validity | The validity layer; the non-pluralist core; corpus governance; held by the Council | Conceptual |

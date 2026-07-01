@@ -18,9 +18,9 @@ v0.3 established the narrative reframe (GIN as public-interest knowledge infrast
 
 v0.4 adds three things that change what GIN *is*:
 
-1. **The convergent/divergent duality.** GIN is not only a plurality engine. The same infrastructure runs in two modes. In **divergent mode** it preserves and surfaces situated disagreement for political, social, historical, and culturally-weighted questions. In **convergent mode** it acts as a concentrated, institutionally-verified, high-integrity knowledge web for empirical research in mathematics and the sciences — aggregating verified knowledge rather than surfacing perspective. Same transport, same governance, same nodes; radically different epistemic behaviour depending on what is asked. See [[GIN_02_Productive_Divergence]] and [[GIN_04_TRAC]].
+1. **The convergent/divergent duality.** GIN is not only a plurality engine. The same infrastructure runs in two modes. In **divergent mode** it preserves and surfaces situated disagreement for political, social, historical, and culturally-weighted questions. In **convergent mode** it acts as a concentrated, institutionally-verified, high-integrity knowledge web for empirical research in mathematics and the sciences — aggregating verified knowledge rather than surfacing perspective. Same transport, same governance, same nodes; radically different epistemic behaviour depending on what is asked. See [[GIN_02_Productive_Divergence]] and [[GIN_04_SEAR]].
 
-2. **The agentic layer as first-class surface.** Other AI agents consuming GIN is no longer a footnote to TRAC. It is a primary product surface with its own access model, restricted to Tier 1 institutions, mediated by a GIN-native MCP server with behavioural controls, and governed rather than bolted on. See [[GIN_09_Agentic_Layer]].
+2. **The agentic layer as first-class surface.** Other AI agents consuming GIN is no longer a footnote to SEAR. It is a primary product surface with its own access model, restricted to Tier 1 institutions, mediated by a GIN-native MCP server with behavioural controls, and governed rather than bolted on. See [[GIN_09_Agentic_Layer]].
 
 3. **The GIN Epistemic Council.** The governance problem that v0.3 named as the honest centre of gravity now has an institutional answer: a standing inter-institutional body that holds the validity layer, classifies empirical vs situated, defines what falls outside both frames, and governs agentic access. This converts GIN from an architecture into an institution — with everything that implies. See [[GIN_10_Epistemic_Council]].
 
@@ -45,7 +45,7 @@ A claim only crosses from conceptual to engineering register when it has been me
 | [[GIN_01_Foundations]] | Philosophical ground; the Caliche binding; the narrative reframe | conceptual |
 | [[GIN_02_Productive_Divergence]] | The core principle; agonistic pluralism; empirical/non-empirical routing; the convergent/divergent duality | conceptual |
 | [[GIN_03_Node_Identity]] | Epistemic-professional nodes; non-merging federated adapters | conceptual |
-| [[GIN_04_TRAC]] | Constrained inference; structural fidelity; the two modes; the agentic friction dial | conceptual |
+| [[GIN_04_SEAR]] | Constrained inference; structural fidelity; the two modes; the agentic friction dial | conceptual |
 | [[GIN_05_MOCAP]] | Content-addressed transport over constrained links | conceptual |
 | [[GIN_06_Mule_Architecture]] | Physical transport as a network layer; multi-modal DTN | conceptual |
 | [[GIN_07_Governance_Validity]] | The validity layer; the non-pluralist core; corpus governance; held by the Council | conceptual |
@@ -55,7 +55,7 @@ A claim only crosses from conceptual to engineering register when it has been me
 | [[GIN_11_Comparative_Case]] | Why multi-institutional governed epistemic power beats the corporate baseline | conceptual |
 | [[GIN_12_Ecosystem_Licensing]] | Scaling gradients; who buys in; corporate adoption; the licensing fork | conceptual |
 | [[GIN_ENG_00_Engineering_Register]] | Index and quarantine notice for reality-grounded specs | engineering |
-| [[GIN_ENG_01_TRAC_PoC_Spec]] | TRAC proof-of-concept specification; staged roadmap; all figures TBM | engineering |
+| [[GIN_ENG_01_SEAR_PoC_Spec]] | SEAR proof-of-concept specification; staged roadmap; all figures TBM | engineering |
 
 ---
 

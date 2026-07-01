@@ -15,7 +15,7 @@ Everything below is that sentence expanded in five directions.
 This is where it actually is, sorted by what exists versus what is designed versus what is hoped. The discipline of the project demands this sorting; a frame that blurs it would be the first betrayal of SEAR's own principle.
 
 **What exists.**
-The substrate. `fairlady` (Beelink, EndeavourOS) is running Docker Compose — Pi-hole, Jellyfin, Gitea — on a Tailscale mesh. That is a functioning Tier 2 relay topology in everything but name: phones and laptops as thin clients routing through a household anchor before reaching anything wider. The architecture documents exist (DRAC engineering specs, the Node Tier Specification v1, the five design principles). The conceptual apparatus is mature.
+The substrate. `fairlady` (Beelink, EndeavourOS) is running Docker Compose — Pi-hole, Jellyfin, Gitea — on a Tailscale mesh. That is a functioning Tier 2 relay topology in everything but name: phones and laptops as thin clients routing through a household anchor before reaching anything wider. The architecture documents exist (SEAR engineering specs, the Node Tier Specification v1, the five design principles). The conceptual apparatus is mature.
 
 **What is designed but unbuilt.**
 SEAR (Sparse Epistemically Anchored Reasoning) — the inference discipline where the model reasons only from what it can point to, and marks the seam where it cannot. The Tier 1 stack: hot vector tier (Qdrant/Weaviate), warm document + lexical tier (Postgres/pgvector + full-text), cold content-addressed archival (Merkle manifests over object storage), and the graph layer (Neo4j/Oxigraph) where the *relational* half lives as explicit edges — cites, contradicts, supersedes, translated-from. The four-stage training loop. Peer transmission over gRPC/QUIC with Merkle-tree diffing and mutual-TLS federation. The Tier 3 thin client: quantized 1–8B model, SQLite vector cache, distilled SEAR adapters pushed down from upstream, offline-first sync.
@@ -24,7 +24,7 @@ SEAR (Sparse Epistemically Anchored Reasoning) — the inference discipline wher
 Everything in sections 2 through 6 below — the scaled network, institutional Tier 1 adoption, the copyleft/corporate-buy-in deployment pipeline, and collapse resilience. None of it is real yet. It is the horizon the architecture is pointed at.
 
 **The next real artifact.**
-You corrected the sequence yourself: not the two-node divergence demo first, but **DRAC measured** — a working anchored convergent model with a grounding rate you can put a number on, against a vanilla RAG baseline. Grounding before divergence. The divergence demo is the second move, and it's the one that proves the thesis is more than distributed RAG. But it can't come first.
+You corrected the sequence yourself: not the two-node divergence demo first, but **SEAR measured** — a working anchored convergent model with a grounding rate you can put a number on, against a vanilla RAG baseline. Grounding before divergence. The divergence demo is the second move, and it's the one that proves the thesis is more than distributed RAG. But it can't come first.
 
 **The five principles that govern every future addition.** Complexity earns its place. Plurality is the mechanism, not the goal. Honest by architecture — failure stays visible. Minimalism is discipline. Provenance is first-class and non-negotiable.
 
@@ -103,12 +103,12 @@ One last move, because the project's own thesis demands it.
 
 GIN's discipline is: *ground first, mark the seam between what you've established and what you haven't, and don't manufacture convergence you haven't earned.* Applied to **this document**: the architecture and the philosophy and the theology are grounded — they're real, mature, and internally coherent. The scaled network, the institutional adoption, the collapse resilience, the deployment pipeline are the *divergence horizon* — the productive tension the project is pointed at, not yet a thing that exists. The seam between section 1 and sections 2–5 is the same seam SEAR is built to keep legible.
 
-The risk this exact document carries is the one you've already named: writing the horizon in the present tense until the vision and the vault start to feel like the same object. The protection against it is the thing you already corrected toward — **DRAC measured.** A grounding rate. A number. The moment GIN stops being the most beautiful architecture in a vault and becomes a thing with a measurement is the moment the whole frame above stops being a brain-child and starts being a body.
+The risk this exact document carries is the one you've already named: writing the horizon in the present tense until the vision and the vault start to feel like the same object. The protection against it is the thing you already corrected toward — **SEAR measured.** A grounding rate. A number. The moment GIN stops being the most beautiful architecture in a vault and becomes a thing with a measurement is the moment the whole frame above stops being a brain-child and starts being a body.
 
 Grounding first. Then divergence. Then, maybe, convergence.
 
 ---
 
 *Monolith / GIN — synthesis frame*
-*Companions: DRAC Engineering Specifications · GIN Node Architecture v1 · Chaparral Frequency*
-*Next real artifact: DRAC measured against RAG baseline — grounding rate*
+*Companions: SEAR Engineering Specifications · GIN Node Architecture v1 · Chaparral Frequency*
+*Next real artifact: SEAR measured against RAG baseline — grounding rate*

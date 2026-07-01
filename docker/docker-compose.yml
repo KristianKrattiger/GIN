@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: gin-postgres
+    environment:
+      POSTGRES_USER: gin
+      POSTGRES_PASSWORD: gin
+      POSTGRES_DB: gin
+    ports:
+      - "5432:5432"
+    volumes:
+      - gin_pgdata:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U gin -d gin"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  gin_pgdata:

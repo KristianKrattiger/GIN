@@ -42,9 +42,9 @@ v0.4's central conceptual addition. The same GIN infrastructure runs in two stru
 
 **Convergent mode** (empirical questions). Nodes hold *verified knowledge and data*, not perspectives. Federation aggregates concentration rather than surfacing conflict. Tier 1 nodes in this mode are research universities, national laboratories, and medical research centres — each a deep well of high-value, institutionally-verified empirical material. The output is a high-integrity synthesis with full derivation and provenance chains. The epistemic value is research acceleration. This is GIN as a concentrated, high-value knowledge and data web.
 
-The two modes share everything operational — transport ([[GIN_05_MOCAP]], [[GIN_06_Mule_Architecture]]), node architecture ([[GIN_03_Node_Identity]]), the inference layer ([[GIN_04_TRAC]]), and governance ([[GIN_07_Governance_Validity]]). They differ only in epistemic behaviour. In convergent mode the friction dial is not surfacing legitimate conflict because, by the routing decision, there is no legitimate standpoint-conflict to surface — there is a correct answer the corpus either supports or does not.
+The two modes share everything operational — transport ([[GIN_05_MOCAP]], [[GIN_06_Mule_Architecture]]), node architecture ([[GIN_03_Node_Identity]]), the inference layer ([[GIN_04_SEAR]]), and governance ([[GIN_07_Governance_Validity]]). They differ only in epistemic behaviour. In convergent mode the friction dial is not surfacing legitimate conflict because, by the routing decision, there is no legitimate standpoint-conflict to surface — there is a correct answer the corpus either supports or does not.
 
-**Why this matters for science.** Current research bottlenecks — slow and error-prone literature synthesis, scattered or unavailable replication data, unpublished negative results, the difficulty of genuine interdisciplinary synthesis — are exactly the problems a verified, content-addressed, structurally-faithful knowledge web addresses. Agentic workflows ([[GIN_09_Agentic_Layer]]) running over convergent-mode GIN can synthesise literature with full provenance at a scale impossible for human teams, surface negative results held in institutional corpora, and traverse verified corpora across fields. TRAC's structural fidelity means an agent synthesising across studies cannot hallucinate a citation or fabricate a result.
+**Why this matters for science.** Current research bottlenecks — slow and error-prone literature synthesis, scattered or unavailable replication data, unpublished negative results, the difficulty of genuine interdisciplinary synthesis — are exactly the problems a verified, content-addressed, structurally-faithful knowledge web addresses. Agentic workflows ([[GIN_09_Agentic_Layer]]) running over convergent-mode GIN can synthesise literature with full provenance at a scale impossible for human teams, surface negative results held in institutional corpora, and traverse verified corpora across fields. SEAR's structural fidelity means an agent synthesising across studies cannot hallucinate a citation or fabricate a result.
 
 ---
 
@@ -70,7 +70,7 @@ If most users default to single-node queries and never traverse the federation, 
 
 ## Related
 
-[[GIN_00_Reader]] · [[GIN_01_Foundations]] · [[GIN_04_TRAC]] · [[GIN_07_Governance_Validity]] · [[GIN_09_Agentic_Layer]] · [[GIN_10_Epistemic_Council]]
+[[GIN_00_Reader]] · [[GIN_01_Foundations]] · [[GIN_04_SEAR]] · [[GIN_07_Governance_Validity]] · [[GIN_09_Agentic_Layer]] · [[GIN_10_Epistemic_Council]]
 
 ## Back to Vault
 
