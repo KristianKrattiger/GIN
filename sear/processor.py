@@ -49,6 +49,7 @@ class ExtractiveCopyConstraint:
         span_must_start_at_sentence: bool = False,
         require_cite_after_extract: bool = False,
         stop_when_groups_satisfied: bool = False,
+        stop_after_first_extract: bool = False,
         block_eos_until_groups_satisfied: bool = False,
         force_connective_ids: Optional[frozenset[int]] = None,
         preferred_starts: Optional[set[tuple[int, int]]] = None,
@@ -79,6 +80,7 @@ class ExtractiveCopyConstraint:
         self.span_must_start_at_sentence = span_must_start_at_sentence
         self.require_cite_after_extract = require_cite_after_extract
         self.stop_when_groups_satisfied = stop_when_groups_satisfied
+        self.stop_after_first_extract = stop_after_first_extract
         self.block_eos_until_groups_satisfied = block_eos_until_groups_satisfied
         self.force_connective_ids = force_connective_ids or frozenset()
         self.preferred_starts = preferred_starts or set()
@@ -205,10 +207,23 @@ class ExtractiveCopyConstraint:
                 allowed.add(t)
         return allowed
 
+    def _eos_blocked_by_groups(self) -> bool:
+        """EOS blocking only applies while actual groups remain unsatisfied.
+
+        With no required_doc_groups, _groups_satisfied() is always False, which
+        would block EOS forever and force the decoder to ramble until
+        max_tokens.
+        """
+        return (
+            self.block_eos_until_groups_satisfied
+            and bool(self.required_doc_groups)
+            and not self._groups_satisfied()
+        )
+
     def _connective_eligible(self) -> bool:
         if not self._has_closed_extract or self._cite_gate_active:
             return False
-        if self.block_eos_until_groups_satisfied and not self._groups_satisfied():
+        if self._eos_blocked_by_groups():
             return False
         return True
 
@@ -248,7 +263,7 @@ class ExtractiveCopyConstraint:
     def _eos_permitted(self) -> bool:
         if self._cite_gate_active and self._cite_start_tokens_for_pending():
             return False
-        if self.block_eos_until_groups_satisfied and not self._groups_satisfied():
+        if self._eos_blocked_by_groups():
             return False
         return True
 
@@ -287,6 +302,8 @@ class ExtractiveCopyConstraint:
             return {self.eos_id}
 
         if self.mode == BOUNDARY:
+            if self.stop_after_first_extract and self._has_closed_extract:
+                return {self.eos_id}
             if self.stop_when_groups_satisfied and self._groups_satisfied():
                 return {self.eos_id}
             if self._cite_gate_active and self._pending_cite_docs:
@@ -378,15 +395,23 @@ class ExtractiveCopyConstraint:
         self.segments.append(Segment([tok], [], "connective"))
         self._connective_len += 1
 
-    def _maybe_auto_close_on_divergence(self) -> None:
+    def _maybe_auto_close_on_divergence(self, prev_docs: set[int]) -> None:
+        """Close a multi-doc span at the token where its cursor set forks.
+
+        Fires only when the narrowing happened at this token (not "ever since
+        span start" — that truncated spans at exactly min_span_len long after
+        the fork) and only when a close is otherwise permitted, so sentence-end
+        requirements are never bypassed. If close is not yet permitted the span
+        simply continues on the surviving cursors.
+        """
         if not self.close_on_doc_divergence:
             return
-        if self.span_len < self.min_span_len:
-            return
-        if len(self._span_start_docs) <= 1:
+        if len(prev_docs) <= 1:
             return
         current_docs = {d for d, _ in self.cursors}
-        if current_docs and len(current_docs) < len(self._span_start_docs):
+        if not current_docs or len(current_docs) >= len(prev_docs):
+            return
+        if self._span_close_permitted():
             self._close_span()
 
     def _begin_span(self, tok: int, cursors: list[tuple[int, int]]) -> None:
@@ -464,6 +489,7 @@ class ExtractiveCopyConstraint:
             self.mode = BOUNDARY
             return
 
+        prev_docs = {d for d, _ in self.cursors}
         new_cursors = []
         for (d, p) in self.cursors:
             if self.corpus.continuation(d, p) == tok:
@@ -472,7 +498,7 @@ class ExtractiveCopyConstraint:
         self.cursors = new_cursors
         self.span_len += 1
         self._cur_tokens.append(tok)
-        self._maybe_auto_close_on_divergence()
+        self._maybe_auto_close_on_divergence(prev_docs)
         if self.mode == IN_SPAN and self.span_len > 0 and not self.cursors:
             self._close_span()
             self.mode = BOUNDARY

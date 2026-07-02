@@ -64,7 +64,7 @@ SEAR is the *remnant* principle from [[CALICHE_INDEX|Caliche]] rendered as infer
 
 ## Engineering issues (not specs)
 
-- **Selection-bias measurement.** Structural fidelity does not bound selection bias. How is biased-but-grounded output detected or measured? Open.
+- **Selection-bias measurement.** Structural fidelity does not bound selection bias. Epistemic metrics (`query_relevance_rate`, `supported_irrelevance_rate`, `gold_chunk_coverage`) now measured on the synthetic eval corpus — NC meets targets on full 20-query run `20260702T012203Z` ([[GIN_ENG_02_Eval_Baseline_v1]]). Generalization beyond synthetic corpus TBM.
 - **Retrieval/synthesis boundary.** Where exactly does a query stop needing the model and need only retrieval? Undefined; sharper in convergent mode.
 - **Failure-state UX.** An explicit "the corpus does not support this" is correct but must be presented so users read it as information, not as system failure. Design problem.
 - **Grammar expressiveness vs fidelity.** A more permissive extractive grammar produces more fluent output but admits more paraphrase drift away from sources. The trade-off needs characterising.

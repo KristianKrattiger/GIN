@@ -16,6 +16,8 @@ AMBIGUITY_SCORE_DELTA = 0.15
 PAIR_SCORE_BOOST = 0.05
 DEFAULT_MIN_RRF_DELTA = 0.25
 RETRIEVAL_CONFIDENCE_FLOOR = 0.010
+DIVERGENCE_RELEVANCE_FLOOR = 0.15
+MIN_DIVERGENCE_KEYWORD_MATCHES = 2
 
 
 class RetrievalConfidenceError(Exception):
@@ -139,29 +141,66 @@ def retrieve(query: str, k: int = 15, filters: Optional[dict[str, Any]] = None) 
 def _apply_relevance_floor(hits: list[ChunkHit], min_rrf_delta: float) -> list[ChunkHit]:
     if not hits or min_rrf_delta <= 0:
         return hits
-    top = hits[0].rrf_score
+    top = max(h.rrf_score for h in hits)
     floor = top - min_rrf_delta
     return [h for h in hits if h.rrf_score >= floor]
 
 
-def _is_ambiguous(seed_hits: list[ChunkHit], edges: list[EdgeRecord]) -> bool:
-    if any(e.edge_type == "contradicts" for e in edges):
-        return True
-    if len(seed_hits) < 2:
+def _divergence_relevant(text: str, query: str) -> bool:
+    """Query-relevance test for one side of a contradicts pair.
+
+    A single shared keyword (e.g. "district" in both an election chunk and a
+    school query) is not evidence the contradiction matters to the query, so
+    for queries with enough keywords a sentence must match at least
+    MIN_DIVERGENCE_KEYWORD_MATCHES of them.
+    """
+    from .relevance import matched_keyword_count, max_sentence_score, query_keywords
+
+    if max_sentence_score(text, query) < DIVERGENCE_RELEVANCE_FLOOR:
         return False
-    top_score = seed_hits[0].rrf_score
-    outlets = {h.outlet for h in seed_hits}
-    doc_ids = {h.doc_id for h in seed_hits}
-    close_competitors = [
-        h for h in seed_hits[1:]
-        if top_score - h.rrf_score <= AMBIGUITY_SCORE_DELTA
-    ]
-    return len(close_competitors) >= 1 and (len(outlets) > 1 or len(doc_ids) > 1)
+    required = (
+        MIN_DIVERGENCE_KEYWORD_MATCHES
+        if len(query_keywords(query)) >= 3
+        else 1
+    )
+    return matched_keyword_count(text, query) >= required
+
+
+def _is_ambiguous(seed_hits: list[ChunkHit], edges: list[EdgeRecord], query: str = "") -> bool:
+    contradicts_edges = [e for e in edges if e.edge_type == "contradicts"]
+    if not query:
+        # Legacy path: no query context, fall back to blunt heuristics.
+        if contradicts_edges:
+            return True
+        if len(seed_hits) < 2:
+            return False
+        top_score = seed_hits[0].rrf_score
+        close_competitors = [
+            h for h in seed_hits[1:]
+            if top_score - h.rrf_score <= AMBIGUITY_SCORE_DELTA
+        ]
+        outlets = {h.outlet for h in seed_hits}
+        doc_ids = {h.doc_id for h in seed_hits}
+        return len(close_competitors) >= 1 and (len(outlets) > 1 or len(doc_ids) > 1)
+
+    # Divergent mode requires an actual, query-relevant contradiction. Close
+    # RRF competitors from different outlets are corroboration (the convergent
+    # success case), not divergence — see docs/nc_phase3_divergence_correctness.plan.md.
+    hit_by_id = {h.chunk_id: h for h in seed_hits}
+    for edge in contradicts_edges:
+        left = hit_by_id.get(edge.src_chunk_id)
+        right = hit_by_id.get(edge.dst_chunk_id)
+        if left is None or right is None:
+            continue
+        if _divergence_relevant(left.text, query) and _divergence_relevant(right.text, query):
+            return True
+    return False
 
 
 def _build_pairs(
     hits_by_id: dict[str, ChunkHit],
     edges: list[EdgeRecord],
+    query: str = "",
 ) -> list[tuple[ChunkHit, ChunkHit, EdgeRecord]]:
     pairs: list[tuple[ChunkHit, ChunkHit, EdgeRecord]] = []
     for edge in edges:
@@ -169,8 +208,15 @@ def _build_pairs(
             continue
         left = hits_by_id.get(edge.src_chunk_id)
         right = hits_by_id.get(edge.dst_chunk_id)
-        if left is not None and right is not None:
-            pairs.append((left, right, edge))
+        if left is None or right is None:
+            continue
+        if edge.edge_type == "contradicts" and query:
+            # Same both-sides test as _is_ambiguous, so a pair can never be
+            # front-loaded by _prioritize_hits without also flipping the mode.
+            if not (_divergence_relevant(left.text, query)
+                    and _divergence_relevant(right.text, query)):
+                continue
+        pairs.append((left, right, edge))
     return pairs
 
 
@@ -225,8 +271,9 @@ def _prioritize_hits(
     for hit in neighbors:
         _add(hit)
 
-    merged = sorted(ordered, key=lambda h: h.rrf_score, reverse=True)
-    merged = _apply_relevance_floor(merged, min_rrf_delta)
+    # Preserve insertion order (query-ranked seeds first, then neighbors)
+    # rather than re-sorting by RRF which undoes query-relevance ordering.
+    merged = _apply_relevance_floor(ordered, min_rrf_delta)
     return merged[:k_max]
 
 
@@ -261,7 +308,7 @@ def _boost_paired_scores(
             )
         else:
             boosted.append(hit)
-    return sorted(boosted, key=lambda h: h.rrf_score, reverse=True)
+    return boosted
 
 
 def retrieve_for_synthesis(
@@ -281,6 +328,16 @@ def retrieve_for_synthesis(
     if confidence_floor > 0 and seed_hits[0].rrf_score < confidence_floor:
         raise RetrievalConfidenceError(query, seed_hits[0].rrf_score, confidence_floor)
     seed_hits = _apply_relevance_floor(seed_hits, min_rrf_delta)
+
+    # Phase B: re-rank seeds by query relevance before mode detection
+    from .relevance import max_sentence_score, rerank_hits_by_query_score
+    seed_hits = rerank_hits_by_query_score(seed_hits, query)
+
+    # Phase C: drop zero-relevance seeds (keep all if none are relevant)
+    relevant_seeds = [h for h in seed_hits if max_sentence_score(h.text, query) > 0]
+    if relevant_seeds:
+        seed_hits = relevant_seeds
+
     seed_ids = [h.chunk_id for h in seed_hits]
     seed_id_set = set(seed_ids)
 
@@ -291,7 +348,7 @@ def retrieve_for_synthesis(
         neighbor_id_set = _neighbor_ids_from_seed_edges(seed_id_set, edges)
         neighbors = warm.fetch_chunks_by_ids(conn, sorted(neighbor_id_set))
 
-    mode: SynthesisMode = "divergent" if _is_ambiguous(seed_hits, edges) else "convergent"
+    mode: SynthesisMode = "divergent" if _is_ambiguous(seed_hits, edges, query) else "convergent"
 
     hits_by_id: dict[str, ChunkHit] = {h.chunk_id: h for h in seed_hits}
     for hit in neighbors:
@@ -301,13 +358,13 @@ def retrieve_for_synthesis(
         e for e in edges
         if e.src_chunk_id in hits_by_id and e.dst_chunk_id in hits_by_id
     ]
-    pairs = _build_pairs(hits_by_id, all_edges)
+    pairs = _build_pairs(hits_by_id, all_edges, query)
 
     merged = _prioritize_hits(
         seed_hits, neighbors, pairs, k_max=k_max, min_rrf_delta=min_rrf_delta
     )
     hits_by_id = {h.chunk_id: h for h in merged}
-    pairs = _build_pairs(hits_by_id, all_edges)
+    pairs = _build_pairs(hits_by_id, all_edges, query)
     hits = _boost_paired_scores(merged, pairs)
 
     return SynthesisBundle(hits=hits, edges=all_edges, mode=mode, pairs=pairs)

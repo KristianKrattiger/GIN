@@ -366,6 +366,76 @@ def test_block_eos_until_groups_satisfied():
     assert not c.groups_satisfied()
 
 
+def test_no_auto_close_after_early_fork():
+    """Auto-close fires only at the token where the cursor set narrows.
+
+    Previously a span that started on multiple docs and forked before
+    min_span_len was force-closed at the first token where span_len reached
+    min_span_len — truncating mid-sentence ("...stood at 3"). After the fork
+    the span must continue on the surviving cursors.
+    """
+    corpus = Corpus.from_texts(
+        {"A": "the fox ran fast", "B": "the dog slept all day"},
+        tokenize=_tok,
+    )
+    c = _make_constraint(corpus, close_on_doc_divergence=True)
+    # Fork happens at "fox" (span_len 2 < min_span_len 3): B drops out.
+    seq = [_VOCAB["the"], _VOCAB["fox"], _VOCAB["ran"]]
+    flat = np.zeros(_V, dtype=np.float32)
+    for i in range(len(seq)):
+        c(np.array(seq[:i], dtype=np.intc), flat.copy())
+    allowed = _step(c, seq)
+    # At "ran" (span_len 3 == min_span_len) the old code auto-closed here.
+    assert c.mode == IN_SPAN
+    assert [s for s in c.segments if s.kind == "extract"] == []
+    assert "fast" in allowed
+    # Continue to the end of doc A and close: the full span survives.
+    full = seq + [_VOCAB["fast"], _VOCAB["|"]]
+    for i in range(len(seq), len(full)):
+        c(np.array(full[:i], dtype=np.intc), flat.copy())
+    c(np.array(full, dtype=np.intc), flat.copy())
+    ext = [s for s in c.finalize() if s.kind == "extract"][0]
+    assert _detok(ext.token_ids) == "the fox ran fast"
+    assert ext.sources == [(0, 0, 4)]
+
+
+def test_auto_close_at_fork_respects_sentence_end():
+    """When span_must_close_at_sentence_end is set, a fork mid-sentence must
+    not force a close; the span continues on the surviving cursor."""
+    corpus = _make_corpus()
+    c = ExtractiveCopyConstraint(
+        corpus, 0, _VOCAB["<eos>"], _VOCAB["|"], min_span_len=3,
+        close_on_doc_divergence=True,
+        span_must_close_at_sentence_end=True,
+    )
+    # "and" is where doc A drops out; doc B continues mid-sentence.
+    seq = [_VOCAB["the"], _VOCAB["fox"], _VOCAB["ran"], _VOCAB["and"]]
+    flat = np.zeros(_V, dtype=np.float32)
+    for i in range(len(seq)):
+        c(np.array(seq[:i], dtype=np.intc), flat.copy())
+    c(np.array(seq, dtype=np.intc), flat.copy())
+    assert c.mode == IN_SPAN
+    assert [s for s in c.segments if s.kind == "extract"] == []
+
+
+def test_eos_not_blocked_without_groups():
+    """block_eos_until_groups_satisfied with no groups must not block EOS —
+    _groups_satisfied() can never become True, which deadlocked the decoder
+    into rambling until max_tokens."""
+    corpus = _make_corpus()
+    c = ExtractiveCopyConstraint(
+        corpus, 0, _VOCAB["<eos>"], _VOCAB["|"], min_span_len=3,
+        block_eos_until_groups_satisfied=True,
+    )
+    seq = [_VOCAB["the"], _VOCAB["fox"], _VOCAB["ran"], _VOCAB["|"]]
+    flat = np.zeros(_V, dtype=np.float32)
+    for i in range(len(seq)):
+        c(np.array(seq[:i], dtype=np.intc), flat.copy())
+    c(np.array(seq, dtype=np.intc), flat.copy())
+    allowed = _step(c, seq)
+    assert "<eos>" in allowed
+
+
 def test_stop_when_groups_satisfied():
     corpus = _make_corpus()
     c = ExtractiveCopyConstraint(
@@ -381,6 +451,23 @@ def test_stop_when_groups_satisfied():
     assert c.groups_satisfied()
     allowed = _step(c, seq)
     assert allowed == {"<eos>"}
+
+
+def test_stop_after_first_extract():
+    corpus = _make_corpus()
+    c = ExtractiveCopyConstraint(
+        corpus, 0, _VOCAB["<eos>"], _VOCAB["|"], min_span_len=3,
+        stop_after_first_extract=True,
+    )
+    seq = [_VOCAB["the"], _VOCAB["fox"], _VOCAB["ran"], _VOCAB["|"]]
+    flat = np.zeros(_V, dtype=np.float32)
+    for i in range(len(seq)):
+        c(np.array(seq[:i], dtype=np.intc), flat.copy())
+    c(np.array(seq, dtype=np.intc), flat.copy())
+    allowed = _step(c, seq)
+    assert allowed == {"<eos>"}
+    assert "the" not in allowed
+    assert "but" not in allowed
 
 
 def test_doc_steering_prefers_unquoted_group_member():

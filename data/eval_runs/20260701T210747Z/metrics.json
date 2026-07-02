@@ -1,0 +1,102 @@
+{
+  "no_continuation": {
+    "overall": {
+      "arm": "no_continuation",
+      "n_queries": 20,
+      "n_claims": 17,
+      "fabrication_rate": 0.0,
+      "grounded_precision": 1.0,
+      "attribution_coverage": 1.0,
+      "counterfactual_adherence": 0.75,
+      "failure_precision": 0.4166666666666667,
+      "failure_recall": 1.0,
+      "cross_node_within_ratio": 1.0,
+      "cross_node_violations": 0,
+      "query_relevance_rate": 0.65,
+      "gold_chunk_coverage": 0.5333333333333333,
+      "supported_irrelevance_rate": 0.0,
+      "chunk_quotation_rate": 0.16999999999999998,
+      "divergence_fidelity": 1.0,
+      "confusion": {
+        "tp": 5,
+        "fp": 7,
+        "fn": 0,
+        "tn": 8
+      }
+    },
+    "by_layer": {
+      "counterfactual": {
+        "arm": "no_continuation",
+        "n_queries": 4,
+        "n_claims": 6,
+        "fabrication_rate": 0.0,
+        "grounded_precision": 1.0,
+        "attribution_coverage": 1.0,
+        "counterfactual_adherence": 0.75,
+        "failure_precision": 0.0,
+        "failure_recall": null,
+        "cross_node_within_ratio": 1.0,
+        "cross_node_violations": 0,
+        "query_relevance_rate": 0.75,
+        "gold_chunk_coverage": 0.75,
+        "supported_irrelevance_rate": 0.0,
+        "chunk_quotation_rate": 0.30000000000000004,
+        "divergence_fidelity": null,
+        "confusion": {
+          "tp": 0,
+          "fp": 1,
+          "fn": 0,
+          "tn": 3
+        }
+      },
+      "out_of_scope": {
+        "arm": "no_continuation",
+        "n_queries": 5,
+        "n_claims": 0,
+        "fabrication_rate": null,
+        "grounded_precision": null,
+        "attribution_coverage": null,
+        "counterfactual_adherence": null,
+        "failure_precision": 1.0,
+        "failure_recall": 1.0,
+        "cross_node_within_ratio": null,
+        "cross_node_violations": 0,
+        "query_relevance_rate": 1.0,
+        "gold_chunk_coverage": null,
+        "supported_irrelevance_rate": null,
+        "chunk_quotation_rate": 0.0,
+        "divergence_fidelity": null,
+        "confusion": {
+          "tp": 5,
+          "fp": 0,
+          "fn": 0,
+          "tn": 0
+        }
+      },
+      "realism": {
+        "arm": "no_continuation",
+        "n_queries": 11,
+        "n_claims": 11,
+        "fabrication_rate": 0.0,
+        "grounded_precision": 1.0,
+        "attribution_coverage": 1.0,
+        "counterfactual_adherence": null,
+        "failure_precision": 0.0,
+        "failure_recall": null,
+        "cross_node_within_ratio": 1.0,
+        "cross_node_violations": 0,
+        "query_relevance_rate": 0.45454545454545453,
+        "gold_chunk_coverage": 0.45454545454545453,
+        "supported_irrelevance_rate": 0.0,
+        "chunk_quotation_rate": 0.2,
+        "divergence_fidelity": 1.0,
+        "confusion": {
+          "tp": 0,
+          "fp": 6,
+          "fn": 0,
+          "tn": 5
+        }
+      }
+    }
+  }
+}

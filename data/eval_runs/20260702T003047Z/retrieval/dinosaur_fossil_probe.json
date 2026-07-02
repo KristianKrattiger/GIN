@@ -1,0 +1,15 @@
+{
+  "query_id": "dinosaur_fossil_probe",
+  "query": "How old is the oldest dinosaur fossil discovered in Antarctica?",
+  "eval_layer": "out_of_scope",
+  "gold_chunk_ids": [],
+  "retrieved_chunk_ids": [
+    "out_of_scope_stub:0",
+    "school_district_report:0",
+    "labor_independent_survey:0",
+    "labor_bureau_report:0",
+    "wage_bureau_report:0"
+  ],
+  "retrieval_recall_at_k": null,
+  "retrieval_manifest_hash": "74f32bbef67027da9b46f072c0d80d96cc185a7a39cb2d6d94bd454f5f50cff4"
+}

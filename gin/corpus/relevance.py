@@ -2,9 +2,11 @@
 from __future__ import annotations
 
 import re
-from typing import Callable
+from typing import Callable, Optional
 
 from sear.corpus import Corpus, sentence_token_spans
+
+from .models import ChunkHit
 
 _STOPWORDS = frozenset({
     "a", "an", "the", "and", "or", "of", "to", "in", "for", "on", "at", "by",
@@ -67,3 +69,67 @@ def score_starts_by_sentence_match(
     if not preferred:
         preferred = {(ranked[0][0], ranked[0][1])}
     return preferred, ranked
+
+
+def max_sentence_score(text: str, query: str) -> float:
+    """Best keyword-overlap score across sentences in a chunk."""
+    keywords = query_keywords(query)
+    if not keywords:
+        return 0.0
+    best = 0.0
+    for sent in _sentence_texts(text):
+        words = set(re.findall(r"[a-z0-9]+", sent.lower()))
+        score = len(keywords & words) / max(len(keywords), 1)
+        best = max(best, score)
+    return best
+
+
+def matched_keyword_count(text: str, query: str) -> int:
+    """Most query keywords matched by any single sentence in a chunk."""
+    keywords = query_keywords(query)
+    if not keywords:
+        return 0
+    best = 0
+    for sent in _sentence_texts(text):
+        words = set(re.findall(r"[a-z0-9]+", sent.lower()))
+        best = max(best, len(keywords & words))
+    return best
+
+
+def rerank_hits_by_query_score(hits: list[ChunkHit], query: str) -> list[ChunkHit]:
+    """Order hits by max per-sentence query relevance (descending)."""
+    if not hits or not query_keywords(query):
+        return hits
+    return sorted(hits, key=lambda h: max_sentence_score(h.text, query), reverse=True)
+
+
+def score_starts_for_convergent(
+    corpus: Corpus,
+    chunk_texts: list[str],
+    query: str,
+    tokenize: Callable[[bytes], list[int]],
+    *,
+    min_score: float = 0.25,
+) -> tuple[set[tuple[int, int]], list[tuple[int, int, float]], Optional[int]]:
+    """Steer convergent decode to the top query-relevant doc only."""
+    _preferred, ranked = score_starts_by_sentence_match(
+        corpus, chunk_texts, query, tokenize, min_score=0.0
+    )
+    if not ranked:
+        return set(corpus.sentence_starts), [], None
+
+    doc_max: dict[int, float] = {}
+    for doc, _pos, score in ranked:
+        doc_max[doc] = max(doc_max.get(doc, 0.0), score)
+
+    top_doc = max(doc_max.items(), key=lambda item: (item[1], -item[0]))[0]
+    if doc_max[top_doc] < min_score:
+        top_doc = ranked[0][0]
+
+    preferred = {(d, p) for d, p, s in ranked if d == top_doc and s >= min_score}
+    if not preferred:
+        preferred = {(d, p) for d, p, _s in ranked if d == top_doc}
+    if not preferred:
+        preferred = {(ranked[0][0], ranked[0][1])}
+
+    return preferred, ranked, top_doc

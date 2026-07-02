@@ -1,0 +1,12 @@
+{
+  "query_id": "crypto_price_probe",
+  "query": "What is the current price of Bitcoin in US dollars?",
+  "eval_layer": "out_of_scope",
+  "gold_chunk_ids": [],
+  "retrieved_chunk_ids": [
+    "inflation_bureau_report:0",
+    "inflation_independent_survey:0"
+  ],
+  "retrieval_recall_at_k": null,
+  "retrieval_manifest_hash": "d993fd0d0172d95458fd46c8ace2796d35843f52b9c1db7110d5c323a3a512be"
+}

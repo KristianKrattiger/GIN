@@ -114,6 +114,127 @@ documents:
         The Mars rover mission timeline lists a sample return launch window in 2031.
         This document exists only to test out-of-corpus retrieval behavior.
 
+  - id: port_authority_brief
+    outlet: HarborAuthority
+    title: Container throughput bulletin
+    eval_layer: realism
+    eval_tag: port_realism
+    chunks:
+      - |
+        Harbor terminals handled 412,000 twenty-foot equivalent units in March.
+        Container volume rose 6 percent compared with the prior year.
+        Officials credited expanded crane capacity at the north berth.
+
+  - id: school_district_report
+    outlet: MetroSchoolBoard
+    title: Fall enrollment summary
+    eval_layer: realism
+    eval_tag: enrollment_realism
+    chunks:
+      - |
+        Fall enrollment reached 48,200 students across district campuses.
+        Kindergarten intake increased by 320 pupils over last autumn.
+        Trustees approved a budget hearing for the spring term.
+
+  - id: water_utility_update
+    outlet: RegionalWaterUtility
+    title: Reservoir storage bulletin
+    eval_layer: realism
+    eval_tag: water_realism
+    chunks:
+      - |
+        Combined reservoir storage stood at 74 percent of capacity on Sunday.
+        Conservation appeals remain in effect for suburban districts.
+        Pumping stations reported normal pressure through the week.
+
+  - id: housing_permits_office
+    outlet: CityPlanningOffice
+    title: Residential permits issued
+    eval_layer: realism
+    eval_tag: housing_realism
+    chunks:
+      - |
+        The city issued 186 residential building permits in the latest quarter.
+        Multifamily projects accounted for 62 percent of approved units.
+        Planners noted a backlog in inspection scheduling.
+
+  - id: power_grid_status
+    outlet: GridOperationsCenter
+    title: Outage restoration update
+    eval_layer: realism
+    eval_tag: power_realism
+    chunks:
+      - |
+        Crews restored power to 94 percent of affected customers within 18 hours.
+        The transmission fault originated at a substation north of the river.
+        Mutual-aid lineworkers remain on standby through the weekend.
+
+  - id: inflation_bureau_report
+    outlet: NationalPriceBureau
+    title: Regional inflation bulletin
+    eval_layer: counterfactual
+    eval_tag: inflation_probe
+    chunks:
+      - |
+        The regional consumer price index rose 2.1 percent over the past twelve months.
+        Energy costs moderated while grocery prices climbed 4 percent.
+        Statisticians said base effects faded in the latest release.
+
+  - id: inflation_independent_survey
+    outlet: IndependentPriceReview
+    title: Regional inflation bulletin
+    eval_layer: counterfactual
+    eval_tag: inflation_probe
+    chunks:
+      - |
+        The regional consumer price index rose 2.1 percent over the past twelve months.
+        Energy costs moderated while grocery prices climbed 4 percent.
+        Reviewers argued shelter costs were underweighted in the headline figure.
+
+  - id: wage_bureau_report
+    outlet: NationalLaborBureau
+    title: Wage growth bulletin
+    eval_layer: counterfactual
+    eval_tag: wage_probe
+    chunks:
+      - |
+        Average hourly earnings grew 4.8 percent year over year in the latest survey.
+        Leisure and hospitality led gains while public-sector pay lagged.
+        Analysts said nominal growth outpaced inflation modestly.
+
+  - id: wage_independent_survey
+    outlet: IndependentEconomicReview
+    title: Wage growth bulletin
+    eval_layer: counterfactual
+    eval_tag: wage_probe
+    chunks:
+      - |
+        Average hourly earnings grew 4.8 percent year over year in the latest survey.
+        Leisure and hospitality led gains while public-sector pay lagged.
+        Independent reviewers cautioned that part-time workers were undercounted.
+
+  - id: export_trade_report
+    outlet: TradeStatisticsOffice
+    title: Export volume bulletin
+    eval_layer: counterfactual
+    eval_tag: export_probe
+    chunks:
+      - |
+        Regional export volumes fell 3.2 percent in the latest monthly trade report.
+        Machinery shipments declined while agricultural exports held steady.
+        Officials cited softer demand from overseas manufacturing hubs.
+
+  - id: export_independent_review
+    outlet: IndependentTradeReview
+    title: Export volume bulletin
+    eval_layer: counterfactual
+    eval_tag: export_probe
+    chunks:
+      - |
+        Regional export volumes fell 3.2 percent in the latest monthly trade report.
+        Machinery shipments declined while agricultural exports held steady.
+        Reviewers warned that inventory drawdowns may have masked weaker demand.
+
 # chunk-level edges (first chunk of each doc unless noted)
 edges:
   - src: incident_centralwire:0

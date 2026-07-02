@@ -1,0 +1,15 @@
+{
+  "query_id": "interest_rate_probe",
+  "query": "What did the central bank decide about interest rates this quarter?",
+  "eval_layer": "out_of_scope",
+  "gold_chunk_ids": [],
+  "retrieved_chunk_ids": [
+    "inflation_bureau_report:0",
+    "labor_independent_survey:0",
+    "labor_bureau_report:0",
+    "school_district_report:0",
+    "wage_bureau_report:0"
+  ],
+  "retrieval_recall_at_k": null,
+  "retrieval_manifest_hash": "ffd950e84b1a9ab481ac858cc341b769859c02fa5b144006ec36881a0e3d9655"
+}

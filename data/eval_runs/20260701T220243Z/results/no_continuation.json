@@ -1,0 +1,460 @@
+[
+  {
+    "query_id": "incident_hospital",
+    "query": "How many people received hospital treatment after the downtown incident?",
+    "arm": "no_continuation",
+    "eval_layer": "realism",
+    "expectation": "answerable",
+    "refused": false,
+    "claims": [
+      {
+        "claim_text": "Emergency services confirmed 14",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "incident_centralwire:0",
+        "score": 1.0,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "EXACT",
+        "cited_chunk_ids": [
+          "incident_centralwire:0"
+        ]
+      },
+      {
+        "claim_text": "Emergency services confirmed 98 people received treatment at area hospitals.",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "incident_metrodaily:0",
+        "score": 1.0,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "EXACT",
+        "cited_chunk_ids": [
+          "incident_metrodaily:0"
+        ]
+      },
+      {
+        "claim_text": "Police said 11 arrests were made before midnight.",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "incident_regionalpost:0",
+        "score": 1.0,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "EXACT",
+        "cited_chunk_ids": [
+          "incident_regionalpost:0"
+        ]
+      }
+    ],
+    "eval_tag": "incident_divergence",
+    "retrieval_manifest_hash": "dc314def8d637c77e5ee8154be7a82cf88690407a2c6b8210e3932809f856dcb",
+    "retrieved_chunk_ids": [
+      "incident_regionalpost:0",
+      "incident_centralwire:0",
+      "incident_metrodaily:0",
+      "power_grid_status:0",
+      "housing_permits_office:0"
+    ],
+    "gold_chunk_ids": [
+      "incident_centralwire:0",
+      "incident_metrodaily:0",
+      "incident_regionalpost:0"
+    ],
+    "retrieval_recall_at_k": 1.0,
+    "raw_text": "Emergency services confirmed 14 [1]Emergency services confirmed 98 people received treatment at area hospitals.\n | [2]Police said 11 arrests were made before midnight.\n |",
+    "counterfactual_answer": null,
+    "contradicts_pairs": [
+      [
+        "incident_centralwire:0",
+        "incident_metrodaily:0"
+      ],
+      [
+        "incident_centralwire:0",
+        "incident_regionalpost:0"
+      ]
+    ],
+    "error": null
+  },
+  {
+    "query_id": "incident_arrests",
+    "query": "How many arrests were made before midnight after the downtown incident?",
+    "arm": "no_continuation",
+    "eval_layer": "realism",
+    "expectation": "answerable",
+    "refused": false,
+    "claims": [
+      {
+        "claim_text": "Police said 11 arrests",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "incident_metrodaily:0",
+        "score": 1.0,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "EXACT",
+        "cited_chunk_ids": [
+          "incident_metrodaily:0"
+        ]
+      },
+      {
+        "claim_text": "Emergency services confirmed 142 people received treatment at area hospitals.\nPolice said 23 arrests were made before midnight.\nThe mayor scheduled a briefing for Wednesday morning.",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "incident_centralwire:0",
+        "score": 1.0,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "EXACT",
+        "cited_chunk_ids": [
+          "incident_centralwire:0"
+        ]
+      },
+      {
+        "claim_text": "Police said 11 arrests were made before midnight.",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "incident_regionalpost:0",
+        "score": 1.0,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "EXACT",
+        "cited_chunk_ids": [
+          "incident_regionalpost:0"
+        ]
+      }
+    ],
+    "eval_tag": "incident_divergence",
+    "retrieval_manifest_hash": "61973743b746bb61e7f6a5ac7993606193099b1d48ff48c441632d6511945885",
+    "retrieved_chunk_ids": [
+      "incident_regionalpost:0",
+      "incident_centralwire:0",
+      "incident_metrodaily:0",
+      "housing_permits_office:0",
+      "transit_authority_update:0"
+    ],
+    "gold_chunk_ids": [
+      "incident_centralwire:0",
+      "incident_metrodaily:0",
+      "incident_regionalpost:0"
+    ],
+    "retrieval_recall_at_k": 1.0,
+    "raw_text": "Police said 11 arrests [2]Emergency services confirmed 142 people received treatment at area hospitals.\nPolice said 23 arrests were made before midnight.\nThe mayor scheduled a briefing for Wednesday morning. | [1]Police said 11 arrests were made before midnight.\n |",
+    "counterfactual_answer": null,
+    "contradicts_pairs": [
+      [
+        "incident_centralwire:0",
+        "incident_metrodaily:0"
+      ],
+      [
+        "incident_centralwire:0",
+        "incident_regionalpost:0"
+      ]
+    ],
+    "error": null
+  },
+  {
+    "query_id": "election_margin",
+    "query": "By how many votes did the harbor district referendum pass?",
+    "arm": "no_continuation",
+    "eval_layer": "realism",
+    "expectation": "answerable",
+    "refused": false,
+    "claims": [
+      {
+        "claim_text": "Turnout reached 58 percent of",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "election_metrodaily:0",
+        "score": 1.0,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "EXACT",
+        "cited_chunk_ids": [
+          "election_metrodaily:0"
+        ]
+      },
+      {
+        "claim_text": "Turnout reached 61 percent of registered voters.\nThe port authority said new zoning rules take effect in January.",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "election_centralwire:0",
+        "score": 1.0,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "EXACT",
+        "cited_chunk_ids": [
+          "election_centralwire:0"
+        ]
+      }
+    ],
+    "eval_tag": "election_divergence",
+    "retrieval_manifest_hash": "028ab31209de0fc7ee7bc2d444cc8e36e25eda03614fa7afbeb8415ab1962a8c",
+    "retrieved_chunk_ids": [
+      "election_metrodaily:0",
+      "election_centralwire:0",
+      "port_authority_brief:0",
+      "school_district_report:0",
+      "housing_permits_office:0"
+    ],
+    "gold_chunk_ids": [
+      "election_centralwire:0",
+      "election_metrodaily:0"
+    ],
+    "retrieval_recall_at_k": 1.0,
+    "raw_text": "Turnout reached 58 percent of [2]Turnout reached 61 percent of registered voters.\nThe port authority said new zoning rules take effect in January. |",
+    "counterfactual_answer": null,
+    "contradicts_pairs": [
+      [
+        "election_centralwire:0",
+        "election_metrodaily:0"
+      ]
+    ],
+    "error": null
+  },
+  {
+    "query_id": "election_turnout",
+    "query": "What was voter turnout in the harbor district referendum?",
+    "arm": "no_continuation",
+    "eval_layer": "realism",
+    "expectation": "answerable",
+    "refused": false,
+    "claims": [
+      {
+        "claim_text": "Turnout reached 61 percent of",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "election_centralwire:0",
+        "score": 1.0,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "EXACT",
+        "cited_chunk_ids": [
+          "election_centralwire:0"
+        ]
+      },
+      {
+        "claim_text": "Turnout reached 58 percent of registered voters.",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "election_metrodaily:0",
+        "score": 1.0,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "EXACT",
+        "cited_chunk_ids": [
+          "election_metrodaily:0"
+        ]
+      }
+    ],
+    "eval_tag": "election_divergence",
+    "retrieval_manifest_hash": "0c420e811d3207f01179fc1281024e4c55d340da71b1903a8c86445bf9f84ec4",
+    "retrieved_chunk_ids": [
+      "election_centralwire:0",
+      "election_metrodaily:0",
+      "school_district_report:0",
+      "port_authority_brief:0",
+      "inflation_independent_survey:0"
+    ],
+    "gold_chunk_ids": [
+      "election_centralwire:0",
+      "election_metrodaily:0"
+    ],
+    "retrieval_recall_at_k": 1.0,
+    "raw_text": "Turnout reached 61 percent of [1]Turnout reached 58 percent of registered voters.\n |",
+    "counterfactual_answer": null,
+    "contradicts_pairs": [
+      [
+        "election_centralwire:0",
+        "election_metrodaily:0"
+      ]
+    ],
+    "error": null
+  },
+  {
+    "query_id": "transit_ridership",
+    "query": "What was the average daily ridership in the first week of the north line extension?",
+    "arm": "no_continuation",
+    "eval_layer": "realism",
+    "expectation": "answerable",
+    "refused": false,
+    "claims": [
+      {
+        "claim_text": "The north line extension opened to passengers on March 14.\nDaily ridership on the first week averaged 18,400 boardings.",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "transit_authority_update:0",
+        "score": 1.0,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "EXACT",
+        "cited_chunk_ids": [
+          "transit_authority_update:0"
+        ]
+      }
+    ],
+    "eval_tag": "transit_realism",
+    "retrieval_manifest_hash": "0d2dc0eb6940f7cb56797fd1bea41433b9e1fdcb909e2e2d01c198fe0260ed7a",
+    "retrieved_chunk_ids": [
+      "transit_authority_update:0",
+      "power_grid_status:0",
+      "wage_independent_survey:0",
+      "port_authority_brief:0",
+      "wage_bureau_report:0"
+    ],
+    "gold_chunk_ids": [
+      "transit_authority_update:0"
+    ],
+    "retrieval_recall_at_k": 1.0,
+    "raw_text": " The north line extension opened to passengers on March 14.\nDaily ridership on the first week averaged 18,400 boardings.\n | [1] C",
+    "counterfactual_answer": null,
+    "contradicts_pairs": [],
+    "error": null
+  },
+  {
+    "query_id": "weather_winds",
+    "query": "What sustained wind speed is expected from the coastal storm system?",
+    "arm": "no_continuation",
+    "eval_layer": "realism",
+    "expectation": "answerable",
+    "refused": true,
+    "claims": [
+      {
+        "claim_text": "The sources do not support an answer.",
+        "verdict": "REFUSAL",
+        "matched_chunk_id": null,
+        "score": 0.0,
+        "node_scope": "NONE",
+        "span_type": "REFUSAL",
+        "cited_chunk_ids": []
+      }
+    ],
+    "eval_tag": "weather_realism",
+    "retrieval_manifest_hash": "617e9675701cca0dc21a4d363864c07022e8a56aec91783b3929f1aedd48a28e",
+    "retrieved_chunk_ids": [
+      "incident_centralwire:0",
+      "incident_metrodaily:0",
+      "incident_regionalpost:0",
+      "weather_service_brief:0",
+      "port_authority_brief:0",
+      "power_grid_status:0"
+    ],
+    "gold_chunk_ids": [
+      "weather_service_brief:0"
+    ],
+    "retrieval_recall_at_k": 1.0,
+    "raw_text": "The sources do not support an answer.",
+    "counterfactual_answer": null,
+    "contradicts_pairs": [],
+    "error": null
+  },
+  {
+    "query_id": "unemployment_rate",
+    "query": "What was the regional unemployment rate in the latest monthly survey?",
+    "arm": "no_continuation",
+    "eval_layer": "counterfactual",
+    "expectation": "counterfactual",
+    "refused": false,
+    "claims": [
+      {
+        "claim_text": "The regional unemployment rate stood at 3",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "labor_bureau_report:0",
+        "score": 1.0,
+        "node_scope": "CROSS_NODE",
+        "span_type": "AMBIGUOUS",
+        "cited_chunk_ids": [
+          "labor_bureau_report:0",
+          "labor_independent_survey:0"
+        ]
+      },
+      {
+        "claim_text": "The regional consumer price index rose 2.1 percent over the past twelve months.",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "inflation_bureau_report:0",
+        "score": 1.0,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "EXACT",
+        "cited_chunk_ids": [
+          "inflation_bureau_report:0"
+        ]
+      },
+      {
+        "claim_text": "Average hourly",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "wage_independent_survey:0",
+        "score": 1.0,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "EXACT",
+        "cited_chunk_ids": [
+          "wage_independent_survey:0"
+        ]
+      }
+    ],
+    "eval_tag": "unemployment_probe",
+    "retrieval_manifest_hash": "8795a7e793cd67b0dd697f6d00cbe57e079e82e7cac6d537df32e8d53fa8cddd",
+    "retrieved_chunk_ids": [
+      "labor_bureau_report:0",
+      "labor_independent_survey:0",
+      "inflation_bureau_report:0",
+      "wage_independent_survey:0",
+      "inflation_independent_survey:0"
+    ],
+    "gold_chunk_ids": [
+      "labor_bureau_report:0",
+      "labor_independent_survey:0"
+    ],
+    "retrieval_recall_at_k": 1.0,
+    "raw_text": " The regional unemployment rate stood at 3 [1] [2] The regional consumer price index rose 2.1 percent over the past twelve months.\n | [4] Average hourly earnings",
+    "counterfactual_answer": "3.7 percent",
+    "contradicts_pairs": [],
+    "error": null
+  },
+  {
+    "query_id": "interest_rate_probe",
+    "query": "What did the central bank decide about interest rates this quarter?",
+    "arm": "no_continuation",
+    "eval_layer": "out_of_scope",
+    "expectation": "out_of_scope",
+    "refused": true,
+    "claims": [
+      {
+        "claim_text": "The sources do not support an answer.",
+        "verdict": "REFUSAL",
+        "matched_chunk_id": null,
+        "score": 0.0,
+        "node_scope": "NONE",
+        "span_type": "REFUSAL",
+        "cited_chunk_ids": []
+      }
+    ],
+    "eval_tag": "interest_rate_probe",
+    "retrieval_manifest_hash": "ffd950e84b1a9ab481ac858cc341b769859c02fa5b144006ec36881a0e3d9655",
+    "retrieved_chunk_ids": [
+      "inflation_bureau_report:0",
+      "labor_independent_survey:0",
+      "labor_bureau_report:0",
+      "school_district_report:0",
+      "wage_bureau_report:0"
+    ],
+    "gold_chunk_ids": [],
+    "retrieval_recall_at_k": null,
+    "raw_text": "The sources do not support an answer.",
+    "counterfactual_answer": null,
+    "contradicts_pairs": [],
+    "error": null
+  },
+  {
+    "query_id": "sports_probe",
+    "query": "Who won the national football championship final this year?",
+    "arm": "no_continuation",
+    "eval_layer": "out_of_scope",
+    "expectation": "out_of_scope",
+    "refused": true,
+    "claims": [
+      {
+        "claim_text": "The sources do not support an answer.",
+        "verdict": "REFUSAL",
+        "matched_chunk_id": null,
+        "score": 0.0,
+        "node_scope": "NONE",
+        "span_type": "REFUSAL",
+        "cited_chunk_ids": []
+      }
+    ],
+    "eval_tag": "sports_probe",
+    "retrieval_manifest_hash": "4a47fea0fb24358dfbce361424b2ce08e8984688152af81155643692ee1f2f94",
+    "retrieved_chunk_ids": [
+      "election_metrodaily:0",
+      "election_centralwire:0",
+      "transit_authority_update:0",
+      "out_of_scope_stub:0",
+      "water_utility_update:0",
+      "power_grid_status:0"
+    ],
+    "gold_chunk_ids": [],
+    "retrieval_recall_at_k": null,
+    "raw_text": "The sources do not support an answer.",
+    "counterfactual_answer": null,
+    "contradicts_pairs": [],
+    "error": null
+  }
+]

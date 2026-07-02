@@ -6,7 +6,7 @@ import numpy as np
 from gin.corpus.divergence import compute_divergence_zones, shared_sentence_starts
 from gin.corpus.materialize import materialize_synthesis_bundle
 from gin.corpus.models import ChunkHit, EdgeRecord, SynthesisBundle
-from gin.corpus.relevance import score_starts_by_sentence_match
+from gin.corpus.relevance import score_starts_by_sentence_match, score_starts_for_convergent
 from sear.corpus import Corpus, sentence_token_spans
 from sear.processor import ExtractiveCopyConstraint, NEG_INF
 
@@ -100,6 +100,29 @@ def test_preferred_includes_both_docs_in_first_group():
     first_group = ctx.required_doc_groups[0]
     preferred_docs = {d for d, _p in ctx.preferred_starts}
     assert preferred_docs == first_group
+
+
+def test_convergent_preferred_from_top_doc_only():
+    port = _hit(
+        "port_harbor:0",
+        "Harbor cargo throughput rose 12 percent in Q2. Container volume reached 2.1 million TEU.",
+        "HarborTimes",
+    )
+    election = _hit(
+        "election_harbor:0",
+        "The harbor district mayor race tightened ahead of Tuesday's vote.",
+        "ElectionWire",
+    )
+    bundle = SynthesisBundle(hits=[election, port], edges=[], mode="convergent", pairs=[])
+    corpus, ctx = materialize_synthesis_bundle(
+        bundle,
+        _tok,
+        query="port cargo throughput container volume",
+    )
+    assert ctx.doc_index_to_hit[0].chunk_id == "port_harbor:0"
+    preferred_docs = {d for d, _p in ctx.preferred_starts}
+    assert preferred_docs == {0}
+    assert ctx.top_doc_idx == 0
 
 
 def test_ambiguous_shared_token_resolves_to_steered_doc():

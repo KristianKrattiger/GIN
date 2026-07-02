@@ -291,3 +291,40 @@ def test_corpus_sentence_ends_align_with_starts():
         assert (doc, end) in corpus.sentence_ends
         assert end >= start
 
+
+def test_steered_convergent_focus_excludes_incident_docs():
+    """Convergent query steering on transit query must not start incident lede."""
+    corpus = _make_incident_corpus()
+    transit_idx = corpus.doc_names.index("transit")
+    incident_indices = {
+        corpus.doc_names.index("central"),
+        corpus.doc_names.index("metro"),
+    }
+    north_pos = next(
+        p for d, p in corpus.sentence_starts
+        if d == transit_idx and corpus.docs[d][p] == _VOCAB["The"]
+    )
+    preferred = {(transit_idx, north_pos)}
+
+    c = ExtractiveCopyConstraint(
+        corpus,
+        prompt_len=0,
+        eos_id=_VOCAB["<eos>"],
+        delim_id=_VOCAB["|"],
+        min_span_len=3,
+        focus_doc_indices=frozenset({transit_idx}),
+        allow_shared_prefix=False,
+        preferred_starts=preferred,
+        stop_after_first_extract=True,
+    )
+    flat = np.zeros(_V, dtype=np.float32)
+    allowed = {
+        i for i in range(_V)
+        if c(np.array([], dtype=np.intc), flat.copy())[i] > NEG_INF / 2
+    }
+    incident_exclusive = {_VOCAB["Officials"], _VOCAB["Emergency"], _VOCAB["142"]}
+    assert not (allowed & incident_exclusive)
+    assert _VOCAB["The"] in allowed or _VOCAB["north"] in allowed
+    for idx in incident_indices:
+        assert idx != transit_idx
+

@@ -1,0 +1,19 @@
+{
+  "query_id": "incident_arrests",
+  "query": "How many arrests were made before midnight after the downtown incident?",
+  "eval_layer": "realism",
+  "gold_chunk_ids": [
+    "incident_centralwire:0",
+    "incident_metrodaily:0",
+    "incident_regionalpost:0"
+  ],
+  "retrieved_chunk_ids": [
+    "incident_regionalpost:0",
+    "incident_centralwire:0",
+    "incident_metrodaily:0",
+    "housing_permits_office:0",
+    "transit_authority_update:0"
+  ],
+  "retrieval_recall_at_k": 1.0,
+  "retrieval_manifest_hash": "61973743b746bb61e7f6a5ac7993606193099b1d48ff48c441632d6511945885"
+}

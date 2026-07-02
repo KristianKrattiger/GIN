@@ -14,7 +14,11 @@ from .divergence import (
     shared_sentence_starts,
 )
 from .models import ChunkHit, EvalLayer, SynthesisBundle, SynthesisContext
-from .relevance import score_starts_by_sentence_match
+from .relevance import (
+    rerank_hits_by_query_score,
+    score_starts_by_sentence_match,
+    score_starts_for_convergent,
+)
 from .retrieval_manifest import (
     RetrievalManifest,
     build_retrieval_manifest,
@@ -112,14 +116,78 @@ def _required_doc_groups(
     return groups
 
 
+def _prioritize_gold_hits(
+    hits: list[ChunkHit],
+    gold_chunk_ids: Optional[list[str]],
+) -> list[ChunkHit]:
+    """Move gold chunks ahead of non-gold hits (eval-only steering)."""
+    if not gold_chunk_ids:
+        return hits
+    gold = set(gold_chunk_ids)
+    gold_hits = [h for h in hits if h.chunk_id in gold]
+    other_hits = [h for h in hits if h.chunk_id not in gold]
+    return gold_hits + other_hits
+
+
+def _boost_gold_preferred_starts(
+    corpus: Corpus,
+    chunk_texts: list[str],
+    gold_chunk_ids: set[str],
+    hits: list[ChunkHit],
+    tokenize: Callable[[bytes], list[int]],
+    preferred_starts: set[tuple[int, int]],
+    ranked: list[tuple[int, int, float]],
+) -> tuple[set[tuple[int, int]], list[tuple[int, int, float]]]:
+    """Add sentence starts from gold chunks to preferred_starts."""
+    chunk_to_doc = {hit.chunk_id: i for i, hit in enumerate(hits)}
+    boosted = set(preferred_starts)
+    extra_ranked: list[tuple[int, int, float]] = []
+    for chunk_id in gold_chunk_ids:
+        doc = chunk_to_doc.get(chunk_id)
+        if doc is None:
+            continue
+        text = chunk_texts[doc]
+        from sear.corpus import sentence_token_spans
+
+        for start, _end in sentence_token_spans(text, tokenize):
+            pos = (doc, start)
+            if pos in corpus.sentence_starts:
+                boosted.add(pos)
+                extra_ranked.append((doc, start, 1.0))
+    if extra_ranked:
+        combined = ranked + extra_ranked
+        best: dict[tuple[int, int], float] = {}
+        for doc, pos, score in combined:
+            key = (doc, pos)
+            best[key] = max(best.get(key, 0.0), score)
+        ranked = sorted(
+            [(d, p, s) for (d, p), s in best.items()],
+            key=lambda x: (-x[2], x[0], x[1]),
+        )
+    return boosted, ranked
+
+
 def materialize_synthesis_bundle(
     bundle: SynthesisBundle,
     tokenize: Callable[[bytes], list[int]],
     *,
     pair_adjacent: bool = True,
     query: Optional[str] = None,
+    gold_chunk_ids: Optional[list[str]] = None,
 ) -> tuple[Corpus, SynthesisContext]:
-    hits = _order_hits_pair_adjacent(bundle) if pair_adjacent else list(bundle.hits)
+    hits = list(bundle.hits)
+    if query:
+        hits = rerank_hits_by_query_score(hits, query)
+    if gold_chunk_ids:
+        hits = _prioritize_gold_hits(hits, gold_chunk_ids)
+    hits = _order_hits_pair_adjacent(
+        SynthesisBundle(
+            hits=hits,
+            edges=bundle.edges,
+            mode=bundle.mode,
+            pairs=bundle.pairs,
+        )
+    ) if pair_adjacent else hits
     corpus = materialize_corpus(hits, tokenize)
     doc_index_to_hit = {i: hit for i, hit in enumerate(hits)}
     cite_index_to_doc = {i + 1: i for i in range(len(hits))}
@@ -128,10 +196,26 @@ def materialize_synthesis_bundle(
     chunk_texts = [hit.text for hit in hits]
     preferred_starts: set[tuple[int, int]] = set()
     ranked: list[tuple[int, int, float]] = []
+    top_doc_idx: int | None = None
     if query:
-        preferred_starts, ranked = score_starts_by_sentence_match(
-            corpus, chunk_texts, query, tokenize
-        )
+        if bundle.mode == "convergent":
+            preferred_starts, ranked, top_doc_idx = score_starts_for_convergent(
+                corpus, chunk_texts, query, tokenize
+            )
+        else:
+            preferred_starts, ranked = score_starts_by_sentence_match(
+                corpus, chunk_texts, query, tokenize
+            )
+        if gold_chunk_ids:
+            preferred_starts, ranked = _boost_gold_preferred_starts(
+                corpus,
+                chunk_texts,
+                set(gold_chunk_ids),
+                hits,
+                tokenize,
+                preferred_starts,
+                ranked,
+            )
 
     divergence_starts: dict[int, set[int]] = {}
     forbidden_starts: set[tuple[int, int]] = set()
@@ -207,6 +291,7 @@ def materialize_synthesis_bundle(
         force_connective_ids=force_conn,
         active_edge_types=edge_type_set,
         retrieval_manifest_hash=retrieval_manifest_hash,
+        top_doc_idx=top_doc_idx,
     )
     return corpus, ctx
 
@@ -220,6 +305,7 @@ def materialize_from_synthesis(
     filters: Optional[dict] = None,
     min_rrf_delta: float = 0.25,
     confidence_floor: float = RETRIEVAL_CONFIDENCE_FLOOR,
+    gold_chunk_ids: Optional[list[str]] = None,
 ) -> tuple[Corpus, SynthesisContext, SynthesisBundle, RetrievalManifest | None]:
     bundle = retrieve_for_synthesis(
         query,
@@ -229,7 +315,9 @@ def materialize_from_synthesis(
         min_rrf_delta=min_rrf_delta,
         confidence_floor=confidence_floor,
     )
-    corpus, ctx = materialize_synthesis_bundle(bundle, tokenize, query=query)
+    corpus, ctx = materialize_synthesis_bundle(
+        bundle, tokenize, query=query, gold_chunk_ids=gold_chunk_ids
+    )
     retrieval_manifest = build_retrieval_manifest(query, bundle)
     write_retrieval_manifest(retrieval_manifest)
     return corpus, ctx, bundle, retrieval_manifest

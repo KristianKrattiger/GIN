@@ -1,0 +1,11 @@
+{
+  "query_id": "sports_probe",
+  "query": "Who won the national football championship final this year?",
+  "eval_layer": "out_of_scope",
+  "gold_chunk_ids": [],
+  "retrieved_chunk_ids": [
+    "out_of_scope_stub:0"
+  ],
+  "retrieval_recall_at_k": null,
+  "retrieval_manifest_hash": "9e1be8dc1e124e582f4b5257fde3bceada85bb39dbc1ccfe7c13b7dba555b9f0"
+}

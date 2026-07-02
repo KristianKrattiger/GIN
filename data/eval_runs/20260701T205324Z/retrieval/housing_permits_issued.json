@@ -1,0 +1,18 @@
+{
+  "query_id": "housing_permits_issued",
+  "query": "How many residential building permits did the city issue in the latest quarter?",
+  "eval_layer": "realism",
+  "gold_chunk_ids": [
+    "housing_permits_office:0"
+  ],
+  "retrieved_chunk_ids": [
+    "incident_regionalpost:0",
+    "incident_centralwire:0",
+    "election_centralwire:0",
+    "incident_metrodaily:0",
+    "election_metrodaily:0",
+    "housing_permits_office:0"
+  ],
+  "retrieval_recall_at_k": 1.0,
+  "retrieval_manifest_hash": "f2c19c2700d9b067c61d7900a7ae31767cf329dabe1485f00e2d42541be10a5b"
+}

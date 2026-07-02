@@ -128,15 +128,20 @@ Optional filters (e.g. `eval_layer: realism`) apply to both legs.
 
 `retrieve_for_synthesis()` expands seed hits into a `SynthesisBundle`:
 
-1. Retrieve top-`k_seed` chunks.
-2. Fetch `contradicts` and `cites` edges among seeds.
-3. Pull neighbor chunks linked by those edges.
-4. Classify mode:
-   - **divergent** — if any `contradicts` edge exists among seeds, or top hits are close in RRF score but from different outlets/documents.
-   - **convergent** — otherwise.
-5. Boost RRF scores for paired chunks; cap at `k_max`.
+1. Retrieve top-`k_seed` chunks (hybrid RRF).
+2. **Re-rank seeds** by max per-sentence query keyword score; drop zero-relevance noise.
+3. Fetch `contradicts` and `cites` edges among seeds.
+4. Pull neighbor chunks linked by those edges.
+5. Classify mode:
+   - **divergent** — when a `contradicts` pair is **query-relevant on both sides** (`DIVERGENCE_RELEVANCE_FLOOR` + `matched_keyword_count` ≥ 2 for queries with ≥3 keywords). Close RRF competitors without a contradicts edge are corroboration, not divergence.
+   - **convergent** — otherwise (including bureau + independent survey agreeing on the same statistic).
+6. Build pairs (query-irrelevant contradicts pairs excluded); boost RRF scores for paired chunks; cap at `k_max`.
+
+Legacy path: when `query` is empty, any contradicts edge or close multi-outlet competitors still force divergent mode.
 
 **Module:** `gin/corpus/materialize.py` orders pair-adjacent hits, builds a SEAR `Corpus`, and computes `required_doc_groups` — frozensets of doc indices that must both be quoted when a `contradicts` edge links them.
+
+**Module:** `gin/corpus/generate.py` — convergent decode steers to top query-relevant doc; `competing_same_tag` path emits one AMBIGUOUS corroboration span across bureau + survey outlets. See [ENG 02](docs/GIN_ENG_02_Eval_Baseline_v1.md) and `docs/nc_phase3_divergence_correctness.plan.md`.
 
 **Module:** `gin/corpus/prompts.py` assembles a metadata-only source manifest (chunk bodies live in the SEAR corpus, not the prompt) plus mode-specific task instructions.
 
@@ -167,7 +172,7 @@ On each step, all non-allowed vocabulary positions are masked to `-1e30`.
 1. **Start** — token must appear in `start_index` at an unused position.
 2. **Continue** — cursors fan out across documents sharing the prefix; prune when tokens diverge.
 3. **Close** — at `min_span_len`, allow `|` delimiter or EOS; record `Segment` with `(doc_id, start, end)` sources.
-4. **Divergence auto-close** — when `close_on_doc_divergence=True`, close early if cursors drop from multiple source documents to a subset (divergent mode).
+4. **Divergence auto-close** — when `close_on_doc_divergence=True`, close when cursors narrow **at the current token** (not "ever since span start") and only if `_span_close_permitted()` (min length + sentence-end when configured).
 
 ### Connectives and citations
 
@@ -358,11 +363,13 @@ Prove SEAR behavior on stock Mistral with grammar-constrained extractive synthes
 
 - ✅ `ExtractiveCopyConstraint` with cursor fan-out, pruning, connectives, cites
 - ✅ Corpus tier PoC (Postgres + pgvector + cold store)
-- ✅ Hybrid retrieval and divergent/convergent synthesis modes
+- ✅ Hybrid retrieval and query-aware divergent/convergent synthesis modes
 - ✅ Live generation via `llama-cpp-python`
 - ✅ Layered provenance record (retrieval manifest, guidance tags, synthesis manifest)
 - ✅ Edge-type-gated connective vocabulary
 - ✅ Retrieval confidence floor (`RetrievalConfidenceError`)
+- ✅ SEAR vs RAG eval harness (`scripts/eval_run.py`, `gin/eval/`)
+- ✅ Preliminary eval baseline (structural prevention + NC epistemic targets) — see [docs/GIN_ENG_02_Eval_Baseline_v1.md](docs/GIN_ENG_02_Eval_Baseline_v1.md)
 
 **Validation:** `pytest`, `python scripts/sear_phase1.py --selftest`
 
@@ -377,7 +384,6 @@ Prove SEAR behavior on stock Mistral with grammar-constrained extractive synthes
 - Two-node divergence demo (inter-corpus, same machinery)
 - Merkle diff sync of anchor metadata
 - Zero-cursor routing to peer nodes
-- SEAR grounding rate measurement vs RAG baseline
 
 ### Phase 4 — SEAR training loop (Tier 1)
 

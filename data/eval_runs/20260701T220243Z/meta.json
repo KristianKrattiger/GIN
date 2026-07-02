@@ -1,0 +1,15 @@
+{
+  "generated_at": "2026-07-01T22:02:43.036442+00:00",
+  "model": "/mnt/c/models/Mistral-7B-INstruct-v0.3-Q6_K.gguf",
+  "verifier_mode": "overlap",
+  "threshold": 0.5,
+  "queryset": "/mnt/c/Users/krist/Projects/gin/GIN/data/eval/queryset.yaml",
+  "arms": [
+    "rag",
+    "no_continuation"
+  ],
+  "n_queries": 9,
+  "n_gpu_layers": 0,
+  "wall_clock_seconds_per_query": 36.50859181344438,
+  "tokens_per_second": 0.5858590492392637
+}

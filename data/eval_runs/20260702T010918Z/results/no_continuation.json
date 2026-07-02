@@ -1,0 +1,424 @@
+[
+  {
+    "query_id": "incident_hospital",
+    "query": "How many people received hospital treatment after the downtown incident?",
+    "arm": "no_continuation",
+    "eval_layer": "realism",
+    "expectation": "answerable",
+    "refused": false,
+    "claims": [
+      {
+        "claim_text": "Emergency services confirmed 142 people received treatment at area hospitals.",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "incident_centralwire:0",
+        "score": 1.0,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "EXACT",
+        "cited_chunk_ids": [
+          "incident_centralwire:0"
+        ]
+      },
+      {
+        "claim_text": "Emergency services confirmed 98 people received treatment at area hospitals.",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "incident_metrodaily:0",
+        "score": 1.0,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "EXACT",
+        "cited_chunk_ids": [
+          "incident_metrodaily:0"
+        ]
+      },
+      {
+        "claim_text": "Police said 11 arrests were made before midnight.",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "incident_regionalpost:0",
+        "score": 1.0,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "EXACT",
+        "cited_chunk_ids": [
+          "incident_regionalpost:0"
+        ]
+      }
+    ],
+    "eval_tag": "incident_divergence",
+    "retrieval_manifest_hash": "5cc80f3639bccf3b4b4f96059483951234f32b2e40ab2430e28d80d3911db260",
+    "retrieved_chunk_ids": [
+      "incident_centralwire:0",
+      "incident_metrodaily:0",
+      "incident_regionalpost:0"
+    ],
+    "gold_chunk_ids": [
+      "incident_centralwire:0",
+      "incident_metrodaily:0",
+      "incident_regionalpost:0"
+    ],
+    "retrieval_recall_at_k": 1.0,
+    "raw_text": "Emergency services confirmed 142 people received treatment at area hospitals.\n | [1]Emergency services confirmed 98 people received treatment at area hospitals.\n | [2]Police said 11 arrests were made before midnight.\n |",
+    "counterfactual_answer": null,
+    "contradicts_pairs": [
+      [
+        "incident_centralwire:0",
+        "incident_metrodaily:0"
+      ],
+      [
+        "incident_centralwire:0",
+        "incident_regionalpost:0"
+      ]
+    ],
+    "error": null
+  },
+  {
+    "query_id": "incident_arrests",
+    "query": "How many arrests were made before midnight after the downtown incident?",
+    "arm": "no_continuation",
+    "eval_layer": "realism",
+    "expectation": "answerable",
+    "refused": false,
+    "claims": [
+      {
+        "claim_text": "Police said 23 arrests were made before midnight.\nThe mayor scheduled a briefing for Wednesday morning.",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "incident_centralwire:0",
+        "score": 1.0,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "EXACT",
+        "cited_chunk_ids": [
+          "incident_centralwire:0"
+        ]
+      },
+      {
+        "claim_text": "Emergency services confirmed 98 people received treatment at area hospitals.\nPolice said 11 arrests were made before midnight.\nCity council members demanded an independent review.",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "incident_metrodaily:0",
+        "score": 1.0,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "EXACT",
+        "cited_chunk_ids": [
+          "incident_metrodaily:0"
+        ]
+      },
+      {
+        "claim_text": "Police said 11 arrests were made before midnight.",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "incident_regionalpost:0",
+        "score": 1.0,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "EXACT",
+        "cited_chunk_ids": [
+          "incident_regionalpost:0"
+        ]
+      }
+    ],
+    "eval_tag": "incident_divergence",
+    "retrieval_manifest_hash": "14eda014857697bddf7653ea19fcca22db8c1d1df99eaf5de4e6334f933fe856",
+    "retrieved_chunk_ids": [
+      "incident_centralwire:0",
+      "incident_metrodaily:0",
+      "incident_regionalpost:0"
+    ],
+    "gold_chunk_ids": [
+      "incident_centralwire:0",
+      "incident_metrodaily:0",
+      "incident_regionalpost:0"
+    ],
+    "retrieval_recall_at_k": 1.0,
+    "raw_text": "Police said 23 arrests were made before midnight.\nThe mayor scheduled a briefing for Wednesday morning. | [1]Emergency services confirmed 98 people received treatment at area hospitals.\nPolice said 11 arrests were made before midnight.\nCity council members demanded an independent review. | [2]Police said 11 arrests were made before midnight.\n |",
+    "counterfactual_answer": null,
+    "contradicts_pairs": [
+      [
+        "incident_centralwire:0",
+        "incident_metrodaily:0"
+      ],
+      [
+        "incident_centralwire:0",
+        "incident_regionalpost:0"
+      ]
+    ],
+    "error": null
+  },
+  {
+    "query_id": "election_margin",
+    "query": "By how many votes did the harbor district referendum pass?",
+    "arm": "no_continuation",
+    "eval_layer": "realism",
+    "expectation": "answerable",
+    "refused": false,
+    "claims": [
+      {
+        "claim_text": "Turnout reached 61 percent of registered voters.\nThe port authority said new zoning rules take effect in January.",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "election_centralwire:0",
+        "score": 1.0,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "EXACT",
+        "cited_chunk_ids": [
+          "election_centralwire:0"
+        ]
+      },
+      {
+        "claim_text": "Turnout reached 58 percent of registered voters.",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "election_metrodaily:0",
+        "score": 1.0,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "EXACT",
+        "cited_chunk_ids": [
+          "election_metrodaily:0"
+        ]
+      }
+    ],
+    "eval_tag": "election_divergence",
+    "retrieval_manifest_hash": "9606c29ed4bc930ee2a22680e72a4e7011feb8faf1707a3aae1ebde4372d84a0",
+    "retrieved_chunk_ids": [
+      "election_centralwire:0",
+      "election_metrodaily:0",
+      "port_authority_brief:0",
+      "school_district_report:0"
+    ],
+    "gold_chunk_ids": [
+      "election_centralwire:0",
+      "election_metrodaily:0"
+    ],
+    "retrieval_recall_at_k": 1.0,
+    "raw_text": "Turnout reached 61 percent of registered voters.\nThe port authority said new zoning rules take effect in January. | [1]Turnout reached 58 percent of registered voters.\n |",
+    "counterfactual_answer": null,
+    "contradicts_pairs": [
+      [
+        "election_centralwire:0",
+        "election_metrodaily:0"
+      ]
+    ],
+    "error": null
+  },
+  {
+    "query_id": "election_turnout",
+    "query": "What was voter turnout in the harbor district referendum?",
+    "arm": "no_continuation",
+    "eval_layer": "realism",
+    "expectation": "answerable",
+    "refused": false,
+    "claims": [
+      {
+        "claim_text": "Turnout reached 61 percent of registered voters.",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "election_centralwire:0",
+        "score": 1.0,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "EXACT",
+        "cited_chunk_ids": [
+          "election_centralwire:0"
+        ]
+      },
+      {
+        "claim_text": "Turnout reached 58 percent of registered voters.",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "election_metrodaily:0",
+        "score": 1.0,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "EXACT",
+        "cited_chunk_ids": [
+          "election_metrodaily:0"
+        ]
+      }
+    ],
+    "eval_tag": "election_divergence",
+    "retrieval_manifest_hash": "13ad4e54c377d9ee9a9d7451517b8d99fd346aa118029fe2fea22b53c1586b1c",
+    "retrieved_chunk_ids": [
+      "election_centralwire:0",
+      "election_metrodaily:0",
+      "school_district_report:0",
+      "port_authority_brief:0"
+    ],
+    "gold_chunk_ids": [
+      "election_centralwire:0",
+      "election_metrodaily:0"
+    ],
+    "retrieval_recall_at_k": 1.0,
+    "raw_text": "Turnout reached 61 percent of registered voters.\n | [1]Turnout reached 58 percent of registered voters.\n |",
+    "counterfactual_answer": null,
+    "contradicts_pairs": [
+      [
+        "election_centralwire:0",
+        "election_metrodaily:0"
+      ]
+    ],
+    "error": null
+  },
+  {
+    "query_id": "transit_ridership",
+    "query": "What was the average daily ridership in the first week of the north line extension?",
+    "arm": "no_continuation",
+    "eval_layer": "realism",
+    "expectation": "answerable",
+    "refused": false,
+    "claims": [
+      {
+        "claim_text": "The north line extension opened to passengers on March 14.",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "transit_authority_update:0",
+        "score": 1.0,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "EXACT",
+        "cited_chunk_ids": [
+          "transit_authority_update:0"
+        ]
+      }
+    ],
+    "eval_tag": "transit_realism",
+    "retrieval_manifest_hash": "681335cb548316088fd30824bf4146f0ed3e2ae4dbdccf4c52bb642594832844",
+    "retrieved_chunk_ids": [
+      "transit_authority_update:0",
+      "power_grid_status:0",
+      "wage_independent_survey:0",
+      "port_authority_brief:0",
+      "wage_bureau_report:0"
+    ],
+    "gold_chunk_ids": [
+      "transit_authority_update:0"
+    ],
+    "retrieval_recall_at_k": 1.0,
+    "raw_text": " The north line extension opened to passengers on March 14. |",
+    "counterfactual_answer": null,
+    "contradicts_pairs": [],
+    "error": null
+  },
+  {
+    "query_id": "weather_winds",
+    "query": "What sustained wind speed is expected from the coastal storm system?",
+    "arm": "no_continuation",
+    "eval_layer": "realism",
+    "expectation": "answerable",
+    "refused": false,
+    "claims": [
+      {
+        "claim_text": "A coastal storm system is expected to bring sustained winds",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "weather_service_brief:0",
+        "score": 1.0,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "EXACT",
+        "cited_chunk_ids": [
+          "weather_service_brief:0"
+        ]
+      }
+    ],
+    "eval_tag": "weather_realism",
+    "retrieval_manifest_hash": "1acafbe893c326af1ad34b62a947af832d2a5c3fe8ced90eeb06375d288f171b",
+    "retrieved_chunk_ids": [
+      "weather_service_brief:0"
+    ],
+    "gold_chunk_ids": [
+      "weather_service_brief:0"
+    ],
+    "retrieval_recall_at_k": 1.0,
+    "raw_text": " A coastal storm system is expected to bring sustained winds |",
+    "counterfactual_answer": null,
+    "contradicts_pairs": [],
+    "error": null
+  },
+  {
+    "query_id": "unemployment_rate",
+    "query": "What was the regional unemployment rate in the latest monthly survey?",
+    "arm": "no_continuation",
+    "eval_layer": "counterfactual",
+    "expectation": "counterfactual",
+    "refused": false,
+    "claims": [
+      {
+        "claim_text": "The regional unemployment rate stood at 3.7 percent in the latest monthly survey.",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "labor_bureau_report:0",
+        "score": 1.0,
+        "node_scope": "CROSS_NODE",
+        "span_type": "AMBIGUOUS",
+        "cited_chunk_ids": [
+          "labor_bureau_report:0",
+          "labor_independent_survey:0"
+        ]
+      }
+    ],
+    "eval_tag": "unemployment_probe",
+    "retrieval_manifest_hash": "8d614922e11c2f6460a86fbfb3ce94bb08ce33abdeef1b6bc2022220c483d50f",
+    "retrieved_chunk_ids": [
+      "labor_bureau_report:0",
+      "labor_independent_survey:0",
+      "wage_independent_survey:0",
+      "inflation_bureau_report:0",
+      "inflation_independent_survey:0"
+    ],
+    "gold_chunk_ids": [
+      "labor_bureau_report:0",
+      "labor_independent_survey:0"
+    ],
+    "retrieval_recall_at_k": 1.0,
+    "raw_text": " The regional unemployment rate stood at 3.7 percent in the latest monthly survey.\n |  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or ",
+    "counterfactual_answer": "3.7 percent",
+    "contradicts_pairs": [],
+    "error": null
+  },
+  {
+    "query_id": "interest_rate_probe",
+    "query": "What did the central bank decide about interest rates this quarter?",
+    "arm": "no_continuation",
+    "eval_layer": "out_of_scope",
+    "expectation": "out_of_scope",
+    "refused": true,
+    "claims": [
+      {
+        "claim_text": "The sources do not support an answer.",
+        "verdict": "REFUSAL",
+        "matched_chunk_id": null,
+        "score": 0.0,
+        "node_scope": "NONE",
+        "span_type": "REFUSAL",
+        "cited_chunk_ids": []
+      }
+    ],
+    "eval_tag": "interest_rate_probe",
+    "retrieval_manifest_hash": "8fef7d4356c5c7fe19a938c9ab7adc915ee2bcbc17cd380109fc6c278a596bfe",
+    "retrieved_chunk_ids": [
+      "inflation_bureau_report:0",
+      "labor_independent_survey:0",
+      "labor_bureau_report:0",
+      "school_district_report:0",
+      "wage_bureau_report:0"
+    ],
+    "gold_chunk_ids": [],
+    "retrieval_recall_at_k": null,
+    "raw_text": "The sources do not support an answer.",
+    "counterfactual_answer": null,
+    "contradicts_pairs": [],
+    "error": null
+  },
+  {
+    "query_id": "sports_probe",
+    "query": "Who won the national football championship final this year?",
+    "arm": "no_continuation",
+    "eval_layer": "out_of_scope",
+    "expectation": "out_of_scope",
+    "refused": true,
+    "claims": [
+      {
+        "claim_text": "The sources do not support an answer.",
+        "verdict": "REFUSAL",
+        "matched_chunk_id": null,
+        "score": 0.0,
+        "node_scope": "NONE",
+        "span_type": "REFUSAL",
+        "cited_chunk_ids": []
+      }
+    ],
+    "eval_tag": "sports_probe",
+    "retrieval_manifest_hash": "9e1be8dc1e124e582f4b5257fde3bceada85bb39dbc1ccfe7c13b7dba555b9f0",
+    "retrieved_chunk_ids": [
+      "out_of_scope_stub:0"
+    ],
+    "gold_chunk_ids": [],
+    "retrieval_recall_at_k": null,
+    "raw_text": "The sources do not support an answer.",
+    "counterfactual_answer": null,
+    "contradicts_pairs": [],
+    "error": null
+  }
+]

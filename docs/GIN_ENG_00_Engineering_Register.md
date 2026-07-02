@@ -1,6 +1,6 @@
 ---
 tags: [GIN, research, engineering, specs, quarantine]
-updated: 2026-06-29
+updated: 2026-07-02
 version: 0.4-preliminary
 status: working draft
 register: engineering
@@ -40,7 +40,7 @@ The conceptual papers argue. This register measures. Keeping them apart prevents
 - Grammar definition and decoding implementation. *(Cursor-based decode-time constraint implemented as SEAR in this repo — see [[GIN_ENG_01_SEAR_PoC_Spec]] Stage 1b note. Fabrication rate and prevention delta remain TBM.)*
 - Latency targets per mode (divergent surfacing vs convergent synthesis).
 - Selection-bias measurement method.
-- SEAR grounding rate vs RAG baseline — measurement infrastructure (retrieval manifests, synthesis manifests, guidance tags) now in place; measurement not yet run.
+- SEAR grounding rate vs RAG baseline — **preliminary measurement recorded** in [[GIN_ENG_02_Eval_Baseline_v1]] (structural runs `20260701T192827Z` overlap, `20260701T194024Z` NLI; NC epistemic promotion `20260702T012203Z` full 20-query overlap on synthetic corpus). Prevention delta, failure state, epistemic metrics (query relevance, gold coverage, supported irrelevance, counterfactual adherence, divergence fidelity) measured on CPU; representative GPU artifact remains before full promotion rule.
 
 **Federation** ([[GIN_03_Node_Identity]])
 - Adapter-switching cost and concurrency limits.
@@ -57,6 +57,9 @@ The conceptual papers argue. This register measures. Keeping them apart prevents
 
 **(ENG 01) SEAR PoC spec** ([[GIN_ENG_01_SEAR_PoC_Spec]])
 - All figures in [[GIN_ENG_01_SEAR_PoC_Spec]] are **TBM** (to be measured) under the promotion rule; that document is the staged build plan and metrics harness for SEAR, not a stated specification.
+
+**(ENG 02) Eval baseline v1** ([[GIN_ENG_02_Eval_Baseline_v1]])
+- RAG vs No-Continuation on synthetic corpus. Structural prevention measured (overlap fabrication 0.286 vs 0.000, run `192827Z`). NC epistemic targets met on expanded 20-query set (`20260702T012203Z`: query relevance 1.0, supported irrelevance 0, gold coverage 1.0, counterfactual adherence 1.0, fabrication 0, divergence fidelity 1.0). GPU reproducibility outstanding.
 
 **Sustainability**
 - Tier 1 standing costs: power, storage growth, curation labour.
@@ -77,7 +80,7 @@ Until all three hold, the item remains an *engineering issue* (nameable in mecha
 
 ## Related
 
-[[GIN_00_Reader]] · [[GIN_05_MOCAP]] · [[GIN_06_Mule_Architecture]] · [[GIN_09_Agentic_Layer]] · [[GIN_ENG_01_SEAR_PoC_Spec]]
+[[GIN_00_Reader]] · [[GIN_05_MOCAP]] · [[GIN_06_Mule_Architecture]] · [[GIN_09_Agentic_Layer]] · [[GIN_ENG_01_SEAR_PoC_Spec]] · [[GIN_ENG_02_Eval_Baseline_v1]]
 
 ## Back to Vault
 

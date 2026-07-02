@@ -1,0 +1,18 @@
+{
+  "query_id": "election_margin",
+  "query": "By how many votes did the harbor district referendum pass?",
+  "eval_layer": "realism",
+  "gold_chunk_ids": [
+    "election_centralwire:0",
+    "election_metrodaily:0"
+  ],
+  "retrieved_chunk_ids": [
+    "election_metrodaily:0",
+    "election_centralwire:0",
+    "incident_centralwire:0",
+    "incident_metrodaily:0",
+    "incident_regionalpost:0"
+  ],
+  "retrieval_recall_at_k": 1.0,
+  "retrieval_manifest_hash": "ce8191018052df2f1717cc3dd9d9cdb8739bcea62b080b7154aa839f20e0eb77"
+}

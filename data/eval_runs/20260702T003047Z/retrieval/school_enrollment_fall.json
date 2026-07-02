@@ -1,0 +1,15 @@
+{
+  "query_id": "school_enrollment_fall",
+  "query": "What was fall enrollment across district campuses?",
+  "eval_layer": "realism",
+  "gold_chunk_ids": [
+    "school_district_report:0"
+  ],
+  "retrieved_chunk_ids": [
+    "election_centralwire:0",
+    "election_metrodaily:0",
+    "school_district_report:0"
+  ],
+  "retrieval_recall_at_k": 1.0,
+  "retrieval_manifest_hash": "f56096220427c9051c145de0a2c4d9d60cb2ae587f638e615e454a5f08399c7a"
+}

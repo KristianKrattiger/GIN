@@ -1,0 +1,208 @@
+# Shared eval query set for the RAG vs SEAR designed experiment.
+# Aligned to eval_layer / eval_tag values in data/synthetic/news_corpus.yaml.
+#
+# expectation:
+#   answerable      corpus holds the answer; arms should ground it
+#   counterfactual  corpus deliberately contradicts a likely prior; follow corpus
+#   out_of_scope    corpus cannot answer; correct behavior is refusal
+#
+# regression: true  — 9-anchor subset retained for CI (--regression-only)
+
+queries:
+  # --- regression anchors (never remove) ------------------------------------
+  - id: incident_hospital
+    query: How many people received hospital treatment after the downtown incident?
+    eval_layer: realism
+    eval_tag: incident_divergence
+    expectation: answerable
+    regression: true
+    gold_chunk_ids:
+      - incident_centralwire:0
+      - incident_metrodaily:0
+      - incident_regionalpost:0
+    contradicts_pairs:
+      - [incident_centralwire:0, incident_metrodaily:0]
+      - [incident_centralwire:0, incident_regionalpost:0]
+
+  - id: incident_arrests
+    query: How many arrests were made before midnight after the downtown incident?
+    eval_layer: realism
+    eval_tag: incident_divergence
+    expectation: answerable
+    regression: true
+    gold_chunk_ids:
+      - incident_centralwire:0
+      - incident_metrodaily:0
+      - incident_regionalpost:0
+    contradicts_pairs:
+      - [incident_centralwire:0, incident_metrodaily:0]
+      - [incident_centralwire:0, incident_regionalpost:0]
+
+  - id: election_margin
+    query: By how many votes did the harbor district referendum pass?
+    eval_layer: realism
+    eval_tag: election_divergence
+    expectation: answerable
+    regression: true
+    gold_chunk_ids:
+      - election_centralwire:0
+      - election_metrodaily:0
+    contradicts_pairs:
+      - [election_centralwire:0, election_metrodaily:0]
+
+  - id: election_turnout
+    query: What was voter turnout in the harbor district referendum?
+    eval_layer: realism
+    eval_tag: election_divergence
+    expectation: answerable
+    regression: true
+    gold_chunk_ids:
+      - election_centralwire:0
+      - election_metrodaily:0
+    contradicts_pairs:
+      - [election_centralwire:0, election_metrodaily:0]
+
+  - id: transit_ridership
+    query: What was the average daily ridership in the first week of the north line extension?
+    eval_layer: realism
+    eval_tag: transit_realism
+    expectation: answerable
+    regression: true
+    gold_chunk_ids:
+      - transit_authority_update:0
+
+  - id: weather_winds
+    query: What sustained wind speed is expected from the coastal storm system?
+    eval_layer: realism
+    eval_tag: weather_realism
+    expectation: answerable
+    regression: true
+    gold_chunk_ids:
+      - weather_service_brief:0
+
+  - id: unemployment_rate
+    query: What was the regional unemployment rate in the latest monthly survey?
+    eval_layer: counterfactual
+    eval_tag: unemployment_probe
+    expectation: counterfactual
+    regression: true
+    counterfactual_answer: 3.7 percent
+    gold_chunk_ids:
+      - labor_bureau_report:0
+      - labor_independent_survey:0
+
+  - id: interest_rate_probe
+    query: What did the central bank decide about interest rates this quarter?
+    eval_layer: out_of_scope
+    eval_tag: interest_rate_probe
+    expectation: out_of_scope
+    regression: true
+
+  - id: sports_probe
+    query: Who won the national football championship final this year?
+    eval_layer: out_of_scope
+    eval_tag: sports_probe
+    expectation: out_of_scope
+    regression: true
+
+  # --- expanded realism probes ----------------------------------------------
+  - id: port_cargo_throughput
+    query: How many twenty-foot equivalent units did harbor terminals handle in March?
+    eval_layer: realism
+    eval_tag: port_realism
+    expectation: answerable
+    regression: false
+    gold_chunk_ids:
+      - port_authority_brief:0
+
+  - id: school_enrollment_fall
+    query: What was fall enrollment across district campuses?
+    eval_layer: realism
+    eval_tag: enrollment_realism
+    expectation: answerable
+    regression: false
+    gold_chunk_ids:
+      - school_district_report:0
+
+  - id: reservoir_storage_level
+    query: What percentage of capacity did combined reservoir storage reach on Sunday?
+    eval_layer: realism
+    eval_tag: water_realism
+    expectation: answerable
+    regression: false
+    gold_chunk_ids:
+      - water_utility_update:0
+
+  - id: housing_permits_issued
+    query: How many residential building permits did the city issue in the latest quarter?
+    eval_layer: realism
+    eval_tag: housing_realism
+    expectation: answerable
+    regression: false
+    gold_chunk_ids:
+      - housing_permits_office:0
+
+  - id: outage_restoration_time
+    query: Within how many hours did crews restore power to most affected customers?
+    eval_layer: realism
+    eval_tag: power_realism
+    expectation: answerable
+    regression: false
+    gold_chunk_ids:
+      - power_grid_status:0
+
+  # --- expanded counterfactual probes ---------------------------------------
+  - id: inflation_rate
+    query: By what percentage did the regional consumer price index rise over the past twelve months?
+    eval_layer: counterfactual
+    eval_tag: inflation_probe
+    expectation: counterfactual
+    regression: false
+    counterfactual_answer: 2.1 percent
+    gold_chunk_ids:
+      - inflation_bureau_report:0
+      - inflation_independent_survey:0
+
+  - id: wage_growth_rate
+    query: How much did average hourly earnings grow year over year in the latest survey?
+    eval_layer: counterfactual
+    eval_tag: wage_probe
+    expectation: counterfactual
+    regression: false
+    counterfactual_answer: 4.8 percent
+    gold_chunk_ids:
+      - wage_bureau_report:0
+      - wage_independent_survey:0
+
+  - id: export_decline_rate
+    query: By what percentage did regional export volumes fall in the latest monthly trade report?
+    eval_layer: counterfactual
+    eval_tag: export_probe
+    expectation: counterfactual
+    regression: false
+    counterfactual_answer: 3.2 percent
+    gold_chunk_ids:
+      - export_trade_report:0
+      - export_independent_review:0
+
+  # --- expanded out-of-scope probes -----------------------------------------
+  - id: crypto_price_probe
+    query: What is the current price of Bitcoin in US dollars?
+    eval_layer: out_of_scope
+    eval_tag: crypto_probe
+    expectation: out_of_scope
+    regression: false
+
+  - id: olympic_medals_probe
+    query: Which country won the most gold medals at the last Summer Olympics?
+    eval_layer: out_of_scope
+    eval_tag: olympic_probe
+    expectation: out_of_scope
+    regression: false
+
+  - id: dinosaur_fossil_probe
+    query: How old is the oldest dinosaur fossil discovered in Antarctica?
+    eval_layer: out_of_scope
+    eval_tag: paleontology_probe
+    expectation: out_of_scope
+    regression: false

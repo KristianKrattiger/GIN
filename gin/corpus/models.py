@@ -119,3 +119,4 @@ class SynthesisContext:
     force_connective_ids: frozenset[int] = field(default_factory=frozenset)
     active_edge_types: set[str] = field(default_factory=set)
     retrieval_manifest_hash: str = ""
+    top_doc_idx: Optional[int] = None

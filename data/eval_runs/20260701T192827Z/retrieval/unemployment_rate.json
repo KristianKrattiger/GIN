@@ -1,0 +1,19 @@
+{
+  "query_id": "unemployment_rate",
+  "query": "What was the regional unemployment rate in the latest monthly survey?",
+  "eval_layer": "counterfactual",
+  "gold_chunk_ids": [
+    "labor_bureau_report:0",
+    "labor_independent_survey:0"
+  ],
+  "retrieved_chunk_ids": [
+    "incident_regionalpost:0",
+    "incident_centralwire:0",
+    "incident_metrodaily:0",
+    "labor_bureau_report:0",
+    "labor_independent_survey:0",
+    "transit_authority_update:0"
+  ],
+  "retrieval_recall_at_k": 1.0,
+  "retrieval_manifest_hash": "5a3dd0e11ce10d226be820a07e23950a4a0995d7218c00b82d94bd8409ed92cc"
+}

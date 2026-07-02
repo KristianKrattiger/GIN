@@ -1,0 +1,12 @@
+{
+  "generated_at": "2026-07-01T19:06:01.144570+00:00",
+  "model": "/mnt/c/models/Mistral-7B-Instruct-v0.3-Q6_K.gguf",
+  "verifier_mode": "overlap",
+  "threshold": 0.5,
+  "queryset": "/mnt/c/Users/krist/Projects/gin/GIN/data/eval/queryset.yaml",
+  "arms": [
+    "rag",
+    "no_continuation"
+  ],
+  "n_queries": 9
+}

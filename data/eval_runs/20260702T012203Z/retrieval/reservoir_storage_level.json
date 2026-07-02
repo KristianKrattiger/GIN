@@ -1,0 +1,14 @@
+{
+  "query_id": "reservoir_storage_level",
+  "query": "What percentage of capacity did combined reservoir storage reach on Sunday?",
+  "eval_layer": "realism",
+  "gold_chunk_ids": [
+    "water_utility_update:0"
+  ],
+  "retrieved_chunk_ids": [
+    "water_utility_update:0",
+    "port_authority_brief:0"
+  ],
+  "retrieval_recall_at_k": 1.0,
+  "retrieval_manifest_hash": "7edce7b1443b0257b66c3408585ddae85827d4dc41b6671ba30f35aaccb147a6"
+}

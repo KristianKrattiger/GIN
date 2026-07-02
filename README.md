@@ -16,9 +16,12 @@ This repo is the **Phase 1 engineering scaffold**: a working corpus tier, hybrid
 |---------|------|
 | [`sear/`](sear/) | SEAR inference core — token-indexed `Corpus`, `ExtractiveCopyConstraint` logits processor, stratified connective inventory, `BiasedGINLogitsProcessor` |
 | [`gin/corpus/`](gin/corpus/) | Corpus tier — cold/warm/hot storage, ingest, hybrid retrieval, synthesis bundling, layered provenance records |
+| [`gin/eval/`](gin/eval/) | Eval harness — RAG vs SEAR arms, overlap/NLI verifiers, metrics, `data/eval_runs/` reports |
 | [`scripts/`](scripts/) | CLI entry points for ingest, query, materialization, and live generation |
 | [`tests/`](tests/) | Unit tests for processor, retrieval, prompts, materialization, provenance |
 | [`data/synthetic/`](data/synthetic/) | YAML eval corpus (controlled divergence, counterfactual probes) |
+| [`data/eval/`](data/eval/) | Shared query set (`queryset.yaml`) for the designed experiment |
+| [`data/eval_runs/`](data/eval_runs/) | Timestamped eval reports, per-query JSON, retrieval recall artifacts |
 | [`docker/`](docker/) | Postgres + pgvector for local development |
 
 ---
@@ -106,6 +109,22 @@ python scripts/corpus_generate.py \
 
 Output includes raw generated text and an **attribution record** with `EXACT` vs `AMBIGUOUS` span tags and source positions.
 
+### 7. RAG vs SEAR eval (requires model + Postgres)
+
+Batch the shared query set through both generation arms and write a comparison report:
+
+```bash
+python scripts/eval_run.py \
+  --model /path/to/Mistral-7B-Instruct-v0.3-Q6_K.gguf \
+  --arms rag,no_continuation \
+  --verifier overlap \
+  --threshold 0.5
+```
+
+Use `--verifier nli` for entailment scoring (downloads `cross-encoder/nli-deberta-v3-xsmall` on first use). Reports land in `data/eval_runs/<timestamp>/` (`report.md`, `metrics.json`, `results/*.json`, `retrieval/*.json`).
+
+See **[docs/GIN_ENG_02_Eval_Baseline_v1.md](docs/GIN_ENG_02_Eval_Baseline_v1.md)** for measured results and interpretation.
+
 ---
 
 ## Configuration
@@ -127,6 +146,7 @@ Output includes raw generated text and an **attribution record** with `EXACT` vs
 | `scripts/corpus_query.py` | Hybrid dense + sparse retrieval (RRF merge) |
 | `scripts/corpus_to_sear.py` | Materialize retrieved chunks into a SEAR `Corpus` (debug); supports `--manifest-version` with `--all` |
 | `scripts/corpus_generate.py` | End-to-end: retrieve → prompt → constrained llama.cpp generation |
+| `scripts/eval_run.py` | RAG vs SEAR eval harness — batch query set, overlap or NLI verifier, write `data/eval_runs/` report |
 | `scripts/corpus_wipe.py` | Reset warm-tier data (development) |
 
 ---
@@ -201,7 +221,32 @@ See **[architecture.md](architecture.md)** for data-flow diagrams, module map, a
 
 ---
 
-## Build status
+## Eval baseline
+
+Measured **RAG vs No-Continuation** on the synthetic corpus ([ENG 02](docs/GIN_ENG_02_Eval_Baseline_v1.md)).
+
+| Run | Queries | Role |
+|-----|---------|------|
+| `20260701T192827Z` | 9 | Structural prevention (overlap) |
+| `20260702T012203Z` | 20 | **NC epistemic promotion** (overlap) |
+| `20260702T010918Z` | 9 | Regression anchors post–Phase 3 |
+
+**No-Continuation (`20260702T012203Z`, full 20):**
+
+| Metric | NC | Target |
+|--------|-----|--------|
+| Fabrication rate | **0.000** | 0.000 |
+| Query relevance rate | **1.000** | ≥ 0.90 |
+| Supported irrelevance rate | **0.000** | ≤ 0.05 |
+| Gold chunk coverage | **1.000** | ≥ 0.75 |
+| Counterfactual adherence | **1.000** | ≥ 0.90 |
+| Divergence fidelity | **1.000** | preserve |
+
+**What this proves:** decode-time prevention (fabrication 0) *and* query-relevant extractive selection on the expanded queryset — via query-aware mode gating (Phases 2–3), convergent steering (Phase 1), and corroboration decode for bureau+survey counterfactuals. RAG still fabricates on overlap (0.238 on full 20) but answers counterfactuals via paraphrase.
+
+NLI confirms NC fabrication 0 on the 9-query structural baseline (`194024Z`); expanded-set NLI re-run outstanding. Details: [ENG 02](docs/GIN_ENG_02_Eval_Baseline_v1.md).
+
+---
 
 | Item | Status |
 |------|--------|
@@ -218,7 +263,9 @@ See **[architecture.md](architecture.md)** for data-flow diagrams, module map, a
 | Content-addressed retrieval manifests | ✅ |
 | Retrieval confidence floor (`RetrievalConfidenceError`) | ✅ |
 | Synthesis manifest — layered provenance record | ✅ |
-| SEAR grounding rate vs RAG baseline | 🔲 |
+| SEAR vs RAG eval harness (`scripts/eval_run.py`, `gin/eval/`) | ✅ |
+| Eval baseline — structural prevention + NC epistemic targets (overlap) | ✅ ([ENG 02](docs/GIN_ENG_02_Eval_Baseline_v1.md), run `20260702T012203Z`) |
+| Query-relevance / epistemic metrics on expanded query set | ✅ |
 | Two-node divergence demo (inter-corpus) | 🔲 |
 | Bookkeeper + reasoning layer separation (Phase 2) | 🔲 |
 | Federation routing with sync metadata (Phase 3) | 🔲 |
@@ -242,6 +289,9 @@ See **[architecture.md](architecture.md)** for data-flow diagrams, module map, a
 |----------|----------|
 | [architecture.md](architecture.md) | Technical architecture — corpus tier, SEAR, layered provenance record, module map |
 | [docs/GIN_ENG_01_SEAR_PoC_Spec.md](docs/GIN_ENG_01_SEAR_PoC_Spec.md) | SEAR proof-of-concept engineering spec and staged roadmap |
+| [docs/GIN_ENG_02_Eval_Baseline_v1.md](docs/GIN_ENG_02_Eval_Baseline_v1.md) | RAG vs No-Continuation baseline, epistemic promotion runs, deeper implications |
+| [docs/nc_mode_gating_retrieval_ordering.plan.md](docs/nc_mode_gating_retrieval_ordering.plan.md) | Phase 2: query-aware divergent gating + seed re-rank |
+| [docs/nc_phase3_divergence_correctness.plan.md](docs/nc_phase3_divergence_correctness.plan.md) | Phase 3: divergent correctness + corroboration decode (promoted) |
 | [docs/GIN_ENG_00_Engineering_Register.md](docs/GIN_ENG_00_Engineering_Register.md) | Engineering register — unmeasured specs and promotion rule |
 | [docs/GIN_Node_Architecture_v1.md](docs/GIN_Node_Architecture_v1.md) | Node tier specification (institutional / relay / client) |
 | [docs/GIN_The_Whole_Frame.md](docs/GIN_The_Whole_Frame.md) | Program synthesis — scale, governance, philosophy |

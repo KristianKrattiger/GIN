@@ -1,0 +1,17 @@
+{
+  "query_id": "election_turnout",
+  "query": "What was voter turnout in the harbor district referendum?",
+  "eval_layer": "realism",
+  "gold_chunk_ids": [
+    "election_centralwire:0",
+    "election_metrodaily:0"
+  ],
+  "retrieved_chunk_ids": [
+    "election_centralwire:0",
+    "election_metrodaily:0",
+    "school_district_report:0",
+    "port_authority_brief:0"
+  ],
+  "retrieval_recall_at_k": 1.0,
+  "retrieval_manifest_hash": "13ad4e54c377d9ee9a9d7451517b8d99fd346aa118029fe2fea22b53c1586b1c"
+}

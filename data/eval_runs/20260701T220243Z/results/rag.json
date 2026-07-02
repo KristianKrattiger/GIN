@@ -1,0 +1,423 @@
+[
+  {
+    "query_id": "incident_hospital",
+    "query": "How many people received hospital treatment after the downtown incident?",
+    "arm": "rag",
+    "eval_layer": "realism",
+    "expectation": "answerable",
+    "refused": false,
+    "claims": [
+      {
+        "claim_text": "The sources confirm that 142 people received treatment at area hospitals after the downtown incident .",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "incident_regionalpost:0",
+        "score": 0.7272727272727273,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "GENERATED",
+        "cited_chunk_ids": [
+          "incident_regionalpost:0",
+          "incident_centralwire:0",
+          "incident_metrodaily:0"
+        ]
+      }
+    ],
+    "eval_tag": "incident_divergence",
+    "retrieval_manifest_hash": "dc314def8d637c77e5ee8154be7a82cf88690407a2c6b8210e3932809f856dcb",
+    "retrieved_chunk_ids": [
+      "incident_regionalpost:0",
+      "incident_centralwire:0",
+      "incident_metrodaily:0",
+      "power_grid_status:0",
+      "housing_permits_office:0"
+    ],
+    "gold_chunk_ids": [
+      "incident_centralwire:0",
+      "incident_metrodaily:0",
+      "incident_regionalpost:0"
+    ],
+    "retrieval_recall_at_k": 1.0,
+    "raw_text": " The sources confirm that 142 people received treatment at area hospitals after the downtown incident [1: incident_regionalpost:0, 2: incident_centralwire:0, 3: incident_metrodaily:0].",
+    "counterfactual_answer": null,
+    "contradicts_pairs": [
+      [
+        "incident_centralwire:0",
+        "incident_metrodaily:0"
+      ],
+      [
+        "incident_centralwire:0",
+        "incident_regionalpost:0"
+      ]
+    ],
+    "error": null
+  },
+  {
+    "query_id": "incident_arrests",
+    "query": "How many arrests were made before midnight after the downtown incident?",
+    "arm": "rag",
+    "eval_layer": "realism",
+    "expectation": "answerable",
+    "refused": false,
+    "claims": [
+      {
+        "claim_text": "The sources support an answer.",
+        "verdict": "UNSUPPORTED",
+        "matched_chunk_id": null,
+        "score": 0.0,
+        "node_scope": "NONE",
+        "span_type": "GENERATED",
+        "cited_chunk_ids": []
+      },
+      {
+        "claim_text": "According to  and , 11 arrests were made before midnight, but  also states that 23 arrests were made before midnight.",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "incident_regionalpost:0",
+        "score": 0.6428571428571429,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "GENERATED",
+        "cited_chunk_ids": [
+          "incident_regionalpost:0",
+          "incident_centralwire:0"
+        ]
+      },
+      {
+        "claim_text": "However, it's not clear if these are the same arrests or additional ones.",
+        "verdict": "UNSUPPORTED",
+        "matched_chunk_id": null,
+        "score": 0.1,
+        "node_scope": "NONE",
+        "span_type": "GENERATED",
+        "cited_chunk_ids": []
+      },
+      {
+        "claim_text": "Therefore, the exact number of arrests made before midnight after the downtown incident cannot be definitively determined based on the provided sources.",
+        "verdict": "UNSUPPORTED",
+        "matched_chunk_id": null,
+        "score": 0.375,
+        "node_scope": "NONE",
+        "span_type": "GENERATED",
+        "cited_chunk_ids": []
+      }
+    ],
+    "eval_tag": "incident_divergence",
+    "retrieval_manifest_hash": "61973743b746bb61e7f6a5ac7993606193099b1d48ff48c441632d6511945885",
+    "retrieved_chunk_ids": [
+      "incident_regionalpost:0",
+      "incident_centralwire:0",
+      "incident_metrodaily:0",
+      "housing_permits_office:0",
+      "transit_authority_update:0"
+    ],
+    "gold_chunk_ids": [
+      "incident_centralwire:0",
+      "incident_metrodaily:0",
+      "incident_regionalpost:0"
+    ],
+    "retrieval_recall_at_k": 1.0,
+    "raw_text": " The sources support an answer. According to [1] and [2], 11 arrests were made before midnight, but [2] also states that 23 arrests were made before midnight. However, it's not clear if these are the same arrests or additional ones. Therefore, the exact number of arrests made before midnight after the downtown incident cannot be definitively determined based on the provided sources.",
+    "counterfactual_answer": null,
+    "contradicts_pairs": [
+      [
+        "incident_centralwire:0",
+        "incident_metrodaily:0"
+      ],
+      [
+        "incident_centralwire:0",
+        "incident_regionalpost:0"
+      ]
+    ],
+    "error": null
+  },
+  {
+    "query_id": "election_margin",
+    "query": "By how many votes did the harbor district referendum pass?",
+    "arm": "rag",
+    "eval_layer": "realism",
+    "expectation": "answerable",
+    "refused": false,
+    "claims": [
+      {
+        "claim_text": "The harbor district referendum passed by 842 votes, as stated in both  election_metrodaily:0 and  election_centralwire:0.",
+        "verdict": "UNSUPPORTED",
+        "matched_chunk_id": null,
+        "score": 0.42857142857142855,
+        "node_scope": "NONE",
+        "span_type": "GENERATED",
+        "cited_chunk_ids": [
+          "election_metrodaily:0",
+          "election_centralwire:0"
+        ]
+      }
+    ],
+    "eval_tag": "election_divergence",
+    "retrieval_manifest_hash": "028ab31209de0fc7ee7bc2d444cc8e36e25eda03614fa7afbeb8415ab1962a8c",
+    "retrieved_chunk_ids": [
+      "election_metrodaily:0",
+      "election_centralwire:0",
+      "port_authority_brief:0",
+      "school_district_report:0",
+      "housing_permits_office:0"
+    ],
+    "gold_chunk_ids": [
+      "election_centralwire:0",
+      "election_metrodaily:0"
+    ],
+    "retrieval_recall_at_k": 1.0,
+    "raw_text": " The harbor district referendum passed by 842 votes, as stated in both [1] election_metrodaily:0 and [2] election_centralwire:0.",
+    "counterfactual_answer": null,
+    "contradicts_pairs": [
+      [
+        "election_centralwire:0",
+        "election_metrodaily:0"
+      ]
+    ],
+    "error": null
+  },
+  {
+    "query_id": "election_turnout",
+    "query": "What was voter turnout in the harbor district referendum?",
+    "arm": "rag",
+    "eval_layer": "realism",
+    "expectation": "answerable",
+    "refused": false,
+    "claims": [
+      {
+        "claim_text": "The voter turnout in the harbor district referendum was 61 percent, according to CentralWire .",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "election_centralwire:0",
+        "score": 0.6666666666666666,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "GENERATED",
+        "cited_chunk_ids": [
+          "election_centralwire:0"
+        ]
+      },
+      {
+        "claim_text": "Opponents claim that the turnout was 58 percent, but this information comes from MetroDaily , which contradicts CentralWire.",
+        "verdict": "UNSUPPORTED",
+        "matched_chunk_id": null,
+        "score": 0.3076923076923077,
+        "node_scope": "NONE",
+        "span_type": "GENERATED",
+        "cited_chunk_ids": [
+          "election_metrodaily:0"
+        ]
+      },
+      {
+        "claim_text": "Therefore, it is unclear what the exact voter turnout was in the harbor district referendum.",
+        "verdict": "UNSUPPORTED",
+        "matched_chunk_id": null,
+        "score": 0.4444444444444444,
+        "node_scope": "NONE",
+        "span_type": "GENERATED",
+        "cited_chunk_ids": []
+      }
+    ],
+    "eval_tag": "election_divergence",
+    "retrieval_manifest_hash": "0c420e811d3207f01179fc1281024e4c55d340da71b1903a8c86445bf9f84ec4",
+    "retrieved_chunk_ids": [
+      "election_centralwire:0",
+      "election_metrodaily:0",
+      "school_district_report:0",
+      "port_authority_brief:0",
+      "inflation_independent_survey:0"
+    ],
+    "gold_chunk_ids": [
+      "election_centralwire:0",
+      "election_metrodaily:0"
+    ],
+    "retrieval_recall_at_k": 1.0,
+    "raw_text": " The voter turnout in the harbor district referendum was 61 percent, according to CentralWire [1]. Opponents claim that the turnout was 58 percent, but this information comes from MetroDaily [2], which contradicts CentralWire. Therefore, it is unclear what the exact voter turnout was in the harbor district referendum.",
+    "counterfactual_answer": null,
+    "contradicts_pairs": [
+      [
+        "election_centralwire:0",
+        "election_metrodaily:0"
+      ]
+    ],
+    "error": null
+  },
+  {
+    "query_id": "transit_ridership",
+    "query": "What was the average daily ridership in the first week of the north line extension?",
+    "arm": "rag",
+    "eval_layer": "realism",
+    "expectation": "answerable",
+    "refused": false,
+    "claims": [
+      {
+        "claim_text": "The average daily ridership in the first week of the north line extension was 18,400 boardings .",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "transit_authority_update:0",
+        "score": 0.9090909090909091,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "GENERATED",
+        "cited_chunk_ids": [
+          "transit_authority_update:0"
+        ]
+      }
+    ],
+    "eval_tag": "transit_realism",
+    "retrieval_manifest_hash": "0d2dc0eb6940f7cb56797fd1bea41433b9e1fdcb909e2e2d01c198fe0260ed7a",
+    "retrieved_chunk_ids": [
+      "transit_authority_update:0",
+      "power_grid_status:0",
+      "wage_independent_survey:0",
+      "port_authority_brief:0",
+      "wage_bureau_report:0"
+    ],
+    "gold_chunk_ids": [
+      "transit_authority_update:0"
+    ],
+    "retrieval_recall_at_k": 1.0,
+    "raw_text": " The average daily ridership in the first week of the north line extension was 18,400 boardings [1].",
+    "counterfactual_answer": null,
+    "contradicts_pairs": [],
+    "error": null
+  },
+  {
+    "query_id": "weather_winds",
+    "query": "What sustained wind speed is expected from the coastal storm system?",
+    "arm": "rag",
+    "eval_layer": "realism",
+    "expectation": "answerable",
+    "refused": true,
+    "claims": [
+      {
+        "claim_text": "The sources do not support an answer.",
+        "verdict": "REFUSAL",
+        "matched_chunk_id": null,
+        "score": 0.0,
+        "node_scope": "NONE",
+        "span_type": "REFUSAL",
+        "cited_chunk_ids": []
+      }
+    ],
+    "eval_tag": "weather_realism",
+    "retrieval_manifest_hash": "617e9675701cca0dc21a4d363864c07022e8a56aec91783b3929f1aedd48a28e",
+    "retrieved_chunk_ids": [
+      "incident_centralwire:0",
+      "incident_metrodaily:0",
+      "incident_regionalpost:0",
+      "weather_service_brief:0",
+      "port_authority_brief:0",
+      "power_grid_status:0"
+    ],
+    "gold_chunk_ids": [
+      "weather_service_brief:0"
+    ],
+    "retrieval_recall_at_k": 1.0,
+    "raw_text": " The sources do not support an answer regarding the sustained wind speed expected from the coastal storm system.",
+    "counterfactual_answer": null,
+    "contradicts_pairs": [],
+    "error": null
+  },
+  {
+    "query_id": "unemployment_rate",
+    "query": "What was the regional unemployment rate in the latest monthly survey?",
+    "arm": "rag",
+    "eval_layer": "counterfactual",
+    "expectation": "counterfactual",
+    "refused": false,
+    "claims": [
+      {
+        "claim_text": "The regional unemployment rate in the latest monthly survey stood at 3.7 percent .",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "labor_bureau_report:0",
+        "score": 1.0,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "GENERATED",
+        "cited_chunk_ids": [
+          "labor_bureau_report:0",
+          "labor_independent_survey:0"
+        ]
+      }
+    ],
+    "eval_tag": "unemployment_probe",
+    "retrieval_manifest_hash": "8795a7e793cd67b0dd697f6d00cbe57e079e82e7cac6d537df32e8d53fa8cddd",
+    "retrieved_chunk_ids": [
+      "labor_bureau_report:0",
+      "labor_independent_survey:0",
+      "inflation_bureau_report:0",
+      "wage_independent_survey:0",
+      "inflation_independent_survey:0"
+    ],
+    "gold_chunk_ids": [
+      "labor_bureau_report:0",
+      "labor_independent_survey:0"
+    ],
+    "retrieval_recall_at_k": 1.0,
+    "raw_text": " The regional unemployment rate in the latest monthly survey stood at 3.7 percent [1: labor_bureau_report:0, 2: labor_independent_survey:0].",
+    "counterfactual_answer": "3.7 percent",
+    "contradicts_pairs": [],
+    "error": null
+  },
+  {
+    "query_id": "interest_rate_probe",
+    "query": "What did the central bank decide about interest rates this quarter?",
+    "arm": "rag",
+    "eval_layer": "out_of_scope",
+    "expectation": "out_of_scope",
+    "refused": true,
+    "claims": [
+      {
+        "claim_text": "The sources do not support an answer.",
+        "verdict": "REFUSAL",
+        "matched_chunk_id": null,
+        "score": 0.0,
+        "node_scope": "NONE",
+        "span_type": "REFUSAL",
+        "cited_chunk_ids": []
+      }
+    ],
+    "eval_tag": "interest_rate_probe",
+    "retrieval_manifest_hash": "ffd950e84b1a9ab481ac858cc341b769859c02fa5b144006ec36881a0e3d9655",
+    "retrieved_chunk_ids": [
+      "inflation_bureau_report:0",
+      "labor_independent_survey:0",
+      "labor_bureau_report:0",
+      "school_district_report:0",
+      "wage_bureau_report:0"
+    ],
+    "gold_chunk_ids": [],
+    "retrieval_recall_at_k": null,
+    "raw_text": "The sources do not support an answer.",
+    "counterfactual_answer": null,
+    "contradicts_pairs": [],
+    "error": null
+  },
+  {
+    "query_id": "sports_probe",
+    "query": "Who won the national football championship final this year?",
+    "arm": "rag",
+    "eval_layer": "out_of_scope",
+    "expectation": "out_of_scope",
+    "refused": true,
+    "claims": [
+      {
+        "claim_text": "The sources do not support an answer.",
+        "verdict": "REFUSAL",
+        "matched_chunk_id": null,
+        "score": 0.0,
+        "node_scope": "NONE",
+        "span_type": "REFUSAL",
+        "cited_chunk_ids": []
+      }
+    ],
+    "eval_tag": "sports_probe",
+    "retrieval_manifest_hash": "4a47fea0fb24358dfbce361424b2ce08e8984688152af81155643692ee1f2f94",
+    "retrieved_chunk_ids": [
+      "election_metrodaily:0",
+      "election_centralwire:0",
+      "transit_authority_update:0",
+      "out_of_scope_stub:0",
+      "water_utility_update:0",
+      "power_grid_status:0"
+    ],
+    "gold_chunk_ids": [],
+    "retrieval_recall_at_k": null,
+    "raw_text": "The sources do not support an answer.",
+    "counterfactual_answer": null,
+    "contradicts_pairs": [],
+    "error": null
+  }
+]
