@@ -9,16 +9,16 @@ from gin.eval.claims import RawClaim, SpanType
 
 def test_claims_query_relevant_by_overlap():
     claims = [RawClaim(text="cargo throughput rose 12 percent", span_type=SpanType.EXACT.value)]
-    chunks = [("port:0", "Harbor cargo throughput rose 12 percent in Q2.")]
     assert _claims_query_relevant(
         "port cargo throughput",
         claims,
-        chunks,
         relevance_floor=0.20,
     )
 
 
-def test_claims_query_relevant_by_cited_chunk_substring():
+def test_claims_query_relevant_by_diluted_keyword():
+    # Direct overlap is diluted below the floor by extra numeric tokens, but the
+    # claim itself still carries the distinctive query keywords -> relevant.
     claims = [
         RawClaim(
             text="container volume reached 2.1 million TEU",
@@ -26,11 +26,9 @@ def test_claims_query_relevant_by_cited_chunk_substring():
             cited_chunk_ids=["port:0"],
         )
     ]
-    chunks = [("port:0", "Container volume reached 2.1 million TEU in Q2.")]
     assert _claims_query_relevant(
         "container volume TEU",
         claims,
-        chunks,
         relevance_floor=0.90,
     )
 
@@ -43,11 +41,34 @@ def test_claims_query_relevant_rejects_off_topic():
             cited_chunk_ids=["election:0"],
         )
     ]
-    chunks = [("election:0", "The harbor district mayor race tightened ahead of Tuesday's vote.")]
     assert not _claims_query_relevant(
         "port cargo throughput",
         claims,
-        chunks,
+        relevance_floor=0.20,
+    )
+
+
+def test_claims_query_relevant_refuses_out_of_scope_with_contradicts_edge():
+    # Out-of-scope regression (plan §6 #4): the query asks a vote MARGIN; the
+    # retrieved harbor-referendum chunks carry a contradicts edge (turnout 61 vs
+    # 58), so the query routes to divergent mode and decodes both turnout spans.
+    # Each turnout claim is a substring of an on-topic (referendum) chunk, but
+    # the claim itself shares no query keyword -> must refuse, not answer.
+    claims = [
+        RawClaim(
+            text="Turnout reached 61 percent of registered voters.",
+            span_type=SpanType.EXACT.value,
+            cited_chunk_ids=["election_centralwire:0"],
+        ),
+        RawClaim(
+            text="Turnout reached 58 percent of registered voters.",
+            span_type=SpanType.EXACT.value,
+            cited_chunk_ids=["election_metrodaily:0"],
+        ),
+    ]
+    assert not _claims_query_relevant(
+        "By how many votes did the harbor district referendum pass?",
+        claims,
         relevance_floor=0.20,
     )
 

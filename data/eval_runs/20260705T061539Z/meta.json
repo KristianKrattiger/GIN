@@ -1,0 +1,15 @@
+{
+  "generated_at": "2026-07-05T06:15:39.980905+00:00",
+  "model": "models/Mistral-7B-Instruct-v0.3-Q6_K.gguf",
+  "verifier_mode": "overlap",
+  "threshold": 0.5,
+  "queryset": "data/eval/queryset_twonode.yaml",
+  "arms": [
+    "rag",
+    "no_continuation"
+  ],
+  "n_queries": 6,
+  "n_gpu_layers": 0,
+  "wall_clock_seconds_per_query": 42.440578502166694,
+  "tokens_per_second": 1.1820448362669123
+}

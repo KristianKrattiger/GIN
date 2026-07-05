@@ -82,6 +82,18 @@ def idf_weighted_relevance(text: str, query: str, idf: dict[str, float]) -> floa
     return best
 
 
+def shares_query_keyword(text: str, query: str) -> bool:
+    """True when ``text`` carries at least one normalized query keyword.
+
+    Uses the same singular/plural fold as the divergence gate (``wildfire`` ~
+    ``wildfires``), and judges the text's OWN tokens. Callers pass a single
+    claim's text, so an on-topic multi-sentence chunk cannot vouch for an
+    off-topic extracted sentence (e.g. a turnout-% span answering a vote-margin
+    query — the out-of-scope refusal bypass, plan §6 #4).
+    """
+    return bool(_norm_query_keywords(query) & _norm_tokens(text))
+
+
 def _sentence_texts(chunk_text: str) -> list[str]:
     text = chunk_text.strip()
     if not text:

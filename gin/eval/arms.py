@@ -24,7 +24,7 @@ from gin.corpus.retrieve import (
 
 from .claims import RawClaim, rag_text_to_raw_claims, segments_to_raw_claims
 from .verifier import max_query_overlap, token_overlap
-from gin.corpus.relevance import query_keywords
+from gin.corpus.relevance import shares_query_keyword
 
 REFUSAL_SENTINEL = "The sources do not support an answer."
 _REFUSAL_MARKER = "not support an answer"
@@ -90,25 +90,29 @@ def _raw_claims_cite_gold(claims: list[RawClaim], gold_chunk_ids: list[str]) -> 
 def _claims_query_relevant(
     query: str,
     claims: list[RawClaim],
-    chunks: list[tuple[str, str]],
     relevance_floor: float,
 ) -> bool:
-    """True when any emitted claim overlaps the query or cites a matching chunk."""
+    """True when some emitted claim actually answers the query.
+
+    Both tests judge the CLAIM's own text — never the cited chunk. Checking the
+    whole cited chunk let an on-topic multi-sentence chunk vouch for an
+    off-topic extracted sentence: the out-of-scope ``harbor district
+    referendum`` chunk matches a vote-margin query, so its turnout-% span
+    (a substring of that chunk) was wrongly judged relevant instead of refused
+    (plan §6 #4). A claim qualifies when either:
+      1. its direct token overlap with the query clears the floor, or
+      2. it shares a normalized query keyword — the singular/plural fold
+         (``wildfire`` ~ ``wildfires``) the divergence gate uses, so a diluted
+         divergent extract (overlap well under the floor) still qualifies while
+         a turnout span sharing no query keyword does not.
+    """
     if not claims:
         return False
-    keywords = query_keywords(query)
-    chunk_by_id = dict(chunks)
     for claim in claims:
         if token_overlap(claim.text, query) >= relevance_floor:
             return True
-        for chunk_id in claim.cited_chunk_ids:
-            text = chunk_by_id.get(chunk_id, "")
-            if not text:
-                continue
-            text_lower = text.lower()
-            if keywords and any(kw in text_lower for kw in keywords):
-                if claim.text.lower() in text_lower:
-                    return True
+        if shares_query_keyword(claim.text, query):
+            return True
     return False
 
 
@@ -244,7 +248,7 @@ class NoContinuationArm:
             i: hit.chunk_id for i, hit in result.ctx.doc_index_to_hit.items()
         }
         claims = segments_to_raw_claims(result.segments, detok, doc_index_to_chunk_id)
-        if not _claims_query_relevant(query, claims, _chunk_texts(bundle), cfg.relevance_floor):
+        if not _claims_query_relevant(query, claims, cfg.relevance_floor):
             manifest_hash = (
                 result.retrieval_manifest.manifest_hash
                 if result.retrieval_manifest

@@ -196,11 +196,47 @@ Ranked by what would most change confidence in this result:
      "greenhouse"/"wildfire"/"water" hand you accidental overlap.
    Hand-curating edges does not scale; this is fundamentally the Cartographer's
    job (§7).
-4. **Investigate `supported_irrelevance_rate` 0.0 -> 0.200 (SEAR).** New in the
-   post-fix run; likely tied to `tn_out_of_scope_referendum` (both arms failed
-   query_relevance on it) but not yet root-caused. Small, not zero — the kind
-   of metric that's easy to wave off and then explains a confusing result three
-   sessions later. Worth the root-cause pass before building on this run.
+4. **[RESOLVED] `supported_irrelevance_rate` 0.0 -> 0.200 (SEAR).** Root-caused
+   and fixed; re-run `20260705T061539Z` restores it to **0.000** with
+   `divergence_fidelity` 1.000 and `fabrication_rate` 0.000 intact (bonus:
+   `failure_recall`/`failure_precision` now 1.0 — the out-of-scope probe is
+   correctly classified as a refusal).
+
+   **Root cause.** `tn_out_of_scope_referendum` ("By how many votes did the
+   harbor district referendum pass?") retrieves the *synthetic* election chunks
+   `election_centralwire:0` / `election_metrodaily:0` (the two-node eval runs on
+   a mixed DB), which carry a `contradicts` edge on *turnout* (61% vs 58%). The
+   query is query-relevant to those chunks (both are about the referendum), so
+   the IDF divergence gate correctly routes to divergent mode and decodes both
+   turnout sides. But the emitted turnout claims don't answer a *vote-margin*
+   question, so SEAR should refuse — and didn't. The refusal gate
+   `_claims_query_relevant` (`gin/eval/arms.py`) let them through: its
+   fallback branch checked whether the query keywords appeared *anywhere in the
+   cited chunk* (which is on-topic — it contains "harbor district referendum")
+   and whether the claim was a substring of it. A multi-sentence chunk that is
+   on-topic elsewhere thus vouched for an off-topic extracted sentence.
+
+   **Fix.** `_claims_query_relevant` now judges the **claim's own text**, never
+   the cited chunk: a claim qualifies on direct token overlap OR by sharing a
+   *normalized* query keyword (`shares_query_keyword` in `relevance.py`, the
+   same singular/plural fold — `wildfire`~`wildfires` — the divergence gate
+   uses). Every legitimate divergence claim shares such a keyword within its own
+   text (`wildfire`, `water`, `greenhouse`/`gas`), while both turnout claims
+   share none -> refuse. Regression:
+   `tests/test_eval_arms.py::test_claims_query_relevant_refuses_out_of_scope_with_contradicts_edge`.
+
+   **Corpus nuance worth recording.** The task framing assumed "the chunks only
+   give turnout %", but `election_centralwire:0` in fact also contains the
+   convergent lede *"The harbor district referendum passed by 842 votes"* — the
+   literal answer. The divergent decode never surfaced it because that sentence
+   is *shared* (non-divergent), so the divergence machinery quoted the diverging
+   turnout sentences instead. Refusing is the correct conservative behavior for
+   the answer SEAR actually produced (off-topic turnout spans); a
+   convergent-mode "842 votes" extraction would be a separate sentence-selection
+   change, out of scope here and in tension with the queryset's
+   `expectation: out_of_scope` label. The refusal fix is a post-decode guard: a
+   pre-decode retrieval-relevance refusal cannot fire here because the retrieved
+   chunks genuinely ARE query-relevant.
 5. **`max_tokens` ceiling has no principled basis yet.** `40 + 90*n` was picked
    to clear one observed truncation (the water pair), not from a token-length
    distribution. At 51.8s/query it is already the dominant cost, and that will
