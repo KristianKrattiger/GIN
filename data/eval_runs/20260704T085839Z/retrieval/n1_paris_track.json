@@ -1,0 +1,16 @@
+{
+  "query_id": "n1_paris_track",
+  "query": "What temperature rise do current Paris Agreement pledges put the world on track for?",
+  "eval_layer": "realism",
+  "gold_chunk_ids": [
+    "doc_005:1"
+  ],
+  "retrieved_chunk_ids": [
+    "doc_005:1",
+    "doc_005:4",
+    "doc_002:1",
+    "doc_001:0"
+  ],
+  "retrieval_recall_at_k": 1.0,
+  "retrieval_manifest_hash": "9543439f72a28a83f4f17cc02d5154308f71e14c1860ce9832018ee9e7c1e25e"
+}

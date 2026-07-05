@@ -21,7 +21,14 @@ from .verifier import token_overlap
 _GROUNDED_SPAN_TYPES = frozenset({SpanType.EXACT.value, SpanType.AMBIGUOUS.value})
 # Matches gin.eval.arms.DEFAULT_RELEVANCE_FLOOR — query-term overlap floor.
 QUERY_RELEVANCE_FLOOR = 0.20
-_DIVERGENCE_TAGS = frozenset({"incident_divergence", "election_divergence"})
+_DIVERGENCE_TAGS = frozenset({
+    "incident_divergence",
+    "election_divergence",
+    # Two-node institutional-vs-grassroots divergence topics (queryset_twonode.yaml).
+    "emissions_divergence",
+    "wildfire_divergence",
+    "water_divergence",
+})
 
 
 @dataclass

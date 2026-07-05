@@ -1,6 +1,7 @@
 """Query relevance scoring for synthesis span steering."""
 from __future__ import annotations
 
+import math
 import re
 from typing import Callable, Optional
 
@@ -19,6 +20,66 @@ _SENTENCE_SPLIT = re.compile(r"(?<=[.!?])\s+|(?<=—)\s+")
 def query_keywords(query: str) -> set[str]:
     words = re.findall(r"[a-z0-9]+", query.lower())
     return {w for w in words if len(w) > 2 and w not in _STOPWORDS}
+
+
+# --- IDF-weighted divergence relevance --------------------------------------
+# Self-contained scorer used only by the divergent-mode gate. It normalizes
+# singular/plural ("wildfires" -> "wildfire") and weights each shared query
+# keyword by its corpus IDF, so a single DISTINCTIVE match ("wildfire") clears
+# the bar while a single GENERIC one ("district") does not — the separation the
+# plain keyword-count gate cannot make. Kept independent of query_keywords /
+# max_sentence_score so global retrieval/reranking behavior is unchanged.
+
+def _normalize_token(word: str) -> str:
+    """Light singular/plural fold: drop a single trailing 's' on longer words."""
+    if len(word) > 3 and word.endswith("s") and not word.endswith("ss"):
+        return word[:-1]
+    return word
+
+
+def _norm_tokens(text: str) -> set[str]:
+    return {_normalize_token(w) for w in re.findall(r"[a-z0-9]+", text.lower())}
+
+
+def _norm_query_keywords(query: str) -> set[str]:
+    words = re.findall(r"[a-z0-9]+", query.lower())
+    return {
+        _normalize_token(w)
+        for w in words
+        if len(w) > 2 and w not in _STOPWORDS
+    }
+
+
+def corpus_idf(chunk_texts: list[str]) -> dict[str, float]:
+    """Smoothed IDF per normalized token over a chunk corpus (chunk = document)."""
+    n_docs = len(chunk_texts) or 1
+    doc_freq: dict[str, int] = {}
+    for text in chunk_texts:
+        for tok in _norm_tokens(text):
+            doc_freq[tok] = doc_freq.get(tok, 0) + 1
+    return {
+        tok: math.log((n_docs + 1) / (df + 1)) + 1.0
+        for tok, df in doc_freq.items()
+    }
+
+
+def idf_weighted_relevance(text: str, query: str, idf: dict[str, float]) -> float:
+    """Fraction of the query's IDF mass matched by the best sentence in a chunk.
+
+    Only query keywords present in the corpus (known IDF) count toward the
+    denominator, so out-of-corpus query words don't dilute the score.
+    """
+    keywords = {k for k in _norm_query_keywords(query) if k in idf}
+    if not keywords:
+        return 0.0
+    total = sum(idf[k] for k in keywords)
+    if total <= 0:
+        return 0.0
+    best = 0.0
+    for sent in _sentence_texts(text):
+        matched = keywords & _norm_tokens(sent)
+        best = max(best, sum(idf[k] for k in matched) / total)
+    return best
 
 
 def _sentence_texts(chunk_text: str) -> list[str]:

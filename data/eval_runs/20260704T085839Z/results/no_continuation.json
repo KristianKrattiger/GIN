@@ -1,0 +1,273 @@
+[
+  {
+    "query_id": "n1_warming_cause",
+    "query": "What has caused global warming according to the IPCC?",
+    "arm": "no_continuation",
+    "eval_layer": "realism",
+    "expectation": "answerable",
+    "refused": false,
+    "claims": [
+      {
+        "claim_text": "Human activities, principally through emissions of greenhouse gases, have",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "doc_001:0",
+        "score": 1.0,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "EXACT",
+        "cited_chunk_ids": [
+          "doc_001:0"
+        ]
+      }
+    ],
+    "eval_tag": "attribution",
+    "retrieval_manifest_hash": "ddae12818e9621e40ade855e932cfd76cbbd7a04f790e048f29aee50ffcb4003",
+    "retrieved_chunk_ids": [
+      "doc_001:0",
+      "doc_001:1",
+      "doc_006:0",
+      "doc_001:3"
+    ],
+    "gold_chunk_ids": [
+      "doc_001:0"
+    ],
+    "retrieval_recall_at_k": 1.0,
+    "raw_text": " Human activities, principally through emissions of greenhouse gases, have |",
+    "counterfactual_answer": null,
+    "contradicts_pairs": [],
+    "error": null
+  },
+  {
+    "query_id": "n1_2023_anomaly",
+    "query": "How much warmer was 2023 than the twentieth-century average?",
+    "arm": "no_continuation",
+    "eval_layer": "realism",
+    "expectation": "answerable",
+    "refused": false,
+    "claims": [
+      {
+        "claim_text": "In 2023, global surface temperature was about 2.",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "doc_002:1",
+        "score": 1.0,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "EXACT",
+        "cited_chunk_ids": [
+          "doc_002:1"
+        ]
+      }
+    ],
+    "eval_tag": "temperature_data",
+    "retrieval_manifest_hash": "5c95dfe924bb7ede072a0c1db38738a299a9b1170e264fb25101b0b842cc5444",
+    "retrieved_chunk_ids": [
+      "doc_002:1",
+      "doc_005:0",
+      "doc_007:0",
+      "doc_007:1"
+    ],
+    "gold_chunk_ids": [
+      "doc_002:1"
+    ],
+    "retrieval_recall_at_k": 1.0,
+    "raw_text": " In 2023, global surface temperature was about 2. |",
+    "counterfactual_answer": null,
+    "contradicts_pairs": [],
+    "error": null
+  },
+  {
+    "query_id": "n1_warmest_year",
+    "query": "Which year was the warmest on record?",
+    "arm": "no_continuation",
+    "eval_layer": "realism",
+    "expectation": "answerable",
+    "refused": false,
+    "claims": [
+      {
+        "claim_text": "NOAA ranks 2023 as the warmest year in its global temperature record",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "doc_002:0",
+        "score": 1.0,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "EXACT",
+        "cited_chunk_ids": [
+          "doc_002:0"
+        ]
+      }
+    ],
+    "eval_tag": "temperature_data",
+    "retrieval_manifest_hash": "8fab18c147c085cb4b3cf875fc91e0d0c710dc05a6f4e0e97df78095208d8d05",
+    "retrieved_chunk_ids": [
+      "doc_002:0",
+      "doc_007:0",
+      "doc_006:2",
+      "doc_007:2",
+      "doc_002:2"
+    ],
+    "gold_chunk_ids": [
+      "doc_002:0",
+      "doc_006:2",
+      "doc_007:0"
+    ],
+    "retrieval_recall_at_k": 1.0,
+    "raw_text": " NOAA ranks 2023 as the warmest year in its global temperature record |",
+    "counterfactual_answer": null,
+    "contradicts_pairs": [],
+    "error": null
+  },
+  {
+    "query_id": "n1_ocean_acidification",
+    "query": "What is ocean acidification and what causes it?",
+    "arm": "no_continuation",
+    "eval_layer": "realism",
+    "expectation": "answerable",
+    "refused": false,
+    "claims": [
+      {
+        "claim_text": "Ocean acidification refers to a reduction in the pH of the ocean",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "doc_004:0",
+        "score": 1.0,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "EXACT",
+        "cited_chunk_ids": [
+          "doc_004:0"
+        ]
+      }
+    ],
+    "eval_tag": "ocean_acidification",
+    "retrieval_manifest_hash": "2ea46dc2ce6c1ceb91beffe78f30a43693c094f42bc1f1d28fbef35009b69171",
+    "retrieved_chunk_ids": [
+      "doc_004:0",
+      "doc_004:4",
+      "doc_004:6"
+    ],
+    "gold_chunk_ids": [
+      "doc_004:0"
+    ],
+    "retrieval_recall_at_k": 1.0,
+    "raw_text": " Ocean acidification refers to a reduction in the pH of the ocean |",
+    "counterfactual_answer": null,
+    "contradicts_pairs": [],
+    "error": null
+  },
+  {
+    "query_id": "n1_paris_track",
+    "query": "What temperature rise do current Paris Agreement pledges put the world on track for?",
+    "arm": "no_continuation",
+    "eval_layer": "realism",
+    "expectation": "answerable",
+    "refused": false,
+    "claims": [
+      {
+        "claim_text": "Current pledges under the Paris Agreement put the world on track for a 2.5-2.9 degree C temperature rise",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "doc_005:1",
+        "score": 1.0,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "EXACT",
+        "cited_chunk_ids": [
+          "doc_005:1"
+        ]
+      }
+    ],
+    "eval_tag": "emissions_assessment",
+    "retrieval_manifest_hash": "9543439f72a28a83f4f17cc02d5154308f71e14c1860ce9832018ee9e7c1e25e",
+    "retrieved_chunk_ids": [
+      "doc_005:1",
+      "doc_005:4",
+      "doc_002:1",
+      "doc_001:0"
+    ],
+    "gold_chunk_ids": [
+      "doc_005:1"
+    ],
+    "retrieval_recall_at_k": 1.0,
+    "raw_text": " Current pledges under the Paris Agreement put the world on track for a 2.5-2.9 degree C temperature rise |",
+    "counterfactual_answer": null,
+    "contradicts_pairs": [],
+    "error": null
+  },
+  {
+    "query_id": "n1_co2_concentration",
+    "query": "How do current atmospheric CO2 concentrations compare to the deep past?",
+    "arm": "no_continuation",
+    "eval_layer": "realism",
+    "expectation": "answerable",
+    "refused": false,
+    "claims": [
+      {
+        "claim_text": "Atmospheric CO2 concentrations in 2019 were higher than at any time in at least 2 million years, while methane and nitrous oxide concentrations were higher than at any time in at least 800,000 years.",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "doc_001:2",
+        "score": 1.0,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "EXACT",
+        "cited_chunk_ids": [
+          "doc_001:2"
+        ]
+      }
+    ],
+    "eval_tag": "attribution",
+    "retrieval_manifest_hash": "4723b8cea9b507dd2025b548f7d90c3e15de2f640e9919412557fcfe846bf9e4",
+    "retrieved_chunk_ids": [
+      "doc_001:2",
+      "doc_004:1",
+      "doc_001:7",
+      "doc_007:4",
+      "doc_004:2"
+    ],
+    "gold_chunk_ids": [
+      "doc_001:2"
+    ],
+    "retrieval_recall_at_k": 1.0,
+    "raw_text": " Atmospheric CO2 concentrations in 2019 were higher than at any time in at least 2 million years, while methane and nitrous oxide concentrations were higher than at any time in at least 800,000 years. |",
+    "counterfactual_answer": null,
+    "contradicts_pairs": [],
+    "error": null
+  },
+  {
+    "query_id": "n1_out_of_scope_referendum",
+    "query": "By how many votes did the harbor district referendum pass?",
+    "arm": "no_continuation",
+    "eval_layer": "out_of_scope",
+    "expectation": "out_of_scope",
+    "refused": false,
+    "claims": [
+      {
+        "claim_text": "Turnout reached 61 percent of registered voters.\nThe port authority said new zoning rules take effect in January.",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "election_centralwire:0",
+        "score": 1.0,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "EXACT",
+        "cited_chunk_ids": [
+          "election_centralwire:0"
+        ]
+      },
+      {
+        "claim_text": "Turnout reached 58 percent of registered voters.",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "election_metrodaily:0",
+        "score": 1.0,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "EXACT",
+        "cited_chunk_ids": [
+          "election_metrodaily:0"
+        ]
+      }
+    ],
+    "eval_tag": "oos_probe",
+    "retrieval_manifest_hash": "9606c29ed4bc930ee2a22680e72a4e7011feb8faf1707a3aae1ebde4372d84a0",
+    "retrieved_chunk_ids": [
+      "election_centralwire:0",
+      "election_metrodaily:0",
+      "port_authority_brief:0",
+      "school_district_report:0"
+    ],
+    "gold_chunk_ids": [],
+    "retrieval_recall_at_k": null,
+    "raw_text": "Turnout reached 61 percent of registered voters.\nThe port authority said new zoning rules take effect in January. | [1]Turnout reached 58 percent of registered voters.\n |",
+    "counterfactual_answer": null,
+    "contradicts_pairs": [],
+    "error": null
+  }
+]

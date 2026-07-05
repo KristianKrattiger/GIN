@@ -1,0 +1,26 @@
+# Cross-node contradicts edges for the two-node divergence test.
+# Ingest AFTER corpus_node1.json and corpus_node2.json so the referenced
+# chunks exist. Warm-tier chunk ids are "<doc_id>:<index>".
+#
+# Each edge links an institutional (node 1) framing of a topic to the
+# grassroots (node 2) framing of the same topic. These contradicts edges are
+# what make SEAR enter divergent synthesis mode (retrieve._is_ambiguous /
+# _build_pairs), and they mirror the contradicts_pairs in queryset_twonode.yaml.
+
+documents: []
+
+edges:
+  - src: n1_doc_005:2        # UNEP: low-carbon transformation / 28%-42% cut targets
+    dst: n2_doc_001:4        # IEN: Indigenous resistance stopped 1/4 of US+CA emissions
+    type: contradicts
+    note: "emissions: institutional reduction-target framing vs grassroots resistance framing"
+
+  - src: n1_doc_008:0        # NIFC: 56,580 fires / 2.69M acres, below average
+    dst: n2_doc_005:1        # Earthjustice: low-income at risk from wildfire smoke
+    type: contradicts
+    note: "wildfire: acreage / suppression metrics vs air quality in low-income zones"
+
+  - src: n1_doc_009:0        # CA DWR: snowpack 237% of average
+    dst: n2_doc_008:2        # Pacific Institute: shortages hit disadvantaged communities
+    type: contradicts
+    note: "water: reservoir / snowpack index vs frontline rationing / equity"

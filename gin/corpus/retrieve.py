@@ -18,6 +18,27 @@ DEFAULT_MIN_RRF_DELTA = 0.25
 RETRIEVAL_CONFIDENCE_FLOOR = 0.010
 DIVERGENCE_RELEVANCE_FLOOR = 0.15
 MIN_DIVERGENCE_KEYWORD_MATCHES = 2
+# IDF-weighted divergence gate: min fraction of the query's IDF mass a chunk
+# must match to count as one side of a real contradiction. Separates a single
+# distinctive shared word (e.g. "wildfire") from a generic one (e.g. "district").
+DIVERGENCE_IDF_FLOOR = 0.13
+
+# Corpus IDF cache, keyed by chunk count (a wipe/re-ingest changes the count).
+# Crude but fine for the eval workflow; only the latest corpus is retained.
+_IDF_CACHE: dict[int, dict[str, float]] = {}
+
+
+def _corpus_idf(conn) -> dict[str, float]:
+    n = warm.count_chunks(conn)
+    cached = _IDF_CACHE.get(n)
+    if cached is not None:
+        return cached
+    from .relevance import corpus_idf
+
+    idf = corpus_idf([c.text for c in warm.list_chunks(conn)])
+    _IDF_CACHE.clear()
+    _IDF_CACHE[n] = idf
+    return idf
 
 
 class RetrievalConfidenceError(Exception):
@@ -146,14 +167,24 @@ def _apply_relevance_floor(hits: list[ChunkHit], min_rrf_delta: float) -> list[C
     return [h for h in hits if h.rrf_score >= floor]
 
 
-def _divergence_relevant(text: str, query: str) -> bool:
+def _divergence_relevant(
+    text: str, query: str, idf: Optional[dict[str, float]] = None
+) -> bool:
     """Query-relevance test for one side of a contradicts pair.
 
-    A single shared keyword (e.g. "district" in both an election chunk and a
-    school query) is not evidence the contradiction matters to the query, so
-    for queries with enough keywords a sentence must match at least
+    With corpus ``idf`` (production path), a chunk is relevant when it matches
+    enough of the query's IDF-weighted keyword mass — one DISTINCTIVE shared
+    word suffices, a generic one does not. Without idf (unit tests), fall back
+    to the lexical gate: a single shared keyword (e.g. "district" in both an
+    election chunk and a school query) is not evidence the contradiction matters,
+    so for queries with enough keywords a sentence must match at least
     MIN_DIVERGENCE_KEYWORD_MATCHES of them.
     """
+    if idf is not None:
+        from .relevance import idf_weighted_relevance
+
+        return idf_weighted_relevance(text, query, idf) >= DIVERGENCE_IDF_FLOOR
+
     from .relevance import matched_keyword_count, max_sentence_score, query_keywords
 
     if max_sentence_score(text, query) < DIVERGENCE_RELEVANCE_FLOOR:
@@ -166,7 +197,29 @@ def _divergence_relevant(text: str, query: str) -> bool:
     return matched_keyword_count(text, query) >= required
 
 
-def _is_ambiguous(seed_hits: list[ChunkHit], edges: list[EdgeRecord], query: str = "") -> bool:
+def _pair_divergence_ok(
+    left_text: str, right_text: str, query: str, idf: Optional[dict[str, float]] = None
+) -> bool:
+    """Both sides of a curated contradicts pair must be query-relevant.
+
+    With IDF-weighted relevance (``idf``), a genuine reframing whose only shared
+    word is DISTINCTIVE ("wildfire") passes while an unrelated edge partner
+    sharing only a GENERIC word ("district" between an enrollment chunk and a
+    turnout query) does not — the separation plain keyword-overlap can't make.
+    The both-sides requirement is retained as defense against mis-curated edges.
+    See docs/nc_phase3_divergence_correctness.plan.md.
+    """
+    return _divergence_relevant(left_text, query, idf) and _divergence_relevant(
+        right_text, query, idf
+    )
+
+
+def _is_ambiguous(
+    seed_hits: list[ChunkHit],
+    edges: list[EdgeRecord],
+    query: str = "",
+    idf: Optional[dict[str, float]] = None,
+) -> bool:
     contradicts_edges = [e for e in edges if e.edge_type == "contradicts"]
     if not query:
         # Legacy path: no query context, fall back to blunt heuristics.
@@ -192,7 +245,7 @@ def _is_ambiguous(seed_hits: list[ChunkHit], edges: list[EdgeRecord], query: str
         right = hit_by_id.get(edge.dst_chunk_id)
         if left is None or right is None:
             continue
-        if _divergence_relevant(left.text, query) and _divergence_relevant(right.text, query):
+        if _pair_divergence_ok(left.text, right.text, query, idf):
             return True
     return False
 
@@ -201,6 +254,7 @@ def _build_pairs(
     hits_by_id: dict[str, ChunkHit],
     edges: list[EdgeRecord],
     query: str = "",
+    idf: Optional[dict[str, float]] = None,
 ) -> list[tuple[ChunkHit, ChunkHit, EdgeRecord]]:
     pairs: list[tuple[ChunkHit, ChunkHit, EdgeRecord]] = []
     for edge in edges:
@@ -211,10 +265,10 @@ def _build_pairs(
         if left is None or right is None:
             continue
         if edge.edge_type == "contradicts" and query:
-            # Same both-sides test as _is_ambiguous, so a pair can never be
-            # front-loaded by _prioritize_hits without also flipping the mode.
-            if not (_divergence_relevant(left.text, query)
-                    and _divergence_relevant(right.text, query)):
+            # Same divergence-relevance test as _is_ambiguous, so a pair can
+            # never be front-loaded by _prioritize_hits without also flipping
+            # the mode.
+            if not _pair_divergence_ok(left.text, right.text, query, idf):
                 continue
         pairs.append((left, right, edge))
     return pairs
@@ -347,8 +401,11 @@ def retrieve_for_synthesis(
         )
         neighbor_id_set = _neighbor_ids_from_seed_edges(seed_id_set, edges)
         neighbors = warm.fetch_chunks_by_ids(conn, sorted(neighbor_id_set))
+        idf = _corpus_idf(conn)
 
-    mode: SynthesisMode = "divergent" if _is_ambiguous(seed_hits, edges, query) else "convergent"
+    mode: SynthesisMode = (
+        "divergent" if _is_ambiguous(seed_hits, edges, query, idf) else "convergent"
+    )
 
     hits_by_id: dict[str, ChunkHit] = {h.chunk_id: h for h in seed_hits}
     for hit in neighbors:
@@ -358,13 +415,25 @@ def retrieve_for_synthesis(
         e for e in edges
         if e.src_chunk_id in hits_by_id and e.dst_chunk_id in hits_by_id
     ]
-    pairs = _build_pairs(hits_by_id, all_edges, query)
+    pairs = _build_pairs(hits_by_id, all_edges, query, idf)
 
     merged = _prioritize_hits(
         seed_hits, neighbors, pairs, k_max=k_max, min_rrf_delta=min_rrf_delta
     )
     hits_by_id = {h.chunk_id: h for h in merged}
-    pairs = _build_pairs(hits_by_id, all_edges, query)
+    pairs = _build_pairs(hits_by_id, all_edges, query, idf)
     hits = _boost_paired_scores(merged, pairs)
+
+    # Mode follows the contradicts pairs that actually survived edge expansion
+    # and the divergence-relevance gate. A contradiction reachable only via a
+    # neighbor (one endpoint not in the seed set) is real divergence too, and
+    # the seed-only _is_ambiguous would miss it — so for the query path derive
+    # mode from the surviving pairs.
+    if query:
+        mode = (
+            "divergent"
+            if any(getattr(e, "edge_type", None) == "contradicts" for _, _, e in pairs)
+            else "convergent"
+        )
 
     return SynthesisBundle(hits=hits, edges=all_edges, mode=mode, pairs=pairs)

@@ -68,6 +68,7 @@ def compute_divergence_zones(
             continue
         left_sents = doc_records[li]
         right_sents = doc_records[ri]
+        marked = False
         for i, (ls, lp, _le) in enumerate(left_sents):
             if i < len(right_sents):
                 rs, rp, _re = right_sents[i]
@@ -76,8 +77,25 @@ def compute_divergence_zones(
                         continue
                     if (li, lp) in corpus.sentence_starts:
                         divergence_starts[li].add(lp)
+                        marked = True
                     if (ri, rp) in corpus.sentence_starts:
                         divergence_starts[ri].add(rp)
+                        marked = True
+        if not marked:
+            # Structurally-dissimilar contradicts pair: an institutional
+            # statistic ("56,580 wildfires burned 2.7M acres") vs a grassroots
+            # reframing ("populations face risk from wildfire smoke") share no
+            # aligned lede, so the index-aligned >=3-word overlap test above
+            # never fires and the pair is left with no divergence zone. That is
+            # fatal downstream: every doc-unique sentence -- including the
+            # pair's own anchors -- falls into the forbidden tail net below,
+            # blocking all span starts so the divergent decode "refuses". In a
+            # reframing pair the divergence IS the whole chunk on each side, so
+            # mark each side's sentence starts as its own divergence zone.
+            for doc_idx, sents in ((li, left_sents), (ri, right_sents)):
+                for _sent, start, _end in sents:
+                    if (doc_idx, start) in corpus.sentence_starts:
+                        divergence_starts[doc_idx].add(start)
 
     sent_text_to_docs: dict[str, set[int]] = defaultdict(set)
     for doc_idx, records in doc_records.items():

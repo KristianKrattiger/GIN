@@ -343,6 +343,32 @@ def test_build_pairs_requires_both_sides_relevant():
     assert pairs == []
 
 
+def test_build_pairs_idf_keeps_distinctive_single_match():
+    """With corpus IDF, a reframing sharing one DISTINCTIVE query word survives.
+
+    The grassroots side shares only "wildfire" with the query — too few keywords
+    for the lexical gate, but a high-IDF distinctive match under the IDF gate.
+    """
+    idf = {"wildfire": 5.0, "main": 1.0, "concern": 1.0, "about": 1.0}
+    dominant = _hit("a:0", "N1", 0.5, text="Wildfire acres burned were recorded nationally.")
+    reframing = _hit("b:0", "N2", 0.45, text="Low-income communities face wildfire smoke exposure.")
+    hits_by_id = {h.chunk_id: h for h in [dominant, reframing]}
+    edges = [EdgeRecord("a:0", "b:0", "contradicts")]
+    pairs = _build_pairs(hits_by_id, edges, "main concern about wildfires", idf)
+    assert [(l.chunk_id, r.chunk_id) for l, r, _ in pairs] == [("a:0", "b:0")]
+
+
+def test_build_pairs_idf_drops_generic_single_match():
+    """With corpus IDF, an unrelated partner sharing only a GENERIC word is dropped."""
+    idf = {"district": 1.0, "harbor": 5.0, "referendum": 5.0}
+    dominant = _hit("a:0", "N1", 0.5, text="Turnout in the harbor district referendum was high.")
+    unrelated = _hit("b:0", "N2", 0.45, text="Fall enrollment across district campuses rose.")
+    hits_by_id = {h.chunk_id: h for h in [dominant, unrelated]}
+    edges = [EdgeRecord("a:0", "b:0", "contradicts")]
+    pairs = _build_pairs(hits_by_id, edges, "harbor district referendum", idf)
+    assert pairs == []
+
+
 def test_retrieve_for_synthesis_port_query_with_election_contradicts():
     """Full path: port query with election contradicts in RRF seeds -> convergent."""
     election_cw = _hit(

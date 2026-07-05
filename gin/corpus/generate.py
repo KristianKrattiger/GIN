@@ -71,7 +71,14 @@ def _resolve_decode_params(
     )
     if max_tokens is None:
         if divergent:
-            max_tokens = 40 + 25 * len(ctx.required_doc_groups)
+            # Each required group is one contradicts pair -> two extracted
+            # sentences (both sides) plus cite markers and a delimiter. Real
+            # institutional sentences run ~55 tokens, so the old 25/group budget
+            # left the second side truncated to a fragment ("Elderly,
+            # immunocompromised"). Give each group room for two full sentences;
+            # EOS still fires the instant both sides are quoted
+            # (stop_when_groups_satisfied), so surplus budget is never spent.
+            max_tokens = 40 + 90 * len(ctx.required_doc_groups)
         elif competing_same_tag:
             max_tokens = 100
         else:

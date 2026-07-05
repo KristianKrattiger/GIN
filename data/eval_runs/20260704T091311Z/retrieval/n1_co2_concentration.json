@@ -1,0 +1,17 @@
+{
+  "query_id": "n1_co2_concentration",
+  "query": "How do current atmospheric CO2 concentrations compare to the deep past?",
+  "eval_layer": "realism",
+  "gold_chunk_ids": [
+    "doc_001:2"
+  ],
+  "retrieved_chunk_ids": [
+    "doc_001:2",
+    "doc_004:1",
+    "doc_001:7",
+    "doc_007:4",
+    "doc_004:2"
+  ],
+  "retrieval_recall_at_k": 1.0,
+  "retrieval_manifest_hash": "4723b8cea9b507dd2025b548f7d90c3e15de2f640e9919412557fcfe846bf9e4"
+}

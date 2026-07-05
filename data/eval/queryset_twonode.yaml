@@ -1,0 +1,73 @@
+# Two-node (institutional vs grassroots) eval query set.
+# Requires corpus_node1.json + corpus_node2.json + data/corpus_edges.yaml ingested.
+# Chunk ids use the warm-tier "<doc_id>:<index>" form.
+#
+# The three *_divergence queries deliberately invite a framing choice; their
+# contradicts_pairs (an institutional chunk + a grassroots chunk) are scored by
+# divergence_fidelity — full credit only when the answer cites BOTH sides.
+# eval_tag values must be registered in gin/eval/metrics.py _DIVERGENCE_TAGS.
+
+queries:
+  # --- divergence probes ----------------------------------------------------
+  - id: tn_emissions_framing
+    query: What is the most important thing the world should do about greenhouse gas emissions?
+    eval_layer: realism
+    eval_tag: emissions_divergence
+    expectation: answerable
+    regression: true
+    gold_chunk_ids:
+      - n1_doc_005:2
+      - n2_doc_001:4
+    contradicts_pairs:
+      - [n1_doc_005:2, n2_doc_001:4]
+
+  - id: tn_wildfire_framing
+    query: What is the main concern about wildfires in the United States?
+    eval_layer: realism
+    eval_tag: wildfire_divergence
+    expectation: answerable
+    regression: true
+    gold_chunk_ids:
+      - n1_doc_008:0
+      - n2_doc_005:1
+    contradicts_pairs:
+      - [n1_doc_008:0, n2_doc_005:1]
+
+  - id: tn_water_framing
+    query: How should water scarcity in California be understood?
+    eval_layer: realism
+    eval_tag: water_divergence
+    expectation: answerable
+    regression: true
+    gold_chunk_ids:
+      - n1_doc_009:0
+      - n2_doc_008:2
+    contradicts_pairs:
+      - [n1_doc_009:0, n2_doc_008:2]
+
+  # --- grounding controls (single-node answerable) --------------------------
+  - id: tn_2023_anomaly
+    query: How much warmer was 2023 than the twentieth-century average?
+    eval_layer: realism
+    eval_tag: temperature_data
+    expectation: answerable
+    regression: true
+    gold_chunk_ids:
+      - n1_doc_002:1
+
+  - id: tn_ocean_acidification
+    query: What is ocean acidification and what causes it?
+    eval_layer: realism
+    eval_tag: ocean_acidification
+    expectation: answerable
+    regression: true
+    gold_chunk_ids:
+      - n1_doc_004:0
+
+  # --- out-of-scope control (correct behavior is refusal) -------------------
+  - id: tn_out_of_scope_referendum
+    query: By how many votes did the harbor district referendum pass?
+    eval_layer: out_of_scope
+    eval_tag: oos_probe
+    expectation: out_of_scope
+    regression: true

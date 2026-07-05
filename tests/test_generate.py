@@ -94,4 +94,6 @@ def test_divergent_with_groups_blocks_eos():
     params = _resolve(hits, "divergent", groups=[frozenset({0, 1})])
     assert params["block_eos"] is True
     assert params["stop_when_satisfied"] is True
-    assert params["max_tokens"] == 40 + 25
+    # One group == one contradicts pair == two full sentences of budget; EOS
+    # still fires the moment both sides are quoted, so this is a ceiling.
+    assert params["max_tokens"] == 40 + 90

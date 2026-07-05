@@ -1,0 +1,16 @@
+{
+  "query_id": "n1_warming_cause",
+  "query": "What has caused global warming according to the IPCC?",
+  "eval_layer": "realism",
+  "gold_chunk_ids": [
+    "doc_001:0"
+  ],
+  "retrieved_chunk_ids": [
+    "doc_001:0",
+    "doc_001:1",
+    "doc_006:0",
+    "doc_001:3"
+  ],
+  "retrieval_recall_at_k": 1.0,
+  "retrieval_manifest_hash": "ddae12818e9621e40ade855e932cfd76cbbd7a04f790e048f29aee50ffcb4003"
+}

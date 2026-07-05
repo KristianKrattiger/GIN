@@ -1,6 +1,7 @@
-"""Ingest pipeline — YAML synthetic corpus into cold, warm, and hot tiers."""
+"""Ingest pipeline — YAML/JSON corpus into cold, warm, and hot tiers."""
 from __future__ import annotations
 
+import json
 import re
 from pathlib import Path
 from typing import Any
@@ -61,13 +62,57 @@ def load_yaml(path: Path) -> tuple[list[DocumentDraft], list[EdgeDraft]]:
     return documents, edges
 
 
+def load_json(path: Path) -> tuple[list[DocumentDraft], list[EdgeDraft]]:
+    """Load a node corpus manifest (corpus_node*.json) into DocumentDrafts.
+
+    Maps the fetched-corpus schema to the ingest model:
+      source   -> title           node              -> outlet (federation node)
+      url      -> source_uri       metadata.type     -> source_type
+      metadata.category -> eval_tag
+    ``outlet`` is the document's node id (node_1_institutional / node_2_grassroots)
+    so the eval's chunk->outlet map is the federation boundary; the per-source
+    name is preserved in ``title``.
+    Chunk objects are ordered by their ``position`` field; chunk ``text`` becomes
+    the ingest chunk body (warm-tier chunk ids remain ``<doc_id>:<index>``).
+    JSON manifests carry no edges, so an empty edge list is returned.
+    """
+    data = json.loads(path.read_text(encoding="utf-8"))
+    documents: list[DocumentDraft] = []
+    for item in data.get("documents", []):
+        raw_chunks = item.get("chunks")
+        if not raw_chunks:
+            raise ValueError(f"document {item.get('doc_id')} has no chunks")
+        ordered = sorted(raw_chunks, key=lambda c: c.get("position", 0))
+        texts = [c["text"].strip() for c in ordered]
+        meta = item.get("metadata", {})
+        documents.append(
+            DocumentDraft(
+                doc_id=item["doc_id"],
+                outlet=item.get("node") or meta.get("author", ""),
+                title=item.get("source", item["doc_id"]),
+                eval_layer=_parse_eval_layer(item.get("eval_layer", "realism")),
+                source_uri=item.get("url", str(path)),
+                source_type=meta.get("type", "curated"),
+                chunks=texts,
+                eval_tag=meta.get("category"),
+            )
+        )
+    return documents, []
+
+
 def load_source(path: Path) -> tuple[list[DocumentDraft], list[EdgeDraft]]:
     if path.is_file():
+        if path.suffix.lower() == ".json":
+            return load_json(path)
         return load_yaml(path)
     docs: list[DocumentDraft] = []
     edges: list[EdgeDraft] = []
     for yaml_file in sorted(path.glob("*.yaml")):
         d, e = load_yaml(yaml_file)
+        docs.extend(d)
+        edges.extend(e)
+    for json_file in sorted(path.glob("*.json")):
+        d, e = load_json(json_file)
         docs.extend(d)
         edges.extend(e)
     return docs, edges

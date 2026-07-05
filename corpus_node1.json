@@ -1,0 +1,424 @@
+{
+  "node_id": "node_1_institutional",
+  "documents": [
+    {
+      "doc_id": "n1_doc_001",
+      "global_id": "gid_64d396516f8b63c1",
+      "source": "IPCC AR6 Synthesis Report, Summary for Policymakers",
+      "url": "https://www.ipcc.ch/report/ar6/syr/summary-for-policymakers/",
+      "node": "node_1_institutional",
+      "metadata": {
+        "domain": "environmental_measurement",
+        "date": "2023-03",
+        "type": "institutional_report",
+        "author": "IPCC",
+        "category": "climate_synthesis"
+      },
+      "chunks": [
+        {
+          "chunk_id": "n1_doc_001_c000",
+          "position": 0,
+          "text": "Human activities, principally through emissions of greenhouse gases, have unequivocally caused global warming, with global surface temperature reaching 1.1 degrees C above 1850-1900 in 2011-2020."
+        },
+        {
+          "chunk_id": "n1_doc_001_c001",
+          "position": 1,
+          "text": "Global surface temperature has increased faster since 1970 than in any other 50-year period over at least the last 2000 years."
+        },
+        {
+          "chunk_id": "n1_doc_001_c002",
+          "position": 2,
+          "text": "Atmospheric CO2 concentrations in 2019 were higher than at any time in at least 2 million years, while methane and nitrous oxide concentrations were higher than at any time in at least 800,000 years."
+        },
+        {
+          "chunk_id": "n1_doc_001_c003",
+          "position": 3,
+          "text": "Widespread and rapid changes in the atmosphere, ocean, cryosphere and biosphere have occurred, with human-caused climate change already affecting many weather and climate extremes in every region."
+        },
+        {
+          "chunk_id": "n1_doc_001_c004",
+          "position": 4,
+          "text": "Approximately 3.3 to 3.6 billion people live in contexts that are highly vulnerable to climate change, with the largest adverse impacts observed in Africa, Asia, Central and South America, and among Indigenous Peoples and low-income households."
+        },
+        {
+          "chunk_id": "n1_doc_001_c005",
+          "position": 5,
+          "text": "Climate change has caused substantial damages and increasingly irreversible losses in terrestrial, freshwater, cryospheric, and coastal ecosystems, with hundreds of local species extinctions driven by heat extremes."
+        },
+        {
+          "chunk_id": "n1_doc_001_c006",
+          "position": 6,
+          "text": "Adaptation planning and implementation has progressed across all sectors and regions, but adaptation gaps exist and will continue to grow at current implementation rates."
+        },
+        {
+          "chunk_id": "n1_doc_001_c007",
+          "position": 7,
+          "text": "Global greenhouse gas emissions in 2019 reached roughly 59 GtCO2-eq, about 54% higher than in 1990, with the largest share from CO2 emissions from fossil fuels and industrial processes."
+        }
+      ]
+    },
+    {
+      "doc_id": "n1_doc_002",
+      "global_id": "gid_7bcb72d9d99bf376",
+      "source": "NOAA Annual 2023 Global Climate Report",
+      "url": "https://www.ncei.noaa.gov/news/global-climate-202312",
+      "node": "node_1_institutional",
+      "metadata": {
+        "domain": "environmental_measurement",
+        "date": "2023-12",
+        "type": "institutional_report",
+        "author": "NOAA NCEI",
+        "category": "temperature_data"
+      },
+      "chunks": [
+        {
+          "chunk_id": "n1_doc_002_c000",
+          "position": 0,
+          "text": "NOAA ranks 2023 as the warmest year in its global temperature record, which dates back to 1850."
+        },
+        {
+          "chunk_id": "n1_doc_002_c001",
+          "position": 1,
+          "text": "In 2023, global surface temperature was about 2.12 degrees F (1.18 degrees C) above the 20th-century average, beating the next warmest year (2016) by roughly 0.27 degrees F."
+        },
+        {
+          "chunk_id": "n1_doc_002_c002",
+          "position": 2,
+          "text": "The 10 warmest years since 1850 have all occurred in the past decade."
+        },
+        {
+          "chunk_id": "n1_doc_002_c003",
+          "position": 3,
+          "text": "Upper ocean heat content, the amount of heat stored in the top 2000 meters of the ocean, was record high in 2023."
+        },
+        {
+          "chunk_id": "n1_doc_002_c004",
+          "position": 4,
+          "text": "Arctic sea ice extent averaged about 4.05 million square miles in 2023, ranking among the 10 lowest years on record."
+        },
+        {
+          "chunk_id": "n1_doc_002_c005",
+          "position": 5,
+          "text": "Antarctic sea ice extent averaged about 3.79 million square miles in 2023, the lowest on record."
+        },
+        {
+          "chunk_id": "n1_doc_002_c006",
+          "position": 6,
+          "text": "Seventy-eight named storms occurred globally in 2023, below the 1991-2020 average of 87.5."
+        },
+        {
+          "chunk_id": "n1_doc_002_c007",
+          "position": 7,
+          "text": "Global surface temperature in December 2023 was about 2.57 degrees F above the 20th-century average, the warmest December on record."
+        }
+      ]
+    },
+    {
+      "doc_id": "n1_doc_003",
+      "global_id": "gid_28835907d0fed218",
+      "source": "NASA GISS Surface Temperature Analysis (GISTEMP v4)",
+      "url": "https://data.giss.nasa.gov/gistemp/",
+      "node": "node_1_institutional",
+      "metadata": {
+        "domain": "environmental_measurement",
+        "date": "2023-06",
+        "type": "explanatory_article",
+        "author": "NASA GISS",
+        "category": "temperature_data"
+      },
+      "chunks": [
+        {
+          "chunk_id": "n1_doc_003_c000",
+          "position": 0,
+          "text": "The GISS Surface Temperature Analysis version 4 (GISTEMP v4) is an estimate of global surface temperature change."
+        },
+        {
+          "chunk_id": "n1_doc_003_c001",
+          "position": 1,
+          "text": "Graphs and tables are updated about the 10th of every month using current data files from NOAA GHCN v4 (meteorological stations) and ERSST v5 (ocean areas)."
+        },
+        {
+          "chunk_id": "n1_doc_003_c002",
+          "position": 2,
+          "text": "The basic GISS temperature analysis scheme was defined in the late 1970s by James Hansen when a method of estimating global temperature change was needed for comparison with one-dimensional global climate models."
+        },
+        {
+          "chunk_id": "n1_doc_003_c003",
+          "position": 3,
+          "text": "The analysis method was fully documented in Hansen and Lebedeff (1987), with several papers describing updates to the analysis following over the decades."
+        },
+        {
+          "chunk_id": "n1_doc_003_c004",
+          "position": 4,
+          "text": "Monthly surface temperature anomaly data are available in several forms, including plain-text tables of Land-Ocean Temperature Index deviations, netCDF gridded data, and compressed Zarr data directories."
+        },
+        {
+          "chunk_id": "n1_doc_003_c005",
+          "position": 5,
+          "text": "Programs used in the GISTEMP analysis assume a Unix-like operating system and require familiarity with Python."
+        },
+        {
+          "chunk_id": "n1_doc_003_c006",
+          "position": 6,
+          "text": "Datasets and source code for uncertainty analyses are available for the 2024 uncertainty ensemble and the 2019 uncertainty quantification analysis by Lenssen et al."
+        },
+        {
+          "chunk_id": "n1_doc_003_c007",
+          "position": 7,
+          "text": "The GISTEMP analysis was initiated by Dr. James E. Hansen and is currently led by Dr. Gavin Schmidt."
+        }
+      ]
+    },
+    {
+      "doc_id": "n1_doc_004",
+      "global_id": "gid_ce82d4a12913c20a",
+      "source": "NOAA Ocean Acidification Explainer",
+      "url": "https://oceanservice.noaa.gov/facts/acidification.html",
+      "node": "node_1_institutional",
+      "metadata": {
+        "domain": "environmental_measurement",
+        "date": "2023-06",
+        "type": "institutional_summary",
+        "author": "NOAA",
+        "category": "ocean_acidification"
+      },
+      "chunks": [
+        {
+          "chunk_id": "n1_doc_004_c000",
+          "position": 0,
+          "text": "Ocean acidification refers to a reduction in the pH of the ocean over an extended period of time, caused primarily by uptake of carbon dioxide (CO2) from the atmosphere."
+        },
+        {
+          "chunk_id": "n1_doc_004_c001",
+          "position": 1,
+          "text": "For more than 200 years since the industrial revolution, atmospheric CO2 concentration has increased due to fossil fuel burning and land use changes, with the ocean absorbing roughly 30 percent of released CO2."
+        },
+        {
+          "chunk_id": "n1_doc_004_c002",
+          "position": 2,
+          "text": "When CO2 dissolves in seawater, chemical reactions increase hydrogen ion concentration, making the water more acidic and reducing the abundance of carbonate ions."
+        },
+        {
+          "chunk_id": "n1_doc_004_c003",
+          "position": 3,
+          "text": "Carbonate ions serve as building blocks for shells and coral skeletons; their depletion makes it harder for calcifying organisms like oysters, clams, sea urchins, and corals to build structures."
+        },
+        {
+          "chunk_id": "n1_doc_004_c004",
+          "position": 4,
+          "text": "Ocean acidification also affects non-calcifying organisms, such as fish whose predator-detection abilities are diminished in more acidic conditions, potentially destabilizing food webs."
+        },
+        {
+          "chunk_id": "n1_doc_004_c005",
+          "position": 5,
+          "text": "The phenomenon affects all of the world's oceans, including coastal estuaries and waterways where many economies depend on fish and shellfish resources."
+        },
+        {
+          "chunk_id": "n1_doc_004_c006",
+          "position": 6,
+          "text": "Billions of people rely on ocean protein sources, making ocean acidification a significant threat to global food security and economic stability."
+        }
+      ]
+    },
+    {
+      "doc_id": "n1_doc_005",
+      "global_id": "gid_4dcaefb20613613e",
+      "source": "UNEP Emissions Gap Report 2023: Broken Record",
+      "url": "https://www.unep.org/resources/emissions-gap-report-2023",
+      "node": "node_1_institutional",
+      "metadata": {
+        "domain": "environmental_measurement",
+        "date": "2023-11",
+        "type": "institutional_report",
+        "author": "UNEP",
+        "category": "emissions_assessment"
+      },
+      "chunks": [
+        {
+          "chunk_id": "n1_doc_005_c000",
+          "position": 0,
+          "text": "In 2023, 86 days were recorded with temperatures more than 1.5 degrees C above pre-industrial levels; September was the hottest month on record, with global average temperatures about 1.8 degrees C above pre-industrial levels."
+        },
+        {
+          "chunk_id": "n1_doc_005_c001",
+          "position": 1,
+          "text": "Current pledges under the Paris Agreement put the world on track for a 2.5-2.9 degree C temperature rise above pre-industrial levels this century."
+        },
+        {
+          "chunk_id": "n1_doc_005_c002",
+          "position": 2,
+          "text": "Global low-carbon transformations are needed to deliver cuts to predicted 2030 greenhouse gas emissions of roughly 28 percent for a 2 degree C pathway and 42 percent for a 1.5 degree C pathway."
+        },
+        {
+          "chunk_id": "n1_doc_005_c003",
+          "position": 3,
+          "text": "Projected 2030 emissions growth relative to policies in place has fallen from 16 percent at the time of the Paris Agreement's adoption to about 3 percent today."
+        },
+        {
+          "chunk_id": "n1_doc_005_c004",
+          "position": 4,
+          "text": "Released in November 2023, the Emissions Gap Report finds that current pledges point to the urgent need for increased climate action to close the emissions gap."
+        }
+      ]
+    },
+    {
+      "doc_id": "n1_doc_006",
+      "global_id": "gid_d0291e62360f7279",
+      "source": "WMO State of the Global Climate 2023",
+      "url": "https://wmo.int/publication-series/state-of-global-climate-2023",
+      "node": "node_1_institutional",
+      "metadata": {
+        "domain": "environmental_measurement",
+        "date": "2024-03",
+        "type": "institutional_report",
+        "author": "WMO",
+        "category": "climate_assessment"
+      },
+      "chunks": [
+        {
+          "chunk_id": "n1_doc_006_c000",
+          "position": 0,
+          "text": "The State of the Global Climate 2023 report shows that records were broken for greenhouse gas levels, surface temperatures, ocean heat and acidification, sea level rise, Antarctic sea ice cover and glacier retreat."
+        },
+        {
+          "chunk_id": "n1_doc_006_c001",
+          "position": 1,
+          "text": "Heatwaves, floods, droughts, wildfires, and rapidly intensifying tropical cyclones caused widespread disruption and inflicted many billions of dollars in economic losses in 2023."
+        },
+        {
+          "chunk_id": "n1_doc_006_c002",
+          "position": 2,
+          "text": "The WMO report confirmed 2023 as the warmest year on record, with the global average near-surface temperature about 1.45 degrees C above the pre-industrial baseline."
+        },
+        {
+          "chunk_id": "n1_doc_006_c003",
+          "position": 3,
+          "text": "Records were broken for ocean heat, sea level rise, Antarctic sea ice loss, and glacier retreat."
+        }
+      ]
+    },
+    {
+      "doc_id": "n1_doc_007",
+      "global_id": "gid_40eb0ac963d5edde",
+      "source": "EPA Climate Change Indicators: U.S. and Global Temperature",
+      "url": "https://www.epa.gov/climate-indicators/climate-change-indicators-us-and-global-temperature",
+      "node": "node_1_institutional",
+      "metadata": {
+        "domain": "environmental_measurement",
+        "date": "2024-06",
+        "type": "institutional_indicator",
+        "author": "EPA",
+        "category": "climate_metrics"
+      },
+      "chunks": [
+        {
+          "chunk_id": "n1_doc_007_c000",
+          "position": 0,
+          "text": "Worldwide, 2023 was the warmest year on record and 2014-2023 was the warmest decade on record since thermometer-based observations began; global average surface temperature has risen about 0.15 degrees F per decade since 1901."
+        },
+        {
+          "chunk_id": "n1_doc_007_c001",
+          "position": 1,
+          "text": "Since 1901, the average surface temperature across the contiguous 48 states has risen about 0.14 degrees F per decade, with faster warming since the late 1970s."
+        },
+        {
+          "chunk_id": "n1_doc_007_c002",
+          "position": 2,
+          "text": "Eight of the top 10 warmest years on record for the contiguous 48 states have occurred since 1998."
+        },
+        {
+          "chunk_id": "n1_doc_007_c003",
+          "position": 3,
+          "text": "In the U.S., unusually hot summer days have become more common over recent decades, and unusually hot summer nights have increased at an even faster rate."
+        },
+        {
+          "chunk_id": "n1_doc_007_c004",
+          "position": 4,
+          "text": "Concentrations of heat-trapping greenhouse gases are increasing in the Earth's atmosphere, and average surface temperatures are expected to continue rising in response."
+        }
+      ]
+    },
+    {
+      "doc_id": "n1_doc_008",
+      "global_id": "gid_401e2b489ddd6abb",
+      "source": "NIFC National Interagency Coordination Center 2023 Wildland Fire Summary",
+      "url": "https://www.nifc.gov/fire-information/statistics/wildfires",
+      "node": "node_1_institutional",
+      "metadata": {
+        "domain": "environmental_measurement",
+        "date": "2024-01",
+        "type": "institutional_report",
+        "author": "National Interagency Fire Center",
+        "category": "wildfire"
+      },
+      "chunks": [
+        {
+          "chunk_id": "n1_doc_008_c000",
+          "position": 0,
+          "text": "In 2023, 56,580 wildfires burned 2,693,910 acres across the United States, with acreage burned below both the five- and ten-year averages."
+        },
+        {
+          "chunk_id": "n1_doc_008_c001",
+          "position": 1,
+          "text": "There were 891 large wildfires and complexes reported in 2023, representing less than 2 percent of total wildfires reported nationally."
+        },
+        {
+          "chunk_id": "n1_doc_008_c002",
+          "position": 2,
+          "text": "About one-quarter of the nation's wildfires in 2023 occurred on federally protected lands."
+        },
+        {
+          "chunk_id": "n1_doc_008_c003",
+          "position": 3,
+          "text": "A total of 4,318 structures were destroyed by wildfires in 2023, including 3,060 residences, 1,228 minor structures, and 51 commercial or mixed-residential structures."
+        },
+        {
+          "chunk_id": "n1_doc_008_c004",
+          "position": 4,
+          "text": "National wildland fire preparedness levels and interagency suppression resources are coordinated through the National Interagency Coordination Center based on acreage, active incident counts, and resource demand."
+        }
+      ]
+    },
+    {
+      "doc_id": "n1_doc_009",
+      "global_id": "gid_0ceadb9b0e64f2d1",
+      "source": "California DWR 2023 Snow Survey and Reservoir Conditions",
+      "url": "https://water.ca.gov/News/News-Releases/2023/April-23/Snow-Survey-April-2023",
+      "node": "node_1_institutional",
+      "metadata": {
+        "domain": "environmental_measurement",
+        "date": "2023-04",
+        "type": "institutional_report",
+        "author": "California Department of Water Resources",
+        "category": "water_scarcity"
+      },
+      "chunks": [
+        {
+          "chunk_id": "n1_doc_009_c000",
+          "position": 0,
+          "text": "As of April 3, 2023, California's statewide snowpack held a snow water equivalent of 61.1 inches, or 237 percent of the April 1 average, one of the largest snowpacks on record."
+        },
+        {
+          "chunk_id": "n1_doc_009_c001",
+          "position": 1,
+          "text": "By May 1, 2023, the statewide snow water equivalent measured 49.2 inches, or 254 percent of average for that date."
+        },
+        {
+          "chunk_id": "n1_doc_009_c002",
+          "position": 2,
+          "text": "The Southern Sierra snowpack was 300 percent of its April 1 average, the Central Sierra was 237 percent, and the Northern Sierra, where the state's largest surface reservoirs are located, was 192 percent."
+        },
+        {
+          "chunk_id": "n1_doc_009_c003",
+          "position": 3,
+          "text": "The State Water Project's two largest reservoirs, Oroville and San Luis, gained a combined 1.62 million acre-feet of water in storage."
+        },
+        {
+          "chunk_id": "n1_doc_009_c004",
+          "position": 4,
+          "text": "Only 1952, 1969, and 1983 previously recorded statewide April 1 results above 200 percent of average, framing 2023 as a historic year for measured water supply."
+        }
+      ]
+    }
+  ]
+}

@@ -32,6 +32,41 @@ def _hit(chunk_id: str, text: str, outlet: str) -> ChunkHit:
     )
 
 
+def _dynamic_tok_factory():
+    """Whitespace tokenizer with a growing vocab, for free-form test text."""
+    vocab: dict[str, int] = {}
+
+    def tok(b: bytes) -> list[int]:
+        ids = []
+        for w in b.decode().split():
+            ids.append(vocab.setdefault(w, len(vocab) + 1))
+        return ids
+
+    return tok
+
+
+def test_divergence_fallback_for_structurally_dissimilar_pair():
+    # Institutional statistic vs grassroots reframing: no shared lede, near-zero
+    # word overlap, so the aligned-sentence >=3-overlap test finds no divergence
+    # point. The contradicts pair must still get a two-sided divergence zone --
+    # otherwise every doc-unique sentence (including these anchors) falls into
+    # the forbidden tail net and the divergent decode refuses.
+    tok = _dynamic_tok_factory()
+    institutional = "Wildfires burned two million acres nationwide last year."
+    grassroots = "Elderly residents faced severe smoke exposure inside crowded shelters."
+    hits = [_hit("i:0", institutional, "Bureau"), _hit("g:0", grassroots, "Collective")]
+    corpus = Corpus.from_chunks([(h.chunk_id, h.text) for h in hits], tokenize=tok)
+    edge = EdgeRecord("i:0", "g:0", "contradicts")
+    div, forbidden = compute_divergence_zones(
+        hits, [(hits[0], hits[1], edge)], corpus, tok
+    )
+    assert div.get(0), "institutional side must get a divergence zone"
+    assert div.get(1), "grassroots side must get a divergence zone"
+    # The anchor sentence starts must remain extractable (not forbidden).
+    assert (0, 0) not in forbidden
+    assert (1, 0) not in forbidden
+
+
 def test_divergence_marks_treatment_and_arrest_sentences():
     central = (
         "Officials responded. Emergency confirmed 142 treatment. "

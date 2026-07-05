@@ -1,0 +1,415 @@
+{
+  "node_id": "node_2_grassroots",
+  "documents": [
+    {
+      "doc_id": "n2_doc_001",
+      "global_id": "gid_f5842fdb72d6327a",
+      "source": "Indigenous Environmental Network: Frontline Communities Demand Real Climate Solutions",
+      "url": "https://www.ienearth.org/",
+      "node": "node_2_grassroots",
+      "metadata": {
+        "domain": "environmental_impact",
+        "date": "2023-12",
+        "type": "advocacy_report",
+        "author": "Indigenous Environmental Network",
+        "category": "indigenous_leadership"
+      },
+      "chunks": [
+        {
+          "chunk_id": "n2_doc_001_c000",
+          "position": 0,
+          "text": "People living on the frontlines of climate chaos and the fossil fuel industry are disproportionately Indigenous Peoples, Black and Brown communities, low-wage workers, and smallholder farmers, often living in poverty."
+        },
+        {
+          "chunk_id": "n2_doc_001_c001",
+          "position": 1,
+          "text": "Frontline delegations call on world leaders to pass binding agreements, including an immediate phase-out of dirty energy, and to commit to meaningful climate reparations for communities bearing the brunt of the climate crisis."
+        },
+        {
+          "chunk_id": "n2_doc_001_c002",
+          "position": 2,
+          "text": "Advocates reject market-based schemes and techno-fixes they say are designed to prolong the fossil fuel industry's lifespan and put communities at risk."
+        },
+        {
+          "chunk_id": "n2_doc_001_c003",
+          "position": 3,
+          "text": "Critics argue current climate finance mechanisms do not give frontline communities direct, no-strings-attached access to funds, and instead benefit the Global North at the expense of impacted communities."
+        },
+        {
+          "chunk_id": "n2_doc_001_c004",
+          "position": 4,
+          "text": "Indigenous-led resistance efforts are estimated to have stopped or delayed greenhouse gas pollution equivalent to roughly one-quarter of annual U.S. and Canadian emissions."
+        }
+      ]
+    },
+    {
+      "doc_id": "n2_doc_002",
+      "global_id": "gid_f187257789dc5d22",
+      "source": "NDN Collective: Climate Justice and LANDBACK",
+      "url": "https://ndncollective.org/climate-justice/",
+      "node": "node_2_grassroots",
+      "metadata": {
+        "domain": "environmental_impact",
+        "date": "2023-06",
+        "type": "advocacy_report",
+        "author": "NDN Collective",
+        "category": "indigenous_leadership"
+      },
+      "chunks": [
+        {
+          "chunk_id": "n2_doc_002_c000",
+          "position": 0,
+          "text": "NDN Collective is an Indigenous-led organization focused on building Indigenous power through organizing, philanthropy, and narrative change to advance solutions on Indigenous terms."
+        },
+        {
+          "chunk_id": "n2_doc_002_c001",
+          "position": 1,
+          "text": "Its climate justice work supports Tribes and Indigenous Peoples in pursuing a justice-based transition, including engagement with federal clean-energy and infrastructure funding opportunities."
+        },
+        {
+          "chunk_id": "n2_doc_002_c002",
+          "position": 2,
+          "text": "Its campaigns center Indigenous and frontline communities defending land, water, and air from contamination and resisting exploitation by the fossil fuel industry."
+        },
+        {
+          "chunk_id": "n2_doc_002_c003",
+          "position": 3,
+          "text": "LANDBACK is described as an organizing and narrative framework for Indigenous peoples to reclaim stewardship of land and move toward sovereignty."
+        },
+        {
+          "chunk_id": "n2_doc_002_c004",
+          "position": 4,
+          "text": "The organization supports economic practices intended to maintain and expand Indigenous land base, sovereignty, and rights, shifting decision-making power to Indigenous peoples."
+        }
+      ]
+    },
+    {
+      "doc_id": "n2_doc_003",
+      "global_id": "gid_5b7dc41d412bf124",
+      "source": "ProPublica: Climate Change Will Force a New American Migration",
+      "url": "https://www.propublica.org/article/climate-change-will-force-a-new-american-migration",
+      "node": "node_2_grassroots",
+      "metadata": {
+        "domain": "environmental_impact",
+        "date": "2020-09",
+        "type": "investigative_journalism",
+        "author": "ProPublica",
+        "category": "climate_migration"
+      },
+      "chunks": [
+        {
+          "chunk_id": "n2_doc_003_c000",
+          "position": 0,
+          "text": "Extreme heat events, such as California's August 2020 heat wave that strained the electrical grid and coincided with record temperatures near Death Valley, illustrate the lived disruption of a changing climate."
+        },
+        {
+          "chunk_id": "n2_doc_003_c001",
+          "position": 1,
+          "text": "Analysis suggests roughly 162 million Americans, nearly half the population, are likely to experience declining environmental quality from more heat and less water; under high-emissions scenarios, millions could live in conditions outside the historical human comfort niche by 2070."
+        },
+        {
+          "chunk_id": "n2_doc_003_c002",
+          "position": 2,
+          "text": "One study projects that a substantial share of Americans in the South could migrate toward California, the Mountain West, or the Northwest over the coming decades due to climate pressures, a shift that could widen economic inequality."
+        },
+        {
+          "chunk_id": "n2_doc_003_c003",
+          "position": 3,
+          "text": "Regional warming is projected to reshape climate norms across the country, with severe water shortages becoming common west of the Missouri River by 2040 under federal projections."
+        },
+        {
+          "chunk_id": "n2_doc_003_c004",
+          "position": 4,
+          "text": "Researchers estimate millions of Americans could be forced to relocate from vulnerable coastlines, with additional displacement likely from wildfire and other climate risks."
+        },
+        {
+          "chunk_id": "n2_doc_003_c005",
+          "position": 5,
+          "text": "Such a shift, if realized, would represent one of the largest internal migrations in American history, comparable in scale to the Great Migration of the 20th century."
+        },
+        {
+          "chunk_id": "n2_doc_003_c006",
+          "position": 6,
+          "text": "Models suggest migration would concentrate in Northeastern and Northwestern cities, with population growth making historically cold regions more temperate."
+        },
+        {
+          "chunk_id": "n2_doc_003_c007",
+          "position": 7,
+          "text": "Reporting emphasizes that most people do not choose to leave home voluntarily and tend to relocate only when other options are exhausted."
+        }
+      ]
+    },
+    {
+      "doc_id": "n2_doc_004",
+      "global_id": "gid_69bf2904169d8ddc",
+      "source": "Inside Climate News: On a 'Toxic Tour' of Curtis Bay, South Baltimore",
+      "url": "https://insideclimatenews.org/news/06082023/baltimore-harm-cityenvironmental-justice-neighborhoods/",
+      "node": "node_2_grassroots",
+      "metadata": {
+        "domain": "environmental_impact",
+        "date": "2023-08",
+        "type": "investigative_journalism",
+        "author": "Inside Climate News",
+        "category": "frontline_impact"
+      },
+      "chunks": [
+        {
+          "chunk_id": "n2_doc_004_c000",
+          "position": 0,
+          "text": "South Baltimore's Curtis Bay neighborhood has been described as a 'sacrifice zone' due to nearby coal export terminals, with coal dust linked to elevated asthma and respiratory illness rates among residents."
+        },
+        {
+          "chunk_id": "n2_doc_004_c001",
+          "position": 1,
+          "text": "Communities such as Cameron Parish, Louisiana, and Port Arthur, Texas, are cited as environmental justice hotspots where Black and Brown residents face disproportionate pollution exposure."
+        },
+        {
+          "chunk_id": "n2_doc_004_c002",
+          "position": 2,
+          "text": "Reporting cites industrial cancer-risk estimates in Port Arthur far above levels the EPA considers acceptable, with the area ranking in the highest percentile nationally for toxic air releases."
+        },
+        {
+          "chunk_id": "n2_doc_004_c003",
+          "position": 3,
+          "text": "Frontline communities across the Gulf South and into Canada are reported to face significant impacts from fossil fuel infrastructure projects backed by major financial firms."
+        }
+      ]
+    },
+    {
+      "doc_id": "n2_doc_005",
+      "global_id": "gid_4e5253967658fa75",
+      "source": "Earthjustice: How We Can Preserve Breathable Air in a World on Fire",
+      "url": "https://earthjustice.org/article/how-we-can-preserve-breathable-air-in-a-world-on-fire",
+      "node": "node_2_grassroots",
+      "metadata": {
+        "domain": "environmental_impact",
+        "date": "2023-06",
+        "type": "advocacy_explainer",
+        "author": "Earthjustice",
+        "category": "environmental_justice"
+      },
+      "chunks": [
+        {
+          "chunk_id": "n2_doc_005_c000",
+          "position": 0,
+          "text": "Research cited by Earthjustice finds that Black and Brown residents in the U.S. breathe more soot pollution on average than white residents, largely because pollution sources are sited disproportionately near their communities."
+        },
+        {
+          "chunk_id": "n2_doc_005_c001",
+          "position": 1,
+          "text": "Elderly, immunocompromised, and low-income populations face heightened risk from wildfire smoke exposure."
+        },
+        {
+          "chunk_id": "n2_doc_005_c002",
+          "position": 2,
+          "text": "Climate change, including more extreme heat and larger wildfires, is identified as a driver of rising ozone and particulate pollution."
+        },
+        {
+          "chunk_id": "n2_doc_005_c003",
+          "position": 3,
+          "text": "Advocacy groups point to grant programs intended to help communities engage in environmental review processes and reduce health disparities in frontline, pollution-burdened areas."
+        }
+      ]
+    },
+    {
+      "doc_id": "n2_doc_006",
+      "global_id": "gid_7bf404f887c32327",
+      "source": "Union of Concerned Scientists: Environmental Justice for All Act Historic for Frontline Communities",
+      "url": "https://www.ucsusa.org/about/news/environmental-justice-all-act-historic-frontline-communities",
+      "node": "node_2_grassroots",
+      "metadata": {
+        "domain": "environmental_impact",
+        "date": "2022-07",
+        "type": "advocacy_report",
+        "author": "Union of Concerned Scientists",
+        "category": "environmental_justice"
+      },
+      "chunks": [
+        {
+          "chunk_id": "n2_doc_006_c000",
+          "position": 0,
+          "text": "UCS environmental justice work centers on the cumulative health burden faced by communities exposed to multiple, overlapping pollution sources."
+        },
+        {
+          "chunk_id": "n2_doc_006_c001",
+          "position": 1,
+          "text": "Communities near new pipeline and energy infrastructure projects, disproportionately Black, Brown, and Indigenous, already face compounding pollution burdens."
+        },
+        {
+          "chunk_id": "n2_doc_006_c002",
+          "position": 2,
+          "text": "Fossil fuel power plants are described as continuing to harm nearby communities, which also face climate-driven risks such as sea level rise, flooding, and worsening wildfire seasons."
+        },
+        {
+          "chunk_id": "n2_doc_006_c003",
+          "position": 3,
+          "text": "Advocates have called for directing a substantial share, roughly 40 percent, of federal clean energy and climate resilience investment toward communities of color and low-income communities."
+        }
+      ]
+    },
+    {
+      "doc_id": "n2_doc_007",
+      "global_id": "gid_4fa4876e13221b17",
+      "source": "WE ACT for Environmental Justice: Origins in Harlem Air Quality Advocacy",
+      "url": "https://weact.org/",
+      "node": "node_2_grassroots",
+      "metadata": {
+        "domain": "environmental_impact",
+        "date": "2023-06",
+        "type": "advocacy_brief",
+        "author": "WE ACT for Environmental Justice",
+        "category": "environmental_justice"
+      },
+      "chunks": [
+        {
+          "chunk_id": "n2_doc_007_c000",
+          "position": 0,
+          "text": "WE ACT for Environmental Justice is a community-based organization founded in 1988 as West Harlem Environmental Action, working to ensure people of color and low-income residents participate meaningfully in environmental policymaking."
+        },
+        {
+          "chunk_id": "n2_doc_007_c001",
+          "position": 1,
+          "text": "The organization traces its founding to a 1988 protest by Harlem residents against air-quality threats posed by the North River Sewage Treatment Plant."
+        },
+        {
+          "chunk_id": "n2_doc_007_c002",
+          "position": 2,
+          "text": "Organizers involved in that protest, arrested for civil disobedience, ultimately succeeded in reducing the community's exposure to related toxins and hazards."
+        },
+        {
+          "chunk_id": "n2_doc_007_c003",
+          "position": 3,
+          "text": "WE ACT continues to work with members and community stakeholders on environmental justice advocacy campaigns at the local, state, and federal levels."
+        }
+      ]
+    },
+    {
+      "doc_id": "n2_doc_008",
+      "global_id": "gid_b5c04fed66cd2e25",
+      "source": "Pacific Institute: Drought and Equity in California",
+      "url": "https://pacinst.org/publication/drought-and-equity-in-california/",
+      "node": "node_2_grassroots",
+      "metadata": {
+        "domain": "environmental_impact",
+        "date": "2022-06",
+        "type": "research_report",
+        "author": "Pacific Institute",
+        "category": "water_scarcity"
+      },
+      "chunks": [
+        {
+          "chunk_id": "n2_doc_008_c000",
+          "position": 0,
+          "text": "Pacific Institute research finds California could meaningfully reduce urban water use through greater investment in water efficiency measures."
+        },
+        {
+          "chunk_id": "n2_doc_008_c001",
+          "position": 1,
+          "text": "Strategies such as water efficiency, reuse, and stormwater capture are described as already succeeding in many California communities, reducing demand while boosting local supply."
+        },
+        {
+          "chunk_id": "n2_doc_008_c002",
+          "position": 2,
+          "text": "Disadvantaged and cumulatively burdened communities are found to be disproportionately affected by water shortages, reflecting underlying inequities in water resource management."
+        },
+        {
+          "chunk_id": "n2_doc_008_c003",
+          "position": 3,
+          "text": "Community-based participatory research on drought impacts in the San Francisco Bay Area highlights affordability and infrastructure condition as persistent concerns for low-income residents."
+        },
+        {
+          "chunk_id": "n2_doc_008_c004",
+          "position": 4,
+          "text": "Per-capita water use is generally found to be higher in wealthier communities."
+        }
+      ]
+    },
+    {
+      "doc_id": "n2_doc_009",
+      "global_id": "gid_b0d2dacf87942db3",
+      "source": "Grist: How Environmental Justice Leaders Are Pushing Forward",
+      "url": "https://grist.org/justice/heres-how-environmental-justice-leaders-are-pushing-forward-in-the-trump-era/",
+      "node": "node_2_grassroots",
+      "metadata": {
+        "domain": "environmental_impact",
+        "date": "2021-06",
+        "type": "investigative_journalism",
+        "author": "Grist",
+        "category": "environmental_justice"
+      },
+      "chunks": [
+        {
+          "chunk_id": "n2_doc_009_c000",
+          "position": 0,
+          "text": "Grist's environmental justice reporting profiles frontline leaders and their advocacy work at international climate negotiations."
+        },
+        {
+          "chunk_id": "n2_doc_009_c001",
+          "position": 1,
+          "text": "Coverage examines cases where environmental improvements and community advocacy victories have inadvertently been used by developers to justify displacing existing residents."
+        },
+        {
+          "chunk_id": "n2_doc_009_c002",
+          "position": 2,
+          "text": "Reporting stresses the need to evaluate wildfire impacts on disadvantaged communities through an environmental justice lens."
+        }
+      ]
+    },
+    {
+      "doc_id": "n2_doc_010",
+      "global_id": "gid_545db577b5382bf9",
+      "source": "Chesapeake Bay Foundation: State of the Bay Report",
+      "url": "https://www.cbf.org/about-the-bay/state-of-the-bay-report/",
+      "node": "node_2_grassroots",
+      "metadata": {
+        "domain": "environmental_impact",
+        "date": "2022-12",
+        "type": "research_report",
+        "author": "Chesapeake Bay Foundation",
+        "category": "place_based_impact"
+      },
+      "chunks": [
+        {
+          "chunk_id": "n2_doc_010_c000",
+          "position": 0,
+          "text": "From 1998 to 2022, CBF's State of the Bay report tracked the health of the Chesapeake Bay and progress toward restoration goals."
+        },
+        {
+          "chunk_id": "n2_doc_010_c001",
+          "position": 1,
+          "text": "The organization is currently revising its report format and methodology for future assessments."
+        },
+        {
+          "chunk_id": "n2_doc_010_c002",
+          "position": 2,
+          "text": "The University of Maryland Center for Environmental Science separately publishes annual Bay watershed report cards."
+        },
+        {
+          "chunk_id": "n2_doc_010_c003",
+          "position": 3,
+          "text": "The 2022 CBF assessment assigned the Bay an overall score of 32, a D+ grade."
+        },
+        {
+          "chunk_id": "n2_doc_010_c004",
+          "position": 4,
+          "text": "The 2020 report similarly showed a score of 32, also a D+."
+        },
+        {
+          "chunk_id": "n2_doc_010_c005",
+          "position": 5,
+          "text": "The 2018 report gave the Bay a score of 33, also rated D+."
+        },
+        {
+          "chunk_id": "n2_doc_010_c006",
+          "position": 6,
+          "text": "The 2016 evaluation showed slight improvement, with a score of 34, a C- grade."
+        },
+        {
+          "chunk_id": "n2_doc_010_c007",
+          "position": 7,
+          "text": "These reports track bay health through a consistent set of environmental indicators measured over multiple decades."
+        }
+      ]
+    }
+  ]
+}

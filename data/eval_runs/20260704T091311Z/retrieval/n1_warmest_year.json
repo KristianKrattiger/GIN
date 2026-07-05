@@ -1,0 +1,19 @@
+{
+  "query_id": "n1_warmest_year",
+  "query": "Which year was the warmest on record?",
+  "eval_layer": "realism",
+  "gold_chunk_ids": [
+    "doc_002:0",
+    "doc_006:2",
+    "doc_007:0"
+  ],
+  "retrieved_chunk_ids": [
+    "doc_002:0",
+    "doc_007:0",
+    "doc_006:2",
+    "doc_007:2",
+    "doc_002:2"
+  ],
+  "retrieval_recall_at_k": 1.0,
+  "retrieval_manifest_hash": "8fab18c147c085cb4b3cf875fc91e0d0c710dc05a6f4e0e97df78095208d8d05"
+}

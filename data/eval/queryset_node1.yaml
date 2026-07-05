@@ -1,0 +1,71 @@
+# Node 1 (institutional) eval query set for the RAG vs SEAR overlap experiment.
+# Answerable from corpus_node1.json content. Chunk ids use the warm-tier
+# "<doc_id>:<index>" form produced by scripts/corpus_ingest.py.
+#
+# expectation:
+#   answerable     corpus holds the answer; arms should ground it
+#   out_of_scope   corpus cannot answer; correct behavior is refusal
+
+queries:
+  - id: n1_warming_cause
+    query: What has caused global warming according to the IPCC?
+    eval_layer: realism
+    eval_tag: attribution
+    expectation: answerable
+    regression: true
+    gold_chunk_ids:
+      - n1_doc_001:0
+
+  - id: n1_2023_anomaly
+    query: How much warmer was 2023 than the twentieth-century average?
+    eval_layer: realism
+    eval_tag: temperature_data
+    expectation: answerable
+    regression: true
+    gold_chunk_ids:
+      - n1_doc_002:1
+
+  - id: n1_warmest_year
+    query: Which year was the warmest on record?
+    eval_layer: realism
+    eval_tag: temperature_data
+    expectation: answerable
+    regression: true
+    gold_chunk_ids:
+      - n1_doc_002:0
+      - n1_doc_006:2
+      - n1_doc_007:0
+
+  - id: n1_ocean_acidification
+    query: What is ocean acidification and what causes it?
+    eval_layer: realism
+    eval_tag: ocean_acidification
+    expectation: answerable
+    regression: true
+    gold_chunk_ids:
+      - n1_doc_004:0
+
+  - id: n1_paris_track
+    query: What temperature rise do current Paris Agreement pledges put the world on track for?
+    eval_layer: realism
+    eval_tag: emissions_assessment
+    expectation: answerable
+    regression: true
+    gold_chunk_ids:
+      - n1_doc_005:1
+
+  - id: n1_co2_concentration
+    query: How do current atmospheric CO2 concentrations compare to the deep past?
+    eval_layer: realism
+    eval_tag: attribution
+    expectation: answerable
+    regression: true
+    gold_chunk_ids:
+      - n1_doc_001:2
+
+  - id: n1_out_of_scope_referendum
+    query: By how many votes did the harbor district referendum pass?
+    eval_layer: out_of_scope
+    eval_tag: oos_probe
+    expectation: out_of_scope
+    regression: true
