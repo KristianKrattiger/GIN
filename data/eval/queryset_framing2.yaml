@@ -1,0 +1,33 @@
+# Round-1 framing-generalization queryset (plan §6 #3, round 1).
+# Requires data/fixtures/disclosure_framing.yaml ingested.
+#
+# Adversarial/legal register (corporate PR vs regulator complaint), NOT the
+# climate advocacy register the three original divergence pairs share. Full
+# divergence_fidelity credit only when the answer cites BOTH the corporate and
+# the regulatory framing of the same event. eval_tag values must be registered
+# in gin/eval/metrics.py _DIVERGENCE_TAGS.
+
+queries:
+  - id: fr_northwind_revenue
+    query: How should Northwind's third quarter revenue be understood?
+    eval_layer: realism
+    eval_tag: revenue_divergence
+    expectation: answerable
+    regression: true
+    gold_chunk_ids:
+      - disc_northwind_pr:0
+      - disc_northwind_complaint:0
+    contradicts_pairs:
+      - [disc_northwind_pr:0, disc_northwind_complaint:0]
+
+  - id: fr_meridian_breach
+    query: What is known about the Meridian customer data breach?
+    eval_layer: realism
+    eval_tag: breach_divergence
+    expectation: answerable
+    regression: true
+    gold_chunk_ids:
+      - disc_meridian_pr:0
+      - disc_meridian_complaint:0
+    contradicts_pairs:
+      - [disc_meridian_pr:0, disc_meridian_complaint:0]

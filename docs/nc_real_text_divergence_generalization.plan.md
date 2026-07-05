@@ -217,6 +217,66 @@ Ranked by what would most change confidence in this result:
      "greenhouse"/"wildfire"/"water" hand you accidental overlap.
    Hand-curating edges does not scale; this is fundamentally the Cartographer's
    job (§7).
+
+   **[ROUND 1 LANDED — structural; DB eval pending model]** Adversarial/legal
+   register added: `data/fixtures/disclosure_framing.yaml` wires two
+   `contradicts` pairs — a corporate press release vs. a securities-regulator
+   complaint on one event — for *revenue recognition* (Northwind) and an
+   *undisclosed data breach* (Meridian), distinct entities so each query targets
+   one pair. Driven by `data/eval/queryset_framing2.yaml`; tags
+   `revenue_divergence`/`breach_divergence` registered in
+   `gin/eval/metrics.py::_DIVERGENCE_TAGS`. This is a genuinely non-climate
+   vocabulary distribution ("momentum"/"guidance" vs
+   "overstated"/"channel-stuffed"/"violation"), the exact overfit test §6 #3
+   round 1 calls for.
+   - **Deterministic result (no model):** both sides of both pairs clear
+     `DIVERGENCE_IDF_FLOOR` (0.13) on the fixture-local IDF, and the fallback +
+     IDF anchor scorer route each to a two-sided zone anchored on the
+     query-bearing sentence. Measured margins — Northwind: corp 1.000 / reg
+     1.000; Meridian: **corp 0.345** / reg 1.000. The Meridian corporate side is
+     the tightest (its optimistic register shares only *meridian*+*customer*
+     with the query), still ~2.7× the floor. Guarded by
+     `tests/test_framing_generalization.py` (2 tests, both asserting the measured
+     margin so a regression that starves a legitimate side of IDF mass fails
+     loudly). Full logic suite: 159 passed.
+   - **Caveat / still pending:** the fixture-local IDF is over 4 chunks; the real
+     retrieval margin (IDF over the full candidate set, where these terms are
+     rarer) is only *larger*, but the end-to-end `divergence_fidelity` 1.000
+     confirmation is the DB eval `scripts/eval_run.py --queryset
+     data/eval/queryset_framing2.yaml`, blocked on a runnable model on this host
+     (llama.cpp crashes 0xc000001d, see [[llama-cpp-illegal-instruction]]).
+   **[ROUND 2 LANDED — structural; DB eval pending model]** Housing domain,
+   sparse surface overlap: `data/fixtures/housing_framing.yaml` wires two
+   `contradicts` pairs — zoning-board/code-enforcement technical register vs.
+   tenant-organizing language — for an *upzoning* (Alder Flats: FAR/density-bonus
+   staff report vs. displacement/right-to-return statement) and a *habitability*
+   case (Kestrel Court: violation-count enforcement notice vs. lived-conditions
+   organizing). Driven by `data/eval/queryset_framing3.yaml`; tags
+   `rezoning_divergence`/`habitability_divergence` registered. Unlike climate
+   and unlike round 1, the organizing side shares essentially **only the place
+   entity** with the query — the exact "almost no surface vocabulary" stress
+   §6 #3 round 2 calls for.
+   - **Deterministic result (no model):** all four sides clear the floor.
+     Measured margins — Alder Flats: tech 0.720 / org 0.720; Kestrel Court:
+     tech 0.720 / **org 0.441**. The Kestrel organizing side is the designed
+     worst case: it matches only the entity tokens (`kestrel`, `court`) of the
+     query's four in-corpus keywords, and entity-token IDF mass alone carries it
+     to ~3.4× the floor. `tests/test_framing_generalization.py` is now
+     parametrized over both rounds (4 tests). Full logic suite: 161 passed.
+   - **Finding worth carrying forward:** in both new domains the gate survives
+     because a *distinctive entity* is shared across framings. The residual risk
+     the fixtures cannot manufacture honestly is real advocacy text that never
+     names the entity ("our building", "the complex") — there the IDF gate has
+     no mass to work with and would (correctly, given its inputs) drop to
+     convergent. That failure mode is lexical-by-construction and is the
+     concrete argument for Cartographer/Bookkeeper **sentence-level anchors as
+     admitted graph state** (§7.1 option b): an edge whose anchor is stamped
+     does not need the query-time IDF re-derivation to rediscover which
+     sentence diverges.
+   - **DB eval for both rounds pending model** (same blocker as round 1):
+     `scripts/eval_run.py --queryset data/eval/queryset_framing2.yaml` and
+     `--queryset data/eval/queryset_framing3.yaml` after ingesting
+     `data/fixtures/disclosure_framing.yaml` + `data/fixtures/housing_framing.yaml`.
 4. **[RESOLVED] `supported_irrelevance_rate` 0.0 -> 0.200 (SEAR).** Root-caused
    and fixed; re-run `20260705T061539Z` restores it to **0.000** with
    `divergence_fidelity` 1.000 and `fabrication_rate` 0.000 intact (bonus:
@@ -286,6 +346,24 @@ Ranked by what would most change confidence in this result:
 6. **Cross-model check.** Verified only on Mistral-7B-Instruct-v0.3 (Q6_K, CPU,
    temperature 0, greedy). No evidence yet the fix's behavior (or the
    IDF-floor / word-overlap constants) generalizes across model families.
+   **[RUNBOOK — no code changes needed; blocked on a runnable second model.]**
+   `scripts/eval_run.py` already takes `--model <path-to-gguf>`, so the check is
+   purely operational once a second GGUF is on disk (suggested:
+   Qwen2.5-7B-Instruct or Llama-3.1-8B-Instruct at Q6_K to hold quantization
+   constant). Run, per model:
+   `python scripts/eval_run.py --model <gguf> --queryset data/eval/queryset_twonode.yaml`
+   then the same for `queryset_multipara.yaml`, `queryset_framing2.yaml`,
+   `queryset_framing3.yaml`. Expected-invariant metrics: `divergence_fidelity`
+   1.000, `fabrication_rate` 0.000, `supported_irrelevance_rate` 0.000. Two
+   things are model-sensitive and worth watching: (a) the measured `max_tokens`
+   table in #5 is Mistral-tokenizer token counts — a coarser tokenizer could
+   push the worst case past the 120 ceiling (symptom: truncated second side);
+   (b) `sentence_token_spans` alignment behavior. The IDF gate itself is
+   model-independent (pure lexical), so a divergence-mode *routing* change
+   across models would indicate a harness bug, not a model difference. Note the
+   local blocker: llama.cpp 0.3.30 crashes on model load on this host
+   (0xc000001d), so both the pending framing DB evals and this check need
+   either a fixed llama-cpp build or another machine.
 7. **Revisit output fluency.** Divergent answers are two extracted sentences
    joined by a bare `|` delimiter — grounded and citable but not natural
    prose. Inherent to the extractive design (Flagged Generation / Mode 2 is

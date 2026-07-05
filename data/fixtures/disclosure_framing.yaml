@@ -1,0 +1,74 @@
+# Round-1 framing-generalization fixture (plan §6 #3, round 1).
+#
+# Goal: break the hidden shared trait of the three climate pairs
+# (institution-vs-grassroots advocacy on a shared environmental event) and test
+# whether the IDF divergence gate (DIVERGENCE_IDF_FLOOR=0.13) is a climate-corpus
+# artifact. Register here is ADVERSARIAL / LEGAL, not advocacy: a corporate press
+# release (optimistic investor-relations vocabulary) vs. a securities-regulator
+# complaint (allegation / violation vocabulary) about the SAME corporate event.
+#
+# The two sides deliberately share almost no surface vocabulary EXCEPT the
+# distinctive entity + the neutral topic noun the query keys on (e.g. "Northwind"
+# + "revenue"). Everything else — "momentum"/"guidance"/"portfolio" vs
+# "overstated"/"channel-stuffed"/"violation" — is register-specific. That is the
+# stress: the singular/plural-folded IDF mass of the shared terms must clear 0.13
+# on BOTH sides despite the vocabulary distribution being nothing like climate.
+#
+# Two independent events (Northwind revenue; Meridian breach) with DISTINCT
+# entities so each query targets exactly one pair (mirrors the Cascade Ridge
+# distinctive-entity trick in wildfire_multipara.yaml). Ingest is upsert-safe;
+# doc ids are unique so this coexists with the synthetic + two-node corpora.
+
+documents:
+  # --- Pair 1: revenue recognition -----------------------------------------
+  - id: disc_northwind_pr
+    outlet: node_1_corporate
+    title: Northwind Systems reports record third quarter
+    eval_layer: realism
+    eval_tag: revenue_divergence
+    chunks:
+      - |
+        Northwind Systems reported record third quarter revenue of 418 million dollars, up 31 percent year over year on strong momentum across its cloud portfolio.
+        Management reaffirmed full year guidance and pointed to durable enterprise demand and expanding operating margins.
+
+  - id: disc_northwind_complaint
+    outlet: node_2_regulatory
+    title: SEC complaint against Northwind Systems
+    eval_layer: realism
+    eval_tag: revenue_divergence
+    chunks:
+      - |
+        The complaint alleges Northwind materially overstated third quarter revenue by prematurely recognizing 60 million dollars from channel-stuffed distributor orders that lacked economic substance.
+        Regulators charge the conduct violated Section 10(b) and deprived investors of an accurate picture of the company's financial condition.
+
+  # --- Pair 2: undisclosed data breach -------------------------------------
+  - id: disc_meridian_pr
+    outlet: node_1_corporate
+    title: Meridian Health statement on customer trust
+    eval_layer: realism
+    eval_tag: breach_divergence
+    chunks:
+      - |
+        Meridian Health remains deeply committed to customer trust and maintains industry-leading safeguards across its patient platform.
+        The company continues to invest in resilient infrastructure and reaffirms confidence in the integrity of its customer records.
+
+  - id: disc_meridian_complaint
+    outlet: node_2_regulatory
+    title: State enforcement action over Meridian breach
+    eval_layer: realism
+    eval_tag: breach_divergence
+    chunks:
+      - |
+        Regulators allege Meridian concealed a known customer data breach that exposed 2.1 million patient records for eight months before any notification.
+        The enforcement action asserts the delay violated mandatory breach-disclosure obligations and misled affected customers.
+
+edges:
+  - src: disc_northwind_pr:0
+    dst: disc_northwind_complaint:0
+    type: contradicts
+    note: "revenue: IR record-growth framing vs securities-fraud overstatement allegation"
+
+  - src: disc_meridian_pr:0
+    dst: disc_meridian_complaint:0
+    type: contradicts
+    note: "breach: customer-trust assurance framing vs concealed-breach enforcement allegation"

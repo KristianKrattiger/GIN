@@ -28,6 +28,14 @@ _DIVERGENCE_TAGS = frozenset({
     "emissions_divergence",
     "wildfire_divergence",
     "water_divergence",
+    # Round-1 framing generalization: adversarial/legal register
+    # (corporate PR vs regulator complaint), data/eval/queryset_framing2.yaml.
+    "revenue_divergence",
+    "breach_divergence",
+    # Round-2 framing generalization: housing / sparse surface overlap
+    # (zoning-technical vs tenant-organizing), data/eval/queryset_framing3.yaml.
+    "rezoning_divergence",
+    "habitability_divergence",
 })
 
 

@@ -1,0 +1,74 @@
+# Round-2 framing-generalization fixture (plan §6 #3, round 2).
+#
+# One variable changed from round 1: TOPIC DOMAIN, specifically one where the
+# two sides share almost no surface vocabulary. Housing — zoning-board /
+# code-enforcement technical register vs. tenant-organizing language. Unlike
+# climate ("greenhouse"/"wildfire"/"water" hand the IDF gate accidental
+# overlap) and unlike the round-1 securities pairs (where "revenue"/"breach"
+# appear on both sides), here the ONLY reliably shared tokens are the
+# distinctive place entity ("Alder Flats", "Kestrel Court"). Everything else —
+# "floor-area ratio"/"density bonus"/"habitability violations" vs. "pushed
+# out"/"right to return"/"without reliable heat" — is register-exclusive.
+#
+# That makes this the hardest test yet of DIVERGENCE_IDF_FLOOR=0.13: the
+# organizing side must clear the floor on entity-token IDF mass alone. If a
+# legitimate side lands under the floor, that is a FINDING to record (the floor
+# is a climate artifact), not something to fix by rewording the fixture.
+#
+# Distinct entities per pair so each query targets exactly one pair (the
+# Cascade Ridge trick). Ingest is upsert-safe; doc ids are unique so this
+# coexists with the synthetic, two-node, multipara, and disclosure corpora.
+
+documents:
+  # --- Pair 1: Alder Flats upzoning -----------------------------------------
+  - id: hf_alderflats_staff
+    outlet: node_1_technical
+    title: Alder Flats rezoning application staff report
+    eval_layer: realism
+    eval_tag: rezoning_divergence
+    chunks:
+      - |
+        The Alder Flats rezoning application proposes reclassifying twelve parcels from R-2 to R-4, permitting a floor-area ratio of 2.5 with a density bonus for on-site affordable units.
+        Staff analysis projects 640 additional dwelling units at buildout and recommends approval subject to standard traffic mitigation conditions.
+
+  - id: hf_alderflats_tenants
+    outlet: node_2_organizing
+    title: Tenant union statement on Alder Flats
+    eval_layer: realism
+    eval_tag: rezoning_divergence
+    chunks:
+      - |
+        Longtime renters in Alder Flats say the wave of luxury construction is pushing working families out of the neighborhood they built.
+        The tenant union is demanding a displacement study and a right to return before any project breaks ground.
+
+  # --- Pair 2: Kestrel Court habitability -----------------------------------
+  - id: hf_kestrel_inspection
+    outlet: node_1_technical
+    title: Code enforcement notice for Kestrel Court
+    eval_layer: realism
+    eval_tag: habitability_divergence
+    chunks:
+      - |
+        Code enforcement cited Kestrel Court apartments for seventeen habitability violations, including inoperable heating and water intrusion in nine units.
+        The owner was given ninety days to remediate before escalation to the county housing authority.
+
+  - id: hf_kestrel_tenants
+    outlet: node_2_organizing
+    title: Kestrel Court families speak out
+    eval_layer: realism
+    eval_tag: habitability_divergence
+    chunks:
+      - |
+        Families at Kestrel Court have gone two winters without reliable heat while repair promises went nowhere.
+        Organizers say the fines change nothing when tenants still cannot live safely in their own homes.
+
+edges:
+  - src: hf_alderflats_staff:0
+    dst: hf_alderflats_tenants:0
+    type: contradicts
+    note: "rezoning: parcel/FAR/density technical framing vs displacement/right-to-return organizing framing"
+
+  - src: hf_kestrel_inspection:0
+    dst: hf_kestrel_tenants:0
+    type: contradicts
+    note: "habitability: violation-count enforcement framing vs lived-conditions organizing framing"

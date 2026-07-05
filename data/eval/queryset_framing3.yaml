@@ -1,0 +1,33 @@
+# Round-2 framing-generalization queryset (plan §6 #3, round 2).
+# Requires data/fixtures/housing_framing.yaml ingested.
+#
+# Housing domain, sparse surface overlap: the organizing side of each pair
+# shares essentially only the place entity with the query, so this is the
+# hardest stress on the IDF divergence gate. Full divergence_fidelity credit
+# only when the answer cites BOTH the technical and the organizing framing.
+# eval_tag values must be registered in gin/eval/metrics.py _DIVERGENCE_TAGS.
+
+queries:
+  - id: hf_alderflats_rezoning
+    query: What would the Alder Flats rezoning mean for the neighborhood?
+    eval_layer: realism
+    eval_tag: rezoning_divergence
+    expectation: answerable
+    regression: true
+    gold_chunk_ids:
+      - hf_alderflats_staff:0
+      - hf_alderflats_tenants:0
+    contradicts_pairs:
+      - [hf_alderflats_staff:0, hf_alderflats_tenants:0]
+
+  - id: hf_kestrel_conditions
+    query: What are the conditions at Kestrel Court apartments?
+    eval_layer: realism
+    eval_tag: habitability_divergence
+    expectation: answerable
+    regression: true
+    gold_chunk_ids:
+      - hf_kestrel_inspection:0
+      - hf_kestrel_tenants:0
+    contradicts_pairs:
+      - [hf_kestrel_inspection:0, hf_kestrel_tenants:0]
