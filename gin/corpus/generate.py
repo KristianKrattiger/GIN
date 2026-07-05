@@ -72,13 +72,20 @@ def _resolve_decode_params(
     if max_tokens is None:
         if divergent:
             # Each required group is one contradicts pair -> two extracted
-            # sentences (both sides) plus cite markers and a delimiter. Real
-            # institutional sentences run ~55 tokens, so the old 25/group budget
-            # left the second side truncated to a fragment ("Elderly,
-            # immunocompromised"). Give each group room for two full sentences;
-            # EOS still fires the instant both sides are quoted
+            # sentences (both sides) plus cite markers and a delimiter. Budget
+            # measured with the Mistral tokenizer across every two-node +
+            # synthetic divergence pair (scripts note in the plan doc §6 #5):
+            # the worst-case FULL decode is the water pair at 97 tokens
+            # (55 + 36 + 6 for " | [1] " overhead); the longest single extracted
+            # sentence is 55 tokens. 40 + 80*n gives 120 for one group -- 24%
+            # headroom over the measured 97 -- and bounds the (currently
+            # unobserved) two-pair case at 200 >= 2*97. This is a ceiling, not a
+            # fixed cost: EOS fires the instant both sides are quoted
             # (stop_when_groups_satisfied), so surplus budget is never spent.
-            max_tokens = 40 + 90 * len(ctx.required_doc_groups)
+            # (Was 40 + 90*n = 130, which left 33 tokens/34% unused on the
+            # worst case -- picked to clear one truncation, not from the
+            # distribution.)
+            max_tokens = 40 + 80 * len(ctx.required_doc_groups)
         elif competing_same_tag:
             max_tokens = 100
         else:

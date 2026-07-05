@@ -107,6 +107,10 @@ consumed the budget and the second (grassroots) side truncated to a fragment
 `40 + 90 * len(required_doc_groups)` (130 for one group) — a ceiling, not a
 fixed cost: `stop_when_groups_satisfied` still fires EOS the instant both
 sides are quoted, so aligned/synthetic pairs that finish early are unaffected.
+**(Update — §6 #5 resolved.)** The `90` was later put on a measured basis: the
+worst-case full divergent decode across all pairs is 97 tokens, so the
+coefficient dropped to `80` (120 for one group, 24% headroom). See §6 #5 for the
+per-pair token table.
 
 ## 4. Verification (three layers)
 
@@ -237,15 +241,31 @@ Ranked by what would most change confidence in this result:
    `expectation: out_of_scope` label. The refusal fix is a post-decode guard: a
    pre-decode retrieval-relevance refusal cannot fire here because the retrieved
    chunks genuinely ARE query-relevant.
-5. **`max_tokens` ceiling has no principled basis yet.** `40 + 90*n` was picked
-   to clear one observed truncation (the water pair), not from a token-length
-   distribution. At 51.8s/query it is already the dominant cost, and that will
-   matter under real two-node federation traffic far more than in a 3-pair
-   eval. Measure the actual per-side sentence-token distribution and set the
-   ceiling from it — there is likely headroom to bring it *down*, not just
-   confidence that 130 is safe. (The `stop_when_groups_satisfied` early-EOS
-   means the ceiling is a cap, not a fixed cost — but a cap the greedy decode
-   routinely approaches on long institutional sentences.)
+5. **[RESOLVED] `max_tokens` ceiling now measured.** Tokenized every two-node +
+   synthetic divergence pair with the Mistral tokenizer (per-side extracted
+   sentences and the actual full decodes from run `20260705T043114Z`):
+
+   | pair | left tok | right tok | full decode |
+   |---|---|---|---|
+   | tn_water (worst) | 55 | 36 | **97** |
+   | tn_emissions | 53 | 34 | 93 |
+   | tn_wildfire | 51 | 26 | 83 |
+   | syn_incident_treatment | 15 | 14 | 35 |
+   | syn_incident_arrests | 12 | 12 | 30 |
+   | syn_election_turnout | 11 | 11 | 28 |
+
+   Overhead for `" | [1] "` (delimiter + cite marker) is 6 tokens. **Worst-case
+   full divergent decode = 97 tokens; longest single extracted sentence = 55.**
+   The old `40 + 90*n` = 130 left 33 tokens (34%) unused on the worst case —
+   confirming the "picked to clear one truncation" suspicion. Lowered to
+   `40 + 80*n` = **120** for one group: 24% headroom over the measured 97, and
+   the per-group 80 + shared 40 base bounds the (currently unobserved) two-pair
+   case at 200 ≥ 2·97. Still a ceiling, not a fixed cost — `stop_when_groups_satisfied`
+   fires EOS the instant both sides are quoted. `test_generate.py::test_divergent_with_groups_blocks_eos`
+   pins the new value; re-run `20260705T064533Z` confirms all three pairs still
+   render in full (`divergence_fidelity` 1.000, `fabrication_rate` 0.000,
+   `supported_irrelevance_rate` 0.000 — the water pair, the 55-token worst case,
+   renders both sides complete with both cites, no fragment truncation).
 6. **Cross-model check.** Verified only on Mistral-7B-Instruct-v0.3 (Q6_K, CPU,
    temperature 0, greedy). No evidence yet the fix's behavior (or the
    IDF-floor / word-overlap constants) generalizes across model families.

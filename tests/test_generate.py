@@ -96,4 +96,6 @@ def test_divergent_with_groups_blocks_eos():
     assert params["stop_when_satisfied"] is True
     # One group == one contradicts pair == two full sentences of budget; EOS
     # still fires the moment both sides are quoted, so this is a ceiling.
-    assert params["max_tokens"] == 40 + 90
+    # 40 + 80 = 120: measured max full divergent decode is 97 tokens (water
+    # pair), so this is 24% headroom over the corpus worst case (plan §6 #5).
+    assert params["max_tokens"] == 40 + 80
