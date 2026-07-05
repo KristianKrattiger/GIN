@@ -1,0 +1,107 @@
+[
+  {
+    "query_id": "fr_northwind_revenue",
+    "query": "How should Northwind's third quarter revenue be understood?",
+    "arm": "no_continuation",
+    "eval_layer": "realism",
+    "expectation": "answerable",
+    "refused": false,
+    "claims": [
+      {
+        "claim_text": "Northwind Systems reported record third quarter revenue of 418 million dollars, up 31 percent year over year on strong momentum across its cloud portfolio.",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "disc_northwind_pr:0",
+        "score": 1.0,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "EXACT",
+        "cited_chunk_ids": [
+          "disc_northwind_pr:0"
+        ]
+      },
+      {
+        "claim_text": "The complaint alleges Northwind materially overstated third quarter revenue by prematurely recognizing 60 million dollars from channel-stuffed distributor orders that lacked economic substance.",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "disc_northwind_complaint:0",
+        "score": 1.0,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "EXACT",
+        "cited_chunk_ids": [
+          "disc_northwind_complaint:0"
+        ]
+      }
+    ],
+    "eval_tag": "revenue_divergence",
+    "retrieval_manifest_hash": "763e830d8b1a65745c604764a8fc4dc907cf92d41f2b3a3bf537003bb7222204",
+    "retrieved_chunk_ids": [
+      "disc_northwind_pr:0",
+      "disc_northwind_complaint:0"
+    ],
+    "gold_chunk_ids": [
+      "disc_northwind_pr:0",
+      "disc_northwind_complaint:0"
+    ],
+    "retrieval_recall_at_k": 1.0,
+    "raw_text": " Northwind Systems reported record third quarter revenue of 418 million dollars, up 31 percent year over year on strong momentum across its cloud portfolio.\n | [1] The complaint alleges Northwind materially overstated third quarter revenue by prematurely recognizing 60 million dollars from channel-stuffed distributor orders that lacked economic substance.\n |",
+    "counterfactual_answer": null,
+    "contradicts_pairs": [
+      [
+        "disc_northwind_pr:0",
+        "disc_northwind_complaint:0"
+      ]
+    ],
+    "error": null
+  },
+  {
+    "query_id": "fr_meridian_breach",
+    "query": "What is known about the Meridian customer data breach?",
+    "arm": "no_continuation",
+    "eval_layer": "realism",
+    "expectation": "answerable",
+    "refused": false,
+    "claims": [
+      {
+        "claim_text": "Meridian Health remains deeply committed to customer trust and maintains industry-leading safeguards across its patient platform.",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "disc_meridian_pr:0",
+        "score": 1.0,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "EXACT",
+        "cited_chunk_ids": [
+          "disc_meridian_pr:0"
+        ]
+      },
+      {
+        "claim_text": "Regulators allege Meridian concealed a known customer data breach that exposed 2.1 million patient records for eight months before any notification.",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "disc_meridian_complaint:0",
+        "score": 1.0,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "EXACT",
+        "cited_chunk_ids": [
+          "disc_meridian_complaint:0"
+        ]
+      }
+    ],
+    "eval_tag": "breach_divergence",
+    "retrieval_manifest_hash": "17ca9b0e02136c2634469fcfaf40821ad632d309d8da50bc4b460168f0beb365",
+    "retrieved_chunk_ids": [
+      "disc_meridian_pr:0",
+      "disc_meridian_complaint:0",
+      "n1_doc_003:4"
+    ],
+    "gold_chunk_ids": [
+      "disc_meridian_pr:0",
+      "disc_meridian_complaint:0"
+    ],
+    "retrieval_recall_at_k": 1.0,
+    "raw_text": " Meridian Health remains deeply committed to customer trust and maintains industry-leading safeguards across its patient platform.\n | [1] Regulators allege Meridian concealed a known customer data breach that exposed 2.1 million patient records for eight months before any notification.\n |",
+    "counterfactual_answer": null,
+    "contradicts_pairs": [
+      [
+        "disc_meridian_pr:0",
+        "disc_meridian_complaint:0"
+      ]
+    ],
+    "error": null
+  }
+]

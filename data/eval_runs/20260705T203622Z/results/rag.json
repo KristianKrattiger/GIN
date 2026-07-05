@@ -1,0 +1,129 @@
+[
+  {
+    "query_id": "hf_alderflats_rezoning",
+    "query": "What would the Alder Flats rezoning mean for the neighborhood?",
+    "arm": "rag",
+    "eval_layer": "realism",
+    "expectation": "answerable",
+    "refused": false,
+    "claims": [
+      {
+        "claim_text": "The Alder Flats rezoning would mean the reclassification of twelve parcels from R-2 to R-4, permitting a floor-area ratio of 2.5 with a density bonus for on-site affordable units .",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "hf_alderflats_staff:0",
+        "score": 0.8695652173913043,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "GENERATED",
+        "cited_chunk_ids": [
+          "hf_alderflats_staff:0"
+        ]
+      },
+      {
+        "claim_text": "Staff analysis projects 640 additional dwelling units at buildout .",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "hf_alderflats_staff:0",
+        "score": 1.0,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "GENERATED",
+        "cited_chunk_ids": [
+          "hf_alderflats_staff:0"
+        ]
+      },
+      {
+        "claim_text": "However, longtime renters in Alder Flats express concern that the wave of luxury construction may push working families out of the neighborhood they built .",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "hf_alderflats_tenants:0",
+        "score": 0.7222222222222222,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "GENERATED",
+        "cited_chunk_ids": [
+          "hf_alderflats_tenants:0"
+        ]
+      },
+      {
+        "claim_text": "The sources do not provide information about any potential environmental impacts of the rezoning.",
+        "verdict": "UNSUPPORTED",
+        "matched_chunk_id": null,
+        "score": 0.09090909090909091,
+        "node_scope": "NONE",
+        "span_type": "GENERATED",
+        "cited_chunk_ids": []
+      }
+    ],
+    "eval_tag": "rezoning_divergence",
+    "retrieval_manifest_hash": "2e745290afe5443ef7f4178e3b9e6789de1861e2fa09074ed7f0a58abf139929",
+    "retrieved_chunk_ids": [
+      "hf_alderflats_staff:0",
+      "hf_alderflats_tenants:0",
+      "n2_doc_004:0"
+    ],
+    "gold_chunk_ids": [
+      "hf_alderflats_staff:0",
+      "hf_alderflats_tenants:0"
+    ],
+    "retrieval_recall_at_k": 1.0,
+    "raw_text": " The Alder Flats rezoning would mean the reclassification of twelve parcels from R-2 to R-4, permitting a floor-area ratio of 2.5 with a density bonus for on-site affordable units [1]. Staff analysis projects 640 additional dwelling units at buildout [1]. However, longtime renters in Alder Flats express concern that the wave of luxury construction may push working families out of the neighborhood they built [2]. The sources do not provide information about any potential environmental impacts of the rezoning.",
+    "counterfactual_answer": null,
+    "contradicts_pairs": [
+      [
+        "hf_alderflats_staff:0",
+        "hf_alderflats_tenants:0"
+      ]
+    ],
+    "error": null
+  },
+  {
+    "query_id": "hf_kestrel_conditions",
+    "query": "What are the conditions at Kestrel Court apartments?",
+    "arm": "rag",
+    "eval_layer": "realism",
+    "expectation": "answerable",
+    "refused": false,
+    "claims": [
+      {
+        "claim_text": "The sources indicate that Kestrel Court apartments have seventeen habitability violations, including inoperable heating and water intrusion in nine units .",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "hf_kestrel_inspection:0",
+        "score": 0.8666666666666667,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "GENERATED",
+        "cited_chunk_ids": [
+          "hf_kestrel_inspection:0"
+        ]
+      },
+      {
+        "claim_text": "Additionally, the repairs have not been completed despite promises .",
+        "verdict": "UNSUPPORTED",
+        "matched_chunk_id": null,
+        "score": 0.14285714285714285,
+        "node_scope": "NONE",
+        "span_type": "GENERATED",
+        "cited_chunk_ids": [
+          "hf_kestrel_tenants:0"
+        ]
+      }
+    ],
+    "eval_tag": "habitability_divergence",
+    "retrieval_manifest_hash": "6e9827465d39e5e0b16072cb665c57697819f8426f9d5c3d0f18b9b8525e245b",
+    "retrieved_chunk_ids": [
+      "hf_kestrel_inspection:0",
+      "hf_kestrel_tenants:0",
+      "hf_alderflats_staff:0",
+      "hf_alderflats_tenants:0"
+    ],
+    "gold_chunk_ids": [
+      "hf_kestrel_inspection:0",
+      "hf_kestrel_tenants:0"
+    ],
+    "retrieval_recall_at_k": 1.0,
+    "raw_text": " The sources indicate that Kestrel Court apartments have seventeen habitability violations, including inoperable heating and water intrusion in nine units [1]. Additionally, the repairs have not been completed despite promises [2].",
+    "counterfactual_answer": null,
+    "contradicts_pairs": [
+      [
+        "hf_kestrel_inspection:0",
+        "hf_kestrel_tenants:0"
+      ]
+    ],
+    "error": null
+  }
+]

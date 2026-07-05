@@ -218,7 +218,7 @@ Ranked by what would most change confidence in this result:
    Hand-curating edges does not scale; this is fundamentally the Cartographer's
    job (§7).
 
-   **[ROUND 1 LANDED — structural; DB eval pending model]** Adversarial/legal
+   **[ROUND 1 CONFIRMED — full DB eval `20260705T202450Z`]** Adversarial/legal
    register added: `data/fixtures/disclosure_framing.yaml` wires two
    `contradicts` pairs — a corporate press release vs. a securities-regulator
    complaint on one event — for *revenue recognition* (Northwind) and an
@@ -239,13 +239,15 @@ Ranked by what would most change confidence in this result:
      `tests/test_framing_generalization.py` (2 tests, both asserting the measured
      margin so a regression that starves a legitimate side of IDF mass fails
      loudly). Full logic suite: 159 passed.
-   - **Caveat / still pending:** the fixture-local IDF is over 4 chunks; the real
-     retrieval margin (IDF over the full candidate set, where these terms are
-     rarer) is only *larger*, but the end-to-end `divergence_fidelity` 1.000
-     confirmation is the DB eval `scripts/eval_run.py --queryset
-     data/eval/queryset_framing2.yaml`, blocked on a runnable model on this host
-     (llama.cpp crashes 0xc000001d, see [[llama-cpp-illegal-instruction]]).
-   **[ROUND 2 LANDED — structural; DB eval pending model]** Housing domain,
+   - **DB eval (run `20260705T202450Z`, real Postgres + real Mistral via WSL):**
+     SEAR `divergence_fidelity` **1.000**, `fabrication_rate` **0.000**,
+     `gold_chunk_coverage` 1.000, `supported_irrelevance_rate` 0.000; both
+     queries cite exactly the two sides of their pair (e.g. `fr_meridian_breach`
+     -> `disc_meridian_pr:0` + `disc_meridian_complaint:0`). RAG on the same
+     queries: `fabrication_rate` 0.200. (Operational note: the llama.cpp
+     `0xc000001d` crash is Windows-python-only; evals run from the WSL Ubuntu
+     repo venv — see [[llama-cpp-illegal-instruction]].)
+   **[ROUND 2 CONFIRMED — full DB eval `20260705T203622Z`]** Housing domain,
    sparse surface overlap: `data/fixtures/housing_framing.yaml` wires two
    `contradicts` pairs — zoning-board/code-enforcement technical register vs.
    tenant-organizing language — for an *upzoning* (Alder Flats: FAR/density-bonus
@@ -273,10 +275,14 @@ Ranked by what would most change confidence in this result:
      admitted graph state** (§7.1 option b): an edge whose anchor is stamped
      does not need the query-time IDF re-derivation to rediscover which
      sentence diverges.
-   - **DB eval for both rounds pending model** (same blocker as round 1):
-     `scripts/eval_run.py --queryset data/eval/queryset_framing2.yaml` and
-     `--queryset data/eval/queryset_framing3.yaml` after ingesting
-     `data/fixtures/disclosure_framing.yaml` + `data/fixtures/housing_framing.yaml`.
+   - **DB eval (run `20260705T203622Z`):** SEAR `divergence_fidelity` **1.000**,
+     `fabrication_rate` **0.000**, `gold_chunk_coverage` 1.000,
+     `supported_irrelevance_rate` 0.000 — the Kestrel pair, whose organizing side
+     reaches divergent mode on entity-token IDF mass alone (0.441), decodes both
+     sides with both cites. RAG: `fabrication_rate` 0.333, `gold_chunk_coverage`
+     0.750. With this, §6 #3's overfit question is answered for two new
+     registers/domains: the 0.13 floor is not a climate-corpus artifact —
+     *conditional on a shared distinctive entity* (see finding above).
 4. **[RESOLVED] `supported_irrelevance_rate` 0.0 -> 0.200 (SEAR).** Root-caused
    and fixed; re-run `20260705T061539Z` restores it to **0.000** with
    `divergence_fidelity` 1.000 and `fabrication_rate` 0.000 intact (bonus:

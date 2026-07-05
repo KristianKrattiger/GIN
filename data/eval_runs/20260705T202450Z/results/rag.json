@@ -1,0 +1,165 @@
+[
+  {
+    "query_id": "fr_northwind_revenue",
+    "query": "How should Northwind's third quarter revenue be understood?",
+    "arm": "rag",
+    "eval_layer": "realism",
+    "expectation": "answerable",
+    "refused": false,
+    "claims": [
+      {
+        "claim_text": "The sources provide conflicting information about Northwind's third quarter revenue.",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "disc_northwind_complaint:0",
+        "score": 0.5,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "GENERATED",
+        "cited_chunk_ids": []
+      },
+      {
+        "claim_text": "According to , Northwind reported a record third quarter revenue of 418 million dollars, up 31 percent year over year.",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "disc_northwind_pr:0",
+        "score": 0.9375,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "GENERATED",
+        "cited_chunk_ids": [
+          "disc_northwind_pr:0"
+        ]
+      },
+      {
+        "claim_text": "However,  alleges that Northwind materially overstated third quarter revenue by prematurely recognizing 60 million dollars from channel-stuffed distributor orders that lacked economic substance.",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "disc_northwind_complaint:0",
+        "score": 0.95,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "GENERATED",
+        "cited_chunk_ids": [
+          "disc_northwind_complaint:0"
+        ]
+      },
+      {
+        "claim_text": "Therefore, the actual third quarter revenue may be lower than the reported 418 million dollars.",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "disc_northwind_pr:0",
+        "score": 0.5833333333333334,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "GENERATED",
+        "cited_chunk_ids": []
+      }
+    ],
+    "eval_tag": "revenue_divergence",
+    "retrieval_manifest_hash": "763e830d8b1a65745c604764a8fc4dc907cf92d41f2b3a3bf537003bb7222204",
+    "retrieved_chunk_ids": [
+      "disc_northwind_pr:0",
+      "disc_northwind_complaint:0"
+    ],
+    "gold_chunk_ids": [
+      "disc_northwind_pr:0",
+      "disc_northwind_complaint:0"
+    ],
+    "retrieval_recall_at_k": 1.0,
+    "raw_text": " The sources provide conflicting information about Northwind's third quarter revenue. According to [1], Northwind reported a record third quarter revenue of 418 million dollars, up 31 percent year over year. However, [2] alleges that Northwind materially overstated third quarter revenue by prematurely recognizing 60 million dollars from channel-stuffed distributor orders that lacked economic substance. Therefore, the actual third quarter revenue may be lower than the reported 418 million dollars.",
+    "counterfactual_answer": null,
+    "contradicts_pairs": [
+      [
+        "disc_northwind_pr:0",
+        "disc_northwind_complaint:0"
+      ]
+    ],
+    "error": null
+  },
+  {
+    "query_id": "fr_meridian_breach",
+    "query": "What is known about the Meridian customer data breach?",
+    "arm": "rag",
+    "eval_layer": "realism",
+    "expectation": "answerable",
+    "refused": false,
+    "claims": [
+      {
+        "claim_text": "The sources indicate that there was a customer data breach at Meridian, which exposed 2.1 million patient records .",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "disc_meridian_complaint:0",
+        "score": 0.7142857142857143,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "GENERATED",
+        "cited_chunk_ids": [
+          "disc_meridian_complaint:0"
+        ]
+      },
+      {
+        "claim_text": "However, the sources do not specify when the breach occurred or how it was discovered.",
+        "verdict": "UNSUPPORTED",
+        "matched_chunk_id": null,
+        "score": 0.1,
+        "node_scope": "NONE",
+        "span_type": "GENERATED",
+        "cited_chunk_ids": []
+      },
+      {
+        "claim_text": "The company is alleged to have concealed the breach for eight months before any notification .",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "disc_meridian_complaint:0",
+        "score": 0.7777777777777778,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "GENERATED",
+        "cited_chunk_ids": [
+          "disc_meridian_complaint:0"
+        ]
+      },
+      {
+        "claim_text": "The breach is said to have violated mandatory breach-disclosure obligations and potentially misled affected customers .",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "disc_meridian_complaint:0",
+        "score": 0.8181818181818182,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "GENERATED",
+        "cited_chunk_ids": [
+          "disc_meridian_complaint:0"
+        ]
+      },
+      {
+        "claim_text": "Meridian Health maintains industry-leading safeguards across its patient platform and continues to invest in resilient infrastructure, reaffirming confidence in the integrity of its customer records .",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "disc_meridian_pr:0",
+        "score": 0.9444444444444444,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "GENERATED",
+        "cited_chunk_ids": [
+          "disc_meridian_pr:0"
+        ]
+      },
+      {
+        "claim_text": "The sources do not provide information about the nature of the breach or the measures taken by Meridian to address it after it was discovered.",
+        "verdict": "UNSUPPORTED",
+        "matched_chunk_id": null,
+        "score": 0.14285714285714285,
+        "node_scope": "NONE",
+        "span_type": "GENERATED",
+        "cited_chunk_ids": []
+      }
+    ],
+    "eval_tag": "breach_divergence",
+    "retrieval_manifest_hash": "17ca9b0e02136c2634469fcfaf40821ad632d309d8da50bc4b460168f0beb365",
+    "retrieved_chunk_ids": [
+      "disc_meridian_pr:0",
+      "disc_meridian_complaint:0",
+      "n1_doc_003:4"
+    ],
+    "gold_chunk_ids": [
+      "disc_meridian_pr:0",
+      "disc_meridian_complaint:0"
+    ],
+    "retrieval_recall_at_k": 1.0,
+    "raw_text": " The sources indicate that there was a customer data breach at Meridian, which exposed 2.1 million patient records [2]. However, the sources do not specify when the breach occurred or how it was discovered. The company is alleged to have concealed the breach for eight months before any notification [2]. The breach is said to have violated mandatory breach-disclosure obligations and potentially misled affected customers [2]. Meridian Health maintains industry-leading safeguards across its patient platform and continues to invest in resilient infrastructure, reaffirming confidence in the integrity of its customer records [1]. The sources do not provide information about the nature of the breach or the measures taken by Meridian to address it after it was discovered.",
+    "counterfactual_answer": null,
+    "contradicts_pairs": [
+      [
+        "disc_meridian_pr:0",
+        "disc_meridian_complaint:0"
+      ]
+    ],
+    "error": null
+  }
+]
