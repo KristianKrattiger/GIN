@@ -178,9 +178,26 @@ Ranked by what would most change confidence in this result:
    forbidden net. Guarded by the realistic-prose unit test
    (`test_multi_sentence_fallback_anchors_on_relevant_sentence`), which asserts
    both the immunity failure mode and the narrowed fix.
-   **Still unvalidated end-to-end**: no *actual* multi-paragraph chunk has been
-   ingested and decoded through the full pipeline. Do this **before** scaling
-   the corpus.
+   **[RESOLVED] Validated end-to-end.** `data/fixtures/wildfire_multipara.yaml`
+   ingests two *actual* multi-sentence chunks (one paragraph per side: an
+   on-topic anchor sentence plus supporting detail and an org-credit/tail line,
+   with the distinctive "Cascade Ridge fire" entity only on the anchors) wired
+   by a `contradicts` edge; `data/eval/queryset_multipara.yaml` drives the
+   query. Run `20260705T065559Z` (real DB + real Mistral) decoded the **anchor
+   sentence on each side, not filler/tail**:
+   - institutional: *"The Cascade Ridge fire burned 214,000 acres…"* (sentence 0),
+     not the suppression/dispatch tail;
+   - grassroots: *"Elderly, immunocompromised, and low-income residents downwind
+     of the Cascade Ridge fire face the heaviest burden from wildfire smoke
+     exposure."* (sentence 1), **not** the "Neighborhood clinics" filler lede,
+     the "Community groups distributed air purifiers" line, or the "The coalition
+     thanks the volunteers" tail.
+
+   `divergence_fidelity` 1.000, `fabrication_rate` 0.000, `gold_chunk_coverage`
+   1.000. The IDF anchor scorer picks the anchor and the forbidden-tail net
+   catches the filler exactly as the unit test predicted, now confirmed on a
+   real decode. This is the "do this **before** scaling the corpus" gate — now
+   closed.
 3. **Generalize past 3 pairs (couples with the Cartographer — see §7).** The
    real-text claim rests on three hand-picked pairs from a 19-document corpus,
    and all three share a hidden trait: both sides respond to the *same

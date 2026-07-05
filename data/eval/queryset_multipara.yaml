@@ -1,0 +1,19 @@
+# Multi-paragraph divergence validation queryset (plan §6 #2).
+# Requires data/fixtures/wildfire_multipara.yaml ingested.
+# The single divergence probe checks that on ACTUAL multi-sentence chunks the
+# decoded extract on each side is the ANCHOR sentence (carrying the query
+# terms), not a filler/tail line — the failure mode the IDF anchor scorer in
+# compute_divergence_zones exists to prevent.
+
+queries:
+  - id: mp_wildfire_multipara
+    query: What is the main concern about the Cascade Ridge fire?
+    eval_layer: realism
+    eval_tag: wildfire_divergence
+    expectation: answerable
+    regression: true
+    gold_chunk_ids:
+      - wf_multi_inst:0
+      - wf_multi_grass:0
+    contradicts_pairs:
+      - [wf_multi_inst:0, wf_multi_grass:0]

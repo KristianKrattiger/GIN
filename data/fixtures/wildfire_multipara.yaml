@@ -1,0 +1,45 @@
+# Multi-paragraph divergence fixture (plan §6 #2 end-to-end validation).
+#
+# The two-node corpus is single-sentence-per-chunk, so the IDF anchor scorer in
+# compute_divergence_zones (the multi-sentence fallback, materialize.py) has
+# never decoded an ACTUAL multi-sentence chunk. Each document here is ONE chunk
+# holding a realistic 3-4 sentence paragraph: an on-topic anchor sentence plus
+# supporting detail and an org-credit/tail line. Only the anchor sentence on
+# each side carries the distinctive query terms ("Cascade Ridge fire"); the
+# filler/tail lines share no query keyword, so:
+#   - the IDF anchor scorer must pick the anchor sentence (not filler), and
+#   - the filler/tail lines must fall under the forbidden-tail net.
+# Ingest is upsert-safe: doc ids are unique, so this coexists with the
+# synthetic + two-node corpora already in the mixed DB. The distinctive
+# "Cascade Ridge fire" entity ensures retrieval targets these chunks, not the
+# generic NIFC / Earthjustice wildfire chunks.
+
+documents:
+  - id: wf_multi_inst
+    outlet: node_1_institutional
+    title: Cascade Ridge fire after-action summary
+    eval_layer: realism
+    eval_tag: wildfire_divergence
+    chunks:
+      - |
+        The Cascade Ridge fire burned 214,000 acres across three counties, one of the largest wildfire complexes recorded in the region this decade.
+        Suppression crews reached full containment after six weeks of sustained effort.
+        Incident coordination was managed through the regional interagency dispatch center based on resource demand.
+
+  - id: wf_multi_grass
+    outlet: node_2_grassroots
+    title: Breathing room after the Cascade Ridge fire
+    eval_layer: realism
+    eval_tag: wildfire_divergence
+    chunks:
+      - |
+        Neighborhood clinics reported a surge in respiratory complaints during the smoke season.
+        Elderly, immunocompromised, and low-income residents downwind of the Cascade Ridge fire face the heaviest burden from wildfire smoke exposure.
+        Community groups distributed air purifiers to families who could not afford them.
+        The coalition thanks the volunteers who staffed the clean-air shelters.
+
+edges:
+  - src: wf_multi_inst:0
+    dst: wf_multi_grass:0
+    type: contradicts
+    note: institutional acreage/containment framing vs grassroots smoke-exposure reframing
