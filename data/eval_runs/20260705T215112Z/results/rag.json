@@ -1,0 +1,81 @@
+[
+  {
+    "query_id": "fr_northwind_revenue",
+    "query": "How should Northwind's third quarter revenue be understood?",
+    "arm": "rag",
+    "eval_layer": "realism",
+    "expectation": "answerable",
+    "refused": true,
+    "claims": [
+      {
+        "claim_text": "The sources do not support an answer.",
+        "verdict": "REFUSAL",
+        "matched_chunk_id": null,
+        "score": 0.0,
+        "node_scope": "NONE",
+        "span_type": "REFUSAL",
+        "cited_chunk_ids": []
+      }
+    ],
+    "eval_tag": "revenue_divergence",
+    "retrieval_manifest_hash": "763e830d8b1a65745c604764a8fc4dc907cf92d41f2b3a3bf537003bb7222204",
+    "retrieved_chunk_ids": [
+      "disc_northwind_pr:0",
+      "disc_northwind_complaint:0"
+    ],
+    "gold_chunk_ids": [
+      "disc_northwind_pr:0",
+      "disc_northwind_complaint:0"
+    ],
+    "retrieval_recall_at_k": 1.0,
+    "raw_text": "Northwind's third quarter revenue should be understood as being reported at 418 million dollars, which was a 31 percent increase year over year due to strong momentum across its cloud portfolio [1]. However, this figure has been challenged by the SEC, which alleges that Northwind overstated its revenue by 60 million dollars through premature recognition of orders from distributors that lacked economic substance [2]. Therefore, the accurate third quarter revenue, according to the SEC, would be 358 million dollars (418 million - 60 million). The SEC's complaint suggests that this misrepresentation violated Section 10(b) and misled investors about the company's financial condition. [1][2] The sources do not support an answer. [1][2] The sources do not support an answer. [1][2] The sources do not support an answer. [1][2] The sources do not support an answer. [1][2] The sources do not support an answer. [1][2] The sources do not support an answer. [1][2] The sources do not support an answer. [1][2] The sources do not support an answer. [1][2] The sources do not support an answer",
+    "counterfactual_answer": null,
+    "contradicts_pairs": [
+      [
+        "disc_northwind_pr:0",
+        "disc_northwind_complaint:0"
+      ]
+    ],
+    "error": null
+  },
+  {
+    "query_id": "fr_meridian_breach",
+    "query": "What is known about the Meridian customer data breach?",
+    "arm": "rag",
+    "eval_layer": "realism",
+    "expectation": "answerable",
+    "refused": true,
+    "claims": [
+      {
+        "claim_text": "The sources do not support an answer.",
+        "verdict": "REFUSAL",
+        "matched_chunk_id": null,
+        "score": 0.0,
+        "node_scope": "NONE",
+        "span_type": "REFUSAL",
+        "cited_chunk_ids": []
+      }
+    ],
+    "eval_tag": "breach_divergence",
+    "retrieval_manifest_hash": "17ca9b0e02136c2634469fcfaf40821ad632d309d8da50bc4b460168f0beb365",
+    "retrieved_chunk_ids": [
+      "disc_meridian_pr:0",
+      "disc_meridian_complaint:0",
+      "n1_doc_003:4"
+    ],
+    "gold_chunk_ids": [
+      "disc_meridian_pr:0",
+      "disc_meridian_complaint:0"
+    ],
+    "retrieval_recall_at_k": 1.0,
+    "raw_text": "The sources do not support an answer. [1] discusses Meridian Health's commitment to customer trust and the integrity of customer records, but does not mention a breach. [2] provides information about a regulatory enforcement action alleging that Meridian concealed a known customer data breach that exposed 2.1 million patient records for eight months before any notification, but does not provide details about the breach itself. [3] is unrelated to Meridian Health and discusses NASA's GISTEMP v4 surface temperature analysis. [n] [n] [n] [n] [n] [n] [n] [n] [n] [n] [n] [n] [n] [n] [n] [n] [n] [n] [n] [n] [n] [n] [n] [n] [n] [n] [n] [n] [n] [n] [n] [n] [n] [n] [n] [n] [n] [n] [n] [n] [n] [n] [n] [n] [n] [n] [n] [n] [n] [n] [n] [",
+    "counterfactual_answer": null,
+    "contradicts_pairs": [
+      [
+        "disc_meridian_pr:0",
+        "disc_meridian_complaint:0"
+      ]
+    ],
+    "error": null
+  }
+]

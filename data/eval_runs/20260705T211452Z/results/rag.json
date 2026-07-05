@@ -1,0 +1,316 @@
+[
+  {
+    "query_id": "tn_emissions_framing",
+    "query": "What is the most important thing the world should do about greenhouse gas emissions?",
+    "arm": "rag",
+    "eval_layer": "realism",
+    "expectation": "answerable",
+    "refused": true,
+    "claims": [
+      {
+        "claim_text": "The sources do not support an answer.",
+        "verdict": "REFUSAL",
+        "matched_chunk_id": null,
+        "score": 0.0,
+        "node_scope": "NONE",
+        "span_type": "REFUSAL",
+        "cited_chunk_ids": []
+      }
+    ],
+    "eval_tag": "emissions_divergence",
+    "retrieval_manifest_hash": "fcee72fdef941df77442e258bbb69883b73fd6018fd3ce4db9b7488fdf1c8ee0",
+    "retrieved_chunk_ids": [
+      "n1_doc_005:2",
+      "n2_doc_001:4",
+      "n1_doc_001:7",
+      "n1_doc_005:4",
+      "n1_doc_007:4"
+    ],
+    "gold_chunk_ids": [
+      "n1_doc_005:2",
+      "n2_doc_001:4"
+    ],
+    "retrieval_recall_at_k": 1.0,
+    "raw_text": "The sources do not support an answer. [5] discusses the increase in greenhouse gas concentrations and temperature, but does not provide guidance on the most important action to take. [1] and [4] emphasize the need for increased climate action, but do not specify the most important action. [2] highlights the impact of Indigenous-led resistance, but does not suggest it as the most important action. [3] provides data on emissions but does not indicate the most important action. Therefore, the sources do not provide a clear indication of the most important action to take regarding greenhouse gas emissions. [1][2][3][4][5]",
+    "counterfactual_answer": null,
+    "contradicts_pairs": [
+      [
+        "n1_doc_005:2",
+        "n2_doc_001:4"
+      ]
+    ],
+    "error": null
+  },
+  {
+    "query_id": "tn_wildfire_framing",
+    "query": "What is the main concern about wildfires in the United States?",
+    "arm": "rag",
+    "eval_layer": "realism",
+    "expectation": "answerable",
+    "refused": true,
+    "claims": [
+      {
+        "claim_text": "The sources do not support an answer.",
+        "verdict": "REFUSAL",
+        "matched_chunk_id": null,
+        "score": 0.0,
+        "node_scope": "NONE",
+        "span_type": "REFUSAL",
+        "cited_chunk_ids": []
+      }
+    ],
+    "eval_tag": "wildfire_divergence",
+    "retrieval_manifest_hash": "e49d8ea10ca7a6534e19e985721d96bc93999766b4794d4542cfddf668732a48",
+    "retrieved_chunk_ids": [
+      "n1_doc_008:0",
+      "n2_doc_005:1",
+      "n1_doc_008:2",
+      "n1_doc_008:1"
+    ],
+    "gold_chunk_ids": [
+      "n1_doc_008:0",
+      "n2_doc_005:1"
+    ],
+    "retrieval_recall_at_k": 1.0,
+    "raw_text": "The sources do not support an answer. [4] provides information about the number of wildfires and their occurrence on federally protected lands, [3] mentions the risk faced by certain populations, and [2] discusses the risk from wildfire smoke exposure. However, none of these sources explicitly state the main concern about wildfires in the United States. [1] focuses on the acreage burned, which is not directly related to the main concern. [2] does address a specific risk group, but it does not provide context on the overall main concern. Therefore, the sources do not support an answer to the question. [2][3][4][1] [n] [n] [n] [n] [n] [n] [n] [n] [n] [n] [n] [n] [n] [n] [n] [n] [n] [n] [n] [n] [n] [n] [n] [n] [n] [n] [n] [n] [n] [n] [n] [n] [n] [n] [n] [n] [n] [n] [n] [n] [n] [n",
+    "counterfactual_answer": null,
+    "contradicts_pairs": [
+      [
+        "n1_doc_008:0",
+        "n2_doc_005:1"
+      ]
+    ],
+    "error": null
+  },
+  {
+    "query_id": "tn_water_framing",
+    "query": "How should water scarcity in California be understood?",
+    "arm": "rag",
+    "eval_layer": "realism",
+    "expectation": "answerable",
+    "refused": false,
+    "claims": [
+      {
+        "claim_text": "Water scarcity in California should be understood through the lens of both environmental and social factors.",
+        "verdict": "UNSUPPORTED",
+        "matched_chunk_id": null,
+        "score": 0.2727272727272727,
+        "node_scope": "NONE",
+        "span_type": "GENERATED",
+        "cited_chunk_ids": []
+      },
+      {
+        "claim_text": "Environmentally, as of April 3, 2023, the state's snowpack was exceptionally high, with a snow water equivalent of 61.1 inches, or 237 percent of the April 1 average .",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "n1_doc_009:0",
+        "score": 0.8,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "GENERATED",
+        "cited_chunk_ids": []
+      },
+      {
+        "claim_text": "This large snowpack suggests that there is significant water available in the mountains, which could potentially alleviate water scarcity issues.",
+        "verdict": "UNSUPPORTED",
+        "matched_chunk_id": null,
+        "score": 0.1875,
+        "node_scope": "NONE",
+        "span_type": "GENERATED",
+        "cited_chunk_ids": []
+      },
+      {
+        "claim_text": "However, the social aspect of water scarcity highlights that disadvantaged and cumulatively burdened communities are disproportionately affected by water shortages, reflecting underlying inequities in water resource management .",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "n2_doc_008:2",
+        "score": 0.75,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "GENERATED",
+        "cited_chunk_ids": []
+      },
+      {
+        "claim_text": "Additionally, there is a need for greater investment in water efficiency measures to reduce urban water use, as per-capita water use is generally higher in wealthier communities .",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "n2_doc_008:0",
+        "score": 0.55,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "GENERATED",
+        "cited_chunk_ids": []
+      },
+      {
+        "claim_text": "Strategies such as water efficiency, reuse, and stormwater capture are already succeeding in many California communities, reducing demand while boosting local supply .",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "n2_doc_008:1",
+        "score": 1.0,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "GENERATED",
+        "cited_chunk_ids": []
+      },
+      {
+        "claim_text": "These strategies, combined with addressing social inequities, can help manage water scarcity more effectively.",
+        "verdict": "UNSUPPORTED",
+        "matched_chunk_id": null,
+        "score": 0.15384615384615385,
+        "node_scope": "NONE",
+        "span_type": "GENERATED",
+        "cited_chunk_ids": []
+      },
+      {
+        "claim_text": "[",
+        "verdict": "UNSUPPORTED",
+        "matched_chunk_id": null,
+        "score": 0.0,
+        "node_scope": "NONE",
+        "span_type": "GENERATED",
+        "cited_chunk_ids": []
+      }
+    ],
+    "eval_tag": "water_divergence",
+    "retrieval_manifest_hash": "e13241bff441d75dd2d6d8d6dacc91b4a4d980a30d43e9c8d09473f6a82b8752",
+    "retrieved_chunk_ids": [
+      "n1_doc_009:0",
+      "n2_doc_008:2",
+      "n2_doc_008:0",
+      "n2_doc_008:1",
+      "n2_doc_008:4"
+    ],
+    "gold_chunk_ids": [
+      "n1_doc_009:0",
+      "n2_doc_008:2"
+    ],
+    "retrieval_recall_at_k": 1.0,
+    "raw_text": "Water scarcity in California should be understood through the lens of both environmental and social factors. Environmentally, as of April 3, 2023, the state's snowpack was exceptionally high, with a snow water equivalent of 61.1 inches, or 237 percent of the April 1 average [n1]. This large snowpack suggests that there is significant water available in the mountains, which could potentially alleviate water scarcity issues. However, the social aspect of water scarcity highlights that disadvantaged and cumulatively burdened communities are disproportionately affected by water shortages, reflecting underlying inequities in water resource management [n2]. Additionally, there is a need for greater investment in water efficiency measures to reduce urban water use, as per-capita water use is generally higher in wealthier communities [n3]. Strategies such as water efficiency, reuse, and stormwater capture are already succeeding in many California communities, reducing demand while boosting local supply [n4]. These strategies, combined with addressing social inequities, can help manage water scarcity more effectively. [n2][n4] [n3] [n1] [n2] [n4] [n3] [n1] [n2] [n4] [",
+    "counterfactual_answer": null,
+    "contradicts_pairs": [
+      [
+        "n1_doc_009:0",
+        "n2_doc_008:2"
+      ]
+    ],
+    "error": null
+  },
+  {
+    "query_id": "tn_2023_anomaly",
+    "query": "How much warmer was 2023 than the twentieth-century average?",
+    "arm": "rag",
+    "eval_layer": "realism",
+    "expectation": "answerable",
+    "refused": true,
+    "claims": [
+      {
+        "claim_text": "The sources do not support an answer.",
+        "verdict": "REFUSAL",
+        "matched_chunk_id": null,
+        "score": 0.0,
+        "node_scope": "NONE",
+        "span_type": "REFUSAL",
+        "cited_chunk_ids": []
+      }
+    ],
+    "eval_tag": "temperature_data",
+    "retrieval_manifest_hash": "8246e16fd0b4bbcbed8c260d0bf1c49495f2bc210c530f8a614e486a5ad40a27",
+    "retrieved_chunk_ids": [
+      "n1_doc_002:1",
+      "n1_doc_005:0",
+      "n1_doc_007:0",
+      "n1_doc_007:1"
+    ],
+    "gold_chunk_ids": [
+      "n1_doc_002:1"
+    ],
+    "retrieval_recall_at_k": 1.0,
+    "raw_text": "[1] node_1_institutional \u2014 NOAA Annual 2023 Global Climate Report (chunk n1_doc_002:1)\nIn 2023, global surface temperature was about 2.12 degrees F (1.18 degrees C) above the 20th-century average, beating the next warmest year (2016) by roughly 0.27 degrees F.\n\n[1] The 2023 global surface temperature was about 2.12 degrees F (1.18 degrees C) above the 20th-century average [n1]. [1] The sources do not support an answer. [1] The sources do not support an answer. [1] The sources do not support an answer. [1] The sources do not support an answer. [1] The sources do not support an answer. [1] The sources do not support an answer. [1] The sources do not support an answer. [1] The sources do not support an answer. [1] The sources do not support an answer. [1] The sources do not support an answer. [1] The sources do not support an answer. [1] The",
+    "counterfactual_answer": null,
+    "contradicts_pairs": [],
+    "error": null
+  },
+  {
+    "query_id": "tn_ocean_acidification",
+    "query": "What is ocean acidification and what causes it?",
+    "arm": "rag",
+    "eval_layer": "realism",
+    "expectation": "answerable",
+    "refused": true,
+    "claims": [
+      {
+        "claim_text": "The sources do not support an answer.",
+        "verdict": "REFUSAL",
+        "matched_chunk_id": null,
+        "score": 0.0,
+        "node_scope": "NONE",
+        "span_type": "REFUSAL",
+        "cited_chunk_ids": []
+      }
+    ],
+    "eval_tag": "ocean_acidification",
+    "retrieval_manifest_hash": "66c49b157de51dae210bcea5dcb65bc8b03ef0f1154fcb2d3d59b6d4e302ec70",
+    "retrieved_chunk_ids": [
+      "n1_doc_004:0",
+      "n1_doc_004:4",
+      "n1_doc_004:6"
+    ],
+    "gold_chunk_ids": [
+      "n1_doc_004:0"
+    ],
+    "retrieval_recall_at_k": 1.0,
+    "raw_text": "Ocean acidification is a reduction in the pH of the ocean over an extended period, primarily caused by the uptake of carbon dioxide (CO2) from the atmosphere [n1]. The sources do not support an answer. [n2, n3] The provided sources discuss the effects of ocean acidification but do not provide additional details about its definition or causes beyond what is stated. [n1] The sources do not support an answer. [n2, n3] The provided sources discuss the effects of ocean acidification but do not provide additional details about its definition or causes beyond what is stated. [n1] The sources do not support an answer. [n2, n3] The provided sources discuss the effects of ocean acidification but do not provide additional details about its definition or causes beyond what is stated. [n1] The sources do not support an answer. [n2, n3] The provided sources discuss the effects of ocean acidification but do not provide additional details about its definition or causes beyond what is stated. [n1] The sources do not support an answer. [n2, n3] The provided sources discuss the effects of ocean acidification but do not provide additional details about its definition or causes beyond what is stated",
+    "counterfactual_answer": null,
+    "contradicts_pairs": [],
+    "error": null
+  },
+  {
+    "query_id": "tn_out_of_scope_referendum",
+    "query": "By how many votes did the harbor district referendum pass?",
+    "arm": "rag",
+    "eval_layer": "out_of_scope",
+    "expectation": "out_of_scope",
+    "refused": false,
+    "claims": [
+      {
+        "claim_text": "The harbor district referendum passed by 842 votes after a long count.",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "election_centralwire:0",
+        "score": 1.0,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "GENERATED",
+        "cited_chunk_ids": []
+      },
+      {
+        "claim_text": "The sources provide this information, though they differ slightly in turnout percentage and additional details.",
+        "verdict": "UNSUPPORTED",
+        "matched_chunk_id": null,
+        "score": 0.08333333333333333,
+        "node_scope": "NONE",
+        "span_type": "GENERATED",
+        "cited_chunk_ids": [
+          "election_centralwire:0",
+          "election_metrodaily:0"
+        ]
+      },
+      {
+        "claim_text": "and  both agree on the margin of victory.",
+        "verdict": "UNSUPPORTED",
+        "matched_chunk_id": null,
+        "score": 0.0,
+        "node_scope": "NONE",
+        "span_type": "GENERATED",
+        "cited_chunk_ids": [
+          "election_centralwire:0",
+          "election_metrodaily:0"
+        ]
+      }
+    ],
+    "eval_tag": "oos_probe",
+    "retrieval_manifest_hash": "9606c29ed4bc930ee2a22680e72a4e7011feb8faf1707a3aae1ebde4372d84a0",
+    "retrieved_chunk_ids": [
+      "election_centralwire:0",
+      "election_metrodaily:0",
+      "port_authority_brief:0",
+      "school_district_report:0"
+    ],
+    "gold_chunk_ids": [],
+    "retrieval_recall_at_k": null,
+    "raw_text": "The harbor district referendum passed by 842 votes after a long count. [1][2] The sources provide this information, though they differ slightly in turnout percentage and additional details. [1] and [2] both agree on the margin of victory. [1] [2]",
+    "counterfactual_answer": null,
+    "contradicts_pairs": [],
+    "error": null
+  }
+]

@@ -1,0 +1,15 @@
+{
+  "generated_at": "2026-07-05T22:05:25.173163+00:00",
+  "model": "models/Qwen2.5-7B-Instruct-Q6_K.gguf",
+  "verifier_mode": "overlap",
+  "threshold": 0.5,
+  "queryset": "data/eval/queryset_framing3.yaml",
+  "arms": [
+    "rag",
+    "no_continuation"
+  ],
+  "n_queries": 2,
+  "n_gpu_layers": 0,
+  "wall_clock_seconds_per_query": 108.36100260700005,
+  "tokens_per_second": 1.084338435166985
+}

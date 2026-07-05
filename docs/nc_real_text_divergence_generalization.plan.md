@@ -349,27 +349,87 @@ Ranked by what would most change confidence in this result:
    render in full (`divergence_fidelity` 1.000, `fabrication_rate` 0.000,
    `supported_irrelevance_rate` 0.000 — the water pair, the 55-token worst case,
    renders both sides complete with both cites, no fragment truncation).
-6. **Cross-model check.** Verified only on Mistral-7B-Instruct-v0.3 (Q6_K, CPU,
-   temperature 0, greedy). No evidence yet the fix's behavior (or the
-   IDF-floor / word-overlap constants) generalizes across model families.
-   **[RUNBOOK — no code changes needed; blocked on a runnable second model.]**
-   `scripts/eval_run.py` already takes `--model <path-to-gguf>`, so the check is
-   purely operational once a second GGUF is on disk (suggested:
-   Qwen2.5-7B-Instruct or Llama-3.1-8B-Instruct at Q6_K to hold quantization
-   constant). Run, per model:
-   `python scripts/eval_run.py --model <gguf> --queryset data/eval/queryset_twonode.yaml`
-   then the same for `queryset_multipara.yaml`, `queryset_framing2.yaml`,
-   `queryset_framing3.yaml`. Expected-invariant metrics: `divergence_fidelity`
-   1.000, `fabrication_rate` 0.000, `supported_irrelevance_rate` 0.000. Two
-   things are model-sensitive and worth watching: (a) the measured `max_tokens`
-   table in #5 is Mistral-tokenizer token counts — a coarser tokenizer could
-   push the worst case past the 120 ceiling (symptom: truncated second side);
-   (b) `sentence_token_spans` alignment behavior. The IDF gate itself is
-   model-independent (pure lexical), so a divergence-mode *routing* change
-   across models would indicate a harness bug, not a model difference. Note the
-   local blocker: llama.cpp 0.3.30 crashes on model load on this host
-   (0xc000001d), so both the pending framing DB evals and this check need
-   either a fixed llama-cpp build or another machine.
+6. **[CONFIRMED] Cross-model check.** Ran Qwen2.5-7B-Instruct-Q6_K (via WSL,
+   `--chat-template plain`, same overlap verifier) against all four divergence
+   querysets — `queryset_twonode.yaml`, `queryset_multipara.yaml`,
+   `queryset_framing2.yaml`, `queryset_framing3.yaml` — runs `20260705T211452Z`,
+   `20260705T214108Z`, `20260705T215112Z`, `20260705T220525Z`.
+
+   **Result: SEAR's divergence mechanism is model-independent.** `no_continuation`
+   scored `divergence_fidelity` **1.000** and `fabrication_rate` **0.000** on
+   every queryset, matching the Mistral baseline exactly. Inspected `raw_text`
+   directly for all 8 divergence queries across the 4 runs (emissions, wildfire,
+   water, multipara wildfire, Northwind, Meridian, Alder Flats, Kestrel Court) —
+   every one rendered both extracted spans in full, joined by `|`, with correct
+   citation markers. No fragment truncation on the divergent path despite
+   Qwen's completely different tokenizer/vocab. This is the expected result
+   given the architecture: SEAR's grounding comes from constrained/grammar-
+   masked decoding (`ExtractiveCopyConstraint` + logits processor), not free
+   generation, so the IDF floor, divergence-zone fallback, and `max_tokens`
+   ceiling don't depend on a model's own conversational habits or on chat-
+   template alignment (`plain` — no native Qwen `<|im_start|>` wrapper — was
+   used throughout and didn't matter for this arm).
+
+   **Harness bug surfaced, not a RAG failure.** The `rag` arm's reported
+   `query_relevance_rate` was 0.000 on 3 of 4 querysets (0.167 on twonode),
+   which looks like total collapse. It isn't: inspecting `raw_text` shows Qwen's
+   RAG answers are mostly substantive and correctly synthesize both sides of a
+   pair (e.g. `fr_meridian_breach`'s answer discusses both Meridian's PR
+   statement and the regulatory complaint in detail). Qwen has a stylistic tic —
+   it inserts the literal refusal phrase "The sources do not support an answer"
+   as a mid-answer hedge on a narrower sub-point, even while substantively
+   answering the broader question (e.g. `tn_ocean_acidification` opens with a
+   real, grounded answer, then hedges that phrase about one detail, then
+   continues). `RagArm.run` in `gin/eval/arms.py` does
+   `refused = _REFUSAL_MARKER in raw_text.lower()` — a substring match anywhere
+   in the text — which fires on the hedge and discards the entire answer
+   (`claims = [] if refused else ...`), zeroing every downstream RAG metric.
+   This never surfaced against Mistral because Mistral either refuses cleanly
+   or never emits the phrase at all. **Not fixing this now** — RAG arm changes
+   are out of scope per §8 — but flagged here so a future RAG-arm session
+   doesn't mistake it for a real cross-model regression.
+
+   **One real, narrow regression found.** `tn_2023_anomaly` — a single-source
+   *convergent* query (`contradicts_pairs: []`, not part of the divergence
+   machinery this doc otherwise stress-tests) — truncated under Qwen to
+   `raw_text` `"In 2023, global surface temperature was about 2.|"`, cutting off
+   before `"12 degrees F (1.18 degrees C) above the 20th-century average"`
+   entirely. The claim still scored `SUPPORTED` / `matched_chunk_id:
+   n1_doc_002:1` / `score: 1.0` (the fragment is a true verbatim substring), so
+   it passed every SEAR metric (`fabrication_rate` 0.0, `gold_chunk_coverage`
+   1.0) while being a materially useless answer to a numeric question.
+
+   **Root cause confirmed (not the tokenizer-boundary theory originally
+   suspected).** Directly compared tokenization of `"2.12"` under both models
+   (`llm.tokenize`): Qwen and Mistral split it **identically** —
+   `['2', '.', '1', '2']` in both — so this is not a BPE-boundary artifact.
+   The real mechanism is in the decode constraint itself.
+   `span_must_close_at_sentence_end=divergent or competing`
+   (`gin/corpus/generate.py:211`) is **`False`** for a single-source
+   convergent query like this one, so `_span_close_permitted()`
+   (`sear/processor.py:275`) skips the sentence-end check entirely and returns
+   `True` as soon as `span_len >= min_span_len` (3 tokens for convergent mode,
+   `generate.py:59`) — with no requirement to reach an actual sentence
+   boundary. From the 4th token onward, "close the span / EOS" and "continue
+   copying the next source token" are simultaneously *legal* at every
+   position (`processor.py:333-336`); greedy decoding just picks whichever the
+   model assigns higher probability to at that step. Mistral happened to keep
+   copying through the full sentence on this query; Qwen, at the token right
+   after `"2."` — well past the 3-token minimum — chose to close instead. This
+   is a genuine permissiveness gap specific to convergent mode: divergent and
+   competing modes already require `span_must_close_at_sentence_end=True`
+   (closing the plan-3 gap from `nc_phase3_divergence_correctness.plan.md`);
+   convergent mode never got the same guard because Phase 3's synthetic corpus
+   never happened to trigger an early greedy close on it. Not fixed here (out
+   of scope for this doc — this is a convergent-mode decode concern, not the
+   divergence machinery), but now precisely diagnosed: the candidate fix is
+   extending `span_must_close_at_sentence_end` (or raising convergent
+   `min_span_len`) to convergent mode too, at the cost of the shorter, punchier
+   convergent extracts the current permissiveness allows.
+
+   Local operational note: llama.cpp on Windows Python crashes at model load
+   (`0xc000001d`); all of the above ran via WSL Ubuntu using the repo's Linux
+   `venv/` (see [[llama-cpp-illegal-instruction]]).
 7. **Revisit output fluency.** Divergent answers are two extracted sentences
    joined by a bare `|` delimiter — grounded and citable but not natural
    prose. Inherent to the extractive design (Flagged Generation / Mode 2 is

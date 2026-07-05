@@ -1,0 +1,83 @@
+[
+  {
+    "query_id": "hf_alderflats_rezoning",
+    "query": "What would the Alder Flats rezoning mean for the neighborhood?",
+    "arm": "rag",
+    "eval_layer": "realism",
+    "expectation": "answerable",
+    "refused": true,
+    "claims": [
+      {
+        "claim_text": "The sources do not support an answer.",
+        "verdict": "REFUSAL",
+        "matched_chunk_id": null,
+        "score": 0.0,
+        "node_scope": "NONE",
+        "span_type": "REFUSAL",
+        "cited_chunk_ids": []
+      }
+    ],
+    "eval_tag": "rezoning_divergence",
+    "retrieval_manifest_hash": "2e745290afe5443ef7f4178e3b9e6789de1861e2fa09074ed7f0a58abf139929",
+    "retrieved_chunk_ids": [
+      "hf_alderflats_staff:0",
+      "hf_alderflats_tenants:0",
+      "n2_doc_004:0"
+    ],
+    "gold_chunk_ids": [
+      "hf_alderflats_staff:0",
+      "hf_alderflats_tenants:0"
+    ],
+    "retrieval_recall_at_k": 1.0,
+    "raw_text": "The Alder Flats rezoning application proposes reclassifying twelve parcels from R-2 to R-4, which would permit a floor-area ratio of 2.5 with a density bonus for on-site affordable units, potentially leading to 640 additional dwelling units at buildout [1]. This change could significantly alter the character of the neighborhood, increasing its density and potentially affecting local infrastructure and services. However, the tenant union is concerned about the displacement of working families and is demanding a displacement study and a right to return before any project breaks ground [2]. The sources do not provide information on the specific impacts on local infrastructure or services, but the rezoning could lead to increased density and potential displacement of residents [1, 2]. Additionally, while the Alder Flats rezoning does not directly relate to the Curtis Bay neighborhood, the broader context of neighborhood change and displacement is relevant [3]. The rezoning could also have implications for the overall development and character of the Alder Flats neighborhood. [1, 2] The sources do not support an answer. [3] provides information about a different neighborhood and does not directly address the Alder Flats rezoning. [1, 2] provide the most relevant information. [1]",
+    "counterfactual_answer": null,
+    "contradicts_pairs": [
+      [
+        "hf_alderflats_staff:0",
+        "hf_alderflats_tenants:0"
+      ]
+    ],
+    "error": null
+  },
+  {
+    "query_id": "hf_kestrel_conditions",
+    "query": "What are the conditions at Kestrel Court apartments?",
+    "arm": "rag",
+    "eval_layer": "realism",
+    "expectation": "answerable",
+    "refused": true,
+    "claims": [
+      {
+        "claim_text": "The sources do not support an answer.",
+        "verdict": "REFUSAL",
+        "matched_chunk_id": null,
+        "score": 0.0,
+        "node_scope": "NONE",
+        "span_type": "REFUSAL",
+        "cited_chunk_ids": []
+      }
+    ],
+    "eval_tag": "habitability_divergence",
+    "retrieval_manifest_hash": "6e9827465d39e5e0b16072cb665c57697819f8426f9d5c3d0f18b9b8525e245b",
+    "retrieved_chunk_ids": [
+      "hf_kestrel_inspection:0",
+      "hf_kestrel_tenants:0",
+      "hf_alderflats_staff:0",
+      "hf_alderflats_tenants:0"
+    ],
+    "gold_chunk_ids": [
+      "hf_kestrel_inspection:0",
+      "hf_kestrel_tenants:0"
+    ],
+    "retrieval_recall_at_k": 1.0,
+    "raw_text": "The sources do not support an answer. [1] mentions habitability violations at Kestrel Court, but does not provide detailed conditions of the apartments. [2] mentions families going without reliable heat for two winters, but does not provide a comprehensive description of the conditions. [3] and [4] are about Alder Flats and do not provide information about Kestrel Court. [1] and [2] together suggest that the conditions are poor, with inoperable heating and unsafe living conditions, but do not give a full picture. [2] specifically mentions two winters without reliable heat, indicating a significant issue with heating. [1] also mentions water intrusion, which is another issue affecting the living conditions. [2] further emphasizes that the fines and promises of repair have not resolved the problem, indicating ongoing and unresolved issues with the conditions at Kestrel Court. [1] and [2] together suggest that the living conditions at Kestrel Court are substandard and unsafe. [1] and [2] together indicate that the conditions at Kestrel Court are poor, with inoperable heating and water intrusion, and that tenants are unable to live safely in their homes. [2] also mentions that the families have gone two winters",
+    "counterfactual_answer": null,
+    "contradicts_pairs": [
+      [
+        "hf_kestrel_inspection:0",
+        "hf_kestrel_tenants:0"
+      ]
+    ],
+    "error": null
+  }
+]

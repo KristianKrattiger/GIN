@@ -1,0 +1,272 @@
+[
+  {
+    "query_id": "tn_emissions_framing",
+    "query": "What is the most important thing the world should do about greenhouse gas emissions?",
+    "arm": "no_continuation",
+    "eval_layer": "realism",
+    "expectation": "answerable",
+    "refused": false,
+    "claims": [
+      {
+        "claim_text": "Global low-carbon transformations are needed to deliver cuts to predicted 2030 greenhouse gas emissions of roughly 28 percent for a 2 degree C pathway and 42 percent for a 1.5 degree C pathway.",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "n1_doc_005:2",
+        "score": 1.0,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "EXACT",
+        "cited_chunk_ids": [
+          "n1_doc_005:2"
+        ]
+      },
+      {
+        "claim_text": "Indigenous-led resistance efforts are estimated to have stopped or delayed greenhouse gas pollution equivalent to roughly one-quarter of annual U.S. and Canadian emissions.",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "n2_doc_001:4",
+        "score": 1.0,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "EXACT",
+        "cited_chunk_ids": [
+          "n2_doc_001:4"
+        ]
+      }
+    ],
+    "eval_tag": "emissions_divergence",
+    "retrieval_manifest_hash": "fcee72fdef941df77442e258bbb69883b73fd6018fd3ce4db9b7488fdf1c8ee0",
+    "retrieved_chunk_ids": [
+      "n1_doc_005:2",
+      "n2_doc_001:4",
+      "n1_doc_001:7",
+      "n1_doc_005:4",
+      "n1_doc_007:4"
+    ],
+    "gold_chunk_ids": [
+      "n1_doc_005:2",
+      "n2_doc_001:4"
+    ],
+    "retrieval_recall_at_k": 1.0,
+    "raw_text": "Global low-carbon transformations are needed to deliver cuts to predicted 2030 greenhouse gas emissions of roughly 28 percent for a 2 degree C pathway and 42 percent for a 1.5 degree C pathway.|[1]Indigenous-led resistance efforts are estimated to have stopped or delayed greenhouse gas pollution equivalent to roughly one-quarter of annual U.S. and Canadian emissions.|",
+    "counterfactual_answer": null,
+    "contradicts_pairs": [
+      [
+        "n1_doc_005:2",
+        "n2_doc_001:4"
+      ]
+    ],
+    "error": null
+  },
+  {
+    "query_id": "tn_wildfire_framing",
+    "query": "What is the main concern about wildfires in the United States?",
+    "arm": "no_continuation",
+    "eval_layer": "realism",
+    "expectation": "answerable",
+    "refused": false,
+    "claims": [
+      {
+        "claim_text": "In 2023, 56,580 wildfires burned 2,693,910 acres across the United States, with acreage burned below both the five- and ten-year averages.",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "n1_doc_008:0",
+        "score": 1.0,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "EXACT",
+        "cited_chunk_ids": [
+          "n1_doc_008:0"
+        ]
+      },
+      {
+        "claim_text": "Elderly, immunocompromised, and low-income populations face heightened risk from wildfire smoke exposure.",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "n2_doc_005:1",
+        "score": 1.0,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "EXACT",
+        "cited_chunk_ids": [
+          "n2_doc_005:1"
+        ]
+      }
+    ],
+    "eval_tag": "wildfire_divergence",
+    "retrieval_manifest_hash": "e49d8ea10ca7a6534e19e985721d96bc93999766b4794d4542cfddf668732a48",
+    "retrieved_chunk_ids": [
+      "n1_doc_008:0",
+      "n2_doc_005:1",
+      "n1_doc_008:2",
+      "n1_doc_008:1"
+    ],
+    "gold_chunk_ids": [
+      "n1_doc_008:0",
+      "n2_doc_005:1"
+    ],
+    "retrieval_recall_at_k": 1.0,
+    "raw_text": "In 2023, 56,580 wildfires burned 2,693,910 acres across the United States, with acreage burned below both the five- and ten-year averages.|[1]Elderly, immunocompromised, and low-income populations face heightened risk from wildfire smoke exposure.|",
+    "counterfactual_answer": null,
+    "contradicts_pairs": [
+      [
+        "n1_doc_008:0",
+        "n2_doc_005:1"
+      ]
+    ],
+    "error": null
+  },
+  {
+    "query_id": "tn_water_framing",
+    "query": "How should water scarcity in California be understood?",
+    "arm": "no_continuation",
+    "eval_layer": "realism",
+    "expectation": "answerable",
+    "refused": false,
+    "claims": [
+      {
+        "claim_text": "As of April 3, 2023, California's statewide snowpack held a snow water equivalent of 61.1 inches, or 237 percent of the April 1 average, one of the largest snowpacks on record.",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "n1_doc_009:0",
+        "score": 1.0,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "EXACT",
+        "cited_chunk_ids": [
+          "n1_doc_009:0"
+        ]
+      },
+      {
+        "claim_text": "Disadvantaged and cumulatively burdened communities are found to be disproportionately affected by water shortages, reflecting underlying inequities in water resource management.",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "n2_doc_008:2",
+        "score": 1.0,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "EXACT",
+        "cited_chunk_ids": [
+          "n2_doc_008:2"
+        ]
+      }
+    ],
+    "eval_tag": "water_divergence",
+    "retrieval_manifest_hash": "e13241bff441d75dd2d6d8d6dacc91b4a4d980a30d43e9c8d09473f6a82b8752",
+    "retrieved_chunk_ids": [
+      "n1_doc_009:0",
+      "n2_doc_008:2",
+      "n2_doc_008:0",
+      "n2_doc_008:1",
+      "n2_doc_008:4"
+    ],
+    "gold_chunk_ids": [
+      "n1_doc_009:0",
+      "n2_doc_008:2"
+    ],
+    "retrieval_recall_at_k": 1.0,
+    "raw_text": "As of April 3, 2023, California's statewide snowpack held a snow water equivalent of 61.1 inches, or 237 percent of the April 1 average, one of the largest snowpacks on record.|[1]Disadvantaged and cumulatively burdened communities are found to be disproportionately affected by water shortages, reflecting underlying inequities in water resource management.|",
+    "counterfactual_answer": null,
+    "contradicts_pairs": [
+      [
+        "n1_doc_009:0",
+        "n2_doc_008:2"
+      ]
+    ],
+    "error": null
+  },
+  {
+    "query_id": "tn_2023_anomaly",
+    "query": "How much warmer was 2023 than the twentieth-century average?",
+    "arm": "no_continuation",
+    "eval_layer": "realism",
+    "expectation": "answerable",
+    "refused": false,
+    "claims": [
+      {
+        "claim_text": "In 2023, global surface temperature was about 2.",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "n1_doc_002:1",
+        "score": 1.0,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "EXACT",
+        "cited_chunk_ids": [
+          "n1_doc_002:1"
+        ]
+      }
+    ],
+    "eval_tag": "temperature_data",
+    "retrieval_manifest_hash": "8246e16fd0b4bbcbed8c260d0bf1c49495f2bc210c530f8a614e486a5ad40a27",
+    "retrieved_chunk_ids": [
+      "n1_doc_002:1",
+      "n1_doc_005:0",
+      "n1_doc_007:0",
+      "n1_doc_007:1"
+    ],
+    "gold_chunk_ids": [
+      "n1_doc_002:1"
+    ],
+    "retrieval_recall_at_k": 1.0,
+    "raw_text": "In 2023, global surface temperature was about 2.|",
+    "counterfactual_answer": null,
+    "contradicts_pairs": [],
+    "error": null
+  },
+  {
+    "query_id": "tn_ocean_acidification",
+    "query": "What is ocean acidification and what causes it?",
+    "arm": "no_continuation",
+    "eval_layer": "realism",
+    "expectation": "answerable",
+    "refused": false,
+    "claims": [
+      {
+        "claim_text": "Ocean acidification refers to a reduction in the pH of the ocean over an extended period of time, caused primarily by uptake of carbon dioxide (CO2) from the atmosphere.",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "n1_doc_004:0",
+        "score": 1.0,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "EXACT",
+        "cited_chunk_ids": [
+          "n1_doc_004:0"
+        ]
+      }
+    ],
+    "eval_tag": "ocean_acidification",
+    "retrieval_manifest_hash": "66c49b157de51dae210bcea5dcb65bc8b03ef0f1154fcb2d3d59b6d4e302ec70",
+    "retrieved_chunk_ids": [
+      "n1_doc_004:0",
+      "n1_doc_004:4",
+      "n1_doc_004:6"
+    ],
+    "gold_chunk_ids": [
+      "n1_doc_004:0"
+    ],
+    "retrieval_recall_at_k": 1.0,
+    "raw_text": "Ocean acidification refers to a reduction in the pH of the ocean over an extended period of time, caused primarily by uptake of carbon dioxide (CO2) from the atmosphere.|",
+    "counterfactual_answer": null,
+    "contradicts_pairs": [],
+    "error": null
+  },
+  {
+    "query_id": "tn_out_of_scope_referendum",
+    "query": "By how many votes did the harbor district referendum pass?",
+    "arm": "no_continuation",
+    "eval_layer": "out_of_scope",
+    "expectation": "out_of_scope",
+    "refused": true,
+    "claims": [
+      {
+        "claim_text": "The sources do not support an answer.",
+        "verdict": "REFUSAL",
+        "matched_chunk_id": null,
+        "score": 0.0,
+        "node_scope": "NONE",
+        "span_type": "REFUSAL",
+        "cited_chunk_ids": []
+      }
+    ],
+    "eval_tag": "oos_probe",
+    "retrieval_manifest_hash": "9606c29ed4bc930ee2a22680e72a4e7011feb8faf1707a3aae1ebde4372d84a0",
+    "retrieved_chunk_ids": [
+      "election_centralwire:0",
+      "election_metrodaily:0",
+      "port_authority_brief:0",
+      "school_district_report:0"
+    ],
+    "gold_chunk_ids": [],
+    "retrieval_recall_at_k": null,
+    "raw_text": "The sources do not support an answer.",
+    "counterfactual_answer": null,
+    "contradicts_pairs": [],
+    "error": null
+  }
+]

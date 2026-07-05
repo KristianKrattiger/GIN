@@ -1,0 +1,15 @@
+{
+  "query_id": "fr_northwind_revenue",
+  "query": "How should Northwind's third quarter revenue be understood?",
+  "eval_layer": "realism",
+  "gold_chunk_ids": [
+    "disc_northwind_pr:0",
+    "disc_northwind_complaint:0"
+  ],
+  "retrieved_chunk_ids": [
+    "disc_northwind_pr:0",
+    "disc_northwind_complaint:0"
+  ],
+  "retrieval_recall_at_k": 1.0,
+  "retrieval_manifest_hash": "763e830d8b1a65745c604764a8fc4dc907cf92d41f2b3a3bf537003bb7222204"
+}

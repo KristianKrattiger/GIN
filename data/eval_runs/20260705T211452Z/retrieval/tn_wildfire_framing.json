@@ -1,0 +1,17 @@
+{
+  "query_id": "tn_wildfire_framing",
+  "query": "What is the main concern about wildfires in the United States?",
+  "eval_layer": "realism",
+  "gold_chunk_ids": [
+    "n1_doc_008:0",
+    "n2_doc_005:1"
+  ],
+  "retrieved_chunk_ids": [
+    "n1_doc_008:0",
+    "n2_doc_005:1",
+    "n1_doc_008:2",
+    "n1_doc_008:1"
+  ],
+  "retrieval_recall_at_k": 1.0,
+  "retrieval_manifest_hash": "e49d8ea10ca7a6534e19e985721d96bc93999766b4794d4542cfddf668732a48"
+}
