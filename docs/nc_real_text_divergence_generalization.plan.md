@@ -160,22 +160,42 @@ Ranked by what would most change confidence in this result:
    pairs across more topic domains (ideally with a third framing style, not
    just institutional-vs-grassroots) to check the fallback zone and IDF gate
    aren't overfit to this specific corpus's vocabulary distribution.
-2. **[GUARD LANDED] Validate multi-sentence fallback on a real paragraph
-   corpus.** The chunk-level tail-bloat risk (every chunk in this corpus is a
-   single sentence, so "mark whole chunk" == "mark every sentence") is now
-   guarded by the anchor-selection refinement in §3 Fix 1 + its unit test.
-   Still unvalidated end-to-end: no *actual* multi-paragraph chunk has been
-   ingested and decoded, so the IDF anchor scorer's behavior on real
-   grassroots prose (where the relevant sentence may itself score low) is
-   untested through the full pipeline. Do this **before** scaling the corpus,
-   not after — ingest one long-form reframing article and confirm the decode
-   still anchors on the relevant sentence.
-3. **Generalize past 3 pairs (couples with the Cartographer — see §8).** The
-   real-text claim rests on three hand-picked pairs from a 19-document corpus.
-   More pairs across more domains — ideally a third framing style, not just
-   institutional-vs-grassroots — would show the IDF floor (0.13) and the
-   fallback aren't tuned to this corpus's specific vocabulary gap. Hand-curating
-   edges does not scale; this is fundamentally the Cartographer's job.
+2. **[GUARD LANDED, decision resolved] Multi-sentence fallback.** The decision
+   point — "is whole-chunk actually wrong, or does the forbidden-tail net catch
+   the noise downstream?" — is settled empirically. On a realistic 4-sentence-
+   per-side wildfire pair (lede + supporting detail + org-credit + tail stat),
+   whole-chunk marking leaves **3 irrelevant sentences per side in the zone, and
+   all 3 are immune to the forbidden-tail net** — because that net skips any
+   sentence already in the divergence zone (`if key in all_divergence:
+   continue`). So the net structurally *cannot* filter in-zone noise; whole-
+   chunk is unsafe by construction, not just untidy. The IDF-anchored fallback
+   (§3 Fix 1) narrows to the one relevant sentence per side (grassroots filler
+   scores 0.0 under IDF, anchor 0.262), and the filler then falls back under the
+   forbidden net. Guarded by the realistic-prose unit test
+   (`test_multi_sentence_fallback_anchors_on_relevant_sentence`), which asserts
+   both the immunity failure mode and the narrowed fix.
+   **Still unvalidated end-to-end**: no *actual* multi-paragraph chunk has been
+   ingested and decoded through the full pipeline. Do this **before** scaling
+   the corpus.
+3. **Generalize past 3 pairs (couples with the Cartographer — see §7).** The
+   real-text claim rests on three hand-picked pairs from a 19-document corpus,
+   and all three share a hidden trait: both sides respond to the *same
+   underlying event*, weighting it differently. The IDF floor (0.13) is
+   already thin — measured minority-side relevance was emissions 0.328, water
+   0.445, but **wildfire 0.165, only ~0.035 above the floor**. A sparser-
+   overlap domain would likely dip under it. Expansion should break assumptions
+   the current three don't test, **one variable per round** so a floor failure
+   is attributable:
+   - *New framing style* (round 1): adversarial/legal register, not advocacy-
+     vs-institution — e.g. corporate press release vs. SEC filing / complaint on
+     one event. Different vocabulary distribution than either current node;
+     tests whether 0.13 is a climate-corpus artifact.
+   - *New topic domain* (round 2): a field where the two sides share almost no
+     surface vocabulary — e.g. housing (zoning-board technical vs. tenant-
+     organizing language). Harder on the IDF gate than climate, where
+     "greenhouse"/"wildfire"/"water" hand you accidental overlap.
+   Hand-curating edges does not scale; this is fundamentally the Cartographer's
+   job (§7).
 4. **Investigate `supported_irrelevance_rate` 0.0 -> 0.200 (SEAR).** New in the
    post-fix run; likely tied to `tn_out_of_scope_referendum` (both arms failed
    query_relevance on it) but not yet root-caused. Small, not zero — the kind
@@ -199,7 +219,7 @@ Ranked by what would most change confidence in this result:
    the registered-but-unimplemented path for this), not a regression, but
    worth tracking as a product-quality gap separate from correctness.
 
-## 8. Forward: does this unlock Bookkeeper + Cartographer planning?
+## 7. Forward: does this unlock Bookkeeper + Cartographer planning?
 
 Per [GIN_Session_Synthesis_v1.md](GIN_Session_Synthesis_v1.md), the two-node
 divergence demo was "the empirical keystone… until that number exists, this is
@@ -229,7 +249,39 @@ genuinely open. But the sequencing matters:
   (d) Phase 3 federation. Corpus expansion and the Cartographer are coupled —
   but reasoning robustness gates the whole chain.
 
-## 7. Out of scope (this doc)
+### 7.1 Two things to confirm *before* the corpus grows (verified this session)
+
+- **Edges are chunk-granular; the anchor sentence is not stored.** SEAR's own
+  attribution is fine — `_close_span` (`sear/processor.py`) records sources as
+  `(chunk_index, token_start, token_end)`, i.e. token-granular within a chunk,
+  so provenance already resolves below the sentence. **But the graph layer is
+  chunk-granular**: an `EdgeRecord` links `src_chunk_id`/`dst_chunk_id`, and a
+  warm chunk id is `<doc_id>:<index>`. While chunks are single-sentence, edge
+  == sentence and nothing is lost. The moment chunks are multi-sentence, *which
+  sentence the `contradicts` edge is actually about* is **not** in the graph —
+  the reasoning layer re-derives it every query via `compute_divergence_zones` +
+  the IDF anchor scorer (§3). That makes the #2 fallback-anchor problem a
+  **Bookkeeper/Cartographer design decision**, not only a decode concern:
+  either (a) keep divergence-participating chunks ~sentence-sized, or (b) have
+  the Cartographer propose and the Bookkeeper stamp **sentence-level anchors**
+  (token offsets) on `contradicts` edges, so the anchor is admitted graph
+  state, not re-derived by a heuristic on every read. Recommend deciding this
+  before multi-sentence ingest, because retrofitting anchor offsets onto an
+  existing edge table is migration pain.
+- **The same IDF signal is now load-bearing in two reasoning paths.**
+  `idf_weighted_relevance` is used by the retrieval-side divergence *gate*
+  (`retrieve.py`: `_divergence_relevant` / `_pair_divergence_ok`, floor 0.13)
+  **and** the decode-side fallback anchor scorer (`materialize.py`). A
+  keyword/IDF-based Cartographer relation-finder would be a **third** consumer
+  of the same signal — so the "is 0.13 a climate-corpus artifact" overfitting
+  risk (#3) would show up in *relation detection* too, not just gating and
+  anchoring. If/when the Cartographer is built, it should be tested for edge
+  precision/recall on the new framing styles (§6 #3) *independently*, so a
+  shared-IDF blind spot can't hide behind "just noisy data" once corpus size
+  grows. No shared code path exists yet (Cartographer unbuilt); this is a
+  constraint to carry into its design, not a current bug.
+
+## 8. Out of scope (this doc)
 
 - RAG arm changes, Flagged Generation arm implementation
 - Verifier changes

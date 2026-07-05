@@ -3,6 +3,7 @@ from uuid import uuid4
 
 from gin.corpus.divergence import compute_divergence_zones
 from gin.corpus.models import ChunkHit, EdgeRecord
+from gin.corpus.relevance import corpus_idf, idf_weighted_relevance
 from sear.corpus import Corpus
 
 _VOCAB = {w: i for i, w in enumerate(
@@ -68,38 +69,54 @@ def test_divergence_fallback_for_structurally_dissimilar_pair():
 
 
 def test_multi_sentence_fallback_anchors_on_relevant_sentence():
-    # A real grassroots chunk is a multi-sentence paragraph: one sentence
-    # carries the reframing, the rest are throat-clearing / thanks. Without a
-    # scorer the fallback marks every sentence (fine for single-sentence chunks,
-    # but on a paragraph it turns filler lines into divergence-steered starts --
-    # the forbidden-tail problem, one level down). With a query-relevance scorer
-    # it must anchor only on the relevant sentence.
+    # Real source paragraphs: a lede/anchor sentence buried among tonally
+    # consistent but query-irrelevant filler (org-credit, caveat, tail stat).
+    # The forbidden-tail net CANNOT rescue a whole-chunk zone: a sentence that
+    # is in the divergence zone is skipped by the net (immune), so whole-chunk
+    # marking makes every filler sentence a startable divergence anchor. The
+    # IDF scorer must narrow the zone to the one relevant sentence per side.
     tok = _dynamic_tok_factory()
-    institutional = "Wildfires burned two million acres nationwide last year."
-    grassroots = (
-        "Our community meetings have grown every month. "
-        "Elderly residents faced severe wildfire smoke exposure. "
-        "We thank the volunteers who staffed the shelters."
+    institutional = (
+        "In 2023 wildfires burned 2,693,910 acres across the United States. "     # anchor
+        "Acreage burned fell below both the five and ten year averages. "
+        "The National Interagency Fire Center credited a wet western spring. "
+        "Suppression costs still exceeded three billion dollars for the year."
     )
+    grassroots = (
+        "Our neighborhood resilience hubs opened three new locations this spring. "
+        "Elderly and low income residents face the greatest danger from wildfire smoke exposure. "  # anchor
+        "Many members cannot afford air purifiers or evacuation. "
+        "We thank the volunteers and clinics who kept shelters running."
+    )
+    query = "What is the main concern about wildfires in the United States?"
     hits = [_hit("i:0", institutional, "Bureau"), _hit("g:0", grassroots, "Collective")]
     corpus = Corpus.from_chunks([(h.chunk_id, h.text) for h in hits], tokenize=tok)
     pairs = [(hits[0], hits[1], EdgeRecord("i:0", "g:0", "contradicts"))]
+    inst_starts = sorted(s for (d, s) in corpus.sentence_starts if d == 0)
     grass_starts = sorted(s for (d, s) in corpus.sentence_starts if d == 1)
-    assert len(grass_starts) == 3, "expected a 3-sentence grassroots chunk"
-    smoke_start = grass_starts[1]  # the reframing sentence
+    assert len(inst_starts) == 4 and len(grass_starts) == 4
+    inst_anchor, grass_anchor = inst_starts[0], grass_starts[1]
 
-    # No scorer: backward-compatible, marks every grassroots sentence.
-    div_all, _ = compute_divergence_zones(hits, pairs, corpus, tok)
+    # Whole-chunk (no scorer): every filler sentence is marked AND immune to the
+    # forbidden net -> it leaks as a startable anchor. This is the failure mode.
+    div_all, forb_all = compute_divergence_zones(hits, pairs, corpus, tok)
     assert set(div_all.get(1, set())) == set(grass_starts)
-
-    # Query-relevance scorer: anchor only on the "smoke" sentence, so the
-    # community-meetings and volunteers lines never become startable.
-    scorer = lambda sent: 1.0 if "smoke" in sent.lower() else 0.0
-    div_narrow, _ = compute_divergence_zones(
-        hits, pairs, corpus, tok, sentence_scorer=scorer
+    leaked = [s for s in grass_starts if s != grass_anchor and (1, s) not in forb_all]
+    assert leaked == [s for s in grass_starts if s != grass_anchor], (
+        "in-zone filler sentences must be immune to the forbidden net "
+        "(demonstrates why whole-chunk marking is unsafe)"
     )
-    assert set(div_narrow.get(1, set())) == {smoke_start}
-    assert div_narrow.get(0), "institutional side still anchored"
+
+    # IDF scorer: narrow to the one relevant sentence per side; the filler falls
+    # back out of the zone and the forbidden net catches it.
+    idf = corpus_idf([h.text for h in hits])
+    scorer = lambda sent: idf_weighted_relevance(sent, query, idf)
+    div, forb = compute_divergence_zones(hits, pairs, corpus, tok, sentence_scorer=scorer)
+    assert set(div.get(0, set())) == {inst_anchor}
+    assert set(div.get(1, set())) == {grass_anchor}
+    for s in grass_starts:
+        if s != grass_anchor:
+            assert (1, s) in forb, "narrowed-out filler must now be forbidden"
 
 
 def test_divergence_marks_treatment_and_arrest_sentences():
