@@ -75,12 +75,26 @@ being produced upstream.
 **File**: `gin/corpus/divergence.py` (`compute_divergence_zones`)
 
 When the index-aligned >= 3-word-overlap test marks nothing for a
-`contradicts` pair, treat the whole chunk on each side as its own divergence
-zone (every sentence start in that chunk becomes a divergence-steered start
-for that doc). Rationale: in a reframing pair there is no single "fork
-sentence" — the divergence *is* the whole framing choice on each side. Only
-fires when the aligned test found nothing, so synthetic/aligned pairs
-(emissions included) are byte-for-byte unaffected.
+`contradicts` pair, mark an anchor sentence per side as its own divergence
+zone. Rationale: in a reframing pair there is no single "fork sentence" — the
+divergence *is* the framing choice on each side. Only fires when the aligned
+test found nothing, so synthetic/aligned pairs (emissions included) are
+byte-for-byte unaffected.
+
+**Anchor selection (guards against chunk-level tail bloat).**
+`compute_divergence_zones` takes an optional `sentence_scorer`. With one
+(materialize passes an IDF-weighted query-relevance closure — IDF so the
+singular/plural fold catches `wildfire`~`wildfires`, matching the divergence
+gate), the fallback marks only the single most query-relevant sentence per
+side. Without one it marks every sentence start (backward-compatible). These
+coincide for the current single-sentence corpus, but the distinction is
+load-bearing the moment a real multi-paragraph chunk is ingested: "mark every
+sentence" would turn filler/tail lines ("we thank our volunteers") into
+divergence-steered starts — the exact forbidden-tail failure this fallback
+exists to prevent, resurfacing one level down at chunk granularity. Guarded by
+`tests/test_divergence.py::test_multi_sentence_fallback_anchors_on_relevant_sentence`.
+(This closes former open question #2; real multi-paragraph validation still
+pending — see §6.)
 
 ### Fix 2 — divergent `max_tokens` budget was tuned for synthetic sentence lengths
 
@@ -109,9 +123,13 @@ sides are quoted, so aligned/synthetic pairs that finish early are unaffected.
    `scripts/eval_run.py --queryset data/eval/queryset_twonode.yaml`): see
    results below.
 
-Unit regression: `tests/test_divergence.py::test_divergence_fallback_for_structurally_dissimilar_pair`
-(new). Full suite: 155 passed, 3 skipped (DB-dependent, expected without a
-live connection).
+Unit regression:
+`tests/test_divergence.py::test_divergence_fallback_for_structurally_dissimilar_pair`
+and `::test_multi_sentence_fallback_anchors_on_relevant_sentence` (both new).
+Full logic suite: 155 passed. (The 3 DB-dependent tests in `test_ingest.py` /
+`test_retrieve.py` skip when no Postgres is reachable and error with
+`type "vector" does not exist` when a non-pgvector Postgres is — both expected;
+they are not part of the logic suite.)
 
 ## 5. Measured results
 
@@ -142,24 +160,74 @@ Ranked by what would most change confidence in this result:
    pairs across more topic domains (ideally with a third framing style, not
    just institutional-vs-grassroots) to check the fallback zone and IDF gate
    aren't overfit to this specific corpus's vocabulary distribution.
-2. **Stress-test the fallback zone on multi-sentence chunks.** Every chunk in
-   the current two-node corpus is a single sentence, so "mark the whole chunk
-   as one zone" and "mark every sentence start" are equivalent. On a
-   multi-sentence chunk this fallback would mark *every* sentence in both
-   docs as divergent, which may pull in irrelevant tail sentences that a
-   sharper zone would exclude. Needs a multi-sentence reframing-pair test case.
-3. **Investigate `supported_irrelevance_rate` 0.0 -> 0.200 (SEAR).** New in the
+2. **[GUARD LANDED] Validate multi-sentence fallback on a real paragraph
+   corpus.** The chunk-level tail-bloat risk (every chunk in this corpus is a
+   single sentence, so "mark whole chunk" == "mark every sentence") is now
+   guarded by the anchor-selection refinement in §3 Fix 1 + its unit test.
+   Still unvalidated end-to-end: no *actual* multi-paragraph chunk has been
+   ingested and decoded, so the IDF anchor scorer's behavior on real
+   grassroots prose (where the relevant sentence may itself score low) is
+   untested through the full pipeline. Do this **before** scaling the corpus,
+   not after — ingest one long-form reframing article and confirm the decode
+   still anchors on the relevant sentence.
+3. **Generalize past 3 pairs (couples with the Cartographer — see §8).** The
+   real-text claim rests on three hand-picked pairs from a 19-document corpus.
+   More pairs across more domains — ideally a third framing style, not just
+   institutional-vs-grassroots — would show the IDF floor (0.13) and the
+   fallback aren't tuned to this corpus's specific vocabulary gap. Hand-curating
+   edges does not scale; this is fundamentally the Cartographer's job.
+4. **Investigate `supported_irrelevance_rate` 0.0 -> 0.200 (SEAR).** New in the
    post-fix run; likely tied to `tn_out_of_scope_referendum` (both arms failed
-   query_relevance on it) but not yet root-caused. Small in magnitude, not
-   zero — worth a follow-up pass before calling this fully clean.
-4. **Cross-model check.** Verified only on Mistral-7B-Instruct-v0.3 (Q6_K, CPU,
+   query_relevance on it) but not yet root-caused. Small, not zero — the kind
+   of metric that's easy to wave off and then explains a confusing result three
+   sessions later. Worth the root-cause pass before building on this run.
+5. **`max_tokens` ceiling has no principled basis yet.** `40 + 90*n` was picked
+   to clear one observed truncation (the water pair), not from a token-length
+   distribution. At 51.8s/query it is already the dominant cost, and that will
+   matter under real two-node federation traffic far more than in a 3-pair
+   eval. Measure the actual per-side sentence-token distribution and set the
+   ceiling from it — there is likely headroom to bring it *down*, not just
+   confidence that 130 is safe. (The `stop_when_groups_satisfied` early-EOS
+   means the ceiling is a cap, not a fixed cost — but a cap the greedy decode
+   routinely approaches on long institutional sentences.)
+6. **Cross-model check.** Verified only on Mistral-7B-Instruct-v0.3 (Q6_K, CPU,
    temperature 0, greedy). No evidence yet the fix's behavior (or the
    IDF-floor / word-overlap constants) generalizes across model families.
-5. **Revisit output fluency.** Divergent answers are two extracted sentences
+7. **Revisit output fluency.** Divergent answers are two extracted sentences
    joined by a bare `|` delimiter — grounded and citable but not natural
    prose. Inherent to the extractive design (Flagged Generation / Mode 2 is
    the registered-but-unimplemented path for this), not a regression, but
    worth tracking as a product-quality gap separate from correctness.
+
+## 8. Forward: does this unlock Bookkeeper + Cartographer planning?
+
+Per [GIN_Session_Synthesis_v1.md](GIN_Session_Synthesis_v1.md), the two-node
+divergence demo was "the empirical keystone… until that number exists, this is
+architecture; after it, a record." That number now exists (§5), so the gate to
+Phase 2 (Bookkeeper separation) / automated Cartographer discovery is
+genuinely open. But the sequencing matters:
+
+- **Reasoning-layer robustness gates both.** This whole result runs on
+  hand-curated, fully-trusted edges. The moment a Cartographer proposes edges
+  automatically, edge **quality** (precision/recall) becomes a live variable
+  the reasoning layer has never been stress-tested against — today it assumes
+  every `contradicts` edge is real and query-relevant. Open questions #2/#4
+  are the foundational cracks; close them before adding a layer whose value is
+  feeding the reasoning layer *more and noisier* edges. The architecture's
+  falsifiability-by-layer only holds if each layer is independently sound
+  first.
+- **Cartographer before Bookkeeper.** The Bookkeeper adjudicates Cartographer
+  proposals; there is nothing to gate until proposals exist. A minimal
+  Cartographer (the cheap relatedness gate + a `contradicts` proposer over the
+  existing corpus) is also the only thing that makes open question #3
+  (more pairs / domains) tractable without hand-curation. Plan the Cartographer
+  first, with the Bookkeeper's admission interface (anchor verification, DAG
+  invariants, provenance stamp) sketched alongside.
+- **Recommended order:** (a) close #2 real-corpus validation + #4 root cause;
+  (b) minimal Cartographer to generate edges at a larger corpus scale;
+  (c) Bookkeeper as the admission gate once proposals exist to gate;
+  (d) Phase 3 federation. Corpus expansion and the Cartographer are coupled —
+  but reasoning robustness gates the whole chain.
 
 ## 7. Out of scope (this doc)
 

@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import re
 from collections import defaultdict
-from typing import Callable
+from typing import Callable, Optional
 
 from sear.corpus import Corpus, sentence_token_spans
 
@@ -44,6 +44,8 @@ def compute_divergence_zones(
     pairs: list[tuple[ChunkHit, ChunkHit, object]],
     corpus: Corpus,
     tokenize: Callable[[bytes], list[int]],
+    *,
+    sentence_scorer: Optional[Callable[[str], float]] = None,
 ) -> tuple[dict[int, set[int]], set[tuple[int, int]]]:
     """
     From contradict pairs, mark per-doc sentence-start positions that diverge.
@@ -90,11 +92,33 @@ def compute_divergence_zones(
             # fatal downstream: every doc-unique sentence -- including the
             # pair's own anchors -- falls into the forbidden tail net below,
             # blocking all span starts so the divergent decode "refuses". In a
-            # reframing pair the divergence IS the whole chunk on each side, so
-            # mark each side's sentence starts as its own divergence zone.
+            # reframing pair the divergence IS the framing on each side, so mark
+            # an anchor sentence start per doc as its own divergence zone.
+            #
+            # With a sentence_scorer (query relevance), mark only the single
+            # most-relevant sentence per doc. Without one, mark every sentence
+            # start. These coincide for single-sentence chunks, but on a real
+            # multi-paragraph chunk "mark every sentence" would turn filler/tail
+            # lines ("we thank our volunteers") into divergence-steered starts
+            # -- reintroducing the forbidden-tail problem this fallback exists to
+            # avoid, one level down at chunk granularity.
             for doc_idx, sents in ((li, left_sents), (ri, right_sents)):
-                for _sent, start, _end in sents:
-                    if (doc_idx, start) in corpus.sentence_starts:
+                eligible = [
+                    (text, start)
+                    for text, start, _end in sents
+                    if (doc_idx, start) in corpus.sentence_starts
+                ]
+                if not eligible:
+                    continue
+                if sentence_scorer is not None:
+                    # Ties (e.g. all sentences score 0 on a side that shares no
+                    # query vocabulary) fall back to the earliest sentence.
+                    best_start = max(
+                        eligible, key=lambda es: (sentence_scorer(es[0]), -es[1])
+                    )[1]
+                    divergence_starts[doc_idx].add(best_start)
+                else:
+                    for _text, start in eligible:
                         divergence_starts[doc_idx].add(start)
 
     sent_text_to_docs: dict[str, set[int]] = defaultdict(set)

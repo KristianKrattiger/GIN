@@ -15,6 +15,8 @@ from .divergence import (
 )
 from .models import ChunkHit, EvalLayer, SynthesisBundle, SynthesisContext
 from .relevance import (
+    corpus_idf,
+    idf_weighted_relevance,
     rerank_hits_by_query_score,
     score_starts_by_sentence_match,
     score_starts_for_convergent,
@@ -220,8 +222,17 @@ def materialize_synthesis_bundle(
     divergence_starts: dict[int, set[int]] = {}
     forbidden_starts: set[tuple[int, int]] = set()
     if bundle.mode == "divergent" and bundle.pairs:
+        # For structurally-dissimilar pairs, compute_divergence_zones falls back
+        # to marking an anchor sentence per side. Give it a query-relevance
+        # scorer so multi-sentence chunks anchor on their most relevant sentence
+        # rather than every sentence. IDF-weighted (matches the divergence gate)
+        # so the singular/plural fold catches "wildfire"~"wildfires".
+        sentence_scorer = None
+        if query:
+            idf = corpus_idf(chunk_texts)
+            sentence_scorer = lambda sent: idf_weighted_relevance(sent, query, idf)
         divergence_starts, forbidden_starts = compute_divergence_zones(
-            hits, bundle.pairs, corpus, tokenize
+            hits, bundle.pairs, corpus, tokenize, sentence_scorer=sentence_scorer
         )
         all_divergence = {
             (d, p) for d, positions in divergence_starts.items() for p in positions
