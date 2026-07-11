@@ -14,6 +14,7 @@ from .evaluation import (
     evaluate,
     format_report,
 )
+from .frame_judge import LlmFrameJudge
 from .models import Assessment, EdgeProposal, LabeledChunk, Relation
 from .nli import NliRelationProposer
 from .proposers import Proposer, RelatednessProposer
@@ -25,6 +26,7 @@ __all__ = [
     "EdgeProposal",
     "GoldPair",
     "LabeledChunk",
+    "LlmFrameJudge",
     "NliRelationProposer",
     "Proposer",
     "Relation",

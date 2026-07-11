@@ -159,17 +159,47 @@ contradiction — the miss is a signal property, not a bug).
 **Reframe.** The relation the Cartographer must detect is not propositional
 contradiction; it is **framing / stance divergence over a shared referent** — two
 sources selecting and foregrounding different dimensions of the same event. That
-is orthogonal to entailment. Candidate signals for the next attempt:
+is orthogonal to entailment.
 
-- **Same-referent + divergent-aspect**: high entity/topic anchoring (shared event)
-  combined with *low* semantic similarity of the *claim content* — i.e. embedding
-  proximity on the referent but divergence on the predicate. This couples with the
-  §4 finding that production relatedness should be embedding-based.
-- **An LLM judge prompted for "same event, competing frame"** rather than logical
-  contradiction — a different question than NLI asks. (Mistral loads locally; a
-  constrained stance/frame prompt is the cheap first probe.)
+**Second probe — LLM frame judge (also ruled out as-is).**
+`gin/cartographer/frame_judge.py::LlmFrameJudge` asks the framing question
+directly ("competing perspectives / values vs. agree vs. unrelated") instead of
+entailment. Measured with the real Mistral-7B:
 
-Either way the harness (§4) is the fixed measurement, and the target is unchanged:
+| detector | contradicts precision | contradicts recall | class_c_discrimination |
+|---|---|---|---|
+| llm_frame_judge (Mistral-7B, shipped prompt) | 0.600 | 1.000 | **0.000** |
+
+The exact mirror image of NLI: it types **every** pair `DIVERGENT` — the three
+true divergences (recall 1.0) but also the agreeing pair *and* the unrelated cross
+pair (class_c 0.0). Confirmed a real judgment, not a parse artifact (raw output is
+` DIVERGENT` for all). A stance-axis prompt variant collapses the other way —
+every pair `SAME`. So Mistral-7B zero-shot is **prompt-bias-dominated and does not
+discriminate the institutional-vs-grassroots stance axis at all**; recall 1.0 here
+is the trivial always-divergent artifact, not evidence of a real signal. The
+mapping and pipeline are correct (an oracle judge scores perfectly —
+`tests/test_cartographer_frame_judge.py`); the signal is simply not cheaply
+extractable from a 7B model zero-shot.
+
+**Where this leaves the relation detector.** Two natural signals both collapse in
+opposite directions (NLI → nothing divergent; zero-shot LLM → everything
+divergent). Neither is the answer. Two conclusions:
+
+1. **The labeled set is too small to develop against.** Five hand-picked pairs
+   cannot separate a real signal from prompt bias or tune a threshold without
+   overfitting. **Prerequisite for the next step: expand the labeled
+   divergence/corroboration/unrelated set** — the framing fixtures
+   (`data/fixtures/*.yaml`, legal + housing registers) already supply more
+   institutional-vs-grassroots pairs to label, and deliberate corroborating and
+   cross-topic negatives must be added.
+2. **The lead remaining signal is same-referent + divergent-aspect**: embedding
+   proximity on the shared referent combined with *low* similarity on the claim
+   content — a structural signal, not a single zero-shot yes/no. This couples with
+   the §4 finding that production relatedness should be embedding-based, and unlike
+   a bare LLM label it is calibratable against the expanded set. Few-shot / larger
+   models are a fallback, not the lead.
+
+The harness (§4) remains the fixed measurement and the target is unchanged:
 **class_c_discrimination = 1.0 with non-trivial contradicts recall**. The
 Bookkeeper admission gate (anchor verification, DAG invariants, provenance stamp)
 is the step after a signal clears that bar.
