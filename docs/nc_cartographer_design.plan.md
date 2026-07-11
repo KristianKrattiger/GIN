@@ -1,11 +1,14 @@
 # Cartographer design — carrying the noisy-edge constraints
 
-**Status:** design + implementation across two passes. Built: the independent
-edge-precision harness, the relatedness gate, the anti-pattern baseline
-(`gin/cartographer/`, `tests/test_cartographer.py`), and the NLI relation detector
-(`gin/cartographer/nli.py`, `tests/test_cartographer_nli.py`). §6 records the
-measured finding that NLI-contradiction is the wrong signal for GIN divergence and
-reframes the next detector; the Bookkeeper admission gate is the step after.
+**Status:** design + implementation across three passes. Built: the independent
+edge-precision harness, the relatedness gate + anti-pattern baseline, the NLI
+relation detector, the LLM frame judge, and a **13-pair labeled set across three
+registers** (`gin/cartographer/`, `tests/test_cartographer*.py`). §6 records the
+measured findings on the expanded set — GIN "contradicts" is heterogeneous (NLI
+owns propositional contradiction on the legal register; the LLM frame judge owns
+framing divergence at recall 1.0 on climate/housing), and the two signals are
+complementary. The next detector (a register-robust combination / same-referent +
+divergent-aspect signal) and the Bookkeeper admission gate are the steps after.
 
 This is step 3 of
 [nc_reasoning_robustness_noisy_edges.plan.md](nc_reasoning_robustness_noisy_edges.plan.md)
@@ -86,35 +89,34 @@ one headline discrimination score:
   the single number that says whether a proposer would have fed the reasoning
   layer the exact edge steps 1–2 proved it cannot survive.
 
-Measured this session (deterministic harness, real corpus text, 5 labeled pairs):
+Measured on the **expanded 13-pair set** (`gin/cartographer/labeled_set.py`:
+7 divergent across climate/legal/housing, 3 corroborating, 3 cross-topic):
 
 | proposer | contradicts precision | contradicts recall | class_c_discrimination |
 |---|---|---|---|
-| relatedness-only (anti-pattern) | 0.500 | 0.333 | **0.000** |
+| relatedness-only (anti-pattern) | 0.667 | 0.286 | 0.667 |
 
-Two distinct failures fall out, and both matter:
+Two findings, both sharpened by the larger set:
 
-1. **Stage-2 blind spot (the headline).** class_c_discrimination is **0.0** — the
-   proposer types the two agreeing 2023 wildfire statistics
-   (`n1_doc_008:0` ↔ `n1_doc_008:2`) as `contradicts`, minting exactly the edge
-   step 2 proved is unrecoverable downstream. This is the quantified spec the real
-   relation detector (§6) must close: **class_c_discrimination = 1.0 without
-   collapsing contradicts recall**.
+1. **Stage-2 blind spot.** The proposer still mints the two agreeing 2023 wildfire
+   statistics (`inst_wf` ↔ `inst_wf_fed`) as `contradicts` — the exact class-C edge
+   step 2 proved is unrecoverable. class_c_discrimination reads 0.667 rather than
+   0.0 only because the *stage-1 gate accidentally drops* two of the three
+   corroborating pairs for the same reason it drops real divergences (finding 2) —
+   an artifact of under-recall, not any relation understanding. The spec the real
+   detector (§6) must close is unchanged: **class_c = 1.0 without collapsing
+   recall**.
 
-2. **Stage-1 limitation (a second, independent finding).** Lexical IDF relatedness
-   *under-recalls genuine cross-register contradictions*: the grassroots
-   reframings share too little surface vocabulary with their institutional
-   counterparts, so the wildfire (0.103) and water (0.045) true-contradiction
-   pairs fall below the relatedness floor (0.20) and are never even proposed
-   (recall 0.333). Damningly, the relatedness score **ranks the agreeing pair
-   (0.226) as more related than a real contradiction** — a precise illustration
-   that relatedness is not relation, and evidence that the *production* relatedness
-   signal must be **embedding-based (semantic), not lexical**. This independently
-   corroborates the sparse-surface-overlap concern the housing fixture was built to
-   stress (divergence plan §6 #3, round 2).
+2. **Stage-1 under-recall is general, not a climate artifact.** Lexical IDF
+   relatedness drops **5 of 7** true divergences (recall 0.286) — across *all
+   three* registers, including both housing pairs (recall 0.0) whose two sides
+   share only the place entity, and one legal pair. The framing fixtures were built
+   for exactly this sparse-surface-overlap stress, and the gate fails it. Strong
+   evidence the *production* relatedness signal must be **embedding-based
+   (semantic), not lexical**.
 
 Precision/recall is reported **per framing register**, so a shared-signal blind
-spot cannot hide behind "just noisy data" as corpus size grows.
+spot cannot hide behind "just noisy data."
 
 ## 5. Sentence-level anchors (Bookkeeper decision, decide now)
 
@@ -129,86 +131,84 @@ path and is cheap to add while chunks are still ~sentence-sized. `EdgeProposal`
 therefore carries optional `src_anchor` / `dst_anchor` `(token_start, token_end)`
 fields now, so the schema does not need migrating after multi-sentence ingest.
 
-## 6. The relation detector — NLI tried, and the finding that reshapes it
+## 6. The relation detector — two signals probed; complementary and register-heterogeneous
 
-The natural stage-2 detector is an NLI-class pairwise judge, using the same 3-class
-cross-encoder (`cross-encoder/nli-deberta-v3-xsmall`, labels
-contradiction/entailment/neutral) the eval `Verifier` already loads — a semantic
-signal orthogonal to the retrieval IDF, satisfying §2. Built as
-`gin/cartographer/nli.py::NliRelationProposer` (injectable scorer, testable
-without the model) and measured on the labeled set with the real cross-encoder:
+Two natural stage-2 detectors — an NLI cross-encoder
+(`cross-encoder/nli-deberta-v3-xsmall`, the model the eval `Verifier` loads) and an
+LLM frame judge — both use a semantic signal orthogonal to the retrieval IDF (§2).
 
-| detector | contradicts precision | contradicts recall | class_c_discrimination |
-|---|---|---|---|
-| nli_relation (real cross-encoder) | n/a | **0.000** | **1.000** |
+Both detectors below were first run on a 5-pair stub, where both collapsed
+(NLI → nothing divergent; LLM → everything divergent). That collapse turned out to
+be a **small-set artifact**: on the **expanded 13-pair set** across three registers,
+real structure appears that five pairs hid.
 
-**Measured finding — NLI-contradiction is not GIN divergence.** Every labeled pair
-types as `related_untyped` (p_contra ≤ 0.068 across all five). The detector scores
-class_c_discrimination **1.0**, but only by the degenerate route the §4 recall
-co-metric exists to expose: it types **nothing** as `contradicts`, so its recall on
-the three genuine framing divergences is **0.0**. The institutional-vs-grassroots
-pairs are both *true* statements that emphasize different aspects of a shared
-event ("acreage was below average" and "low-income people face smoke risk" do not
-logically contradict), so an entailment model rates them neutral — the same verdict
-it gives the agreeing pair. Threshold tuning cannot rescue it: the unrelated cross
-pair (0.050) scores essentially as contradictory as the true emissions divergence
-(0.068). Regression: `tests/test_cartographer_nli.py` (a synthetic
-passed-vs-failed pair confirms the typing logic *does* fire on real propositional
-contradiction — the miss is a signal property, not a bug).
-
-**Reframe.** The relation the Cartographer must detect is not propositional
-contradiction; it is **framing / stance divergence over a shared referent** — two
-sources selecting and foregrounding different dimensions of the same event. That
-is orthogonal to entailment.
-
-**Second probe — LLM frame judge (also ruled out as-is).**
-`gin/cartographer/frame_judge.py::LlmFrameJudge` asks the framing question
-directly ("competing perspectives / values vs. agree vs. unrelated") instead of
-entailment. Measured with the real Mistral-7B:
+**NLI relation detector.** `gin/cartographer/nli.py::NliRelationProposer` (injectable
+scorer, testable without the model). Measured with the real cross-encoder:
 
 | detector | contradicts precision | contradicts recall | class_c_discrimination |
 |---|---|---|---|
-| llm_frame_judge (Mistral-7B, shipped prompt) | 0.600 | 1.000 | **0.000** |
+| nli_relation (real cross-encoder), 13-pair set | 0.500 | 0.143 | 0.667 |
 
-The exact mirror image of NLI: it types **every** pair `DIVERGENT` — the three
-true divergences (recall 1.0) but also the agreeing pair *and* the unrelated cross
-pair (class_c 0.0). Confirmed a real judgment, not a parse artifact (raw output is
-` DIVERGENT` for all). A stance-axis prompt variant collapses the other way —
-every pair `SAME`. So Mistral-7B zero-shot is **prompt-bias-dominated and does not
-discriminate the institutional-vs-grassroots stance axis at all**; recall 1.0 here
-is the trivial always-divergent artifact, not evidence of a real signal. The
-mapping and pipeline are correct (an oracle judge scores perfectly —
-`tests/test_cartographer_frame_judge.py`); the signal is simply not cheaply
-extractable from a 7B model zero-shot.
+**Finding — GIN "contradicts" is heterogeneous.** NLI fires *correctly* on the
+**legal / securities** register — Northwind "record revenue" vs. "materially
+overstated revenue" scores p_contra **0.899** → contradicts; Meridian
+"customer-trust" vs. "concealed a breach" scores 0.473 (a near miss) — because
+securities-fraud framings genuinely *are* propositional contradictions. It rates
+the **climate and housing** divergences neutral (p_contra ≤ 0.11), because those are
+value/emphasis divergences over a shared referent, not logical contradictions
+("acreage below average" and "low-income smoke risk" are both true). So the single
+`contradicts` edge type spans two different relations: **propositional contradiction
+(legal) and framing/stance divergence (climate/housing)**. NLI covers the first and
+is blind to the second. (One climate corroborating pair — `inst_em` "cuts needed"
+vs. `clim_pledges` "on track for 2.5–2.9 °C" — also scores high p_contra 0.93; it
+sits on the corroborate/diverge boundary, a labeling edge case worth revisiting.)
 
-**Where this leaves the relation detector.** Two natural signals both collapse in
-opposite directions (NLI → nothing divergent; zero-shot LLM → everything
-divergent). Neither is the answer. Two conclusions:
+**LLM frame judge.** `gin/cartographer/frame_judge.py::LlmFrameJudge` asks the
+framing question directly. Measured with the real Mistral-7B on the 13-pair set:
 
-1. **The labeled set is too small to develop against.** Five hand-picked pairs
-   cannot separate a real signal from prompt bias or tune a threshold without
-   overfitting. **Prerequisite for the next step: expand the labeled
-   divergence/corroboration/unrelated set** — the framing fixtures
-   (`data/fixtures/*.yaml`, legal + housing registers) already supply more
-   institutional-vs-grassroots pairs to label, and deliberate corroborating and
-   cross-topic negatives must be added.
-2. **The lead remaining signal is same-referent + divergent-aspect**: embedding
-   proximity on the shared referent combined with *low* similarity on the claim
-   content — a structural signal, not a single zero-shot yes/no. This couples with
-   the §4 finding that production relatedness should be embedding-based, and unlike
-   a bare LLM label it is calibratable against the expanded set. Few-shot / larger
-   models are a fallback, not the lead.
+| detector | contradicts precision | contradicts recall | class_c_discrimination |
+|---|---|---|---|
+| llm_frame_judge (Mistral-7B), 13-pair set | 0.583 | **1.000** | 0.333 |
 
-The harness (§4) remains the fixed measurement and the target is unchanged:
-**class_c_discrimination = 1.0 with non-trivial contradicts recall**. The
-Bookkeeper admission gate (anchor verification, DAG invariants, provenance stamp)
-is the step after a signal clears that bar.
+**Finding — the frame judge has real signal, bounded by two fixable errors.** It
+recovers **all seven** divergences (recall 1.0), is **perfect on legal and housing**
+(precision 1.0 each), and — unlike on the 5-pair stub — now correctly types a
+corroborating pair as `AGREE` (the two observed-warming statements), so class_c is
+0.333, not 0. Its two error classes are both addressable outside the judge:
+(a) it types the **cross-topic** pairs `DIVERGENT` — but topic filtering is the
+**relatedness gate's** job, not the relation judge's, so in the real pipeline the
+judge never sees them; and (b) it still over-fires on the two remaining climate
+corroborations (including the class-C wildfire pair). Error (a) is why the ungated
+precision looks low; gated, the judge is strong.
+
+**Where this leaves the relation detector.** The two signals are **complementary,
+not redundant**: NLI owns propositional contradiction (legal), the LLM frame judge
+owns framing divergence (climate/housing) with high recall. Neither alone clears the
+target, but the shape of the solution is now visible:
+
+1. **Relatedness must be embedding-based** (§4): the lexical gate drops 5/7
+   divergences, and the frame judge's cross-topic false positives are precisely
+   what a real gate removes.
+2. **The relation detector is likely a combination**, not one signal — an NLI
+   propositional-contradiction channel plus a framing-divergence channel — and it
+   must be **register-robust**, since what "contradicts" means differs by register.
+3. **The lead single signal for framing divergence is same-referent +
+   divergent-aspect**: embedding proximity on the shared referent with *low*
+   similarity on the claim content — a structural, calibratable measure, the frame
+   judge's high-recall behavior made quantitative.
+
+The harness (§4) remains the fixed measurement; the target is unchanged:
+**class_c_discrimination = 1.0 with non-trivial contradicts recall**, now measurable
+per register on the expanded set. The Bookkeeper admission gate (anchor
+verification, DAG invariants, provenance stamp) is the step after a signal clears
+that bar.
 
 ## 7. Out of scope (this doc)
 
-- The *next* relation signal (same-referent/divergent-aspect or an LLM frame
-  judge) and the Bookkeeper admission gate (§6 → next steps). The NLI detector is
-  built and measured (§6); it is the ruled-out baseline, not the answer.
+- The *next* relation detector (a register-robust NLI+framing combination or a
+  same-referent/divergent-aspect signal) and the Bookkeeper admission gate
+  (§6 → next steps). The NLI and LLM-frame-judge detectors are built and measured
+  (§6): complementary partial signals, not the finished answer.
 - Cross-corpus / federated proposal (the relatedness gate is scoped intra-corpus
   first; the alignment stage is the same machinery at inter-node scope).
 - Embedding-based relatedness (the gate is lexical/entity first for a

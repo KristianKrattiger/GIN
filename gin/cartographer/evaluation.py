@@ -120,69 +120,22 @@ def evaluate(
     )
 
 
-# --- Default labeled set (real divergence-demo corpus text) ------------------
-# Three genuine institutional-vs-grassroots contradictions (gold from
-# data/corpus_edges.yaml), one corroborating institutional pair (the step-2
-# class-C case), and one cross-topic unrelated pair the gate should reject.
-
-_INST_EMISSIONS = (
-    "Global low-carbon transformations are needed to deliver cuts to predicted "
-    "2030 greenhouse gas emissions of roughly 28 percent for a 2 degree C pathway "
-    "and 42 percent for a 1.5 degree C pathway."
-)
-_GRASS_EMISSIONS = (
-    "Indigenous-led resistance efforts are estimated to have stopped or delayed "
-    "greenhouse gas pollution equivalent to roughly one-quarter of annual U.S. "
-    "and Canadian emissions."
-)
-_INST_WILDFIRE = (
-    "In 2023, 56,580 wildfires burned 2,693,910 acres across the United States, "
-    "with acreage burned below both the five- and ten-year averages."
-)
-_INST_WILDFIRE_FEDERAL = (
-    "About one-quarter of the nation's wildfires in 2023 occurred on federally "
-    "protected lands."
-)
-_GRASS_WILDFIRE = (
-    "Elderly, immunocompromised, and low-income populations face heightened risk "
-    "from wildfire smoke exposure."
-)
-_INST_WATER = (
-    "As of April 3, 2023, California's statewide snowpack held a snow water "
-    "equivalent of 61.1 inches, or 237 percent of the April 1 average, one of the "
-    "largest snowpacks on record."
-)
-_GRASS_WATER = (
-    "Disadvantaged and cumulatively burdened communities are found to be "
-    "disproportionately affected by water shortages, reflecting underlying "
-    "inequities in water resource management."
-)
-
-_CHUNKS = {
-    "inst_em:0": _INST_EMISSIONS,
-    "grass_em:0": _GRASS_EMISSIONS,
-    "inst_wf:0": _INST_WILDFIRE,
-    "inst_wf_fed:0": _INST_WILDFIRE_FEDERAL,
-    "grass_wf:0": _GRASS_WILDFIRE,
-    "inst_wa:0": _INST_WATER,
-    "grass_wa:0": _GRASS_WATER,
-}
+# --- Default labeled set -----------------------------------------------------
+# Sourced from gin/cartographer/labeled_set.py: 7 divergent pairs across three
+# framing registers (climate/legal/housing, author-labeled from the fixture
+# edges), 3 corroborating same-stance pairs, and 3 cross-topic negatives.
 
 
 def default_chunks() -> list[LabeledChunk]:
-    return [LabeledChunk(cid, text) for cid, text in _CHUNKS.items()]
+    from .labeled_set import chunks
+
+    return chunks()
 
 
 def default_gold_pairs() -> list[GoldPair]:
-    return [
-        GoldPair("inst_em:0", "grass_em:0", Relation.CONTRADICTS, "emissions"),
-        GoldPair("inst_wf:0", "grass_wf:0", Relation.CONTRADICTS, "wildfire"),
-        GoldPair("inst_wa:0", "grass_wa:0", Relation.CONTRADICTS, "water"),
-        # Class-C: two agreeing 2023 wildfire statistics — must NOT be contradicts.
-        GoldPair("inst_wf:0", "inst_wf_fed:0", Relation.CORROBORATES, "wildfire"),
-        # Cross-topic: the relatedness gate should reject this outright.
-        GoldPair("inst_wf:0", "grass_wa:0", Relation.UNRELATED, "cross"),
-    ]
+    from .labeled_set import gold
+
+    return [GoldPair(s, d, r, reg) for s, d, r, reg in gold()]
 
 
 def format_report(name: str, metrics: CartographerMetrics) -> str:

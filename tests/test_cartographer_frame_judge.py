@@ -32,13 +32,18 @@ def test_label_mapping_covers_the_three_verdicts():
     assert judge.type_relation("x", "y")[0] == Relation.UNRELATED
 
 
-def test_always_divergent_collapse_reproduces_mistral():
-    """The shipped prompt made Mistral answer DIVERGENT for every pair."""
+def test_always_divergent_is_the_degenerate_baseline():
+    """An always-DIVERGENT judge gets trivial recall and zero discrimination.
+
+    This is the failure mode the class-C co-metric exists to expose. (The real
+    Mistral is near this but not identical on the expanded set — it correctly
+    says AGREE on one corroborating pair, class_c 0.333 — recorded in §6.)
+    """
     judge = LlmFrameJudge(judge=lambda a, b: "DIVERGENT")
     metrics = evaluate(judge.propose_over(_pairs()), default_gold_pairs())
     assert metrics.contradicts_recall == 1.0        # trivially — everything is divergent
-    assert metrics.class_c_discrimination == 0.0    # ...including the agreeing pair
-    assert metrics.contradicts_precision == 0.6     # 3 real + 2 spurious
+    assert metrics.class_c_discrimination == 0.0    # every corroborating pair mislabeled
+    assert (metrics.tp, metrics.fp, metrics.fn) == (7, 6, 0)  # 7 real + 6 spurious
 
 
 def test_an_oracle_judge_would_score_perfectly():

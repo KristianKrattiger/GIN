@@ -1,11 +1,12 @@
 """NLI relation detector — measured finding: NLI-contradiction ≠ GIN divergence.
 
-Next step of docs/nc_cartographer_design.plan.md §6. The genuine
-institutional-vs-grassroots "contradicts" pairs are both true statements
-emphasizing different aspects of a shared event, so an entailment cross-encoder
-rates them neutral — the detector achieves class_c_discrimination 1.0 only by the
-degenerate route of typing nothing as contradicts (recall 0). Deterministic via an
-injected scorer that reproduces the real cross-encoder's neutral verdicts; a
+docs/nc_cartographer_design.plan.md §6. Climate/housing "contradicts" pairs are
+both true statements emphasizing different aspects of a shared event, so an
+entailment cross-encoder rates them neutral. (On the expanded set the real model
+does fire on the *legal* register, where framing divergence coincides with
+propositional contradiction — recorded in the design doc; GIN "contradicts" is
+heterogeneous.) These deterministic tests use an injected neutral-everywhere
+scorer to pin the mapping and the degenerate neutral→zero-recall failure mode; a
 synthetic propositional contradiction proves the typing logic itself works.
 """
 from gin.cartographer import (
@@ -45,11 +46,11 @@ def test_nli_rates_gin_framing_divergence_as_untyped():
 
 
 def test_nli_perfect_discrimination_but_zero_recall():
-    """It 'wins' class-C only by detecting no contradiction at all."""
+    """A neutral-everywhere signal 'wins' class-C only by detecting nothing."""
     metrics = evaluate(_proposer().propose_over(_labeled_pairs()), default_gold_pairs())
-    assert metrics.class_c_discrimination == 1.0   # never mints the agreeing pair
+    assert metrics.class_c_discrimination == 1.0   # never mints a corroborating pair
     assert metrics.contradicts_recall == 0.0       # but never mints a real one either
-    assert (metrics.tp, metrics.fp, metrics.fn) == (0, 0, 3)
+    assert (metrics.tp, metrics.fp, metrics.fn) == (0, 0, 7)
 
 
 def test_typing_logic_fires_on_a_genuine_propositional_contradiction():

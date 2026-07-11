@@ -57,11 +57,12 @@ def test_relatedness_ranks_agreeing_pair_above_a_real_contradiction():
     assert agreeing > real_contradiction
 
 
-def test_anti_pattern_fails_class_c_discrimination():
-    """relatedness-only mints a contradicts edge on the agreeing pair."""
-    metrics = evaluate(RelatednessProposer().propose(default_chunks()), default_gold_pairs())
-    assert metrics.class_c_discrimination == 0.0
-    # The single false positive is exactly the corroborating (class-C) pair.
+def test_anti_pattern_mints_the_class_c_pair_as_contradicts():
+    """relatedness-only types the two agreeing wildfire statistics as contradicts.
+
+    The corroborating pair that clears the relatedness floor is minted as a
+    contradicts edge — the exact class-C false positive relatedness cannot avoid.
+    """
     props = {
         _key(p.src_chunk_id, p.dst_chunk_id): p.relation
         for p in RelatednessProposer().propose(default_chunks())
@@ -71,16 +72,21 @@ def test_anti_pattern_fails_class_c_discrimination():
 
 def test_anti_pattern_precision_recall_are_pinned():
     metrics = evaluate(RelatednessProposer().propose(default_chunks()), default_gold_pairs())
-    assert metrics.contradicts_precision == 0.5   # emissions TP vs class-C FP
-    assert metrics.contradicts_recall == pytest.approx(1 / 3)  # cross-register misses
-    assert (metrics.tp, metrics.fp, metrics.fn) == (1, 1, 2)
+    # 2 divergences clear the lexical floor (emissions, revenue) -> TP; the warming
+    # corroboration also clears it -> the lone FP; the other 5 divergences are
+    # gated out (cross-register sparse overlap), so recall is low.
+    assert metrics.contradicts_precision == pytest.approx(2 / 3)
+    assert metrics.contradicts_recall == pytest.approx(2 / 7)
+    assert (metrics.tp, metrics.fp, metrics.fn) == (2, 1, 5)
 
 
-def test_per_register_breakdown_isolates_the_class_c_register():
+def test_lexical_gate_under_recalls_divergence_in_every_register():
+    """The under-recall is general, not a climate artifact: 5 of 7 true
+    divergences across climate/legal/housing fall below the relatedness floor."""
     metrics = evaluate(RelatednessProposer().propose(default_chunks()), default_gold_pairs())
-    # Emissions is fully recovered; the wildfire register carries the class-C FP.
-    assert metrics.by_register["emissions"]["precision"] == 1.0
-    assert metrics.by_register["wildfire"]["precision"] == 0.0
+    assert metrics.contradicts_recall < 0.5
+    # Housing divergences share only the place entity — both are gated out.
+    assert metrics.by_register["housing"]["recall"] == 0.0
 
 
 def test_edge_proposal_rejects_negative_assessments():
