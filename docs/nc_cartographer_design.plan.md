@@ -1,9 +1,11 @@
 # Cartographer design — carrying the noisy-edge constraints
 
-**Status:** design + first implementation this session. The independent
-edge-precision harness, the relatedness gate, and the anti-pattern baseline are
-built (`gin/cartographer/`, `tests/test_cartographer.py`); the real relation-type
-detector (the "minimal Cartographer" proper) is scoped in §6 and not built.
+**Status:** design + implementation across two passes. Built: the independent
+edge-precision harness, the relatedness gate, the anti-pattern baseline
+(`gin/cartographer/`, `tests/test_cartographer.py`), and the NLI relation detector
+(`gin/cartographer/nli.py`, `tests/test_cartographer_nli.py`). §6 records the
+measured finding that NLI-contradiction is the wrong signal for GIN divergence and
+reframes the next detector; the Bookkeeper admission gate is the step after.
 
 This is step 3 of
 [nc_reasoning_robustness_noisy_edges.plan.md](nc_reasoning_robustness_noisy_edges.plan.md)
@@ -127,21 +129,56 @@ path and is cheap to add while chunks are still ~sentence-sized. `EdgeProposal`
 therefore carries optional `src_anchor` / `dst_anchor` `(token_start, token_end)`
 fields now, so the schema does not need migrating after multi-sentence ingest.
 
-## 6. Not built here — the minimal Cartographer proper (next)
+## 6. The relation detector — NLI tried, and the finding that reshapes it
 
-The real relation-type detector is item (b) of the divergence-plan §7 order and a
-separate step: an NLI-class pairwise judge (entailment / contradiction) over the
-relatedness gate's candidate pairs, producing typed `EdgeProposal`s with anchors.
-It plugs into the harness built here and must beat the §4 targets. The repo
-already has an NLI-mode `Verifier` (`gin/eval/verifier.py`) whose cross-encoder is
-a natural starting signal; whether to reuse it or add a dedicated
-contradiction-NLI model is the first open question of that step. The Bookkeeper
-admission gate (anchor verification, DAG invariants, provenance stamp) is the
-step after.
+The natural stage-2 detector is an NLI-class pairwise judge, using the same 3-class
+cross-encoder (`cross-encoder/nli-deberta-v3-xsmall`, labels
+contradiction/entailment/neutral) the eval `Verifier` already loads — a semantic
+signal orthogonal to the retrieval IDF, satisfying §2. Built as
+`gin/cartographer/nli.py::NliRelationProposer` (injectable scorer, testable
+without the model) and measured on the labeled set with the real cross-encoder:
+
+| detector | contradicts precision | contradicts recall | class_c_discrimination |
+|---|---|---|---|
+| nli_relation (real cross-encoder) | n/a | **0.000** | **1.000** |
+
+**Measured finding — NLI-contradiction is not GIN divergence.** Every labeled pair
+types as `related_untyped` (p_contra ≤ 0.068 across all five). The detector scores
+class_c_discrimination **1.0**, but only by the degenerate route the §4 recall
+co-metric exists to expose: it types **nothing** as `contradicts`, so its recall on
+the three genuine framing divergences is **0.0**. The institutional-vs-grassroots
+pairs are both *true* statements that emphasize different aspects of a shared
+event ("acreage was below average" and "low-income people face smoke risk" do not
+logically contradict), so an entailment model rates them neutral — the same verdict
+it gives the agreeing pair. Threshold tuning cannot rescue it: the unrelated cross
+pair (0.050) scores essentially as contradictory as the true emissions divergence
+(0.068). Regression: `tests/test_cartographer_nli.py` (a synthetic
+passed-vs-failed pair confirms the typing logic *does* fire on real propositional
+contradiction — the miss is a signal property, not a bug).
+
+**Reframe.** The relation the Cartographer must detect is not propositional
+contradiction; it is **framing / stance divergence over a shared referent** — two
+sources selecting and foregrounding different dimensions of the same event. That
+is orthogonal to entailment. Candidate signals for the next attempt:
+
+- **Same-referent + divergent-aspect**: high entity/topic anchoring (shared event)
+  combined with *low* semantic similarity of the *claim content* — i.e. embedding
+  proximity on the referent but divergence on the predicate. This couples with the
+  §4 finding that production relatedness should be embedding-based.
+- **An LLM judge prompted for "same event, competing frame"** rather than logical
+  contradiction — a different question than NLI asks. (Mistral loads locally; a
+  constrained stance/frame prompt is the cheap first probe.)
+
+Either way the harness (§4) is the fixed measurement, and the target is unchanged:
+**class_c_discrimination = 1.0 with non-trivial contradicts recall**. The
+Bookkeeper admission gate (anchor verification, DAG invariants, provenance stamp)
+is the step after a signal clears that bar.
 
 ## 7. Out of scope (this doc)
 
-- The NLI relation detector and the Bookkeeper admission gate (§6 → next steps).
+- The *next* relation signal (same-referent/divergent-aspect or an LLM frame
+  judge) and the Bookkeeper admission gate (§6 → next steps). The NLI detector is
+  built and measured (§6); it is the ruled-out baseline, not the answer.
 - Cross-corpus / federated proposal (the relatedness gate is scoped intra-corpus
   first; the alignment stage is the same machinery at inter-node scope).
 - Embedding-based relatedness (the gate is lexical/entity first for a

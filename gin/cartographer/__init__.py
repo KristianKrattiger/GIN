@@ -15,6 +15,7 @@ from .evaluation import (
     format_report,
 )
 from .models import Assessment, EdgeProposal, LabeledChunk, Relation
+from .nli import NliRelationProposer
 from .proposers import Proposer, RelatednessProposer
 from .relatedness import RelatednessGate, idf_relatedness
 
@@ -24,6 +25,7 @@ __all__ = [
     "EdgeProposal",
     "GoldPair",
     "LabeledChunk",
+    "NliRelationProposer",
     "Proposer",
     "Relation",
     "RelatednessGate",
