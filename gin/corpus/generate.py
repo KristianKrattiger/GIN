@@ -126,12 +126,7 @@ def generate_no_continuation(
 
     Raises ``RetrievalConfidenceError`` when retrieval cannot ground the query.
     """
-    from llama_cpp import LogitsProcessorList  # lazy: keep import off module load
-
     tokenize: Callable[[bytes], list[int]] = lambda b: llm.tokenize(b, add_bos=False)
-    detok: Callable[[list[int]], str] = lambda ids: llm.detokenize(ids).decode(
-        "utf-8", errors="replace"
-    )
 
     corpus, ctx, bundle, retrieval_manifest = materialize_from_synthesis(
         query=query,
@@ -142,6 +137,53 @@ def generate_no_continuation(
         min_rrf_delta=min_rrf_delta,
         confidence_floor=confidence_floor,
         gold_chunk_ids=gold_chunk_ids,
+    )
+    return decode_bundle(
+        query,
+        corpus,
+        ctx,
+        bundle,
+        llm,
+        retrieval_manifest=retrieval_manifest,
+        chat_template=chat_template,
+        require_cites=require_cites,
+        stop_when_satisfied=stop_when_satisfied,
+        min_span_len=min_span_len,
+        max_tokens=max_tokens,
+        use_logit_bias=use_logit_bias,
+        query_steered=query_steered,
+    )
+
+
+def decode_bundle(
+    query: str,
+    corpus: Corpus,
+    ctx: SynthesisContext,
+    bundle: SynthesisBundle,
+    llm: Any,
+    *,
+    retrieval_manifest: Optional[RetrievalManifest] = None,
+    chat_template: str = "mistral",
+    require_cites: bool = False,
+    stop_when_satisfied: bool = False,
+    min_span_len: Optional[int] = None,
+    max_tokens: Optional[int] = None,
+    use_logit_bias: bool = True,
+    query_steered: bool = True,
+) -> NoContinuationResult:
+    """Constrained extractive decode over an already-materialized bundle.
+
+    Split out of ``generate_no_continuation`` so the decode can be driven from an
+    in-memory bundle without DB retrieval — used by the noisy-edge degradation
+    harness (docs/nc_reasoning_robustness_noisy_edges.plan.md §4) to feed the
+    reasoning layer hand-constructed clean vs. noisy edges. ``llm`` is duck-typed
+    to the llama.cpp interface, so a deterministic decoder can stand in.
+    """
+    from llama_cpp import LogitsProcessorList  # lazy: keep import off module load
+
+    tokenize: Callable[[bytes], list[int]] = lambda b: llm.tokenize(b, add_bos=False)
+    detok: Callable[[list[int]], str] = lambda ids: llm.detokenize(ids).decode(
+        "utf-8", errors="replace"
     )
 
     prompt = build_synthesis_prompt(query, bundle, chat_template=chat_template)

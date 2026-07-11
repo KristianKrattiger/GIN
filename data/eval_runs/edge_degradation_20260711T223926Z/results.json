@@ -1,0 +1,41 @@
+{
+  "model": "data/models/Mistral-7B-Instruct-v0.3-Q4_K_M.gguf",
+  "results": [
+    {
+      "id": "clean_convergent",
+      "label": "clean (agreeing pair, no edge)",
+      "edge_type": "none",
+      "materialized_mode": "convergent",
+      "raw_text": " In 2023, 56,580 wildfires burned 2,693,910 acres across the United States, with acreage burned below both the five- and ten-year averages. |",
+      "fabrication_rate": 0.0,
+      "divergence_fidelity": null,
+      "supported_irrelevance_rate": 0.0,
+      "spurious_divergence": false,
+      "relation_is_real": false
+    },
+    {
+      "id": "noisy_divergent",
+      "label": "NOISY class-C (agreeing pair, contradicts)",
+      "edge_type": "contradicts",
+      "materialized_mode": "divergent",
+      "raw_text": " In 2023, 56,580 wildfires burned 2,693,910 acres across the United States, with acreage burned below both the five- and ten-year averages. | [1] About one-quarter of the nation's wildfires in 2023 occurred on federally protected lands. |",
+      "fabrication_rate": 0.0,
+      "divergence_fidelity": 1.0,
+      "supported_irrelevance_rate": 0.0,
+      "spurious_divergence": true,
+      "relation_is_real": false
+    },
+    {
+      "id": "true_divergent",
+      "label": "control (real contradiction)",
+      "edge_type": "contradicts",
+      "materialized_mode": "divergent",
+      "raw_text": " In 2023, 56,580 wildfires burned 2,693,910 acres across the United States, with acreage burned below both the five- and ten-year averages. | [1] Elderly, immunocompromised, and low-income populations face heightened risk from wildfire smoke exposure. |",
+      "fabrication_rate": 0.0,
+      "divergence_fidelity": 1.0,
+      "supported_irrelevance_rate": 0.5,
+      "spurious_divergence": false,
+      "relation_is_real": true
+    }
+  ]
+}
