@@ -1,0 +1,18 @@
+{
+  "query_id": "wage_growth_rate",
+  "query": "How much did average hourly earnings grow year over year in the latest survey?",
+  "eval_layer": "counterfactual",
+  "gold_chunk_ids": [
+    "wage_bureau_report:0",
+    "wage_independent_survey:0"
+  ],
+  "retrieved_chunk_ids": [
+    "wage_bureau_report:0",
+    "wage_independent_survey:0",
+    "labor_bureau_report:0",
+    "labor_independent_survey:0",
+    "inflation_bureau_report:0"
+  ],
+  "retrieval_recall_at_k": 1.0,
+  "retrieval_manifest_hash": "c80856f9273150017fa7d183c40a520ed60162f98f61c2a456de22fc17cf4130"
+}

@@ -31,11 +31,11 @@ def isolated_db(require_postgres, monkeypatch):
     base_url = database_url().split("?")[0]
     monkeypatch.setenv(
         "GIN_DATABASE_URL",
-        f"{base_url}?options=-csearch_path%3D{schema}",
+        f"{base_url}?options=-csearch_path%3D{schema}%2Cpublic",
     )
     with psycopg.connect(base_url) as conn:
         conn.execute(f"CREATE SCHEMA IF NOT EXISTS {schema}")
-        conn.execute(f"SET search_path TO {schema}")
+        conn.execute(f"SET search_path TO {schema}, public")
         init_sql = Path(__file__).resolve().parents[1] / "docker" / "init-db.sql"
         conn.execute(init_sql.read_text(encoding="utf-8"))
         conn.commit()

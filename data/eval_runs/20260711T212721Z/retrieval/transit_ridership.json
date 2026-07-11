@@ -1,0 +1,17 @@
+{
+  "query_id": "transit_ridership",
+  "query": "What was the average daily ridership in the first week of the north line extension?",
+  "eval_layer": "realism",
+  "gold_chunk_ids": [
+    "transit_authority_update:0"
+  ],
+  "retrieved_chunk_ids": [
+    "transit_authority_update:0",
+    "power_grid_status:0",
+    "wage_independent_survey:0",
+    "port_authority_brief:0",
+    "wage_bureau_report:0"
+  ],
+  "retrieval_recall_at_k": 1.0,
+  "retrieval_manifest_hash": "681335cb548316088fd30824bf4146f0ed3e2ae4dbdccf4c52bb642594832844"
+}

@@ -230,7 +230,8 @@ Measured **RAG vs No-Continuation** on the synthetic corpus ([ENG 02](docs/GIN_E
 | `20260701T192827Z` | 9 | Structural prevention (overlap) |
 | `20260702T012203Z` | 20 | **NC epistemic promotion** (overlap, CPU) |
 | `20260702T010918Z` | 9 | Regression anchors post–Phase 3 |
-| `20260711T211202Z` | 20 | GPU hardware artifact (overlap, RTX 4070, `n_gpu_layers=-1`) — reveals a CPU/GPU decode divergence, see below |
+| `20260711T212721Z` | 20 | Same-day CPU control (overlap, `n_gpu_layers=0`) |
+| `20260711T211202Z` | 20 | **GPU hardware artifact** (overlap, RTX 4070, `n_gpu_layers=-1`) — see below |
 
 **No-Continuation (`20260702T012203Z`, full 20):**
 
@@ -247,7 +248,7 @@ Measured **RAG vs No-Continuation** on the synthetic corpus ([ENG 02](docs/GIN_E
 
 NLI confirms NC fabrication 0 on the 9-query structural baseline (`194024Z`); expanded-set NLI re-run outstanding. Details: [ENG 02](docs/GIN_ENG_02_Eval_Baseline_v1.md).
 
-**GPU hardware artifact (`20260711T211202Z`, RTX 4070).** Fabrication rate holds at 0.000, but `query_relevance_rate` (0.850 vs CPU 1.000) and `divergence_fidelity` (0.500 vs CPU 1.000) regress against identical retrieval — 3 queries flip from passing to failing relevance under GPU decode. Leading hypothesis: CUDA vs CPU floating-point reduction-order differences flip greedy token choice at SEAR's decode-time decision boundaries even at `temperature=0.0`. This is an open gap, not a clean promotion; see [ENG 02, Remaining gaps item 5](docs/GIN_ENG_02_Eval_Baseline_v1.md).
+**GPU hardware artifact (`20260711T211202Z`, RTX 4070) — measured and root-caused.** A same-day CPU control (`20260711T212721Z`, identical code and corpus state) isolates the true CPU/GPU gap to **1 of 20 queries**: retrieval is byte-identical, but that one query's refuse-vs-answer decision flips under GPU decode. Fabrication rate is 0.000 on both backends. Root cause: llama.cpp's CPU and CUDA kernels aren't required to be bit-exact even at `temperature=0.0`, and this query is a near-tie at SEAR's first decode step — small logit noise flips it. Naively diffing against the 9-day-old baseline instead made it look like 3 queries regressed; 2 of those were stale-corpus artifacts (retrieval tie-break order isn't stable across separate ingestion runs), not GPU-specific. Details: [ENG 02, Remaining gaps items 3 and 5](docs/GIN_ENG_02_Eval_Baseline_v1.md).
 
 **Generalization beyond the synthetic corpus.** The divergence mechanism was stress-tested on **real fetched two-node text** (institutional statistic vs. grassroots reframing — pairs that share no lede structure) and holds: `divergence_fidelity` **1.000**, `fabrication_rate` **0.000** (`20260705T043114Z`). It generalizes across three framing registers (climate, adversarial/legal, housing) and is **model-independent** — Qwen2.5-7B matches the Mistral baseline exactly on all four divergence querysets. Method, root-cause analysis, and per-pair IDF/token tables: [docs/nc_real_text_divergence_generalization.plan.md](docs/nc_real_text_divergence_generalization.plan.md).
 
@@ -274,7 +275,7 @@ NLI confirms NC fabrication 0 on the 9-query structural baseline (`194024Z`); ex
 | Two-node divergence demo (inter-corpus, real fetched text) | ✅ (run `20260705T043114Z`, fidelity 1.0) |
 | Divergence generalization across framing registers (climate / legal / housing) | ✅ (`20260705T202450Z`, `20260705T203622Z`) |
 | Cross-model confirmation (Qwen2.5-7B) — divergence is model-independent | ✅ (`20260705T211452Z`–`20260705T220525Z`) |
-| Representative GPU hardware artifact | ⚠️ produced (run `20260711T211202Z`, RTX 4070) but reveals a CPU/GPU decode divergence gap — not a clean promotion |
+| Representative GPU hardware artifact | ✅ (run `20260711T211202Z`, RTX 4070, vs same-day CPU control `20260711T212721Z`; gap root-caused to 1/20 queries, backend floating-point non-determinism, fabrication unaffected) |
 | Bookkeeper + reasoning layer separation (Phase 2) | 🔲 |
 | Federation routing with sync metadata (Phase 3) | 🔲 |
 

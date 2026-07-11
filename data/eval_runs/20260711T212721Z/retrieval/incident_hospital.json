@@ -1,0 +1,17 @@
+{
+  "query_id": "incident_hospital",
+  "query": "How many people received hospital treatment after the downtown incident?",
+  "eval_layer": "realism",
+  "gold_chunk_ids": [
+    "incident_centralwire:0",
+    "incident_metrodaily:0",
+    "incident_regionalpost:0"
+  ],
+  "retrieved_chunk_ids": [
+    "incident_centralwire:0",
+    "incident_metrodaily:0",
+    "incident_regionalpost:0"
+  ],
+  "retrieval_recall_at_k": 1.0,
+  "retrieval_manifest_hash": "5cc80f3639bccf3b4b4f96059483951234f32b2e40ab2430e28d80d3911db260"
+}

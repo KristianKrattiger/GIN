@@ -94,7 +94,7 @@ def _dense_search(conn: psycopg.Connection, query_vec: list[float], k: int, filt
         FROM chunks c
         JOIN documents d ON d.doc_id = c.doc_id
         WHERE {where}
-        ORDER BY c.embedding <=> %s::vector
+        ORDER BY c.embedding <=> %s::vector, c.chunk_id
         LIMIT %s
         """,
         params,
@@ -115,7 +115,7 @@ def _sparse_search(conn: psycopg.Connection, query: str, k: int, filters: dict[s
         FROM chunks c
         JOIN documents d ON d.doc_id = c.doc_id
         WHERE {where}
-        ORDER BY rank DESC
+        ORDER BY rank DESC, c.chunk_id
         LIMIT %s
         """,
         params,
@@ -147,7 +147,7 @@ def retrieve(query: str, k: int = 15, filters: Optional[dict[str, Any]] = None) 
         meta[cid] = row[:9]
         sparse_rank[cid] = rank
 
-    ordered = sorted(scores.items(), key=lambda item: item[1], reverse=True)[:k]
+    ordered = sorted(scores.items(), key=lambda item: (-item[1], item[0]))[:k]
     return [
         _row_to_hit(
             meta[cid],

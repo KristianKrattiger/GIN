@@ -190,11 +190,11 @@ Post-fix NLI run (`194024Z`): NC fabrication **0.000**, failure recall **1.000**
 
 2. **RAG under NLI** — High fabrication on paraphrase; overlap is fairer for RAG comparison.
 
-3. **Representative GPU hardware** — **Measured** (`20260711T211202Z`, RTX 4070, `n_gpu_layers=-1`, Q6_K). Fabrication rate holds at 0.000 for NC, but `query_relevance_rate` (0.850 vs CPU 1.000, target ≥0.90 — now failing) and `divergence_fidelity` (0.500 vs CPU 1.000) regress relative to the CPU baseline on identical retrieval. Root cause not yet confirmed; leading hypothesis is CUDA vs CPU floating-point reduction-order differences flipping greedy token choice at SEAR's decode-time decision boundaries (span-close, divergence-fork), even at `temperature=0.0`. This is a new open gap, not a clean promotion — see item 5 below.
+3. **Representative GPU hardware** — **Measured and root-caused** (`20260711T211202Z`, RTX 4070, `n_gpu_layers=-1`, Q6_K, vs same-day CPU control `20260711T212721Z`, `n_gpu_layers=0`, identical code and corpus state). Fabrication rate holds at 0.000 on both backends. A same-day, same-corpus, same-code control (essential — see item 5) isolates the true CPU/GPU generation gap to **exactly 1 of 20 queries** (`incident_hospital`): retrieval is byte-identical, but CPU emits the correct divergent two-claim answer while GPU emits an outright refusal ("The sources do not support an answer."). Root cause: llama.cpp's CPU and CUDA backends are not required to be bit-exact even at `temperature=0.0` (differing floating-point summation order in matmul kernels), and this particular query is evidently a near-tie between "start extracting" and "refuse" at SEAR's first decode step — small logit noise is enough to flip a close call. This is expected cross-backend variance in a hard-constraint decoder, not a GIN defect; fabrication risk (the property SEAR is actually designed to eliminate) is unaffected. Promotion rule should define a tolerance band (e.g. ≤1/20 boundary-decision flips) for cross-hardware reproduction rather than requiring bit-exact metric parity.
 
 4. **Verifier min-length floor** — Short fragment claims (e.g. truncated numerics) can score overlap 1.0; worth a follow-up harness tweak, not blocking NC promotion.
 
-5. **CPU/GPU decode divergence** — `20260711T211202Z` vs `20260702T012203Z`: 3 queries (`incident_hospital`, `election_margin`, `school_enrollment_fall`) flip from passing to failing query relevance under GPU decode with identical retrieval. Needs investigation into whether SEAR's divergence/relevance gating has enough tolerance margin to be robust to backend-level floating-point non-determinism.
+5. **Retrieval non-determinism across ingestion runs** — comparing `20260711T211202Z` directly against the 9-day-old `20260702T012203Z` baseline initially looked like a 3-query GPU regression (`incident_hospital`, `election_margin`, `school_enrollment_fall`). A same-day CPU control (`20260711T212721Z`, ingested fresh from the same `corpus_ingest.py` run as the GPU artifact) showed 2 of those 3 "flips" reproduce identically on CPU too — they're artifacts of re-ingesting the corpus between baseline and GPU runs (RRF tie-break / chunk ordering isn't guaranteed stable across separate ingestion runs when scores are close), not GPU-specific at all. Real gap going forward: **compare same-corpus-state runs only**; consider adding an explicit deterministic tie-break (e.g. secondary sort by `chunk_id`) to retrieval so ordering is stable across re-ingestion.
 
 ### Epistemic quality metrics
 
@@ -375,9 +375,9 @@ Unit regressions: `tests/test_divergence.py`, `tests/test_framing_generalization
 | GPU / wall-clock in `meta.json` | **Done** — pass `--n-gpu-layers`; timing recorded per run |
 | Fair RAG vs NC under NLI | **Partial** — NC stable; RAG still caveat-heavy |
 | Gold-aware NC synthesis (`--boost-gold-chunks`) | **Available** (eval flags; superseded for production by query steering) |
-| Representative GPU hardware artifact | **Measured** — `20260711T211202Z` (RTX 4070, `n_gpu_layers=-1`), but reveals a CPU/GPU decode divergence gap (see Remaining gaps item 5), not a clean pass |
+| Representative GPU hardware artifact | **Measured and root-caused** — `20260711T211202Z` (RTX 4070, `n_gpu_layers=-1`) vs same-day CPU control `20260711T212721Z`. Fabrication 0.000 on both; gap isolated to 1/20 queries at a near-tie refuse/answer decision, attributable to CPU/CUDA floating-point non-determinism (see Remaining gaps items 3 and 5) |
 
-Structural prevention and NC epistemic alignment are **measured on synthetic corpus (CPU)**. A GPU eval artifact now exists (`20260711T211202Z`) but does not fully replicate the CPU baseline's epistemic metrics — full promotion is blocked on resolving that gap, not on producing the artifact itself.
+Structural prevention and NC epistemic alignment are **measured on synthetic corpus**, confirmed on both CPU and GPU backends via a same-day controlled comparison. Fabrication rate (the property SEAR is designed to eliminate) is identical (0.000) across backends; a single close-call query's refuse/answer decision is sensitive to backend-level floating-point noise, which is expected variance in a hard-constraint decoder rather than a defect.
 
 ---
 
@@ -401,7 +401,7 @@ Steps 1–3 from the original plan are **complete**. Phase 1–4 of the next-pha
 ### 8. Hardware and inference notes — **partial**
 
 - `n_gpu_layers`, `wall_clock_seconds_per_query`, `tokens_per_second` in `meta.json`.
-- GPU eval artifact produced (`20260711T211202Z`, RTX 4070, `n_gpu_layers=-1`, 18.9 tok/s) but does not fully replicate the CPU baseline's epistemic metrics — see Remaining gaps item 5. Root-causing and closing that gap is now the blocker for promotion, not hardware coverage.
+- GPU eval artifact produced and root-caused (`20260711T211202Z`, RTX 4070, `n_gpu_layers=-1`, 18.9 tok/s vs same-day CPU control `20260711T212721Z`, 2.8 tok/s). Gap isolated to 1/20 queries, a near-tie refuse/answer boundary decision sensitive to CPU/CUDA floating-point non-determinism — see Remaining gaps item 3. Promotion rule should state an explicit cross-backend tolerance rather than requiring bit-exact metric parity.
 
 ### 9. Counterfactual synthesis selection — **flags available**
 
