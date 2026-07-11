@@ -1,0 +1,14 @@
+{
+  "query_id": "tn_out_of_scope_referendum",
+  "query": "By how many votes did the harbor district referendum pass?",
+  "eval_layer": "out_of_scope",
+  "gold_chunk_ids": [],
+  "retrieved_chunk_ids": [
+    "election_centralwire:0",
+    "election_metrodaily:0",
+    "port_authority_brief:0",
+    "school_district_report:0"
+  ],
+  "retrieval_recall_at_k": null,
+  "retrieval_manifest_hash": "9606c29ed4bc930ee2a22680e72a4e7011feb8faf1707a3aae1ebde4372d84a0"
+}

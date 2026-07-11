@@ -1,0 +1,16 @@
+{
+  "query_id": "tn_2023_anomaly",
+  "query": "How much warmer was 2023 than the twentieth-century average?",
+  "eval_layer": "realism",
+  "gold_chunk_ids": [
+    "n1_doc_002:1"
+  ],
+  "retrieved_chunk_ids": [
+    "n1_doc_002:1",
+    "n1_doc_005:0",
+    "n1_doc_007:0",
+    "n1_doc_007:1"
+  ],
+  "retrieval_recall_at_k": 1.0,
+  "retrieval_manifest_hash": "8246e16fd0b4bbcbed8c260d0bf1c49495f2bc210c530f8a614e486a5ad40a27"
+}

@@ -1,0 +1,13 @@
+{
+  "query_id": "weather_winds",
+  "query": "What sustained wind speed is expected from the coastal storm system?",
+  "eval_layer": "realism",
+  "gold_chunk_ids": [
+    "weather_service_brief:0"
+  ],
+  "retrieved_chunk_ids": [
+    "weather_service_brief:0"
+  ],
+  "retrieval_recall_at_k": 1.0,
+  "retrieval_manifest_hash": "1acafbe893c326af1ad34b62a947af832d2a5c3fe8ced90eeb06375d288f171b"
+}

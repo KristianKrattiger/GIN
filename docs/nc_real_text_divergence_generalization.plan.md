@@ -4,6 +4,7 @@
 **Depends on**: [Phase 3 divergence correctness](nc_phase3_divergence_correctness.plan.md) (PROMOTED on synthetic corpus)
 **Baseline**: two-node run `20260704T105554Z` — SEAR `divergence_fidelity` 0.333 (1 of 3 pairs)
 **Result run**: `20260705T043114Z` — SEAR `divergence_fidelity` **1.000** (3 of 3 pairs)
+**GPU reconfirmation**: `20260711T214751Z` (RTX 4070, `n_gpu_layers=-1`, Q6_K) — `divergence_fidelity` **1.000**, `fabrication_rate` **0.000**, 22.2 tok/s. Zero CPU/GPU gap on this queryset, unlike the synthetic-corpus NC eval (see [GIN_ENG_02_Eval_Baseline_v1.md](GIN_ENG_02_Eval_Baseline_v1.md), Remaining gaps item 3) where one query is a near-tie sensitive to backend floating-point noise.
 
 Phase 3 promoted the divergent-decode mechanism (`compute_divergence_zones`,
 `min_span_len` auto-close, EOS gating) against a synthetic corpus where every

@@ -1,0 +1,17 @@
+{
+  "query_id": "port_cargo_throughput",
+  "query": "How many twenty-foot equivalent units did harbor terminals handle in March?",
+  "eval_layer": "realism",
+  "gold_chunk_ids": [
+    "port_authority_brief:0"
+  ],
+  "retrieved_chunk_ids": [
+    "port_authority_brief:0",
+    "election_centralwire:0",
+    "housing_permits_office:0",
+    "election_metrodaily:0",
+    "transit_authority_update:0"
+  ],
+  "retrieval_recall_at_k": 1.0,
+  "retrieval_manifest_hash": "cb4fe4bba24711fc13a900fae3e9da9932cd3cfe2d44c0745ee1743b6bcfa4a5"
+}
