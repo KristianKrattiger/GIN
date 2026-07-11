@@ -1,6 +1,6 @@
 ---
 tags: [GIN, research, index, architecture, caliche]
-updated: 2026-06-13
+updated: 2026-07-11
 version: 0.4-preliminary
 status: working draft
 register: conceptual
@@ -28,13 +28,15 @@ The v0.4 reframe in one line: **GIN is governed epistemic infrastructure — not
 
 ---
 
-## The two registers (unchanged)
+## The registers
 
 **Conceptual register** — mechanism papers, philosophy, adversarial analysis. May discuss problems; never lists specs.
 
 **Engineering register** (separate) — the reality-grounded specifications: hardware models, protocol byte layouts, throughput figures, power budgets, duty-cycle math, routing algorithms. Held apart so that nothing in the conceptual register can be mistaken for a shipped design. See [[GIN_ENG_00_Engineering_Register]].
 
-A claim only crosses from conceptual to engineering register when it has been measured, not when it has been argued.
+**Strategy register** (separate, added post-v0.4) — go-to-market, consulting, and market-positioning content: commercial *bets*, not mechanism claims or measured specs, and quarantined for the same reason the engineering register is. See [[GIN_STRAT_00_Strategy_Register]].
+
+A claim only crosses from conceptual to engineering register when it has been measured, not when it has been argued. Strategy claims cross into neither — a bet stays a bet.
 
 ---
 
@@ -54,8 +56,13 @@ A claim only crosses from conceptual to engineering register when it has been me
 | [[GIN_10_Epistemic_Council]] | The governing institution; classification authority; the donation target | conceptual |
 | [[GIN_11_Comparative_Case]] | Why multi-institutional governed epistemic power beats the corporate baseline | conceptual |
 | [[GIN_12_Ecosystem_Licensing]] | Scaling gradients; who buys in; corporate adoption; the licensing fork | conceptual |
+| [[GIN_13_Temporal_Sensor_Grounding]] | Extending SEAR from editorial text to sensor ground truth; domain applications; calibration-as-governance | conceptual |
 | [[GIN_ENG_00_Engineering_Register]] | Index and quarantine notice for reality-grounded specs | engineering |
 | [[GIN_ENG_01_SEAR_PoC_Spec]] | SEAR proof-of-concept specification; staged roadmap; all figures TBM | engineering |
+| [[GIN_ENG_02_Eval_Baseline_v1]] | Measured RAG vs No-Continuation baseline; NC epistemic promotion; two-node + real-text divergence generalization | engineering |
+| [[GIN_STRAT_00_Strategy_Register]] | Index and quarantine notice for go-to-market and consulting bets | strategy |
+| [[GIN_STRAT_01_Consulting_Model]] | The consulting motion; the node-vs-client fit filter | strategy |
+| [[GIN_STRAT_02_Strategic_Positioning]] | Sensor-first vs. AI-first; market bifurcation; timing bets | strategy |
 
 ---
 

@@ -77,7 +77,7 @@ The scale change is real: GIN goes from a research instrument to a governed know
 
 ## Related
 
-[[GIN_00_Reader]] · [[GIN_02_Productive_Divergence]] · [[GIN_09_Agentic_Layer]] · [[GIN_10_Epistemic_Council]] · [[GIN_11_Comparative_Case]]
+[[GIN_00_Reader]] · [[GIN_02_Productive_Divergence]] · [[GIN_09_Agentic_Layer]] · [[GIN_10_Epistemic_Council]] · [[GIN_11_Comparative_Case]] · [[GIN_STRAT_00_Strategy_Register]]
 
 ## Back to Vault
 

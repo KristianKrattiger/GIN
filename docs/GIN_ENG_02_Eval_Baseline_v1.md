@@ -1,8 +1,8 @@
 ---
 tags: [GIN, engineering, SEAR, eval, baseline, register]
-updated: 2026-07-02
-version: 0.5-epistemic-promoted
-status: measured (NC epistemic targets met on expanded queryset)
+updated: 2026-07-11
+version: 0.6-divergence-generalized
+status: measured (NC epistemic targets met on expanded queryset; divergence generalized to real text + second model)
 register: engineering
 implements: GIN ENG 01 — SEAR PoC Spec §6 (Stage 1 metrics harness)
 artifact: data/eval_runs/20260702T012203Z/
@@ -331,6 +331,26 @@ When retrieval mixed
 
 ---
 
+## Post-v1: divergence generalization (real text + cross-model)
+
+The v1 baseline above is measured on the **synthetic** single-corpus queryset, where every `contradicts` pair shares a lede and forks at one sentence. Follow-on work stress-tested whether that promotion generalizes to real editorial divergence (institutional statistic vs. grassroots reframing) that shares *no* structure, and to a second model. Full method, root-cause analysis, and per-pair token/IDF-margin tables: `docs/nc_real_text_divergence_generalization.plan.md`.
+
+| Result | Run | divergence_fidelity (SEAR) | fabrication_rate (SEAR) |
+|--------|-----|----------------------------|-------------------------|
+| Two-node real-text (climate: emissions / wildfire / water) | `20260705T043114Z` | **1.000** (0.333 pre-fix `105554Z`) | 0.000 |
+| Multi-paragraph chunks (anchor-vs-filler selection) | `20260705T065559Z` | **1.000** | 0.000 |
+| Framing round 1 — adversarial/legal (press release vs. regulator complaint) | `20260705T202450Z` | **1.000** | 0.000 |
+| Framing round 2 — housing (zoning-board vs. tenant-organizing) | `20260705T203622Z` | **1.000** | 0.000 |
+| Cross-model — Qwen2.5-7B on all four divergence querysets | `20260705T211452Z`–`20260705T220525Z` | **1.000** | 0.000 |
+
+**What changed to get there:** an IDF-weighted divergence gate (`idf_weighted_relevance`, `DIVERGENCE_IDF_FLOOR=0.13` in `gin/corpus/relevance.py` / `retrieve.py`) so mode selection is no longer pure keyword overlap; a per-pair fallback divergence zone for structurally-dissimilar pairs with an IDF-anchored sentence scorer (`gin/corpus/divergence.py`); a divergent `max_tokens` ceiling put on a measured basis (`40 + 80·n` = 120 for one group, 24% headroom over the worst-case 97-token decode); and a refusal-gate fix (`_claims_query_relevant` judges the claim's own text, not the on-topic-elsewhere cited chunk — `gin/eval/arms.py`).
+
+**Findings carried forward:** (1) the gate survives in every new domain because a *distinctive shared entity* carries IDF mass across framings — advocacy text that never names the entity is the lexical-by-construction failure mode, and the concrete argument for Cartographer/Bookkeeper sentence-level anchors as admitted graph state (plan §7.1). (2) The Qwen run surfaced a harness bug (RAG refusal-detector substring match in `arms.py`) and a real convergent-mode truncation (`tn_2023_anomaly`) root-caused to `span_must_close_at_sentence_end` not being set for single-source convergent decode — both flagged, neither in scope of that doc.
+
+Unit regressions: `tests/test_divergence.py`, `tests/test_framing_generalization.py` (parametrized over both rounds), `tests/test_eval_arms.py`, `tests/test_generate.py`. Still CPU/WSL — GPU artifact remains before full promotion.
+
+---
+
 ## Promotion status (per [[GIN_ENG_00_Engineering_Register]])
 
 | Claim | Status |
@@ -347,6 +367,9 @@ When retrieval mixed
 | NC selection robustness (Phase 1 steering) | **Done** — see `20260701T214706Z` partial / `20260702T003047Z` |
 | Mode gating + retrieval ordering (Phase 2) | **Done** — eval `20260702T003047Z` |
 | Divergent correctness (Phase 3) | **Done** — eval `20260702T012203Z` |
+| Divergence generalizes to real two-node text | **Measured** — `20260705T043114Z` (fidelity 1.0, fabrication 0.0) |
+| Divergence generalizes across framing registers | **Measured** — adversarial/legal `20260705T202450Z`, housing `20260705T203622Z` |
+| Divergence mechanism is model-independent | **Measured** — Qwen2.5-7B matches Mistral on all 4 divergence querysets |
 | GPU / wall-clock in `meta.json` | **Done** — pass `--n-gpu-layers`; timing recorded per run |
 | Fair RAG vs NC under NLI | **Partial** — NC stable; RAG still caveat-heavy |
 | Gold-aware NC synthesis (`--boost-gold-chunks`) | **Available** (eval flags; superseded for production by query steering) |
@@ -449,7 +472,7 @@ Report: `data/eval_runs/<timestamp>/report.md` (includes retrieval quality secti
 
 ## Related
 
-[[GIN_ENG_00_Engineering_Register]] · [[GIN_ENG_01_SEAR_PoC_Spec]] · [[GIN_04_SEAR]] · [[GIN_02_Productive_Divergence]] · [[GIN_The_Whole_Frame]]
+[[GIN_ENG_00_Engineering_Register]] · [[GIN_ENG_01_SEAR_PoC_Spec]] · [[GIN_04_SEAR]] · [[GIN_02_Productive_Divergence]] · [[GIN_The_Whole_Frame]] · [Real-text divergence generalization](nc_real_text_divergence_generalization.plan.md)
 
 ## Back to Vault
 

@@ -246,6 +246,8 @@ Measured **RAG vs No-Continuation** on the synthetic corpus ([ENG 02](docs/GIN_E
 
 NLI confirms NC fabrication 0 on the 9-query structural baseline (`194024Z`); expanded-set NLI re-run outstanding. Details: [ENG 02](docs/GIN_ENG_02_Eval_Baseline_v1.md).
 
+**Generalization beyond the synthetic corpus.** The divergence mechanism was stress-tested on **real fetched two-node text** (institutional statistic vs. grassroots reframing — pairs that share no lede structure) and holds: `divergence_fidelity` **1.000**, `fabrication_rate` **0.000** (`20260705T043114Z`). It generalizes across three framing registers (climate, adversarial/legal, housing) and is **model-independent** — Qwen2.5-7B matches the Mistral baseline exactly on all four divergence querysets. Method, root-cause analysis, and per-pair IDF/token tables: [docs/nc_real_text_divergence_generalization.plan.md](docs/nc_real_text_divergence_generalization.plan.md).
+
 ---
 
 | Item | Status |
@@ -266,7 +268,9 @@ NLI confirms NC fabrication 0 on the 9-query structural baseline (`194024Z`); ex
 | SEAR vs RAG eval harness (`scripts/eval_run.py`, `gin/eval/`) | ✅ |
 | Eval baseline — structural prevention + NC epistemic targets (overlap) | ✅ ([ENG 02](docs/GIN_ENG_02_Eval_Baseline_v1.md), run `20260702T012203Z`) |
 | Query-relevance / epistemic metrics on expanded query set | ✅ |
-| Two-node divergence demo (inter-corpus) | 🔲 |
+| Two-node divergence demo (inter-corpus, real fetched text) | ✅ (run `20260705T043114Z`, fidelity 1.0) |
+| Divergence generalization across framing registers (climate / legal / housing) | ✅ (`20260705T202450Z`, `20260705T203622Z`) |
+| Cross-model confirmation (Qwen2.5-7B) — divergence is model-independent | ✅ (`20260705T211452Z`–`20260705T220525Z`) |
 | Bookkeeper + reasoning layer separation (Phase 2) | 🔲 |
 | Federation routing with sync metadata (Phase 3) | 🔲 |
 
@@ -292,10 +296,12 @@ NLI confirms NC fabrication 0 on the 9-query structural baseline (`194024Z`); ex
 | [docs/GIN_ENG_02_Eval_Baseline_v1.md](docs/GIN_ENG_02_Eval_Baseline_v1.md) | RAG vs No-Continuation baseline, epistemic promotion runs, deeper implications |
 | [docs/nc_mode_gating_retrieval_ordering.plan.md](docs/nc_mode_gating_retrieval_ordering.plan.md) | Phase 2: query-aware divergent gating + seed re-rank |
 | [docs/nc_phase3_divergence_correctness.plan.md](docs/nc_phase3_divergence_correctness.plan.md) | Phase 3: divergent correctness + corroboration decode (promoted) |
+| [docs/nc_real_text_divergence_generalization.plan.md](docs/nc_real_text_divergence_generalization.plan.md) | Two-node real-text divergence, framing generalization, cross-model check |
 | [docs/GIN_ENG_00_Engineering_Register.md](docs/GIN_ENG_00_Engineering_Register.md) | Engineering register — unmeasured specs and promotion rule |
 | [docs/GIN_Node_Architecture_v1.md](docs/GIN_Node_Architecture_v1.md) | Node tier specification (institutional / relay / client) |
 | [docs/GIN_The_Whole_Frame.md](docs/GIN_The_Whole_Frame.md) | Program synthesis — scale, governance, philosophy |
-| [docs/GIN_00_Reader.md](docs/GIN_00_Reader.md) | Reading order for the full doc set |
+| [docs/GIN_13_Temporal_Sensor_Grounding.md](docs/GIN_13_Temporal_Sensor_Grounding.md) | Forward direction — extending SEAR grounding from text to sensor ground truth |
+| [docs/GIN_00_Reader.md](docs/GIN_00_Reader.md) | Reading order for the full doc set (incl. conceptual, engineering, strategy registers) |
 
 ---
 

@@ -23,8 +23,9 @@ grassroots framing, real fetched text) was built to stress-test whether Phase
 (emissions, wildfire, water) were wired via `data/corpus_edges.yaml` and
 `data/eval/queryset_twonode.yaml`.
 
-**Retrieval-side gap (prior session, already fixed — see
-[[phase3-divergence-correctness]] follow-on).** The `_divergence_relevant`
+**Retrieval-side gap (prior session, already fixed — see the
+[Phase 3 divergence correctness](nc_phase3_divergence_correctness.plan.md)
+follow-on).** The `_divergence_relevant`
 lexical gate (max_sentence_score + matched_keyword_count) flipped real
 minority-side chunks to convergent mode because the grassroots reframing uses
 different vocabulary than the query. Fixed with an IDF-weighted relevance gate
@@ -246,7 +247,7 @@ Ranked by what would most change confidence in this result:
      -> `disc_meridian_pr:0` + `disc_meridian_complaint:0`). RAG on the same
      queries: `fabrication_rate` 0.200. (Operational note: the llama.cpp
      `0xc000001d` crash is Windows-python-only; evals run from the WSL Ubuntu
-     repo venv — see [[llama-cpp-illegal-instruction]].)
+     repo venv.)
    **[ROUND 2 CONFIRMED — full DB eval `20260705T203622Z`]** Housing domain,
    sparse surface overlap: `data/fixtures/housing_framing.yaml` wires two
    `contradicts` pairs — zoning-board/code-enforcement technical register vs.
@@ -429,7 +430,7 @@ Ranked by what would most change confidence in this result:
 
    Local operational note: llama.cpp on Windows Python crashes at model load
    (`0xc000001d`); all of the above ran via WSL Ubuntu using the repo's Linux
-   `venv/` (see [[llama-cpp-illegal-instruction]]).
+   `venv/`.
 7. **Revisit output fluency.** Divergent answers are two extracted sentences
    joined by a bare `|` delimiter — grounded and citable but not natural
    prose. Inherent to the extractive design (Flagged Generation / Mode 2 is

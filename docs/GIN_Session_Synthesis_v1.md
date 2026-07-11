@@ -268,14 +268,14 @@ These are not gaps in thinking. They are the identified frontier.
 ## Build Sequence — Current State
 
 1. ✅ SEAR Phase 1 scaffold validated (self-test passes, cursor logic correct)  
-2. 🔲 Synthetic corpus — verify fan-out/prune under long shared spans, specify zero-cursor fallback  
-3. 🔲 Live Mistral integration via llama-cpp-python (~half-day from current scaffold)  
-4. 🔲 SEAR grounding rate measured against RAG baseline — the number that makes GIN real  
-5. 🔲 Two-node divergence demo — same machinery, scope dialed to inter-corpus  
+2. ✅ Synthetic corpus — fan-out/prune verified; zero-cursor fallback wired as post-decode refusal gate  
+3. ✅ Live Mistral integration via llama-cpp-python (runs via WSL Ubuntu; Windows-python crashes at model load)  
+4. ✅ SEAR grounding rate measured against RAG baseline — NC fabrication 0.0 vs RAG 0.238–0.286 ([[GIN_ENG_02_Eval_Baseline_v1]], `20260702T012203Z`)  
+5. ✅ Two-node divergence demo — same machinery, scope dialed to inter-corpus; **real fetched text**, `divergence_fidelity` 1.0 (`20260705T043114Z`), generalized across three framing registers and confirmed model-independent on Qwen2.5-7B ([Real-text divergence generalization](nc_real_text_divergence_generalization.plan.md))  
 6. 🔲 Bookkeeper + reasoning layer separation (Phase 2)  
 7. 🔲 Federation routing with sync metadata (Phase 3)  
 
-*The two-node divergence demo remains the empirical keystone. Until that number exists, this document and its companions are architecture. After it, they become a record.*
+*The two-node divergence demo was the empirical keystone. That number now exists (item 5) — so this document and its companions have crossed from architecture into record for the reasoning/divergence layer. What remains architecture is the federation transport (Bookkeeper admission, Cartographer discovery, Merkle-diff sync, zero-cursor peer routing): items 6–7. The real-text plan §7 argues the sequencing — reasoning-layer robustness gates the whole chain, then Cartographer before Bookkeeper.*
 
 ---
 

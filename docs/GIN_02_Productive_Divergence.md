@@ -70,7 +70,7 @@ If most users default to single-node queries and never traverse the federation, 
 
 ## Related
 
-[[GIN_00_Reader]] · [[GIN_01_Foundations]] · [[GIN_04_SEAR]] · [[GIN_07_Governance_Validity]] · [[GIN_09_Agentic_Layer]] · [[GIN_10_Epistemic_Council]]
+[[GIN_00_Reader]] · [[GIN_01_Foundations]] · [[GIN_04_SEAR]] · [[GIN_07_Governance_Validity]] · [[GIN_09_Agentic_Layer]] · [[GIN_10_Epistemic_Council]] · [[GIN_13_Temporal_Sensor_Grounding]]
 
 ## Back to Vault
 

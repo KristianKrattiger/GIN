@@ -133,7 +133,7 @@ Optional filters (e.g. `eval_layer: realism`) apply to both legs.
 3. Fetch `contradicts` and `cites` edges among seeds.
 4. Pull neighbor chunks linked by those edges.
 5. Classify mode:
-   - **divergent** — when a `contradicts` pair is **query-relevant on both sides** (`DIVERGENCE_RELEVANCE_FLOOR` + `matched_keyword_count` ≥ 2 for queries with ≥3 keywords). Close RRF competitors without a contradicts edge are corroboration, not divergence.
+   - **divergent** — when a `contradicts` pair is **query-relevant on both sides**. The production gate is **IDF-weighted** (`idf_weighted_relevance` ≥ `DIVERGENCE_IDF_FLOOR` = 0.13): one *distinctive* shared word (e.g. `wildfire`) suffices, a generic one (e.g. `district`) does not — this is what lets real reframing pairs that share almost no vocabulary still reach divergent mode. Without corpus IDF (unit tests) it falls back to the lexical gate (`DIVERGENCE_RELEVANCE_FLOOR` + `matched_keyword_count` ≥ 2 for queries with ≥3 keywords). Close RRF competitors without a contradicts edge are corroboration, not divergence.
    - **convergent** — otherwise (including bureau + independent survey agreeing on the same statistic).
 6. Build pairs (query-irrelevant contradicts pairs excluded); boost RRF scores for paired chunks; cap at `k_max`.
 
@@ -305,8 +305,8 @@ GIN/
 │       ├── manifest.py            # Versioned snapshot manifests
 │       ├── retrieve.py            # Hybrid search + synthesis bundling + RetrievalConfidenceError
 │       ├── materialize.py         # ChunkHit[] → sear.Corpus + SynthesisContext
-│       ├── divergence.py          # Divergence zone + forbidden-start computation
-│       ├── relevance.py           # Query-sentence match scoring for span steering
+│       ├── divergence.py          # Divergence zone + forbidden-start computation; IDF-anchored fallback zone for structurally-dissimilar pairs
+│       ├── relevance.py           # Query-sentence + IDF-weighted match scoring (divergence gate, span steering)
 │       ├── prompts.py             # Synthesis prompt templates
 │       ├── retrieval_manifest.py  # Content-addressed retrieval event record
 │       └── synthesis_manifest.py  # Human-readable layered provenance render
@@ -381,9 +381,9 @@ Prove SEAR behavior on stock Mistral with grammar-constrained extractive synthes
 
 ### Phase 3 — Federation
 
-- Two-node divergence demo (inter-corpus, same machinery)
-- Merkle diff sync of anchor metadata
-- Zero-cursor routing to peer nodes
+- ✅ Two-node divergence demo (inter-corpus, same machinery) — measured on **real fetched text** (`20260705T043114Z`, `divergence_fidelity` 1.0), generalized across three framing registers and confirmed model-independent on Qwen2.5-7B. See [docs/nc_real_text_divergence_generalization.plan.md](docs/nc_real_text_divergence_generalization.plan.md). This is the divergence *signal* across two corpora; the transport below is still unbuilt.
+- 🔲 Merkle diff sync of anchor metadata
+- 🔲 Zero-cursor routing to peer nodes
 
 ### Phase 4 — SEAR training loop (Tier 1)
 
@@ -403,7 +403,8 @@ Four-stage training per [docs/GIN_Node_Architecture_v1.md](docs/GIN_Node_Archite
 | Embedding model | `gin/corpus/hot.py` `EMBEDDING_MODEL` | Swap retriever for domain-specific encoders |
 | Connective phrases | `sear/connectives.py` `CONTRASTIVE_PHRASES` / `ADDITIVE_PHRASES` / `CONCESSIVE_PHRASES` | Extend per-category connective vocabulary |
 | Connective gating | `sear/connectives.py` `phrases_for_edge_types()` | Map new edge types to connective categories |
-| Ambiguity threshold | `gin/corpus/retrieve.py` `AMBIGUITY_SCORE_DELTA` | Tune divergent mode sensitivity |
+| Ambiguity threshold | `gin/corpus/retrieve.py` `AMBIGUITY_SCORE_DELTA` | Tune divergent mode sensitivity (legacy no-query path) |
+| Divergence IDF floor | `gin/corpus/retrieve.py` `DIVERGENCE_IDF_FLOOR` | Min IDF-weighted query relevance for a contradicts side to count as divergence |
 | Retrieval confidence floor | `gin/corpus/retrieve.py` `RETRIEVAL_CONFIDENCE_FLOOR` | Minimum absolute RRF score before synthesis is declined |
 | `min_span_len` | `ExtractiveCopyConstraint` constructor | Minimum tokens before span close |
 | Eval layers | `gin/corpus/models.py` `EvalLayer` | Filter retrieval / ingest by corpus slice |

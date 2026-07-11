@@ -1,6 +1,6 @@
 ---
 tags: [GIN, research, engineering, specs, quarantine]
-updated: 2026-07-02
+updated: 2026-07-11
 version: 0.4-preliminary
 status: working draft
 register: engineering
@@ -41,10 +41,20 @@ The conceptual papers argue. This register measures. Keeping them apart prevents
 - Latency targets per mode (divergent surfacing vs convergent synthesis).
 - Selection-bias measurement method.
 - SEAR grounding rate vs RAG baseline — **preliminary measurement recorded** in [[GIN_ENG_02_Eval_Baseline_v1]] (structural runs `20260701T192827Z` overlap, `20260701T194024Z` NLI; NC epistemic promotion `20260702T012203Z` full 20-query overlap on synthetic corpus). Prevention delta, failure state, epistemic metrics (query relevance, gold coverage, supported irrelevance, counterfactual adherence, divergence fidelity) measured on CPU; representative GPU artifact remains before full promotion rule.
+- **Divergence generalizes beyond the synthetic corpus** — real fetched two-node text (institutional vs. grassroots framing) reaches `divergence_fidelity` 1.000 / `fabrication_rate` 0.000 in full DB eval `20260705T043114Z`, and holds across two further framing registers (adversarial/legal `20260705T202450Z`, housing `20260705T203622Z`). The mechanism is **model-independent** — Qwen2.5-7B matches the Mistral baseline exactly on all four divergence querysets (`20260705T211452Z`–`20260705T220525Z`). Method and per-pair token/IDF-margin tables: `docs/nc_real_text_divergence_generalization.plan.md`. Still CPU/WSL — representative GPU artifact remains before promotion.
+- Convergent-mode early-close permissiveness (`span_must_close_at_sentence_end` not set for single-source convergent decode) root-caused as a measured truncation on `tn_2023_anomaly` under Qwen — engineering issue, candidate fix recorded, not yet fixed.
+
+**Temporal / sensor grounding** ([[GIN_13_Temporal_Sensor_Grounding]])
+- Architectural fork: derived-claim conversion vs. native temporal nodes (current lean: native — a parallel time-series reasoning pathway, not an extension of the text path). Unbuilt.
+- Baseline/reference layer shape (per-crop / per-region / per-sensor-model / domain-specific) — undetermined.
+- Sensor calibration metadata registry: schema, required fields (calibration date, drift parameters, error margins, validation records), and whether it is council-hosted shared infrastructure or self-published-and-audited. This extends Bookkeeper's existing calibration/audit role rather than adding a subsystem. Open.
+- Divergence scoring mechanics for time-series vs. time-series and time-series vs. text claim.
+- First node pair / dataset — not identified. Status: many phases out, not sequenced.
 
 **Federation** ([[GIN_03_Node_Identity]])
 - Adapter-switching cost and concurrency limits.
 - Federation breadth-control: how many nodes constitute a "full picture," selected how.
+- Two-node divergence demo (inter-corpus, same machinery) — **the empirical keystone is measured** (`20260705T043114Z`, real two-node corpus). This is the divergence *signal* across two corpora, not yet the transport: Merkle-diff anchor sync, zero-cursor peer routing, and adapter-switching remain unbuilt and unmeasured. See `docs/nc_real_text_divergence_generalization.plan.md` §7 for the Cartographer/Bookkeeper sequencing this unlocks.
 
 **(v0.4) Agentic / MCP server** ([[GIN_09_Agentic_Layer]])
 - MCP server protocol surface and the published behavioural-control specification.
@@ -60,6 +70,7 @@ The conceptual papers argue. This register measures. Keeping them apart prevents
 
 **(ENG 02) Eval baseline v1** ([[GIN_ENG_02_Eval_Baseline_v1]])
 - RAG vs No-Continuation on synthetic corpus. Structural prevention measured (overlap fabrication 0.286 vs 0.000, run `192827Z`). NC epistemic targets met on expanded 20-query set (`20260702T012203Z`: query relevance 1.0, supported irrelevance 0, gold coverage 1.0, counterfactual adherence 1.0, fabrication 0, divergence fidelity 1.0). GPU reproducibility outstanding.
+- **Generalization (post-v1)**: two-node real-text divergence and two additional framing registers measured at `divergence_fidelity` 1.0 / `fabrication_rate` 0.0; cross-model confirmation on Qwen2.5-7B. Full method in `docs/nc_real_text_divergence_generalization.plan.md`.
 
 **Sustainability**
 - Tier 1 standing costs: power, storage growth, curation labour.
