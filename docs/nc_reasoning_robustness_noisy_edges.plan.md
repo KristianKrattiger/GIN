@@ -1,8 +1,9 @@
 # Reasoning-layer robustness under noisy edges
 
-**Status:** in progress. Steps 1–2 implemented this session (gate-level
-characterization + decode-in-the-loop degradation, both measured); step 3
-(Cartographer coupling) scoped below.
+**Status:** steps 1–3 implemented (gate-level characterization,
+decode-in-the-loop degradation, and the Cartographer design bridge — all
+measured). The real NLI relation detector (the "minimal Cartographer" proper) is
+the next step, scoped in [nc_cartographer_design.plan.md](nc_cartographer_design.plan.md) §6.
 
 **Why this is the gate.** Everything in
 [nc_real_text_divergence_generalization.plan.md](nc_real_text_divergence_generalization.plan.md)
@@ -131,16 +132,29 @@ relation/anchor verification**, not from any read-time reasoning-layer metric.
 Regression: `tests/test_edge_degradation.py`. Artifact script:
 `scripts/edge_degradation.py`.
 
-## 5. Step 3 — carry the constraints into Cartographer design
+## 5. Step 3 — carry the constraints into Cartographer design (implemented)
 
-- The Cartographer relation-finder must **not** reuse the retrieval-side IDF
-  signal as its relation detector (divergence plan §7.1): a shared-IDF blind
-  spot would then hide inside relation detection, gating, and anchoring at once.
-  Measure edge precision/recall **independently** on the framing registers.
-- Store negatives ("assessed, unrelated") as graph content per
-  [GIN_Session_Synthesis_v1.md](GIN_Session_Synthesis_v1.md) §1.2.
-- Sentence-level anchors as admitted Bookkeeper state (divergence plan §7.1
-  option b) — decide before multi-sentence ingest.
+Written up as its own spec + first implementation:
+**[nc_cartographer_design.plan.md](nc_cartographer_design.plan.md)**. It carries
+all three constraints below into the Cartographer:
+
+- The relation-type detector must **not** reuse the retrieval-side IDF signal
+  (divergence plan §7.1); the Cartographer is a two-stage pipeline (relatedness
+  gate → relation detector) whose stages use different signals. Edge
+  precision/recall is measured **independently** (`gin/cartographer/evaluation.py`,
+  per framing register), with `class_c_discrimination` as the headline: does the
+  proposer avoid re-minting the exact step-2 edge.
+- Negatives ("assessed, unrelated") are first-class stored `Assessment`s
+  (`gin/cartographer/models.py`), not silence.
+- Sentence-level anchors decided: adopt divergence plan §7.1 option (b);
+  `EdgeProposal` carries optional token-offset anchors now to avoid a later
+  migration.
+
+First implementation ships the relatedness gate, the anti-pattern
+`RelatednessProposer` baseline (relatedness-only → class_c_discrimination 0.0,
+and it even ranks the agreeing pair above a real contradiction), and the
+independent harness. The real NLI relation detector is the next step. Regression:
+`tests/test_cartographer.py`.
 
 ## 6. Out of scope (this doc)
 
