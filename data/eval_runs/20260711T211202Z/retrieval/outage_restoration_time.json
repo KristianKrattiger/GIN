@@ -1,0 +1,13 @@
+{
+  "query_id": "outage_restoration_time",
+  "query": "Within how many hours did crews restore power to most affected customers?",
+  "eval_layer": "realism",
+  "gold_chunk_ids": [
+    "power_grid_status:0"
+  ],
+  "retrieved_chunk_ids": [
+    "power_grid_status:0"
+  ],
+  "retrieval_recall_at_k": 1.0,
+  "retrieval_manifest_hash": "97b747cbde81fbf24ae21fd26f871ed444688e8beb0b6bbbff4652059a2bdc0a"
+}

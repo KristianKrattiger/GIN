@@ -8,6 +8,10 @@ import argparse
 import sys
 from pathlib import Path
 
+if sys.stdout.encoding and sys.stdout.encoding.lower() != "utf-8":
+    sys.stdout.reconfigure(encoding="utf-8")
+    sys.stderr.reconfigure(encoding="utf-8")
+
 from llama_cpp import Llama
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -73,6 +77,7 @@ def main():
         action="store_true",
         help="Log constraint diagnostics (groups, cites, steering, stop reason)",
     )
+    parser.add_argument("--n-gpu-layers", type=int, default=0, help="Layers to offload to GPU (-1 for all)")
     args = parser.parse_args()
 
     try:
@@ -85,7 +90,7 @@ def main():
     llm = Llama(
         model_path=args.model,
         n_ctx=2048,
-        n_gpu_layers=0,
+        n_gpu_layers=args.n_gpu_layers,
         verbose=True,
     )
 

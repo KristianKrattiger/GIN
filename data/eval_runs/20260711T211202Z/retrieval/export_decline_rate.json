@@ -1,0 +1,18 @@
+{
+  "query_id": "export_decline_rate",
+  "query": "By what percentage did regional export volumes fall in the latest monthly trade report?",
+  "eval_layer": "counterfactual",
+  "gold_chunk_ids": [
+    "export_trade_report:0",
+    "export_independent_review:0"
+  ],
+  "retrieved_chunk_ids": [
+    "export_trade_report:0",
+    "export_independent_review:0",
+    "labor_bureau_report:0",
+    "labor_independent_survey:0",
+    "inflation_bureau_report:0"
+  ],
+  "retrieval_recall_at_k": 1.0,
+  "retrieval_manifest_hash": "ca62ecf6044271b5993f93c19c65d71acc4cb00d6e91edbcf7e96ff5149181c4"
+}

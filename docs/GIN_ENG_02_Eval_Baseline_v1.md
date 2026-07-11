@@ -190,9 +190,11 @@ Post-fix NLI run (`194024Z`): NC fabrication **0.000**, failure recall **1.000**
 
 2. **RAG under NLI** — High fabrication on paraphrase; overlap is fairer for RAG comparison.
 
-3. **Representative GPU hardware** — All promotion runs CPU-only (`n_gpu_layers=0`); GPU artifact still needed per promotion rule.
+3. **Representative GPU hardware** — **Measured** (`20260711T211202Z`, RTX 4070, `n_gpu_layers=-1`, Q6_K). Fabrication rate holds at 0.000 for NC, but `query_relevance_rate` (0.850 vs CPU 1.000, target ≥0.90 — now failing) and `divergence_fidelity` (0.500 vs CPU 1.000) regress relative to the CPU baseline on identical retrieval. Root cause not yet confirmed; leading hypothesis is CUDA vs CPU floating-point reduction-order differences flipping greedy token choice at SEAR's decode-time decision boundaries (span-close, divergence-fork), even at `temperature=0.0`. This is a new open gap, not a clean promotion — see item 5 below.
 
 4. **Verifier min-length floor** — Short fragment claims (e.g. truncated numerics) can score overlap 1.0; worth a follow-up harness tweak, not blocking NC promotion.
+
+5. **CPU/GPU decode divergence** — `20260711T211202Z` vs `20260702T012203Z`: 3 queries (`incident_hospital`, `election_margin`, `school_enrollment_fall`) flip from passing to failing query relevance under GPU decode with identical retrieval. Needs investigation into whether SEAR's divergence/relevance gating has enough tolerance margin to be robust to backend-level floating-point non-determinism.
 
 ### Epistemic quality metrics
 
@@ -373,9 +375,9 @@ Unit regressions: `tests/test_divergence.py`, `tests/test_framing_generalization
 | GPU / wall-clock in `meta.json` | **Done** — pass `--n-gpu-layers`; timing recorded per run |
 | Fair RAG vs NC under NLI | **Partial** — NC stable; RAG still caveat-heavy |
 | Gold-aware NC synthesis (`--boost-gold-chunks`) | **Available** (eval flags; superseded for production by query steering) |
-| Representative GPU hardware artifact | **Not yet** |
+| Representative GPU hardware artifact | **Measured** — `20260711T211202Z` (RTX 4070, `n_gpu_layers=-1`), but reveals a CPU/GPU decode divergence gap (see Remaining gaps item 5), not a clean pass |
 
-Structural prevention and NC epistemic alignment are **measured on synthetic corpus (CPU)**. Full promotion rule (representative hardware) still requires at least one GPU eval artifact.
+Structural prevention and NC epistemic alignment are **measured on synthetic corpus (CPU)**. A GPU eval artifact now exists (`20260711T211202Z`) but does not fully replicate the CPU baseline's epistemic metrics — full promotion is blocked on resolving that gap, not on producing the artifact itself.
 
 ---
 
@@ -399,7 +401,7 @@ Steps 1–3 from the original plan are **complete**. Phase 1–4 of the next-pha
 ### 8. Hardware and inference notes — **partial**
 
 - `n_gpu_layers`, `wall_clock_seconds_per_query`, `tokens_per_second` in `meta.json`.
-- Run at least one GPU eval artifact for promotion.
+- GPU eval artifact produced (`20260711T211202Z`, RTX 4070, `n_gpu_layers=-1`, 18.9 tok/s) but does not fully replicate the CPU baseline's epistemic metrics — see Remaining gaps item 5. Root-causing and closing that gap is now the blocker for promotion, not hardware coverage.
 
 ### 9. Counterfactual synthesis selection — **flags available**
 

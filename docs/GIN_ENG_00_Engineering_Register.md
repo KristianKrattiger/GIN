@@ -69,7 +69,7 @@ The conceptual papers argue. This register measures. Keeping them apart prevents
 - All figures in [[GIN_ENG_01_SEAR_PoC_Spec]] are **TBM** (to be measured) under the promotion rule; that document is the staged build plan and metrics harness for SEAR, not a stated specification.
 
 **(ENG 02) Eval baseline v1** ([[GIN_ENG_02_Eval_Baseline_v1]])
-- RAG vs No-Continuation on synthetic corpus. Structural prevention measured (overlap fabrication 0.286 vs 0.000, run `192827Z`). NC epistemic targets met on expanded 20-query set (`20260702T012203Z`: query relevance 1.0, supported irrelevance 0, gold coverage 1.0, counterfactual adherence 1.0, fabrication 0, divergence fidelity 1.0). GPU reproducibility outstanding.
+- RAG vs No-Continuation on synthetic corpus. Structural prevention measured (overlap fabrication 0.286 vs 0.000, run `192827Z`). NC epistemic targets met on expanded 20-query set (`20260702T012203Z`: query relevance 1.0, supported irrelevance 0, gold coverage 1.0, counterfactual adherence 1.0, fabrication 0, divergence fidelity 1.0). GPU reproducibility **measured, not clean**: `20260711T211202Z` (RTX 4070) holds fabrication at 0.0 but query relevance drops to 0.850 and divergence fidelity to 0.500 vs the CPU run — suspected CUDA/CPU floating-point non-determinism flipping greedy decode choices at SEAR decision boundaries; open investigation, see [[GIN_ENG_02_Eval_Baseline_v1]] Remaining gaps item 5.
 - **Generalization (post-v1)**: two-node real-text divergence and two additional framing registers measured at `divergence_fidelity` 1.0 / `fabrication_rate` 0.0; cross-model confirmation on Qwen2.5-7B. Full method in `docs/nc_real_text_divergence_generalization.plan.md`.
 
 **Sustainability**
