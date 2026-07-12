@@ -1,0 +1,19 @@
+{
+  "query_id": "hf_kestrel_conditions",
+  "query": "What are the conditions at Kestrel Court apartments?",
+  "eval_layer": "realism",
+  "gold_chunk_ids": [
+    "hf_kestrel_inspection:0",
+    "hf_kestrel_tenants:0"
+  ],
+  "retrieved_chunk_ids": [
+    "hf_alderflats_staff:0",
+    "n2_doc_001:2",
+    "hf_kestrel_inspection:0",
+    "hf_kestrel_tenants:0",
+    "water_utility_update:0",
+    "n1_doc_002:2"
+  ],
+  "retrieval_recall_at_k": 1.0,
+  "retrieval_manifest_hash": "52258c5271ceaf0656c6c0c72a1eb721a3809d81e44f895decd3df404b0db441"
+}

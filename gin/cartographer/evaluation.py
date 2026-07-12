@@ -122,8 +122,7 @@ def evaluate(
 
 # --- Default labeled set -----------------------------------------------------
 # Sourced from gin/cartographer/labeled_set.py: 7 divergent pairs across three
-# framing registers (climate/legal/housing, author-labeled from the fixture
-# edges), 3 corroborating same-stance pairs, and 3 cross-topic negatives.
+# framing registers, 10 corroborating same-stance pairs, and 16 cross-topic negatives.
 
 
 def default_chunks() -> list[LabeledChunk]:

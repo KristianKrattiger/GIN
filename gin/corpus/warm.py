@@ -186,14 +186,33 @@ def fetch_edges_among(
     types = edge_types or [e.value for e in EdgeType]
     rows = conn.execute(
         """
-        SELECT src_chunk_id, dst_chunk_id, edge_type, note
+        SELECT src_chunk_id, dst_chunk_id, edge_type, note,
+               src_anchor, dst_anchor
         FROM edges
         WHERE (src_chunk_id = ANY(%s) OR dst_chunk_id = ANY(%s))
           AND edge_type = ANY(%s)
         """,
         (chunk_ids, chunk_ids, types),
     ).fetchall()
-    return [EdgeRecord(src_chunk_id=r[0], dst_chunk_id=r[1], edge_type=r[2], note=r[3]) for r in rows]
+    out: list[EdgeRecord] = []
+    for r in rows:
+        src_anchor = None
+        dst_anchor = None
+        if r[4] is not None and len(r[4]) == 2:
+            src_anchor = (int(r[4][0]), int(r[4][1]))
+        if r[5] is not None and len(r[5]) == 2:
+            dst_anchor = (int(r[5][0]), int(r[5][1]))
+        out.append(
+            EdgeRecord(
+                src_chunk_id=r[0],
+                dst_chunk_id=r[1],
+                edge_type=r[2],
+                note=r[3],
+                src_anchor=src_anchor,
+                dst_anchor=dst_anchor,
+            )
+        )
+    return out
 
 
 def _hits_from_rows(rows: list[tuple]) -> list[ChunkHit]:

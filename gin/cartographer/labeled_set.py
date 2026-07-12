@@ -127,6 +127,29 @@ _GOLD: list[tuple[str, str, Relation, str]] = [
     ("inst_wf", "grass_wa", Relation.UNRELATED, "cross"),
     ("disc_nw_pr", "hf_kc_inspection", Relation.UNRELATED, "cross"),
     ("inst_em", "disc_mer_complaint", Relation.UNRELATED, "cross"),
+    # --- Expanded set (17 pairs) for threshold calibration ---
+    # CORROBORATES — additional same-stance institutional pairs.
+    ("clim_warming1", "clim_pledges", Relation.CORROBORATES, "climate"),
+    ("clim_warming2", "inst_em", Relation.CORROBORATES, "climate"),
+    ("clim_warming1", "inst_em", Relation.CORROBORATES, "climate"),
+    ("clim_pledges", "clim_warming2", Relation.CORROBORATES, "climate"),
+    ("inst_wa", "clim_warming2", Relation.CORROBORATES, "climate"),
+    ("inst_wa", "clim_warming1", Relation.CORROBORATES, "climate"),
+    ("hf_af_staff", "hf_kc_inspection", Relation.CORROBORATES, "housing"),
+    # UNRELATED — additional cross-topic negatives.
+    ("inst_wf", "disc_nw_pr", Relation.UNRELATED, "cross"),
+    ("grass_em", "hf_af_staff", Relation.UNRELATED, "cross"),
+    ("clim_warming1", "disc_mer_complaint", Relation.UNRELATED, "cross"),
+    ("grass_wa", "disc_nw_pr", Relation.UNRELATED, "cross"),
+    ("inst_em", "hf_kc_tenants", Relation.UNRELATED, "cross"),
+    ("grass_wf", "clim_pledges", Relation.UNRELATED, "cross"),
+    ("disc_mer_pr", "hf_af_tenants", Relation.UNRELATED, "cross"),
+    ("inst_wa", "disc_nw_complaint", Relation.UNRELATED, "cross"),
+    ("grass_em", "hf_kc_inspection", Relation.UNRELATED, "cross"),
+    ("clim_warming2", "hf_af_staff", Relation.UNRELATED, "cross"),
+    ("disc_nw_pr", "grass_wa", Relation.UNRELATED, "cross"),
+    ("inst_wf", "hf_af_tenants", Relation.UNRELATED, "cross"),
+    ("grass_wf", "disc_mer_complaint", Relation.UNRELATED, "cross"),
 ]
 
 

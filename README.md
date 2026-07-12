@@ -141,12 +141,15 @@ See **[docs/GIN_ENG_02_Eval_Baseline_v1.md](docs/GIN_ENG_02_Eval_Baseline_v1.md)
 | Script | Purpose |
 |--------|---------|
 | `scripts/sear_phase1.py` | SEAR baseline — `--selftest` (no model) or `--model` for two-doc Mistral demo |
-| `scripts/corpus_ingest.py` | Load YAML corpus into cold/warm/hot tiers |
+| `scripts/corpus_ingest.py` | Load YAML corpus into cold/warm/hot tiers (`--no-edges` for scan-first workflow) |
 | `scripts/ingest.py` | Ingest local JSONL/txt into immutable store + versioned manifests |
 | `scripts/corpus_query.py` | Hybrid dense + sparse retrieval (RRF merge) |
 | `scripts/corpus_to_sear.py` | Materialize retrieved chunks into a SEAR `Corpus` (debug); supports `--manifest-version` with `--all` |
 | `scripts/corpus_generate.py` | End-to-end: retrieve → prompt → constrained llama.cpp generation |
 | `scripts/eval_run.py` | RAG vs SEAR eval harness — batch query set, overlap or NLI verifier, write `data/eval_runs/` report |
+| `scripts/cartographer_scan.py` | Cartographer batch scan — propose edges, Bookkeeper admit, persist to Postgres |
+| `scripts/cartographer_eval_scan.py` | Score scan admitted edges against gold hand-curated contradicts |
+| `scripts/edges_wipe.py` | Truncate edges table only (re-scan without re-ingest) |
 | `scripts/corpus_wipe.py` | Reset warm-tier data (development) |
 
 ---
@@ -174,6 +177,62 @@ edges:
 
 `eval_layer` values: `realism`, `counterfactual`, `out_of_scope`, `convergent`.  
 Edge types: `cites`, `contradicts`, `supersedes`, `translated_from`.
+
+### Scan-first edge discovery (Cartographer validation)
+
+To validate machine-discovered edges instead of hand-curated YAML `edges:` blocks:
+
+```bash
+# 1. Wipe + ingest chunks only (YAML edges kept as gold labels, not ingested)
+python scripts/corpus_wipe.py
+python scripts/corpus_ingest.py --source data/synthetic --no-edges
+python scripts/corpus_ingest.py --source corpus_node1.json --no-edges
+python scripts/corpus_ingest.py --source corpus_node2.json --no-edges
+python scripts/corpus_ingest.py --source data/fixtures/disclosure_framing.yaml --no-edges
+python scripts/corpus_ingest.py --source data/fixtures/housing_framing.yaml --no-edges
+python scripts/corpus_ingest.py --source data/fixtures/wildfire_multipara.yaml --no-edges
+
+# 2. Discover + admit edges (default: hybrid IDF+embedding prune, relation re-check, exclude out_of_scope_stub)
+python scripts/cartographer_scan.py --cross-outlet-only
+
+# Optional flags for A/B:
+#   --no-prune              skip IDF+embedding candidate pruning (full O(n²) pair space)
+#   --relatedness-floor 0.20  IDF overlap floor for stage-1 prune (default 0.20)
+#   --no-relation-recheck   skip Bookkeeper semantic re-check (class-C / band guards)
+#   --exclude-doc-id DOC    exclude chunks from edge discovery (repeatable)
+#   --no-exclude-defaults   include out_of_scope_stub in scan
+python scripts/edges_wipe.py   # truncate edges only — re-scan without re-ingest
+
+# 3. Score scan vs gold
+python scripts/cartographer_eval_scan.py --cross-outlet-only
+
+# 4. Divergence eval on scan-only edges (WSL recommended for llama.cpp)
+python scripts/eval_run.py \
+  --model models/Mistral-7B-Instruct-v0.3-Q6_K.gguf \
+  --queryset data/eval/queryset_twonode.yaml \
+  --arms no_continuation \
+  --verifier overlap \
+  --edge-source cartographer_scan \
+  --cartographer-scan-run-id <scan_eval_run_id>
+```
+
+**Scan precision pipeline** (2026-07-12, run `20260712T074956Z`):
+
+| Stage | Module | Effect |
+|-------|--------|--------|
+| Candidate prune | `RelatednessGate` + embedding cosine | 6,222 → 2,157 cross-outlet pairs |
+| Relation typing | `CombinedRelationProposer` | NLI + mid-band framing signal |
+| Doc-pair dedup | `scan.dedupe_doc_pair_proposals` | one contradicts per doc pair (NLI preferred) |
+| Structural gate | `Bookkeeper` | confidence, anchors, dedup, cycles |
+| Semantic re-check | `bookkeeper/relation_verify.py` | class-C entailment guard; `FRAMING_BAND_FLOOR=0.35` |
+
+| Metric | Baseline (`053645Z`) | After precision pass (`074956Z`) |
+|--------|----------------------|----------------------------------|
+| False positives | 135 | **120** |
+| Gold recall | 0.50 | 0.50 |
+| class_c_discrimination | 1.0 | 1.0 |
+
+Recovered: `hf_alderflats_staff:0` ↔ `hf_alderflats_tenants:0`. Remaining gaps: meridian/wf_multi mis-typed as corroborates, twonode band pairs below gate. Artifacts: `data/eval_runs/20260712T053645Z/` and `20260712T074956Z/`.
 
 ---
 
@@ -276,7 +335,13 @@ NLI confirms NC fabrication 0 on the 9-query structural baseline (`194024Z`); ex
 | Divergence generalization across framing registers (climate / legal / housing) | ✅ (`20260705T202450Z`, `20260705T203622Z`) |
 | Cross-model confirmation (Qwen2.5-7B) — divergence is model-independent | ✅ (`20260705T211452Z`–`20260705T220525Z`) |
 | Representative GPU hardware artifact | ✅ (run `20260711T211202Z`, RTX 4070, vs same-day CPU control `20260711T212721Z`; gap root-caused to 1/20 queries, backend floating-point non-determinism, fabrication unaffected) |
-| Bookkeeper + reasoning layer separation (Phase 2) | 🔲 |
+| Retrieval determinism + `corpus_fingerprint` in eval meta | ✅ |
+| Convergent sentence-end close (`tn_2023_anomaly` truncation) | ✅ |
+| Cartographer scan + Bookkeeper Postgres persist | ✅ (`scripts/cartographer_scan.py`, `gin/bookkeeper/persist.py`) |
+| Cartographer scan production validation (scan-only divergence eval) | ⚠️ Partial — FP 120 vs baseline 135 (`20260712T074956Z`); framing2 passes (`20260712T060050Z`); twonode/housing/multipara gaps remain |
+| Labeled set expanded + threshold calibration (33 pairs, LOO ≥ 0.85) | ✅ (`data/cartographer_thresholds.json`) |
+| NLI verifier on expanded 20-query set | ✅ (`20260712T035228Z`, `models/Mistral-7B-Instruct-v0.3-Q6_K.gguf`, WSL+GPU; NC realism fabrication 0.0, overall NLI fabrication 0.056 on counterfactual entailment miss) |
+| Bookkeeper + reasoning layer separation (Phase 2) | ✅ (admission gate wired; synthesis reads warm `edges`) |
 | Federation routing with sync metadata (Phase 3) | 🔲 |
 
 ---

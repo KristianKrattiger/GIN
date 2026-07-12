@@ -1,0 +1,54 @@
+{
+  "no_continuation": {
+    "overall": {
+      "arm": "no_continuation",
+      "n_queries": 1,
+      "n_claims": 2,
+      "fabrication_rate": 0.0,
+      "grounded_precision": 1.0,
+      "attribution_coverage": 1.0,
+      "counterfactual_adherence": null,
+      "failure_precision": null,
+      "failure_recall": null,
+      "cross_node_within_ratio": 1.0,
+      "cross_node_violations": 0,
+      "query_relevance_rate": 0.0,
+      "gold_chunk_coverage": 0.0,
+      "supported_irrelevance_rate": 0.5,
+      "chunk_quotation_rate": 0.3333333333333333,
+      "divergence_fidelity": 0.0,
+      "confusion": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "tn": 1
+      }
+    },
+    "by_layer": {
+      "realism": {
+        "arm": "no_continuation",
+        "n_queries": 1,
+        "n_claims": 2,
+        "fabrication_rate": 0.0,
+        "grounded_precision": 1.0,
+        "attribution_coverage": 1.0,
+        "counterfactual_adherence": null,
+        "failure_precision": null,
+        "failure_recall": null,
+        "cross_node_within_ratio": 1.0,
+        "cross_node_violations": 0,
+        "query_relevance_rate": 0.0,
+        "gold_chunk_coverage": 0.0,
+        "supported_irrelevance_rate": 0.5,
+        "chunk_quotation_rate": 0.3333333333333333,
+        "divergence_fidelity": 0.0,
+        "confusion": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "tn": 1
+        }
+      }
+    }
+  }
+}

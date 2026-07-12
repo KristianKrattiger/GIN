@@ -42,7 +42,7 @@ The conceptual papers argue. This register measures. Keeping them apart prevents
 - Selection-bias measurement method.
 - SEAR grounding rate vs RAG baseline — **preliminary measurement recorded** in [[GIN_ENG_02_Eval_Baseline_v1]] (structural runs `20260701T192827Z` overlap, `20260701T194024Z` NLI; NC epistemic promotion `20260702T012203Z` full 20-query overlap on synthetic corpus). Prevention delta, failure state, epistemic metrics (query relevance, gold coverage, supported irrelevance, counterfactual adherence, divergence fidelity) measured on CPU; representative GPU artifact remains before full promotion rule.
 - **Divergence generalizes beyond the synthetic corpus** — real fetched two-node text (institutional vs. grassroots framing) reaches `divergence_fidelity` 1.000 / `fabrication_rate` 0.000 in full DB eval `20260705T043114Z`, and holds across two further framing registers (adversarial/legal `20260705T202450Z`, housing `20260705T203622Z`). The mechanism is **model-independent** — Qwen2.5-7B matches the Mistral baseline exactly on all four divergence querysets (`20260705T211452Z`–`20260705T220525Z`). Method and per-pair token/IDF-margin tables: `docs/nc_real_text_divergence_generalization.plan.md`. Still CPU/WSL — representative GPU artifact remains before promotion.
-- Convergent-mode early-close permissiveness (`span_must_close_at_sentence_end` not set for single-source convergent decode) root-caused as a measured truncation on `tn_2023_anomaly` under Qwen — engineering issue, candidate fix recorded, not yet fixed.
+- Convergent-mode early-close permissiveness — **fixed** (2026-07-12): convergent decode sets `span_must_close_at_sentence_end=True`; regression in `tests/test_generate.py::test_convergent_numeric_sentence_closes_at_sentence_end`.
 
 **Temporal / sensor grounding** ([[GIN_13_Temporal_Sensor_Grounding]])
 - Architectural fork: derived-claim conversion vs. native temporal nodes (current lean: native — a parallel time-series reasoning pathway, not an extension of the text path). Unbuilt.
@@ -88,6 +88,17 @@ A line moves from "unmeasured" to a stated specification when, and only when:
 3. the result is reproducible.
 
 Until all three hold, the item remains an *engineering issue* (nameable in mechanism papers) rather than a *specification* (stated only here, once measured).
+
+**Cross-eval comparison hygiene (2026-07-12):**
+
+- Compare eval runs only when `meta.json` reports the same `corpus_fingerprint` (`chunk_count`, `edge_count`, `content_hash` over sorted `(chunk_id, content_hash)` pairs).
+- Cross-backend reproduction (CPU vs GPU at `temperature=0.0`): `fabrication_rate` must remain **0.000** on both; up to **1/20** queries may flip on refuse-vs-answer boundary decisions without blocking promotion.
+
+**Convergent truncation** (`tn_2023_anomaly`): fixed — convergent decode now sets `span_must_close_at_sentence_end=True` for all modes ([`gin/corpus/generate.py`](../gin/corpus/generate.py)).
+
+**Cartographer → Bookkeeper → Postgres**: `scripts/cartographer_scan.py` + [`gin/bookkeeper/persist.py`](../gin/bookkeeper/persist.py) persist admitted edges with provenance; labeled set expanded to 33 pairs with LOO ≥ 0.85 on baked calibration samples.
+
+**Cartographer scan production validation** (2026-07-12): scan-first workflow (`corpus_ingest.py --no-edges` → `cartographer_scan.py --cross-outlet-only` → `cartographer_eval_scan.py`) measured on mixed 136-chunk DB. **Baseline** (`20260712T053645Z`): gold contradicts recall **0.50**, **135** false-positive admitted edges, `class_c_discrimination` **1.0**. **After scan pruning + Bookkeeper relation re-check** (`20260712T074956Z`): hybrid IDF+embedding candidate prune (6222 → 2157 pairs), doc-pair dedup (NLI preferred), `FRAMING_BAND_FLOOR` **0.35**, default `out_of_scope_stub` exclusion — recall still **0.50**, false positives **120** (122 admitted), `class_c_discrimination` **1.0**; `hf_alderflats_staff:0` ↔ `hf_alderflats_tenants:0` recovered. Remaining gaps: meridian/wf_multi mis-typed as corroborates, twonode band pairs below gate or wrong chunk. Divergence eval battery on prior scan-only edges: framing2 **passes** (`20260712T060050Z`); twonode/housing/multipara **do not yet match** YAML baselines. See `nc_cartographer_design.plan.md` §6c.
 
 ## Related
 

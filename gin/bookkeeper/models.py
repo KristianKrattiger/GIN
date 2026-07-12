@@ -29,6 +29,7 @@ class AdmissionCode(str, Enum):
     DENIED_CYCLE = "denied_cycle"
     DENIED_DUPLICATE = "denied_duplicate"
     DENIED_LOW_CONFIDENCE = "denied_low_confidence"
+    DENIED_RELATION_MISMATCH = "denied_relation_mismatch"
 
 
 @dataclass(frozen=True)

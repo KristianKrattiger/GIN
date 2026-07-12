@@ -1,10 +1,18 @@
 """Tests for No-Continuation decode parameter resolution (gin.corpus.generate)."""
 from uuid import uuid4
 
-from gin.corpus.generate import _resolve_decode_params
+from gin.corpus.generate import _resolve_decode_params, decode_bundle
 from gin.corpus.models import ChunkHit, SynthesisBundle, SynthesisContext
+from gin.eval.edge_degradation import GreedyMaskDecoder
+from sear.corpus import Corpus
 
 DOC = uuid4()
+
+ANOMALY_TEXT = (
+    "In 2023, global surface temperature was about 2.12 degrees F "
+    "(1.18 degrees C) above the 20th-century average, beating the next warmest "
+    "year (2016) by roughly 0.27 degrees F."
+)
 
 
 def _hit(chunk_id: str, outlet: str, eval_tag: str | None = None) -> ChunkHit:
@@ -99,3 +107,43 @@ def test_divergent_with_groups_blocks_eos():
     # 40 + 80 = 120: measured max full divergent decode is 97 tokens (water
     # pair), so this is 24% headroom over the corpus worst case (plan §6 #5).
     assert params["max_tokens"] == 40 + 80
+
+
+def test_convergent_numeric_sentence_closes_at_sentence_end():
+    """tn_2023_anomaly regression: convergent decode must not close after '2.'"""
+    llm = GreedyMaskDecoder()
+    corpus = Corpus.from_texts({"anomaly": ANOMALY_TEXT}, tokenize=llm.tokenize)
+    hit = ChunkHit(
+        chunk_id="n1_doc_002:1",
+        doc_id=DOC,
+        text=ANOMALY_TEXT,
+        head_sentence=ANOMALY_TEXT.split(",")[0] + ".",
+        eval_layer="realism",
+        eval_tag=None,
+        content_hash="x",
+        outlet="NOAA",
+        title="2023 anomaly",
+        rrf_score=0.9,
+    )
+    bundle = SynthesisBundle(hits=[hit], edges=[], mode="convergent", pairs=[])
+    spans = corpus.sentence_starts
+    preferred = {(0, pos) for (doc, pos) in spans if doc == 0}
+    ctx = SynthesisContext(
+        doc_index_to_hit={0: hit},
+        cite_index_to_doc={1: 0},
+        mode="convergent",
+        preferred_starts=preferred,
+        ranked_sentence_starts=[(0, pos, 1.0) for (doc, pos) in spans if doc == 0],
+        top_doc_idx=0,
+    )
+    result = decode_bundle(
+        "2023 global surface temperature anomaly",
+        corpus,
+        ctx,
+        bundle,
+        llm,
+        chat_template="plain",
+        query_steered=True,
+    )
+    assert "2.12 degrees" in result.raw_text
+    assert "20th-century average" in result.raw_text

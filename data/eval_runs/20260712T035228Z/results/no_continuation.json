@@ -1,0 +1,803 @@
+[
+  {
+    "query_id": "incident_hospital",
+    "query": "How many people received hospital treatment after the downtown incident?",
+    "arm": "no_continuation",
+    "eval_layer": "realism",
+    "expectation": "answerable",
+    "refused": false,
+    "claims": [
+      {
+        "claim_text": "Emergency services confirmed 142 people received treatment at area hospitals.",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "incident_centralwire:0",
+        "score": 1.0,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "EXACT",
+        "cited_chunk_ids": [
+          "incident_centralwire:0"
+        ]
+      },
+      {
+        "claim_text": "Emergency services confirmed 98 people received treatment at area hospitals.",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "incident_metrodaily:0",
+        "score": 1.0,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "EXACT",
+        "cited_chunk_ids": [
+          "incident_metrodaily:0"
+        ]
+      },
+      {
+        "claim_text": "Police said 11 arrests were made before midnight.",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "incident_regionalpost:0",
+        "score": 1.0,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "EXACT",
+        "cited_chunk_ids": [
+          "incident_regionalpost:0"
+        ]
+      }
+    ],
+    "eval_tag": "incident_divergence",
+    "retrieval_manifest_hash": "5cc80f3639bccf3b4b4f96059483951234f32b2e40ab2430e28d80d3911db260",
+    "retrieved_chunk_ids": [
+      "incident_centralwire:0",
+      "incident_metrodaily:0",
+      "incident_regionalpost:0"
+    ],
+    "gold_chunk_ids": [
+      "incident_centralwire:0",
+      "incident_metrodaily:0",
+      "incident_regionalpost:0"
+    ],
+    "retrieval_recall_at_k": 1.0,
+    "raw_text": "Emergency services confirmed 142 people received treatment at area hospitals.\n | [1]Emergency services confirmed 98 people received treatment at area hospitals.\n | [2]Police said 11 arrests were made before midnight.\n |",
+    "counterfactual_answer": null,
+    "contradicts_pairs": [
+      [
+        "incident_centralwire:0",
+        "incident_metrodaily:0"
+      ],
+      [
+        "incident_centralwire:0",
+        "incident_regionalpost:0"
+      ]
+    ],
+    "error": null
+  },
+  {
+    "query_id": "incident_arrests",
+    "query": "How many arrests were made before midnight after the downtown incident?",
+    "arm": "no_continuation",
+    "eval_layer": "realism",
+    "expectation": "answerable",
+    "refused": false,
+    "claims": [
+      {
+        "claim_text": "Police said 23 arrests were made before midnight.\nThe mayor scheduled a briefing for Wednesday morning.",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "incident_centralwire:0",
+        "score": 1.0,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "EXACT",
+        "cited_chunk_ids": [
+          "incident_centralwire:0"
+        ]
+      },
+      {
+        "claim_text": "Emergency services confirmed 98 people received treatment at area hospitals.\nPolice said 11 arrests were made before midnight.\nCity council members demanded an independent review.",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "incident_metrodaily:0",
+        "score": 1.0,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "EXACT",
+        "cited_chunk_ids": [
+          "incident_metrodaily:0"
+        ]
+      },
+      {
+        "claim_text": "Police said 11 arrests were made before midnight.",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "incident_regionalpost:0",
+        "score": 1.0,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "EXACT",
+        "cited_chunk_ids": [
+          "incident_regionalpost:0"
+        ]
+      }
+    ],
+    "eval_tag": "incident_divergence",
+    "retrieval_manifest_hash": "14eda014857697bddf7653ea19fcca22db8c1d1df99eaf5de4e6334f933fe856",
+    "retrieved_chunk_ids": [
+      "incident_centralwire:0",
+      "incident_metrodaily:0",
+      "incident_regionalpost:0"
+    ],
+    "gold_chunk_ids": [
+      "incident_centralwire:0",
+      "incident_metrodaily:0",
+      "incident_regionalpost:0"
+    ],
+    "retrieval_recall_at_k": 1.0,
+    "raw_text": "Police said 23 arrests were made before midnight.\nThe mayor scheduled a briefing for Wednesday morning. | [1]Emergency services confirmed 98 people received treatment at area hospitals.\nPolice said 11 arrests were made before midnight.\nCity council members demanded an independent review. | [2]Police said 11 arrests were made before midnight.\n |",
+    "counterfactual_answer": null,
+    "contradicts_pairs": [
+      [
+        "incident_centralwire:0",
+        "incident_metrodaily:0"
+      ],
+      [
+        "incident_centralwire:0",
+        "incident_regionalpost:0"
+      ]
+    ],
+    "error": null
+  },
+  {
+    "query_id": "election_margin",
+    "query": "By how many votes did the harbor district referendum pass?",
+    "arm": "no_continuation",
+    "eval_layer": "realism",
+    "expectation": "answerable",
+    "refused": true,
+    "claims": [
+      {
+        "claim_text": "The sources do not support an answer.",
+        "verdict": "REFUSAL",
+        "matched_chunk_id": null,
+        "score": 0.0,
+        "node_scope": "NONE",
+        "span_type": "REFUSAL",
+        "cited_chunk_ids": []
+      }
+    ],
+    "eval_tag": "election_divergence",
+    "retrieval_manifest_hash": "9606c29ed4bc930ee2a22680e72a4e7011feb8faf1707a3aae1ebde4372d84a0",
+    "retrieved_chunk_ids": [
+      "election_centralwire:0",
+      "election_metrodaily:0",
+      "port_authority_brief:0",
+      "school_district_report:0"
+    ],
+    "gold_chunk_ids": [
+      "election_centralwire:0",
+      "election_metrodaily:0"
+    ],
+    "retrieval_recall_at_k": 1.0,
+    "raw_text": "The sources do not support an answer.",
+    "counterfactual_answer": null,
+    "contradicts_pairs": [
+      [
+        "election_centralwire:0",
+        "election_metrodaily:0"
+      ]
+    ],
+    "error": null
+  },
+  {
+    "query_id": "election_turnout",
+    "query": "What was voter turnout in the harbor district referendum?",
+    "arm": "no_continuation",
+    "eval_layer": "realism",
+    "expectation": "answerable",
+    "refused": false,
+    "claims": [
+      {
+        "claim_text": "Turnout reached 61 percent of registered voters.\nThe port authority said new zoning rules take effect in January.",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "election_centralwire:0",
+        "score": 1.0,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "EXACT",
+        "cited_chunk_ids": [
+          "election_centralwire:0"
+        ]
+      },
+      {
+        "claim_text": "Turnout reached 58 percent of registered voters.\nOpponents pledged to challenge the result in court.",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "election_metrodaily:0",
+        "score": 1.0,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "EXACT",
+        "cited_chunk_ids": [
+          "election_metrodaily:0"
+        ]
+      }
+    ],
+    "eval_tag": "election_divergence",
+    "retrieval_manifest_hash": "2690ad8d352456bdf34084a5a2fe2f7706c22527bb94b1cda8062a8e821a90a7",
+    "retrieved_chunk_ids": [
+      "election_centralwire:0",
+      "election_metrodaily:0",
+      "port_authority_brief:0",
+      "school_district_report:0"
+    ],
+    "gold_chunk_ids": [
+      "election_centralwire:0",
+      "election_metrodaily:0"
+    ],
+    "retrieval_recall_at_k": 1.0,
+    "raw_text": "Turnout reached 61 percent of registered voters.\nThe port authority said new zoning rules take effect in January. | [1]Turnout reached 58 percent of registered voters.\nOpponents pledged to challenge the result in court. |",
+    "counterfactual_answer": null,
+    "contradicts_pairs": [
+      [
+        "election_centralwire:0",
+        "election_metrodaily:0"
+      ]
+    ],
+    "error": null
+  },
+  {
+    "query_id": "transit_ridership",
+    "query": "What was the average daily ridership in the first week of the north line extension?",
+    "arm": "no_continuation",
+    "eval_layer": "realism",
+    "expectation": "answerable",
+    "refused": false,
+    "claims": [
+      {
+        "claim_text": "The north line extension opened to passengers on March 14.\nDaily ridership on the first week averaged 18,400 boardings.\nFare integration with regional buses began the same day.",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "transit_authority_update:0",
+        "score": 1.0,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "EXACT",
+        "cited_chunk_ids": [
+          "transit_authority_update:0"
+        ]
+      }
+    ],
+    "eval_tag": "transit_realism",
+    "retrieval_manifest_hash": "b148613d9151880a0f829147a334f1c4e6acdbe6536adc255ca9961f247e56a7",
+    "retrieved_chunk_ids": [
+      "transit_authority_update:0",
+      "port_authority_brief:0",
+      "power_grid_status:0",
+      "wage_independent_survey:0"
+    ],
+    "gold_chunk_ids": [
+      "transit_authority_update:0"
+    ],
+    "retrieval_recall_at_k": 1.0,
+    "raw_text": " The north line extension opened to passengers on March 14.\nDaily ridership on the first week averaged 18,400 boardings.\nFare integration with regional buses began the same day. |",
+    "counterfactual_answer": null,
+    "contradicts_pairs": [],
+    "error": null
+  },
+  {
+    "query_id": "weather_winds",
+    "query": "What sustained wind speed is expected from the coastal storm system?",
+    "arm": "no_continuation",
+    "eval_layer": "realism",
+    "expectation": "answerable",
+    "refused": false,
+    "claims": [
+      {
+        "claim_text": "A coastal storm system is expected to bring sustained winds of 45 miles per hour.",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "weather_service_brief:0",
+        "score": 1.0,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "EXACT",
+        "cited_chunk_ids": [
+          "weather_service_brief:0"
+        ]
+      }
+    ],
+    "eval_tag": "weather_realism",
+    "retrieval_manifest_hash": "1acafbe893c326af1ad34b62a947af832d2a5c3fe8ced90eeb06375d288f171b",
+    "retrieved_chunk_ids": [
+      "weather_service_brief:0"
+    ],
+    "gold_chunk_ids": [
+      "weather_service_brief:0"
+    ],
+    "retrieval_recall_at_k": 1.0,
+    "raw_text": " A coastal storm system is expected to bring sustained winds of 45 miles per hour.\n |",
+    "counterfactual_answer": null,
+    "contradicts_pairs": [],
+    "error": null
+  },
+  {
+    "query_id": "unemployment_rate",
+    "query": "What was the regional unemployment rate in the latest monthly survey?",
+    "arm": "no_continuation",
+    "eval_layer": "counterfactual",
+    "expectation": "counterfactual",
+    "refused": false,
+    "claims": [
+      {
+        "claim_text": "The regional unemployment rate stood at 3.7 percent in the latest monthly survey.",
+        "verdict": "UNSUPPORTED",
+        "matched_chunk_id": null,
+        "score": 0.004803673829883337,
+        "node_scope": "CROSS_NODE",
+        "span_type": "AMBIGUOUS",
+        "cited_chunk_ids": [
+          "labor_bureau_report:0",
+          "labor_independent_survey:0"
+        ]
+      }
+    ],
+    "eval_tag": "unemployment_probe",
+    "retrieval_manifest_hash": "8d614922e11c2f6460a86fbfb3ce94bb08ce33abdeef1b6bc2022220c483d50f",
+    "retrieved_chunk_ids": [
+      "labor_bureau_report:0",
+      "labor_independent_survey:0",
+      "wage_independent_survey:0",
+      "inflation_bureau_report:0",
+      "inflation_independent_survey:0"
+    ],
+    "gold_chunk_ids": [
+      "labor_bureau_report:0",
+      "labor_independent_survey:0"
+    ],
+    "retrieval_recall_at_k": 1.0,
+    "raw_text": " The regional unemployment rate stood at 3.7 percent in the latest monthly survey.\n |  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or ",
+    "counterfactual_answer": "3.7 percent",
+    "contradicts_pairs": [],
+    "error": null
+  },
+  {
+    "query_id": "interest_rate_probe",
+    "query": "What did the central bank decide about interest rates this quarter?",
+    "arm": "no_continuation",
+    "eval_layer": "out_of_scope",
+    "expectation": "out_of_scope",
+    "refused": true,
+    "claims": [
+      {
+        "claim_text": "The sources do not support an answer.",
+        "verdict": "REFUSAL",
+        "matched_chunk_id": null,
+        "score": 0.0,
+        "node_scope": "NONE",
+        "span_type": "REFUSAL",
+        "cited_chunk_ids": []
+      }
+    ],
+    "eval_tag": "interest_rate_probe",
+    "retrieval_manifest_hash": "334c4fd5a6189d2a99348f02c48bc2988144a8dc8338eef73fa76f1ce86c54ce",
+    "retrieved_chunk_ids": [
+      "disc_northwind_pr:0",
+      "disc_northwind_complaint:0"
+    ],
+    "gold_chunk_ids": [],
+    "retrieval_recall_at_k": null,
+    "raw_text": "The sources do not support an answer.",
+    "counterfactual_answer": null,
+    "contradicts_pairs": [],
+    "error": null
+  },
+  {
+    "query_id": "sports_probe",
+    "query": "Who won the national football championship final this year?",
+    "arm": "no_continuation",
+    "eval_layer": "out_of_scope",
+    "expectation": "out_of_scope",
+    "refused": true,
+    "claims": [
+      {
+        "claim_text": "The sources do not support an answer.",
+        "verdict": "REFUSAL",
+        "matched_chunk_id": null,
+        "score": 0.0,
+        "node_scope": "NONE",
+        "span_type": "REFUSAL",
+        "cited_chunk_ids": []
+      }
+    ],
+    "eval_tag": "sports_probe",
+    "retrieval_manifest_hash": "a78075356095094fc892a713fb3ad0699fd8b8f1affc153bb5439b2871f8d4c4",
+    "retrieved_chunk_ids": [
+      "n1_doc_002:0"
+    ],
+    "gold_chunk_ids": [],
+    "retrieval_recall_at_k": null,
+    "raw_text": "The sources do not support an answer.",
+    "counterfactual_answer": null,
+    "contradicts_pairs": [],
+    "error": null
+  },
+  {
+    "query_id": "port_cargo_throughput",
+    "query": "How many twenty-foot equivalent units did harbor terminals handle in March?",
+    "arm": "no_continuation",
+    "eval_layer": "realism",
+    "expectation": "answerable",
+    "refused": false,
+    "claims": [
+      {
+        "claim_text": "Harbor terminals handled 412,000 twenty-foot equivalent units in March.",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "port_authority_brief:0",
+        "score": 1.0,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "EXACT",
+        "cited_chunk_ids": [
+          "port_authority_brief:0"
+        ]
+      }
+    ],
+    "eval_tag": "port_realism",
+    "retrieval_manifest_hash": "46cf715cf64e70768ea5147ceeef19ec98623660f80976aade6530e24cab5bec",
+    "retrieved_chunk_ids": [
+      "port_authority_brief:0",
+      "election_centralwire:0",
+      "election_metrodaily:0",
+      "housing_permits_office:0",
+      "transit_authority_update:0"
+    ],
+    "gold_chunk_ids": [
+      "port_authority_brief:0"
+    ],
+    "retrieval_recall_at_k": 1.0,
+    "raw_text": " Harbor terminals handled 412,000 twenty-foot equivalent units in March.\n",
+    "counterfactual_answer": null,
+    "contradicts_pairs": [],
+    "error": null
+  },
+  {
+    "query_id": "school_enrollment_fall",
+    "query": "What was fall enrollment across district campuses?",
+    "arm": "no_continuation",
+    "eval_layer": "realism",
+    "expectation": "answerable",
+    "refused": true,
+    "claims": [
+      {
+        "claim_text": "The sources do not support an answer.",
+        "verdict": "REFUSAL",
+        "matched_chunk_id": null,
+        "score": 0.0,
+        "node_scope": "NONE",
+        "span_type": "REFUSAL",
+        "cited_chunk_ids": []
+      }
+    ],
+    "eval_tag": "enrollment_realism",
+    "retrieval_manifest_hash": "62755090fa96a137fafe7147be711abc168ef634bd8254ebf46972d94286fd8c",
+    "retrieved_chunk_ids": [
+      "election_centralwire:0",
+      "election_metrodaily:0",
+      "school_district_report:0"
+    ],
+    "gold_chunk_ids": [
+      "school_district_report:0"
+    ],
+    "retrieval_recall_at_k": 1.0,
+    "raw_text": "The sources do not support an answer.",
+    "counterfactual_answer": null,
+    "contradicts_pairs": [],
+    "error": null
+  },
+  {
+    "query_id": "reservoir_storage_level",
+    "query": "What percentage of capacity did combined reservoir storage reach on Sunday?",
+    "arm": "no_continuation",
+    "eval_layer": "realism",
+    "expectation": "answerable",
+    "refused": false,
+    "claims": [
+      {
+        "claim_text": "Combined reservoir storage stood at 74 percent of capacity on Sunday.",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "water_utility_update:0",
+        "score": 1.0,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "EXACT",
+        "cited_chunk_ids": [
+          "water_utility_update:0"
+        ]
+      }
+    ],
+    "eval_tag": "water_realism",
+    "retrieval_manifest_hash": "115ebc920c7704b0da0b89919491b4a04403a6bb26436c63e1905012894c1ee7",
+    "retrieved_chunk_ids": [
+      "water_utility_update:0",
+      "n1_doc_009:3",
+      "port_authority_brief:0"
+    ],
+    "gold_chunk_ids": [
+      "water_utility_update:0"
+    ],
+    "retrieval_recall_at_k": 1.0,
+    "raw_text": " Combined reservoir storage stood at 74 percent of capacity on Sunday.\n",
+    "counterfactual_answer": null,
+    "contradicts_pairs": [],
+    "error": null
+  },
+  {
+    "query_id": "housing_permits_issued",
+    "query": "How many residential building permits did the city issue in the latest quarter?",
+    "arm": "no_continuation",
+    "eval_layer": "realism",
+    "expectation": "answerable",
+    "refused": false,
+    "claims": [
+      {
+        "claim_text": "The city issued 186 residential building permits in the latest quarter.",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "housing_permits_office:0",
+        "score": 1.0,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "EXACT",
+        "cited_chunk_ids": [
+          "housing_permits_office:0"
+        ]
+      }
+    ],
+    "eval_tag": "housing_realism",
+    "retrieval_manifest_hash": "cb7f72cef27fe366cba7c66e3d0ba8cab5de9a7963a985ddf2c90f4d58e6e602",
+    "retrieved_chunk_ids": [
+      "housing_permits_office:0"
+    ],
+    "gold_chunk_ids": [
+      "housing_permits_office:0"
+    ],
+    "retrieval_recall_at_k": 1.0,
+    "raw_text": " The city issued 186 residential building permits in the latest quarter.\n",
+    "counterfactual_answer": null,
+    "contradicts_pairs": [],
+    "error": null
+  },
+  {
+    "query_id": "outage_restoration_time",
+    "query": "Within how many hours did crews restore power to most affected customers?",
+    "arm": "no_continuation",
+    "eval_layer": "realism",
+    "expectation": "answerable",
+    "refused": false,
+    "claims": [
+      {
+        "claim_text": "Crews restored power to 94 percent of affected customers within 18 hours.\nThe transmission fault originated at a substation north of the river.",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "power_grid_status:0",
+        "score": 1.0,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "EXACT",
+        "cited_chunk_ids": [
+          "power_grid_status:0"
+        ]
+      }
+    ],
+    "eval_tag": "power_realism",
+    "retrieval_manifest_hash": "97b747cbde81fbf24ae21fd26f871ed444688e8beb0b6bbbff4652059a2bdc0a",
+    "retrieved_chunk_ids": [
+      "power_grid_status:0"
+    ],
+    "gold_chunk_ids": [
+      "power_grid_status:0"
+    ],
+    "retrieval_recall_at_k": 1.0,
+    "raw_text": " Crews restored power to 94 percent of affected customers within 18 hours.\nThe transmission fault originated at a substation north of the river.\n",
+    "counterfactual_answer": null,
+    "contradicts_pairs": [],
+    "error": null
+  },
+  {
+    "query_id": "inflation_rate",
+    "query": "By what percentage did the regional consumer price index rise over the past twelve months?",
+    "arm": "no_continuation",
+    "eval_layer": "counterfactual",
+    "expectation": "counterfactual",
+    "refused": false,
+    "claims": [
+      {
+        "claim_text": "The regional consumer price index rose 2.1 percent over the past twelve months.",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "inflation_bureau_report:0",
+        "score": 0.9936391711235046,
+        "node_scope": "CROSS_NODE",
+        "span_type": "AMBIGUOUS",
+        "cited_chunk_ids": [
+          "inflation_bureau_report:0",
+          "inflation_independent_survey:0"
+        ]
+      }
+    ],
+    "eval_tag": "inflation_probe",
+    "retrieval_manifest_hash": "9793a3d843a0ef7567b13d05ddc2b1901b6c3956a887a58a04aea92d2bad42ea",
+    "retrieved_chunk_ids": [
+      "inflation_bureau_report:0",
+      "inflation_independent_survey:0",
+      "export_trade_report:0",
+      "labor_bureau_report:0",
+      "labor_independent_survey:0"
+    ],
+    "gold_chunk_ids": [
+      "inflation_bureau_report:0",
+      "inflation_independent_survey:0"
+    ],
+    "retrieval_recall_at_k": 1.0,
+    "raw_text": " The regional consumer price index rose 2.1 percent over the past twelve months.\n | [1]  or  or [2]  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or ",
+    "counterfactual_answer": "2.1 percent",
+    "contradicts_pairs": [],
+    "error": null
+  },
+  {
+    "query_id": "wage_growth_rate",
+    "query": "How much did average hourly earnings grow year over year in the latest survey?",
+    "arm": "no_continuation",
+    "eval_layer": "counterfactual",
+    "expectation": "counterfactual",
+    "refused": false,
+    "claims": [
+      {
+        "claim_text": "Average hourly earnings grew 4.8 percent year over year in the latest survey.\nLeisure and hospitality led gains while public-sector pay lagged.\nIndependent reviewers cautioned that part-time workers were undercounted.",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "wage_independent_survey:0",
+        "score": 1.0,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "EXACT",
+        "cited_chunk_ids": [
+          "wage_independent_survey:0"
+        ]
+      }
+    ],
+    "eval_tag": "wage_probe",
+    "retrieval_manifest_hash": "fe584073e9c69d6bbd6ee0eb1abe1981c1fad88bc7440be321630c9209811c34",
+    "retrieved_chunk_ids": [
+      "wage_bureau_report:0",
+      "wage_independent_survey:0",
+      "labor_bureau_report:0",
+      "labor_independent_survey:0",
+      "n1_doc_009:4"
+    ],
+    "gold_chunk_ids": [
+      "wage_bureau_report:0",
+      "wage_independent_survey:0"
+    ],
+    "retrieval_recall_at_k": 1.0,
+    "raw_text": " Average hourly earnings grew 4.8 percent year over year in the latest survey.\nLeisure and hospitality led gains while public-sector pay lagged.\nIndependent reviewers cautioned that part-time workers were undercounted. |  Average  or  Average  or  Average  or  Average  or  Average  or  Average  or  Average  or  Average  or  Average  or  Average  or  Average  or  Average",
+    "counterfactual_answer": "4.8 percent",
+    "contradicts_pairs": [],
+    "error": null
+  },
+  {
+    "query_id": "export_decline_rate",
+    "query": "By what percentage did regional export volumes fall in the latest monthly trade report?",
+    "arm": "no_continuation",
+    "eval_layer": "counterfactual",
+    "expectation": "counterfactual",
+    "refused": false,
+    "claims": [
+      {
+        "claim_text": "Regional export volumes fell 3.2 percent in the latest monthly trade report.",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "export_trade_report:0",
+        "score": 0.9854028224945068,
+        "node_scope": "CROSS_NODE",
+        "span_type": "AMBIGUOUS",
+        "cited_chunk_ids": [
+          "export_independent_review:0",
+          "export_trade_report:0"
+        ]
+      }
+    ],
+    "eval_tag": "export_probe",
+    "retrieval_manifest_hash": "d706c09ffe3f07d9e5f52293ec7994daf0fd2bace6fc8d2478ea65a0a0979ea5",
+    "retrieved_chunk_ids": [
+      "export_independent_review:0",
+      "export_trade_report:0",
+      "labor_bureau_report:0",
+      "labor_independent_survey:0",
+      "inflation_bureau_report:0"
+    ],
+    "gold_chunk_ids": [
+      "export_trade_report:0",
+      "export_independent_review:0"
+    ],
+    "retrieval_recall_at_k": 1.0,
+    "raw_text": " Regional export volumes fell 3.2 percent in the latest monthly trade report.\n |  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or  or",
+    "counterfactual_answer": "3.2 percent",
+    "contradicts_pairs": [],
+    "error": null
+  },
+  {
+    "query_id": "crypto_price_probe",
+    "query": "What is the current price of Bitcoin in US dollars?",
+    "arm": "no_continuation",
+    "eval_layer": "out_of_scope",
+    "expectation": "out_of_scope",
+    "refused": true,
+    "claims": [
+      {
+        "claim_text": "The sources do not support an answer.",
+        "verdict": "REFUSAL",
+        "matched_chunk_id": null,
+        "score": 0.0,
+        "node_scope": "NONE",
+        "span_type": "REFUSAL",
+        "cited_chunk_ids": []
+      }
+    ],
+    "eval_tag": "crypto_probe",
+    "retrieval_manifest_hash": "564d0f227ee7626a7234571e59d78f9230fbb430133201a4127ea76a255d706b",
+    "retrieved_chunk_ids": [
+      "disc_northwind_pr:0",
+      "disc_northwind_complaint:0",
+      "inflation_bureau_report:0",
+      "inflation_independent_survey:0"
+    ],
+    "gold_chunk_ids": [],
+    "retrieval_recall_at_k": null,
+    "raw_text": "The sources do not support an answer.",
+    "counterfactual_answer": null,
+    "contradicts_pairs": [],
+    "error": null
+  },
+  {
+    "query_id": "olympic_medals_probe",
+    "query": "Which country won the most gold medals at the last Summer Olympics?",
+    "arm": "no_continuation",
+    "eval_layer": "out_of_scope",
+    "expectation": "out_of_scope",
+    "refused": true,
+    "claims": [
+      {
+        "claim_text": "The sources do not support an answer.",
+        "verdict": "REFUSAL",
+        "matched_chunk_id": null,
+        "score": 0.0,
+        "node_scope": "NONE",
+        "span_type": "REFUSAL",
+        "cited_chunk_ids": []
+      }
+    ],
+    "eval_tag": "olympic_probe",
+    "retrieval_manifest_hash": "1ca503fe2460a968f025259e40b9690ea2f31e6ecbaad2b030981f6296fb6f06",
+    "retrieved_chunk_ids": [
+      "n1_doc_002:2",
+      "n1_doc_002:5",
+      "n1_doc_007:0",
+      "n1_doc_007:2",
+      "n1_doc_009:2"
+    ],
+    "gold_chunk_ids": [],
+    "retrieval_recall_at_k": null,
+    "raw_text": "The sources do not support an answer.",
+    "counterfactual_answer": null,
+    "contradicts_pairs": [],
+    "error": null
+  },
+  {
+    "query_id": "dinosaur_fossil_probe",
+    "query": "How old is the oldest dinosaur fossil discovered in Antarctica?",
+    "arm": "no_continuation",
+    "eval_layer": "out_of_scope",
+    "expectation": "out_of_scope",
+    "refused": true,
+    "claims": [
+      {
+        "claim_text": "The sources do not support an answer.",
+        "verdict": "REFUSAL",
+        "matched_chunk_id": null,
+        "score": 0.0,
+        "node_scope": "NONE",
+        "span_type": "REFUSAL",
+        "cited_chunk_ids": []
+      }
+    ],
+    "eval_tag": "paleontology_probe",
+    "retrieval_manifest_hash": "70df796ba69e28f3dd24367f5b85953c6c982c8645c624027d3615c65242f857",
+    "retrieved_chunk_ids": [
+      "n1_doc_001:2",
+      "n1_doc_002:0",
+      "n1_doc_002:5",
+      "n1_doc_006:0",
+      "n1_doc_006:3"
+    ],
+    "gold_chunk_ids": [],
+    "retrieval_recall_at_k": null,
+    "raw_text": "The sources do not support an answer.",
+    "counterfactual_answer": null,
+    "contradicts_pairs": [],
+    "error": null
+  }
+]

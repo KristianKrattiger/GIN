@@ -25,6 +25,7 @@ See docs/nc_cartographer_design.plan.md.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any, Callable, Iterable, Optional
 
 from .models import Assessment, LabeledChunk, Relation
@@ -39,12 +40,29 @@ DEFAULT_CONTRA_THRESHOLD = 0.5
 DEFAULT_EMBED_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
 DEFAULT_NLI_MODEL = "cross-encoder/nli-deberta-v3-xsmall"
 
+_THRESHOLDS_PATH = Path(__file__).resolve().parents[2] / "data" / "cartographer_thresholds.json"
+
 
 @dataclass(frozen=True)
 class Thresholds:
     gate_floor: float = DEFAULT_GATE_FLOOR
     corroborate_ceiling: float = DEFAULT_CORROBORATE_CEILING
     contra_threshold: float = DEFAULT_CONTRA_THRESHOLD
+
+
+def load_thresholds(path: Optional[Path] = None) -> Thresholds:
+    """Load calibrated thresholds from data/cartographer_thresholds.json if present."""
+    p = path or _THRESHOLDS_PATH
+    if not p.is_file():
+        return Thresholds()
+    import json
+
+    raw = json.loads(p.read_text(encoding="utf-8"))
+    return Thresholds(
+        gate_floor=float(raw.get("gate_floor", DEFAULT_GATE_FLOOR)),
+        corroborate_ceiling=float(raw.get("corroborate_ceiling", DEFAULT_CORROBORATE_CEILING)),
+        contra_threshold=float(raw.get("contra_threshold", DEFAULT_CONTRA_THRESHOLD)),
+    )
 
 
 def classify_relation(
@@ -80,7 +98,7 @@ class CombinedRelationProposer:
         embed_model: str = DEFAULT_EMBED_MODEL,
         nli_model: str = DEFAULT_NLI_MODEL,
     ) -> None:
-        t = thresholds or Thresholds(gate_floor, corroborate_ceiling, contra_threshold)
+        t = thresholds or load_thresholds()
         self.thresholds = t
         self.gate_floor = t.gate_floor
         self.corroborate_ceiling = t.corroborate_ceiling
@@ -113,6 +131,10 @@ class CombinedRelationProposer:
         import numpy as np
 
         return float(np.dot(self._embedding(a_text), self._embedding(b_text)))
+
+    def embedding_cosine(self, a_text: str, b_text: str) -> float:
+        """Public cosine accessor for scan-stage candidate pruning."""
+        return self._cosine(a_text, b_text)
 
     def _nli_model_scores(self, premise: str, hypothesis: str) -> tuple[float, float, float]:
         import numpy as np
@@ -150,13 +172,18 @@ class CombinedRelationProposer:
 
     def assess_pair(self, a: LabeledChunk, b: LabeledChunk) -> Assessment:
         relation, ev = self.type_relation(a.text, b.text)
+        channel = ev["channel"]
+        if channel == "band" and relation == Relation.CONTRADICTS:
+            confidence = ev["cos"]
+        else:
+            confidence = ev.get("p_contra", ev["cos"])
         return Assessment(
             src_chunk_id=a.chunk_id,
             dst_chunk_id=b.chunk_id,
             relation=relation,
-            method=f"combined_relation:{ev['channel']}",
-            confidence=ev.get("p_contra", ev["cos"]),
-            rationale=f"cos={ev['cos']:.3f} channel={ev['channel']}"
+            method=f"combined_relation:{channel}",
+            confidence=confidence,
+            rationale=f"cos={ev['cos']:.3f} channel={channel}"
             + (f" p_contra={ev['p_contra']:.3f}" if "p_contra" in ev else ""),
         )
 

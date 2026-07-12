@@ -24,6 +24,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from gin.corpus.db import DatabaseUnavailableError, ensure_postgres
+from gin.corpus.fingerprint import corpus_fingerprint
 from gin.eval.arms import ArmConfig, build_arm
 from gin.eval.queryset import filter_regression_queries, load_query_set
 from gin.eval.runner import make_meta, run_experiment, write_run
@@ -74,6 +75,18 @@ def main() -> int:
         help="Eval-only: NC refuses when no emitted claim cites a gold chunk.",
     )
     parser.add_argument("--n-gpu-layers", type=int, default=0)
+    parser.add_argument(
+        "--edge-source",
+        type=str,
+        default=None,
+        help="Record edge provenance in meta.json (e.g. cartographer_scan, yaml_ingest)",
+    )
+    parser.add_argument(
+        "--cartographer-scan-run-id",
+        type=str,
+        default=None,
+        help="Link eval run to a cartographer_eval_scan artifact run id",
+    )
     args = parser.parse_args()
 
     try:
@@ -123,6 +136,11 @@ def main() -> int:
     )
     tokens_per_second = (total_tokens / elapsed) if elapsed > 0 else None
 
+    from gin.corpus.db import connect
+
+    with connect() as conn:
+        fp = corpus_fingerprint(conn)
+
     meta = make_meta(
         model=args.model,
         verifier_mode=args.verifier,
@@ -133,6 +151,9 @@ def main() -> int:
         n_gpu_layers=args.n_gpu_layers,
         wall_clock_seconds_per_query=wall_per_query,
         tokens_per_second=tokens_per_second,
+        corpus_fingerprint=fp,
+        edge_source=args.edge_source,
+        cartographer_scan_run_id=args.cartographer_scan_run_id,
     )
     run_dir = write_run(results_by_arm, meta, args.out)
     print(f"[*] Wrote results to {run_dir}")

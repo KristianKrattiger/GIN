@@ -1,0 +1,20 @@
+{
+  "generated_at": "2026-07-12T03:52:28.195718+00:00",
+  "model": "models/Mistral-7B-Instruct-v0.3-Q6_K.gguf",
+  "verifier_mode": "nli",
+  "threshold": 0.5,
+  "queryset": "/mnt/c/Users/krist/Projects/gin/GIN/data/eval/queryset.yaml",
+  "arms": [
+    "rag",
+    "no_continuation"
+  ],
+  "n_queries": 20,
+  "n_gpu_layers": -1,
+  "wall_clock_seconds_per_query": 37.92679675474992,
+  "tokens_per_second": 0.5550165529696023,
+  "corpus_fingerprint": {
+    "chunk_count": 136,
+    "edge_count": 11,
+    "content_hash": "c2a6019a4fd8f3ad"
+  }
+}

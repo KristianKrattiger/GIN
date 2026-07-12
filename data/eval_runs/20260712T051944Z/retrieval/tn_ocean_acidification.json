@@ -1,0 +1,18 @@
+{
+  "query_id": "tn_ocean_acidification",
+  "query": "What is ocean acidification and what causes it?",
+  "eval_layer": "realism",
+  "gold_chunk_ids": [
+    "n1_doc_004:0"
+  ],
+  "retrieved_chunk_ids": [
+    "n1_doc_004:0",
+    "n1_doc_004:4",
+    "n1_doc_004:6",
+    "n2_doc_001:2",
+    "n2_doc_004:3",
+    "n2_doc_005:2"
+  ],
+  "retrieval_recall_at_k": 1.0,
+  "retrieval_manifest_hash": "abbeda2842543b253d084eaf8dc0c1b4d3e7e5c1ec468a2b41c7aa26d1fc7296"
+}

@@ -72,12 +72,11 @@ def test_anti_pattern_mints_the_class_c_pair_as_contradicts():
 
 def test_anti_pattern_precision_recall_are_pinned():
     metrics = evaluate(RelatednessProposer().propose(default_chunks()), default_gold_pairs())
-    # 2 divergences clear the lexical floor (emissions, revenue) -> TP; the warming
-    # corroboration also clears it -> the lone FP; the other 5 divergences are
-    # gated out (cross-register sparse overlap), so recall is low.
-    assert metrics.contradicts_precision == pytest.approx(2 / 3)
+    # 2 divergences clear the lexical floor -> TP; two corroborations also clear
+    # it -> FP; the other 5 divergences are gated out (cross-register sparse overlap).
+    assert metrics.contradicts_precision == pytest.approx(0.5)
     assert metrics.contradicts_recall == pytest.approx(2 / 7)
-    assert (metrics.tp, metrics.fp, metrics.fn) == (2, 1, 5)
+    assert (metrics.tp, metrics.fp, metrics.fn) == (2, 2, 5)
 
 
 def test_lexical_gate_under_recalls_divergence_in_every_register():

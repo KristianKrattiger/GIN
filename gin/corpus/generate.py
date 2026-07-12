@@ -250,7 +250,7 @@ def decode_bundle(
         reject_ambiguous_spans=divergent,
         allow_shared_prefix=divergent or competing or not steered,
         span_must_start_at_sentence=divergent or competing,
-        span_must_close_at_sentence_end=divergent or competing,
+        span_must_close_at_sentence_end=True,
         require_cite_after_extract=params["require_cites"],
         stop_when_groups_satisfied=params["stop_when_satisfied"],
         stop_after_first_extract=params["stop_after_first_extract"],

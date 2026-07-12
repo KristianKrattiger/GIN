@@ -43,7 +43,7 @@ def test_always_divergent_is_the_degenerate_baseline():
     metrics = evaluate(judge.propose_over(_pairs()), default_gold_pairs())
     assert metrics.contradicts_recall == 1.0        # trivially — everything is divergent
     assert metrics.class_c_discrimination == 0.0    # every corroborating pair mislabeled
-    assert (metrics.tp, metrics.fp, metrics.fn) == (7, 6, 0)  # 7 real + 6 spurious
+    assert (metrics.tp, metrics.fp, metrics.fn) == (7, 26, 0)  # 7 real + 10 corr + 16 unrel spurious
 
 
 def test_an_oracle_judge_would_score_perfectly():

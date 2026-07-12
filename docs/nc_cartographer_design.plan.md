@@ -264,8 +264,7 @@ non-propositional, not-highly-similar pair is a framing divergence. That holds
 here but needs validation against corroborating pairs that are topically related
 yet textually dissimilar (none such in this set).
 
-The Bookkeeper admission gate (anchor verification, DAG invariants, provenance
-stamp) is the next step — it now has a detector whose proposals are worth gating.
+The Bookkeeper admission gate is **built** (§6c below); the detector's proposals are worth gating.
 
 ## 6c. The Bookkeeper admission gate (built)
 
@@ -291,16 +290,13 @@ independent of Cartographer edge quality — per GIN_Session_Synthesis §1.5.
 Regression: `tests/test_bookkeeper.py`; the Cartographer→Bookkeeper handoff:
 `tests/test_cartographer_bookkeeper_integration.py`.
 
-With this the three layers are all present and independently measured. Remaining:
-threshold calibration on a larger set (§6b), persisting `GraphState` to the
-Postgres `edges` table, and federation (Phase 3).
+With this the three layers are all present and independently measured. **Postgres persist** is done ([`gin/bookkeeper/persist.py`](../gin/bookkeeper/persist.py), [`scripts/cartographer_scan.py`](../scripts/cartographer_scan.py)); admitted anchors are consumed on the read path ([`gin/corpus/materialize.py`](../gin/corpus/materialize.py)).
+
+**Production validation** (2026-07-12): scan-first workflow ingests chunks only (`corpus_ingest.py --no-edges`), discovers edges via `cartographer_scan.py --cross-outlet-only`, scores against gold YAML via `scripts/cartographer_eval_scan.py`, and records `edge_source: cartographer_scan` in eval `meta.json`. Baseline on mixed 136-chunk DB (`20260712T053645Z`): typed contradicts recall 0.50 on 8 gold pairs, 135 false-positive admitted edges, `class_c_discrimination` 1.0. **Scan precision improvements** (`20260712T074956Z`): `RelatednessGate` hybrid prune (6222→2157 pairs), doc-pair best-chunk dedup (NLI preferred), `out_of_scope_stub` exclusion, Bookkeeper semantic re-check (`relation_verify.py`, `DENIED_RELATION_MISMATCH`, `FRAMING_BAND_FLOOR=0.35`) — false positives **120**, recall **0.50**, `class_c_discrimination` **1.0**; `hf_alderflats` gold recovered. Divergence eval battery (prior scan): legal/framing2 **passes** (`20260712T060050Z`); twonode/housing/multipara **do not yet match** YAML baselines. Remaining: threshold calibration on a larger held-out set (§6b), detector mis-types (meridian/wf_multi as corroborates), federation (Phase 3).
 
 ## 7. Out of scope (this doc)
 
-- **Threshold calibration on a held-out set** and the Bookkeeper admission gate
-  (§6a → next steps). The combined detector is built and near-target on the 13-pair
-  set; its thresholds are calibrated in-sample and need a larger labeled set before
-  they are production values.
+- **Threshold calibration on a held-out set** (§6b). The combined detector is built and near-target on the labeled set; production scan validation (2026-07-12) shows full-corpus recall gaps that calibration alone cannot close.
 - Cross-corpus / federated proposal (the relatedness gate is scoped intra-corpus
   first; the alignment stage is the same machinery at inter-node scope).
 - Embedding-based relatedness (the gate is lexical/entity first for a

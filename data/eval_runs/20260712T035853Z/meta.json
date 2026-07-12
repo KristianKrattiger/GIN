@@ -1,0 +1,19 @@
+{
+  "generated_at": "2026-07-12T03:58:53.292140+00:00",
+  "model": "models/Qwen2.5-7B-Instruct-Q6_K.gguf",
+  "verifier_mode": "overlap",
+  "threshold": 0.5,
+  "queryset": "data/eval/queryset_twonode.yaml",
+  "arms": [
+    "no_continuation"
+  ],
+  "n_queries": 6,
+  "n_gpu_layers": -1,
+  "wall_clock_seconds_per_query": 51.1121958136658,
+  "tokens_per_second": 0.6586816733407735,
+  "corpus_fingerprint": {
+    "chunk_count": 136,
+    "edge_count": 11,
+    "content_hash": "c2a6019a4fd8f3ad"
+  }
+}

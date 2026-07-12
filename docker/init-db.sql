@@ -36,6 +36,11 @@ CREATE TABLE IF NOT EXISTS edges (
     dst_chunk_id TEXT NOT NULL REFERENCES chunks(chunk_id) ON DELETE CASCADE,
     edge_type TEXT NOT NULL,
     note TEXT,
+    proposer TEXT,
+    confidence REAL,
+    content_hash TEXT,
+    src_anchor INT[],
+    dst_anchor INT[],
     admitted_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     UNIQUE (src_chunk_id, dst_chunk_id, edge_type)
 );

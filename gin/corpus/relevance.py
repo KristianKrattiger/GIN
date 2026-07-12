@@ -173,7 +173,10 @@ def rerank_hits_by_query_score(hits: list[ChunkHit], query: str) -> list[ChunkHi
     """Order hits by max per-sentence query relevance (descending)."""
     if not hits or not query_keywords(query):
         return hits
-    return sorted(hits, key=lambda h: max_sentence_score(h.text, query), reverse=True)
+    return sorted(
+        hits,
+        key=lambda h: (-max_sentence_score(h.text, query), h.chunk_id),
+    )
 
 
 def score_starts_for_convergent(

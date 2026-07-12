@@ -63,6 +63,8 @@ class EdgeRecord:
     dst_chunk_id: str
     edge_type: str
     note: Optional[str] = None
+    src_anchor: Optional[tuple[int, int]] = None
+    dst_anchor: Optional[tuple[int, int]] = None
 
 
 @dataclass

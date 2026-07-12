@@ -1,0 +1,17 @@
+{
+  "query_id": "fr_meridian_breach",
+  "query": "What is known about the Meridian customer data breach?",
+  "eval_layer": "realism",
+  "gold_chunk_ids": [
+    "disc_meridian_pr:0",
+    "disc_meridian_complaint:0"
+  ],
+  "retrieved_chunk_ids": [
+    "disc_meridian_complaint:0",
+    "disc_meridian_pr:0",
+    "n1_doc_003:4",
+    "out_of_scope_stub:0"
+  ],
+  "retrieval_recall_at_k": 1.0,
+  "retrieval_manifest_hash": "6215e7af28e676a048c375812a24dcc7cbf1ccad8e473a0809f2049e5e9027a7"
+}

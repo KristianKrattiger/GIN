@@ -1,0 +1,19 @@
+{
+  "query_id": "tn_water_framing",
+  "query": "How should water scarcity in California be understood?",
+  "eval_layer": "realism",
+  "gold_chunk_ids": [
+    "n1_doc_009:0",
+    "n2_doc_008:2"
+  ],
+  "retrieved_chunk_ids": [
+    "n2_doc_008:0",
+    "n2_doc_008:1",
+    "n2_doc_008:2",
+    "n2_doc_008:4",
+    "n1_doc_002:4",
+    "n1_doc_004:5"
+  ],
+  "retrieval_recall_at_k": 0.5,
+  "retrieval_manifest_hash": "040d3dd99e5a0aada9617d8e2b7ab480acda1019becf11eb2f239536c57238d5"
+}

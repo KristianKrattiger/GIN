@@ -1,0 +1,822 @@
+{
+  "generated_at": "2026-07-12T06:37:10.319151+00:00",
+  "run_id": "20260712T063710Z",
+  "metrics": {
+    "contradicts_precision": 1.0,
+    "contradicts_recall": 0.5,
+    "contradicts_f1": 0.6666666666666666,
+    "class_c_discrimination": null,
+    "tp": 4,
+    "fp": 0,
+    "fn": 4,
+    "by_register": {
+      "housing": {
+        "precision": 1.0,
+        "recall": 0.5,
+        "f1": 0.6666666666666666
+      },
+      "legal": {
+        "precision": 1.0,
+        "recall": 0.5,
+        "f1": 0.6666666666666666
+      },
+      "multipara": {
+        "precision": null,
+        "recall": 0.0,
+        "f1": null
+      },
+      "twonode": {
+        "precision": 1.0,
+        "recall": 0.6666666666666666,
+        "f1": 0.8
+      }
+    }
+  },
+  "gold_count": 8,
+  "admitted_contradicts_count": 68,
+  "false_positive_count": 67,
+  "missed_gold_count": 7,
+  "false_positive_keys": [
+    [
+      "n1_doc_001:0",
+      "n2_doc_010:7"
+    ],
+    [
+      "incident_centralwire:0",
+      "incident_regionalpost:0"
+    ],
+    [
+      "n1_doc_006:0",
+      "n2_doc_008:3"
+    ],
+    [
+      "election_centralwire:0",
+      "n1_doc_009:4"
+    ],
+    [
+      "election_centralwire:0",
+      "water_utility_update:0"
+    ],
+    [
+      "n1_doc_005:4",
+      "n2_doc_008:3"
+    ],
+    [
+      "incident_metrodaily:0",
+      "incident_regionalpost:0"
+    ],
+    [
+      "hf_alderflats_tenants:0",
+      "n2_doc_008:3"
+    ],
+    [
+      "n1_doc_002:4",
+      "n2_doc_004:2"
+    ],
+    [
+      "disc_northwind_pr:0",
+      "n1_doc_006:1"
+    ],
+    [
+      "export_independent_review:0",
+      "port_authority_brief:0"
+    ],
+    [
+      "n1_doc_006:3",
+      "n2_doc_009:2"
+    ],
+    [
+      "n1_doc_008:4",
+      "n2_doc_006:0"
+    ],
+    [
+      "n1_doc_003:0",
+      "n2_doc_009:0"
+    ],
+    [
+      "n1_doc_004:5",
+      "n2_doc_008:3"
+    ],
+    [
+      "election_centralwire:0",
+      "n1_doc_008:1"
+    ],
+    [
+      "inflation_bureau_report:0",
+      "n2_doc_006:2"
+    ],
+    [
+      "election_centralwire:0",
+      "housing_permits_office:0"
+    ],
+    [
+      "n1_doc_009:4",
+      "n2_doc_007:1"
+    ],
+    [
+      "n1_doc_008:4",
+      "n2_doc_002:1"
+    ],
+    [
+      "water_utility_update:0",
+      "wf_multi_grass:0"
+    ],
+    [
+      "power_grid_status:0",
+      "water_utility_update:0"
+    ],
+    [
+      "election_centralwire:0",
+      "school_district_report:0"
+    ],
+    [
+      "disc_northwind_pr:0",
+      "n2_doc_004:3"
+    ],
+    [
+      "inflation_independent_survey:0",
+      "n2_doc_004:3"
+    ],
+    [
+      "n1_doc_002:0",
+      "n2_doc_010:0"
+    ],
+    [
+      "inflation_bureau_report:0",
+      "n2_doc_004:3"
+    ],
+    [
+      "n1_doc_008:4",
+      "n2_doc_008:3"
+    ],
+    [
+      "election_centralwire:0",
+      "incident_metrodaily:0"
+    ],
+    [
+      "inflation_bureau_report:0",
+      "n2_doc_005:2"
+    ],
+    [
+      "hf_kestrel_tenants:0",
+      "n1_doc_002:2"
+    ],
+    [
+      "n1_doc_009:4",
+      "n2_doc_010:5"
+    ],
+    [
+      "n1_doc_002:4",
+      "n2_doc_008:0"
+    ],
+    [
+      "hf_alderflats_staff:0",
+      "n2_doc_001:2"
+    ],
+    [
+      "n1_doc_004:3",
+      "n2_doc_006:2"
+    ],
+    [
+      "incident_centralwire:0",
+      "incident_metrodaily:0"
+    ],
+    [
+      "hf_kestrel_inspection:0",
+      "water_utility_update:0"
+    ],
+    [
+      "disc_northwind_pr:0",
+      "n2_doc_008:1"
+    ],
+    [
+      "disc_northwind_pr:0",
+      "export_independent_review:0"
+    ],
+    [
+      "inflation_bureau_report:0",
+      "n2_doc_003:2"
+    ],
+    [
+      "n1_doc_004:3",
+      "n2_doc_001:2"
+    ],
+    [
+      "n1_doc_004:5",
+      "n2_doc_009:2"
+    ],
+    [
+      "n1_doc_004:6",
+      "n2_doc_005:2"
+    ],
+    [
+      "n1_doc_008:1",
+      "n2_doc_004:2"
+    ],
+    [
+      "n1_doc_005:1",
+      "n2_doc_001:1"
+    ],
+    [
+      "n2_doc_003:3",
+      "water_utility_update:0"
+    ],
+    [
+      "n2_doc_004:3",
+      "water_utility_update:0"
+    ],
+    [
+      "disc_northwind_pr:0",
+      "n2_doc_010:1"
+    ],
+    [
+      "election_centralwire:0",
+      "n2_doc_008:3"
+    ],
+    [
+      "hf_alderflats_tenants:0",
+      "n2_doc_002:3"
+    ],
+    [
+      "inflation_independent_survey:0",
+      "n2_doc_010:7"
+    ],
+    [
+      "inflation_bureau_report:0",
+      "n2_doc_010:7"
+    ],
+    [
+      "election_centralwire:0",
+      "n2_doc_010:5"
+    ],
+    [
+      "n1_doc_008:4",
+      "n2_doc_001:1"
+    ],
+    [
+      "election_centralwire:0",
+      "election_metrodaily:0"
+    ],
+    [
+      "n1_doc_003:6",
+      "n2_doc_010:5"
+    ],
+    [
+      "inflation_bureau_report:0",
+      "n1_doc_006:0"
+    ],
+    [
+      "water_utility_update:0",
+      "weather_service_brief:0"
+    ],
+    [
+      "election_centralwire:0",
+      "weather_service_brief:0"
+    ],
+    [
+      "inflation_bureau_report:0",
+      "n2_doc_001:2"
+    ],
+    [
+      "inflation_independent_survey:0",
+      "n2_doc_001:2"
+    ],
+    [
+      "housing_permits_office:0",
+      "n1_doc_008:1"
+    ],
+    [
+      "n1_doc_004:6",
+      "n2_doc_004:3"
+    ],
+    [
+      "n1_doc_009:1",
+      "water_utility_update:0"
+    ],
+    [
+      "n1_doc_006:0",
+      "n2_doc_010:5"
+    ],
+    [
+      "disc_northwind_pr:0",
+      "inflation_bureau_report:0"
+    ],
+    [
+      "disc_northwind_pr:0",
+      "export_trade_report:0"
+    ]
+  ],
+  "missed_gold_keys": [
+    [
+      "disc_meridian_complaint:0",
+      "disc_meridian_pr:0"
+    ],
+    [
+      "n1_doc_009:0",
+      "n2_doc_008:2"
+    ],
+    [
+      "hf_kestrel_inspection:0",
+      "hf_kestrel_tenants:0"
+    ],
+    [
+      "n1_doc_008:0",
+      "n2_doc_005:1"
+    ],
+    [
+      "n1_doc_005:2",
+      "n2_doc_001:4"
+    ],
+    [
+      "wf_multi_grass:0",
+      "wf_multi_inst:0"
+    ],
+    [
+      "hf_alderflats_staff:0",
+      "hf_alderflats_tenants:0"
+    ]
+  ],
+  "class_c_discrimination": 1.0,
+  "class_c_total": 1,
+  "class_c_pass": 1,
+  "pair_count_before_prune": 6222,
+  "pair_count_after_prune": 2157,
+  "admitted_edges": [
+    {
+      "src": "disc_northwind_complaint:0",
+      "dst": "disc_northwind_pr:0",
+      "relation": "contradicts",
+      "confidence": 0.9908738136291504,
+      "proposer": "combined_relation:nli"
+    },
+    {
+      "src": "disc_northwind_pr:0",
+      "dst": "export_independent_review:0",
+      "relation": "contradicts",
+      "confidence": 0.9282989501953125,
+      "proposer": "combined_relation:nli"
+    },
+    {
+      "src": "disc_northwind_pr:0",
+      "dst": "export_trade_report:0",
+      "relation": "contradicts",
+      "confidence": 0.9768444895744324,
+      "proposer": "combined_relation:nli"
+    },
+    {
+      "src": "disc_northwind_pr:0",
+      "dst": "inflation_bureau_report:0",
+      "relation": "contradicts",
+      "confidence": 0.7304142713546753,
+      "proposer": "combined_relation:nli"
+    },
+    {
+      "src": "disc_northwind_pr:0",
+      "dst": "n1_doc_006:1",
+      "relation": "contradicts",
+      "confidence": 0.9866023063659668,
+      "proposer": "combined_relation:nli"
+    },
+    {
+      "src": "disc_northwind_pr:0",
+      "dst": "n2_doc_004:3",
+      "relation": "contradicts",
+      "confidence": 0.9946289658546448,
+      "proposer": "combined_relation:nli"
+    },
+    {
+      "src": "disc_northwind_pr:0",
+      "dst": "n2_doc_008:1",
+      "relation": "contradicts",
+      "confidence": 0.9409946799278259,
+      "proposer": "combined_relation:nli"
+    },
+    {
+      "src": "disc_northwind_pr:0",
+      "dst": "n2_doc_010:1",
+      "relation": "contradicts",
+      "confidence": 0.9871823787689209,
+      "proposer": "combined_relation:nli"
+    },
+    {
+      "src": "election_centralwire:0",
+      "dst": "election_metrodaily:0",
+      "relation": "contradicts",
+      "confidence": 0.9733647108078003,
+      "proposer": "combined_relation:nli"
+    },
+    {
+      "src": "election_centralwire:0",
+      "dst": "housing_permits_office:0",
+      "relation": "contradicts",
+      "confidence": 0.7197136878967285,
+      "proposer": "combined_relation:nli"
+    },
+    {
+      "src": "election_centralwire:0",
+      "dst": "incident_metrodaily:0",
+      "relation": "contradicts",
+      "confidence": 0.9429313540458679,
+      "proposer": "combined_relation:nli"
+    },
+    {
+      "src": "election_centralwire:0",
+      "dst": "n1_doc_008:1",
+      "relation": "contradicts",
+      "confidence": 0.8604950308799744,
+      "proposer": "combined_relation:nli"
+    },
+    {
+      "src": "election_centralwire:0",
+      "dst": "n1_doc_009:4",
+      "relation": "contradicts",
+      "confidence": 0.832232654094696,
+      "proposer": "combined_relation:nli"
+    },
+    {
+      "src": "election_centralwire:0",
+      "dst": "n2_doc_008:3",
+      "relation": "contradicts",
+      "confidence": 0.8622387051582336,
+      "proposer": "combined_relation:nli"
+    },
+    {
+      "src": "election_centralwire:0",
+      "dst": "n2_doc_010:5",
+      "relation": "contradicts",
+      "confidence": 0.9564120769500732,
+      "proposer": "combined_relation:nli"
+    },
+    {
+      "src": "election_centralwire:0",
+      "dst": "school_district_report:0",
+      "relation": "contradicts",
+      "confidence": 0.9492055773735046,
+      "proposer": "combined_relation:nli"
+    },
+    {
+      "src": "election_centralwire:0",
+      "dst": "water_utility_update:0",
+      "relation": "contradicts",
+      "confidence": 0.9277467131614685,
+      "proposer": "combined_relation:nli"
+    },
+    {
+      "src": "election_centralwire:0",
+      "dst": "weather_service_brief:0",
+      "relation": "contradicts",
+      "confidence": 0.7313756346702576,
+      "proposer": "combined_relation:nli"
+    },
+    {
+      "src": "export_independent_review:0",
+      "dst": "port_authority_brief:0",
+      "relation": "contradicts",
+      "confidence": 0.7166865468025208,
+      "proposer": "combined_relation:nli"
+    },
+    {
+      "src": "hf_alderflats_staff:0",
+      "dst": "n2_doc_001:2",
+      "relation": "contradicts",
+      "confidence": 0.9862368106842041,
+      "proposer": "combined_relation:nli"
+    },
+    {
+      "src": "hf_alderflats_tenants:0",
+      "dst": "n2_doc_002:3",
+      "relation": "contradicts",
+      "confidence": 0.6625095009803772,
+      "proposer": "combined_relation:band"
+    },
+    {
+      "src": "hf_alderflats_tenants:0",
+      "dst": "n2_doc_008:3",
+      "relation": "contradicts",
+      "confidence": 0.9197205901145935,
+      "proposer": "combined_relation:nli"
+    },
+    {
+      "src": "hf_kestrel_inspection:0",
+      "dst": "water_utility_update:0",
+      "relation": "contradicts",
+      "confidence": 0.6592661738395691,
+      "proposer": "combined_relation:band"
+    },
+    {
+      "src": "hf_kestrel_tenants:0",
+      "dst": "n1_doc_002:2",
+      "relation": "contradicts",
+      "confidence": 0.8487951159477234,
+      "proposer": "combined_relation:nli"
+    },
+    {
+      "src": "housing_permits_office:0",
+      "dst": "n1_doc_008:1",
+      "relation": "contradicts",
+      "confidence": 0.9829444289207458,
+      "proposer": "combined_relation:nli"
+    },
+    {
+      "src": "incident_centralwire:0",
+      "dst": "incident_metrodaily:0",
+      "relation": "contradicts",
+      "confidence": 0.9555279016494751,
+      "proposer": "combined_relation:nli"
+    },
+    {
+      "src": "incident_centralwire:0",
+      "dst": "incident_regionalpost:0",
+      "relation": "contradicts",
+      "confidence": 0.949038028717041,
+      "proposer": "combined_relation:nli"
+    },
+    {
+      "src": "incident_metrodaily:0",
+      "dst": "incident_regionalpost:0",
+      "relation": "contradicts",
+      "confidence": 0.9878259301185608,
+      "proposer": "combined_relation:nli"
+    },
+    {
+      "src": "inflation_bureau_report:0",
+      "dst": "n1_doc_006:0",
+      "relation": "contradicts",
+      "confidence": 0.6783040165901184,
+      "proposer": "combined_relation:band"
+    },
+    {
+      "src": "inflation_bureau_report:0",
+      "dst": "n2_doc_001:2",
+      "relation": "contradicts",
+      "confidence": 0.8680489659309387,
+      "proposer": "combined_relation:nli"
+    },
+    {
+      "src": "inflation_bureau_report:0",
+      "dst": "n2_doc_003:2",
+      "relation": "contradicts",
+      "confidence": 0.7662960886955261,
+      "proposer": "combined_relation:nli"
+    },
+    {
+      "src": "inflation_bureau_report:0",
+      "dst": "n2_doc_004:3",
+      "relation": "contradicts",
+      "confidence": 0.988527774810791,
+      "proposer": "combined_relation:nli"
+    },
+    {
+      "src": "inflation_bureau_report:0",
+      "dst": "n2_doc_005:2",
+      "relation": "contradicts",
+      "confidence": 0.8950733542442322,
+      "proposer": "combined_relation:nli"
+    },
+    {
+      "src": "inflation_bureau_report:0",
+      "dst": "n2_doc_006:2",
+      "relation": "contradicts",
+      "confidence": 0.9471203684806824,
+      "proposer": "combined_relation:nli"
+    },
+    {
+      "src": "inflation_bureau_report:0",
+      "dst": "n2_doc_010:7",
+      "relation": "contradicts",
+      "confidence": 0.948601245880127,
+      "proposer": "combined_relation:nli"
+    },
+    {
+      "src": "inflation_independent_survey:0",
+      "dst": "n2_doc_001:2",
+      "relation": "contradicts",
+      "confidence": 0.7024381756782532,
+      "proposer": "combined_relation:nli"
+    },
+    {
+      "src": "inflation_independent_survey:0",
+      "dst": "n2_doc_004:3",
+      "relation": "contradicts",
+      "confidence": 0.7742719054222107,
+      "proposer": "combined_relation:nli"
+    },
+    {
+      "src": "inflation_independent_survey:0",
+      "dst": "n2_doc_010:7",
+      "relation": "contradicts",
+      "confidence": 0.9872881174087524,
+      "proposer": "combined_relation:nli"
+    },
+    {
+      "src": "n1_doc_001:0",
+      "dst": "n2_doc_010:7",
+      "relation": "contradicts",
+      "confidence": 0.9406893849372864,
+      "proposer": "combined_relation:nli"
+    },
+    {
+      "src": "n1_doc_002:0",
+      "dst": "n2_doc_010:0",
+      "relation": "contradicts",
+      "confidence": 0.8996278643608093,
+      "proposer": "combined_relation:nli"
+    },
+    {
+      "src": "n1_doc_002:4",
+      "dst": "n2_doc_008:0",
+      "relation": "contradicts",
+      "confidence": 0.9532244801521301,
+      "proposer": "combined_relation:nli"
+    },
+    {
+      "src": "n1_doc_002:4",
+      "dst": "n2_doc_004:2",
+      "relation": "contradicts",
+      "confidence": 0.9806897044181824,
+      "proposer": "combined_relation:nli"
+    },
+    {
+      "src": "n1_doc_003:0",
+      "dst": "n2_doc_009:0",
+      "relation": "contradicts",
+      "confidence": 0.8249515295028687,
+      "proposer": "combined_relation:nli"
+    },
+    {
+      "src": "n1_doc_003:6",
+      "dst": "n2_doc_010:5",
+      "relation": "contradicts",
+      "confidence": 0.6994465589523315,
+      "proposer": "combined_relation:nli"
+    },
+    {
+      "src": "n1_doc_004:3",
+      "dst": "n2_doc_001:2",
+      "relation": "contradicts",
+      "confidence": 0.9924054741859436,
+      "proposer": "combined_relation:nli"
+    },
+    {
+      "src": "n1_doc_004:6",
+      "dst": "n2_doc_005:2",
+      "relation": "contradicts",
+      "confidence": 0.9243515729904175,
+      "proposer": "combined_relation:nli"
+    },
+    {
+      "src": "n1_doc_004:3",
+      "dst": "n2_doc_006:2",
+      "relation": "contradicts",
+      "confidence": 0.7980509996414185,
+      "proposer": "combined_relation:nli"
+    },
+    {
+      "src": "n1_doc_004:5",
+      "dst": "n2_doc_008:3",
+      "relation": "contradicts",
+      "confidence": 0.9822282195091248,
+      "proposer": "combined_relation:nli"
+    },
+    {
+      "src": "n1_doc_004:5",
+      "dst": "n2_doc_009:2",
+      "relation": "contradicts",
+      "confidence": 0.9716397523880005,
+      "proposer": "combined_relation:nli"
+    },
+    {
+      "src": "n1_doc_004:6",
+      "dst": "n2_doc_004:3",
+      "relation": "contradicts",
+      "confidence": 0.9764500260353088,
+      "proposer": "combined_relation:nli"
+    },
+    {
+      "src": "n1_doc_005:1",
+      "dst": "n2_doc_001:1",
+      "relation": "contradicts",
+      "confidence": 0.9117265343666077,
+      "proposer": "combined_relation:nli"
+    },
+    {
+      "src": "n1_doc_005:4",
+      "dst": "n2_doc_008:3",
+      "relation": "contradicts",
+      "confidence": 0.9076541066169739,
+      "proposer": "combined_relation:nli"
+    },
+    {
+      "src": "n1_doc_006:0",
+      "dst": "n2_doc_008:3",
+      "relation": "contradicts",
+      "confidence": 0.9882253408432007,
+      "proposer": "combined_relation:nli"
+    },
+    {
+      "src": "n1_doc_006:3",
+      "dst": "n2_doc_009:2",
+      "relation": "contradicts",
+      "confidence": 0.9411513209342957,
+      "proposer": "combined_relation:nli"
+    },
+    {
+      "src": "n1_doc_006:0",
+      "dst": "n2_doc_010:5",
+      "relation": "contradicts",
+      "confidence": 0.9467153549194336,
+      "proposer": "combined_relation:nli"
+    },
+    {
+      "src": "n1_doc_008:4",
+      "dst": "n2_doc_001:1",
+      "relation": "contradicts",
+      "confidence": 0.7401812672615051,
+      "proposer": "combined_relation:nli"
+    },
+    {
+      "src": "n1_doc_008:4",
+      "dst": "n2_doc_002:1",
+      "relation": "contradicts",
+      "confidence": 0.8679327368736267,
+      "proposer": "combined_relation:nli"
+    },
+    {
+      "src": "n1_doc_008:1",
+      "dst": "n2_doc_004:2",
+      "relation": "contradicts",
+      "confidence": 0.9818331599235535,
+      "proposer": "combined_relation:nli"
+    },
+    {
+      "src": "n1_doc_008:4",
+      "dst": "n2_doc_006:0",
+      "relation": "contradicts",
+      "confidence": 0.9588344693183899,
+      "proposer": "combined_relation:nli"
+    },
+    {
+      "src": "n1_doc_008:4",
+      "dst": "n2_doc_008:3",
+      "relation": "contradicts",
+      "confidence": 0.9825579524040222,
+      "proposer": "combined_relation:nli"
+    },
+    {
+      "src": "n1_doc_009:4",
+      "dst": "n2_doc_010:5",
+      "relation": "contradicts",
+      "confidence": 0.9374814033508301,
+      "proposer": "combined_relation:nli"
+    },
+    {
+      "src": "n1_doc_009:1",
+      "dst": "water_utility_update:0",
+      "relation": "contradicts",
+      "confidence": 0.9324306845664978,
+      "proposer": "combined_relation:nli"
+    },
+    {
+      "src": "n1_doc_009:4",
+      "dst": "n2_doc_007:1",
+      "relation": "contradicts",
+      "confidence": 0.7884069085121155,
+      "proposer": "combined_relation:nli"
+    },
+    {
+      "src": "n2_doc_003:3",
+      "dst": "water_utility_update:0",
+      "relation": "contradicts",
+      "confidence": 0.9216634035110474,
+      "proposer": "combined_relation:nli"
+    },
+    {
+      "src": "n2_doc_004:3",
+      "dst": "water_utility_update:0",
+      "relation": "contradicts",
+      "confidence": 0.7457529902458191,
+      "proposer": "combined_relation:nli"
+    },
+    {
+      "src": "power_grid_status:0",
+      "dst": "water_utility_update:0",
+      "relation": "contradicts",
+      "confidence": 0.6836190819740295,
+      "proposer": "combined_relation:band"
+    },
+    {
+      "src": "water_utility_update:0",
+      "dst": "weather_service_brief:0",
+      "relation": "contradicts",
+      "confidence": 0.9610263705253601,
+      "proposer": "combined_relation:nli"
+    },
+    {
+      "src": "water_utility_update:0",
+      "dst": "wf_multi_grass:0",
+      "relation": "contradicts",
+      "confidence": 0.9850425720214844,
+      "proposer": "combined_relation:nli"
+    }
+  ]
+}

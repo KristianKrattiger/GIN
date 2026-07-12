@@ -76,9 +76,12 @@ class RunMeta:
     n_gpu_layers: int = 0
     wall_clock_seconds_per_query: Optional[float] = None
     tokens_per_second: Optional[float] = None
+    corpus_fingerprint: Optional[dict[str, Any]] = None
+    edge_source: Optional[str] = None
+    cartographer_scan_run_id: Optional[str] = None
 
     def to_dict(self) -> dict:
-        return {
+        out = {
             "generated_at": self.generated_at,
             "model": self.model,
             "verifier_mode": self.verifier_mode,
@@ -90,6 +93,13 @@ class RunMeta:
             "wall_clock_seconds_per_query": self.wall_clock_seconds_per_query,
             "tokens_per_second": self.tokens_per_second,
         }
+        if self.corpus_fingerprint is not None:
+            out["corpus_fingerprint"] = self.corpus_fingerprint
+        if self.edge_source is not None:
+            out["edge_source"] = self.edge_source
+        if self.cartographer_scan_run_id is not None:
+            out["cartographer_scan_run_id"] = self.cartographer_scan_run_id
+        return out
 
 
 def _refusal_record() -> ClaimRecord:
@@ -404,6 +414,9 @@ def make_meta(
     n_gpu_layers: int = 0,
     wall_clock_seconds_per_query: Optional[float] = None,
     tokens_per_second: Optional[float] = None,
+    corpus_fingerprint: Optional[dict[str, Any]] = None,
+    edge_source: Optional[str] = None,
+    cartographer_scan_run_id: Optional[str] = None,
 ) -> RunMeta:
     return RunMeta(
         generated_at=datetime.now(timezone.utc).isoformat(),
@@ -416,4 +429,7 @@ def make_meta(
         n_gpu_layers=n_gpu_layers,
         wall_clock_seconds_per_query=wall_clock_seconds_per_query,
         tokens_per_second=tokens_per_second,
+        corpus_fingerprint=corpus_fingerprint,
+        edge_source=edge_source,
+        cartographer_scan_run_id=cartographer_scan_run_id,
     )

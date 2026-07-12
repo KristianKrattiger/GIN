@@ -14,8 +14,8 @@ def test_set_spans_three_registers_with_negatives():
     gold = default_gold_pairs()
     by_relation = Counter(g.relation.value for g in gold)
     assert by_relation[Relation.CONTRADICTS.value] == 7
-    assert by_relation[Relation.CORROBORATES.value] == 3   # class-C discrimination cases
-    assert by_relation[Relation.UNRELATED.value] == 3      # cross-topic negatives
+    assert by_relation[Relation.CORROBORATES.value] == 10
+    assert by_relation[Relation.UNRELATED.value] == 16
     registers = {g.register for g in gold}
     assert {"climate", "legal", "housing"} <= registers
 

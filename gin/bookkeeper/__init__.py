@@ -14,6 +14,15 @@ from .models import (
     ORDERING_RELATIONS,
     SYMMETRIC_RELATIONS,
 )
+from .persist import (
+    ensure_edge_schema,
+    load_bookkeeper,
+    load_graph,
+    sync_admissions,
+    upsert_admitted_edge,
+)
+
+from .relation_verify import FRAMING_BAND_FLOOR, RelationVerifyResult, verify_contradicts
 
 __all__ = [
     "AdmissionCode",
@@ -24,6 +33,14 @@ __all__ = [
     "GraphState",
     "ORDERING_RELATIONS",
     "Provenance",
+    "RelationVerifyResult",
     "SYMMETRIC_RELATIONS",
     "edge_key",
+    "ensure_edge_schema",
+    "load_bookkeeper",
+    "load_graph",
+    "sync_admissions",
+    "upsert_admitted_edge",
+    "verify_contradicts",
+    "FRAMING_BAND_FLOOR",
 ]

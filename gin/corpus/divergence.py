@@ -155,6 +155,65 @@ def compute_divergence_sentence_ranges(
     return ranges
 
 
+def sentence_start_for_whitespace_anchor(
+    text: str,
+    anchor: tuple[int, int],
+    tokenize: Callable[[bytes], list[int]],
+    corpus: Corpus,
+    doc_idx: int,
+) -> Optional[int]:
+    """Map a Bookkeeper whitespace-token anchor to a tokenizer sentence start."""
+    ws_start, _ws_end = anchor
+    sents = _sentence_texts(text)
+    spans = sentence_token_spans(text, tokenize)
+    word_idx = 0
+    for i, (start, _end) in enumerate(spans):
+        sent_words = len(sents[i].split()) if i < len(sents) else 0
+        if word_idx <= ws_start < word_idx + max(sent_words, 1):
+            if (doc_idx, start) in corpus.sentence_starts:
+                return start
+        word_idx += max(sent_words, 1)
+    if spans and (doc_idx, spans[0][0]) in corpus.sentence_starts:
+        return spans[0][0]
+    return None
+
+
+def divergence_starts_from_edge_anchors(
+    hits: list[ChunkHit],
+    pairs: list[tuple[ChunkHit, ChunkHit, object]],
+    corpus: Corpus,
+    tokenize: Callable[[bytes], list[int]],
+) -> dict[int, set[int]]:
+    """Seed divergence zones from admitted graph anchors when present."""
+    chunk_to_doc = {hit.chunk_id: i for i, hit in enumerate(hits)}
+    divergence_starts: dict[int, set[int]] = defaultdict(set)
+
+    for left, right, edge in pairs:
+        edge_type = getattr(edge, "edge_type", edge)
+        if str(edge_type) != "contradicts":
+            continue
+        li = chunk_to_doc.get(left.chunk_id)
+        ri = chunk_to_doc.get(right.chunk_id)
+        if li is None or ri is None:
+            continue
+        src_anchor = getattr(edge, "src_anchor", None)
+        dst_anchor = getattr(edge, "dst_anchor", None)
+        if src_anchor is not None:
+            start = sentence_start_for_whitespace_anchor(
+                left.text, src_anchor, tokenize, corpus, li
+            )
+            if start is not None:
+                divergence_starts[li].add(start)
+        if dst_anchor is not None:
+            start = sentence_start_for_whitespace_anchor(
+                right.text, dst_anchor, tokenize, corpus, ri
+            )
+            if start is not None:
+                divergence_starts[ri].add(start)
+
+    return dict(divergence_starts)
+
+
 def shared_sentence_starts(
     hits: list[ChunkHit],
     corpus: Corpus,

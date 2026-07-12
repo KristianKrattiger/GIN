@@ -11,6 +11,7 @@ from .db import connect
 from .divergence import (
     compute_divergence_sentence_ranges,
     compute_divergence_zones,
+    divergence_starts_from_edge_anchors,
     shared_sentence_starts,
 )
 from .models import ChunkHit, EvalLayer, SynthesisBundle, SynthesisContext
@@ -222,6 +223,10 @@ def materialize_synthesis_bundle(
     divergence_starts: dict[int, set[int]] = {}
     forbidden_starts: set[tuple[int, int]] = set()
     if bundle.mode == "divergent" and bundle.pairs:
+        corpus_for_anchors = corpus
+        anchor_seeded = divergence_starts_from_edge_anchors(
+            hits, bundle.pairs, corpus_for_anchors, tokenize
+        )
         # For structurally-dissimilar pairs, compute_divergence_zones falls back
         # to marking an anchor sentence per side. Give it a query-relevance
         # scorer so multi-sentence chunks anchor on their most relevant sentence
@@ -231,9 +236,12 @@ def materialize_synthesis_bundle(
         if query:
             idf = corpus_idf(chunk_texts)
             sentence_scorer = lambda sent: idf_weighted_relevance(sent, query, idf)
-        divergence_starts, forbidden_starts = compute_divergence_zones(
+        computed_starts, forbidden_starts = compute_divergence_zones(
             hits, bundle.pairs, corpus, tokenize, sentence_scorer=sentence_scorer
         )
+        divergence_starts = dict(computed_starts)
+        for doc_idx, starts in anchor_seeded.items():
+            divergence_starts.setdefault(doc_idx, set()).update(starts)
         all_divergence = {
             (d, p) for d, positions in divergence_starts.items() for p in positions
         }

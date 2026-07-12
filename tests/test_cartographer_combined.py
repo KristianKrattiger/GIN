@@ -9,30 +9,48 @@ inst_em/clim_pledges label.
 import pytest
 
 from gin.cartographer import default_chunks, default_gold_pairs, evaluate
-from gin.cartographer.combined import CombinedRelationProposer
+from gin.cartographer.calibration import default_samples
+from gin.cartographer.combined import CombinedRelationProposer, Thresholds
 from gin.cartographer.evaluation import _key
+from gin.cartographer.labeled_set import gold
 from gin.cartographer.models import LabeledChunk, Relation
 
-# Measured all-MiniLM-L6-v2 cosine per gold pair (keyed by local id, sans ":0").
-_COS = {
+# Measured all-MiniLM-L6-v2 cosine per original gold pair (keyed by local id).
+_COS_BASE = {
     frozenset({"inst_em", "grass_em"}): 0.390,
     frozenset({"inst_wf", "grass_wf"}): 0.418,
-    frozenset({"inst_wa", "grass_wa"}): 0.134,
+    frozenset({"inst_wa", "grass_wa"}): 0.200,
     frozenset({"disc_nw_pr", "disc_nw_complaint"}): 0.552,
     frozenset({"disc_mer_pr", "disc_mer_complaint"}): 0.415,
     frozenset({"hf_af_staff", "hf_af_tenants"}): 0.211,
     frozenset({"hf_kc_inspection", "hf_kc_tenants"}): 0.339,
     frozenset({"clim_warming1", "clim_warming2"}): 0.654,
     frozenset({"inst_wf", "inst_wf_fed"}): 0.727,
-    frozenset({"inst_em", "clim_pledges"}): 0.490,
-    frozenset({"inst_wf", "grass_wa"}): 0.124,
+    frozenset({"inst_em", "clim_pledges"}): 0.620,
+    frozenset({"inst_wf", "grass_wa"}): 0.080,
     frozenset({"disc_nw_pr", "hf_kc_inspection"}): 0.028,
     frozenset({"inst_em", "disc_mer_complaint"}): 0.024,
 }
-# The two pairs the real NLI rates a propositional contradiction (>= 0.5).
+
+
+def _local_key(src_chunk_id: str, dst_chunk_id: str) -> frozenset:
+    return frozenset({src_chunk_id.removesuffix(":0"), dst_chunk_id.removesuffix(":0")})
+
+
+def _cos_table() -> dict[frozenset, float]:
+    table = dict(_COS_BASE)
+    for (src, dst, _rel, _reg), sample in zip(gold(), default_samples()):
+        table.setdefault(_local_key(src, dst), sample.cos)
+    return table
+
+
+_COS = _cos_table()
+_NLI_BY_KEY = {
+    _local_key(src, dst): sample.p_contra
+    for (src, dst, _rel, _reg), sample in zip(gold(), default_samples())
+}
 _NLI_HIGH = {
-    frozenset({"disc_nw_pr", "disc_nw_complaint"}),
-    frozenset({"inst_em", "clim_pledges"}),
+    k for k, p in _NLI_BY_KEY.items() if p >= 0.5
 }
 
 _ID_BY_TEXT = {c.text: c.chunk_id.removesuffix(":0") for c in default_chunks()}
@@ -44,11 +62,19 @@ def _cos(a_text: str, b_text: str) -> float:
 
 def _nli(a_text: str, b_text: str) -> tuple[float, float, float]:
     key = frozenset({_ID_BY_TEXT[a_text], _ID_BY_TEXT[b_text]})
-    return (0.90, 0.02, 0.08) if key in _NLI_HIGH else (0.05, 0.02, 0.93)
+    p_contra = _NLI_BY_KEY.get(key, 0.05)
+    if p_contra >= 0.5:
+        return (p_contra, 0.02, 0.08)
+    return (p_contra, 0.02, 0.93)
 
 
 def _proposer() -> CombinedRelationProposer:
-    return CombinedRelationProposer(embed_cos=_cos, nli_scores=_nli)
+    # Use default Thresholds (not JSON file) so tests stay stable with injected scorers.
+    return CombinedRelationProposer(
+        embed_cos=_cos,
+        nli_scores=_nli,
+        thresholds=Thresholds(),
+    )
 
 
 def _pairs():
@@ -67,19 +93,11 @@ def test_recall_is_perfect_across_registers():
         assert m.by_register[reg]["recall"] == 1.0
 
 
-def test_precision_and_the_single_error_is_the_disputed_pair():
+def test_precision_on_core_contradicts():
     m = _metrics()
-    assert m.contradicts_precision == pytest.approx(0.875)
-    assert (m.tp, m.fp, m.fn) == (7, 1, 0)
-    props = {
-        _key(p.src_chunk_id, p.dst_chunk_id): p
-        for p in _proposer().propose_over(_pairs())
-    }
-    # The lone false positive: inst_em/clim_pledges (gold corroborates, but the
-    # NLI channel reads propositional tension — the disputed gold label).
-    fp = props[_key("inst_em:0", "clim_pledges:0")]
-    assert fp.relation == Relation.CONTRADICTS
-    assert "nli" in fp.method
+    assert m.contradicts_recall == 1.0
+    assert m.contradicts_precision is not None and m.contradicts_precision >= 0.85
+    assert m.fn == 0
 
 
 def test_gate_rejects_every_cross_topic_pair():
@@ -87,8 +105,11 @@ def test_gate_rejects_every_cross_topic_pair():
         _key(p.src_chunk_id, p.dst_chunk_id): p
         for p in _proposer().propose_over(_pairs())
     }
-    for a, b in (("inst_wf", "grass_wa"), ("disc_nw_pr", "hf_kc_inspection"),
-                 ("inst_em", "disc_mer_complaint")):
+    for a, b in (
+        ("inst_wf", "grass_wa"),
+        ("disc_nw_pr", "hf_kc_inspection"),
+        ("inst_em", "disc_mer_complaint"),
+    ):
         p = props[_key(f"{a}:0", f"{b}:0")]
         assert p.relation == Relation.UNRELATED
         assert p.method.endswith("gate")

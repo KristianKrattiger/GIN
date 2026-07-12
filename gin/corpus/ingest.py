@@ -124,6 +124,7 @@ def ingest_documents(
     *,
     cold_root: Path | None = None,
     embed: bool = True,
+    ingest_edges: bool = True,
 ) -> dict[str, Any]:
     root = cold_root or cold_path()
     stats: dict[str, Any] = {
@@ -177,9 +178,10 @@ def ingest_documents(
                         hot.embed_and_store(conn, chunk_id, chunk_text)
                         stats["embeddings_written"] += 1
 
-            for edge in edges:
-                warm.upsert_edge(conn, edge)
-                stats["edges"] += 1
+            if ingest_edges:
+                for edge in edges:
+                    warm.upsert_edge(conn, edge)
+                    stats["edges"] += 1
 
             warm.finish_ingest_run(conn, run_id, "completed", stats)
         except Exception:
@@ -189,9 +191,13 @@ def ingest_documents(
     return stats
 
 
-def ingest_path(source: Path, *, embed: bool = True) -> dict[str, Any]:
+def ingest_path(
+    source: Path, *, embed: bool = True, ingest_edges: bool = True
+) -> dict[str, Any]:
     documents, edges = load_source(source)
-    return ingest_documents(documents, edges, embed=embed)
+    return ingest_documents(
+        documents, edges, embed=embed, ingest_edges=ingest_edges
+    )
 
 
 def ingest_local_directory(

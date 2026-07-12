@@ -1,0 +1,19 @@
+{
+  "query_id": "hf_alderflats_rezoning",
+  "query": "What would the Alder Flats rezoning mean for the neighborhood?",
+  "eval_layer": "realism",
+  "gold_chunk_ids": [
+    "hf_alderflats_staff:0",
+    "hf_alderflats_tenants:0"
+  ],
+  "retrieved_chunk_ids": [
+    "hf_alderflats_staff:0",
+    "hf_alderflats_tenants:0",
+    "n2_doc_004:0",
+    "n2_doc_001:2",
+    "n2_doc_002:3",
+    "n2_doc_002:4"
+  ],
+  "retrieval_recall_at_k": 1.0,
+  "retrieval_manifest_hash": "259df27761811595097b9c21c9f2a5d53b8911b5cadf654ed7105e86208babb6"
+}

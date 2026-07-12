@@ -15,7 +15,7 @@ from .evaluation import (
     format_report,
 )
 from .calibration import Sample, calibrate, default_samples, leave_one_out
-from .combined import CombinedRelationProposer, Thresholds
+from .combined import CombinedRelationProposer, Thresholds, load_thresholds
 from .frame_judge import LlmFrameJudge
 from .models import Assessment, EdgeProposal, LabeledChunk, Relation
 from .nli import NliRelationProposer
@@ -45,4 +45,5 @@ __all__ = [
     "format_report",
     "idf_relatedness",
     "leave_one_out",
+    "load_thresholds",
 ]

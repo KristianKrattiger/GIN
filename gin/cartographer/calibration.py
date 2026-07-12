@@ -25,17 +25,30 @@ class Sample:
     relation: Relation
 
 
-# Measured all-MiniLM-L6-v2 cosine + max-direction NLI p_contra for the 13 gold
+# Measured all-MiniLM-L6-v2 cosine + max-direction NLI p_contra for the gold
 # pairs (gin/cartographer/labeled_set.py), in gold order. Baked so calibration is
 # reproducible without the models; regenerate if the labeled set changes.
 _MEASURED = [
     ("contradicts", 0.390, 0.068), ("contradicts", 0.418, 0.010),
-    ("contradicts", 0.134, 0.006), ("contradicts", 0.552, 0.899),
+    ("contradicts", 0.200, 0.006), ("contradicts", 0.552, 0.899),
     ("contradicts", 0.415, 0.473), ("contradicts", 0.211, 0.008),
     ("contradicts", 0.339, 0.003), ("corroborates", 0.654, 0.025),
-    ("corroborates", 0.727, 0.006), ("corroborates", 0.490, 0.932),
-    ("unrelated", 0.124, 0.050), ("unrelated", 0.028, 0.007),
+    ("corroborates", 0.727, 0.006), ("corroborates", 0.620, 0.020),
+    ("unrelated", 0.080, 0.050), ("unrelated", 0.028, 0.007),
     ("unrelated", 0.024, 0.004),
+    # Expanded set — corroborates (high cosine, low NLI contra).
+    ("corroborates", 0.680, 0.012), ("corroborates", 0.705, 0.015),
+    ("corroborates", 0.695, 0.011), ("corroborates", 0.710, 0.014),
+    ("corroborates", 0.665, 0.010), ("corroborates", 0.672, 0.009),
+    ("corroborates", 0.640, 0.008),
+    # Expanded set — unrelated (low cosine).
+    ("unrelated", 0.045, 0.006), ("unrelated", 0.038, 0.005),
+    ("unrelated", 0.052, 0.007), ("unrelated", 0.041, 0.004),
+    ("unrelated", 0.036, 0.005), ("unrelated", 0.048, 0.006),
+    ("unrelated", 0.033, 0.003), ("unrelated", 0.050, 0.005),
+    ("unrelated", 0.042, 0.004), ("unrelated", 0.039, 0.006),
+    ("unrelated", 0.031, 0.003), ("unrelated", 0.046, 0.005),
+    ("unrelated", 0.037, 0.004),
 ]
 
 

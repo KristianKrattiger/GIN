@@ -1,0 +1,15 @@
+{
+  "query_id": "olympic_medals_probe",
+  "query": "Which country won the most gold medals at the last Summer Olympics?",
+  "eval_layer": "out_of_scope",
+  "gold_chunk_ids": [],
+  "retrieved_chunk_ids": [
+    "n1_doc_002:2",
+    "n1_doc_002:5",
+    "n1_doc_007:0",
+    "n1_doc_007:2",
+    "n1_doc_009:2"
+  ],
+  "retrieval_recall_at_k": null,
+  "retrieval_manifest_hash": "1ca503fe2460a968f025259e40b9690ea2f31e6ecbaad2b030981f6296fb6f06"
+}

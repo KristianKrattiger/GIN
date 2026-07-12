@@ -1,0 +1,305 @@
+[
+  {
+    "query_id": "tn_emissions_framing",
+    "query": "What is the most important thing the world should do about greenhouse gas emissions?",
+    "arm": "no_continuation",
+    "eval_layer": "realism",
+    "expectation": "answerable",
+    "refused": false,
+    "claims": [
+      {
+        "claim_text": "Indigenous-led resistance efforts are estimated to have stopped or delayed greenhouse gas pollution equivalent to roughly one-quarter of annual U.S. and Canadian emissions.",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "n2_doc_001:4",
+        "score": 1.0,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "EXACT",
+        "cited_chunk_ids": [
+          "n2_doc_001:4"
+        ]
+      },
+      {
+        "claim_text": "Current pledges under the Paris Agreement put the world on track for a 2.5-2.9 degree C temperature rise above pre-industrial levels this century.",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "n1_doc_005:1",
+        "score": 1.0,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "EXACT",
+        "cited_chunk_ids": [
+          "n1_doc_005:1"
+        ]
+      }
+    ],
+    "eval_tag": "emissions_divergence",
+    "retrieval_manifest_hash": "db172450ac1d2b5bbf90aceb3b49754349cce2575fc4fd06a88a3552665c7eba",
+    "retrieved_chunk_ids": [
+      "n1_doc_005:1",
+      "n2_doc_001:4",
+      "n1_doc_001:7",
+      "n1_doc_005:2",
+      "n1_doc_005:4",
+      "n1_doc_007:4"
+    ],
+    "gold_chunk_ids": [
+      "n1_doc_005:2",
+      "n2_doc_001:4"
+    ],
+    "retrieval_recall_at_k": 1.0,
+    "raw_text": " Indigenous-led resistance efforts are estimated to have stopped or delayed greenhouse gas pollution equivalent to roughly one-quarter of annual U.S. and Canadian emissions. | [2] Current pledges under the Paris Agreement put the world on track for a 2.5-2.9 degree C temperature rise above pre-industrial levels this century. |",
+    "counterfactual_answer": null,
+    "contradicts_pairs": [
+      [
+        "n1_doc_005:2",
+        "n2_doc_001:4"
+      ]
+    ],
+    "error": null
+  },
+  {
+    "query_id": "tn_wildfire_framing",
+    "query": "What is the main concern about wildfires in the United States?",
+    "arm": "no_continuation",
+    "eval_layer": "realism",
+    "expectation": "answerable",
+    "refused": false,
+    "claims": [
+      {
+        "claim_text": "Community-based participatory research on drought impacts in the San Francisco Bay Area highlights affordability and infrastructure condition as persistent concerns for low-income residents.",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "n2_doc_008:3",
+        "score": 1.0,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "EXACT",
+        "cited_chunk_ids": [
+          "n2_doc_008:3"
+        ]
+      },
+      {
+        "claim_text": "About one-quarter of the nation's wildfires in 2023 occurred on federally protected lands.",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "n1_doc_008:2",
+        "score": 1.0,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "EXACT",
+        "cited_chunk_ids": [
+          "n1_doc_008:2"
+        ]
+      }
+    ],
+    "eval_tag": "wildfire_divergence",
+    "retrieval_manifest_hash": "c1e85d0a005d238a419d97bd01164d50170d39982c231d4b44cdb288368e0254",
+    "retrieved_chunk_ids": [
+      "n1_doc_008:2",
+      "n2_doc_008:3",
+      "n1_doc_008:0",
+      "n1_doc_008:1",
+      "election_centralwire:0",
+      "out_of_scope_stub:0"
+    ],
+    "gold_chunk_ids": [
+      "n1_doc_008:0",
+      "n2_doc_005:1"
+    ],
+    "retrieval_recall_at_k": 0.5,
+    "raw_text": " Community-based participatory research on drought impacts in the San Francisco Bay Area highlights affordability and infrastructure condition as persistent concerns for low-income residents. | [2] About one-quarter of the nation's wildfires in 2023 occurred on federally protected lands. |",
+    "counterfactual_answer": null,
+    "contradicts_pairs": [
+      [
+        "n1_doc_008:0",
+        "n2_doc_005:1"
+      ]
+    ],
+    "error": null
+  },
+  {
+    "query_id": "tn_water_framing",
+    "query": "How should water scarcity in California be understood?",
+    "arm": "no_continuation",
+    "eval_layer": "realism",
+    "expectation": "answerable",
+    "refused": false,
+    "claims": [
+      {
+        "claim_text": "Pacific Institute research finds California could meaningfully reduce urban water use through greater investment in water efficiency measures.",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "n2_doc_008:0",
+        "score": 1.0,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "EXACT",
+        "cited_chunk_ids": [
+          "n2_doc_008:0"
+        ]
+      }
+    ],
+    "eval_tag": "water_divergence",
+    "retrieval_manifest_hash": "040d3dd99e5a0aada9617d8e2b7ab480acda1019becf11eb2f239536c57238d5",
+    "retrieved_chunk_ids": [
+      "n2_doc_008:0",
+      "n2_doc_008:1",
+      "n2_doc_008:2",
+      "n2_doc_008:4",
+      "n1_doc_002:4",
+      "n1_doc_004:5"
+    ],
+    "gold_chunk_ids": [
+      "n1_doc_009:0",
+      "n2_doc_008:2"
+    ],
+    "retrieval_recall_at_k": 0.5,
+    "raw_text": " Pacific Institute research finds California could meaningfully reduce urban water use through greater investment in water efficiency measures. |",
+    "counterfactual_answer": null,
+    "contradicts_pairs": [
+      [
+        "n1_doc_009:0",
+        "n2_doc_008:2"
+      ]
+    ],
+    "error": null
+  },
+  {
+    "query_id": "tn_2023_anomaly",
+    "query": "How much warmer was 2023 than the twentieth-century average?",
+    "arm": "no_continuation",
+    "eval_layer": "realism",
+    "expectation": "answerable",
+    "refused": false,
+    "claims": [
+      {
+        "claim_text": "In 2023, global surface temperature was about 2.12 degrees F (1.18 degrees C) above the 20th-century average, beating the next warmest year (2016) by roughly 0.27 degrees F.",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "n1_doc_002:1",
+        "score": 1.0,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "EXACT",
+        "cited_chunk_ids": [
+          "n1_doc_002:1"
+        ]
+      }
+    ],
+    "eval_tag": "temperature_data",
+    "retrieval_manifest_hash": "8246e16fd0b4bbcbed8c260d0bf1c49495f2bc210c530f8a614e486a5ad40a27",
+    "retrieved_chunk_ids": [
+      "n1_doc_002:1",
+      "n1_doc_005:0",
+      "n1_doc_007:0",
+      "n1_doc_007:1"
+    ],
+    "gold_chunk_ids": [
+      "n1_doc_002:1"
+    ],
+    "retrieval_recall_at_k": 1.0,
+    "raw_text": " In 2023, global surface temperature was about 2.12 degrees F (1.18 degrees C) above the 20th-century average, beating the next warmest year (2016) by roughly 0.27 degrees F. |",
+    "counterfactual_answer": null,
+    "contradicts_pairs": [],
+    "error": null
+  },
+  {
+    "query_id": "tn_ocean_acidification",
+    "query": "What is ocean acidification and what causes it?",
+    "arm": "no_continuation",
+    "eval_layer": "realism",
+    "expectation": "answerable",
+    "refused": false,
+    "claims": [
+      {
+        "claim_text": "Ocean acidification refers to a reduction in the pH of the ocean over an extended period of time, caused primarily by uptake of carbon dioxide (CO2) from the atmosphere.",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "n1_doc_004:0",
+        "score": 1.0,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "EXACT",
+        "cited_chunk_ids": [
+          "n1_doc_004:0"
+        ]
+      }
+    ],
+    "eval_tag": "ocean_acidification",
+    "retrieval_manifest_hash": "abbeda2842543b253d084eaf8dc0c1b4d3e7e5c1ec468a2b41c7aa26d1fc7296",
+    "retrieved_chunk_ids": [
+      "n1_doc_004:0",
+      "n1_doc_004:4",
+      "n1_doc_004:6",
+      "n2_doc_001:2",
+      "n2_doc_004:3",
+      "n2_doc_005:2"
+    ],
+    "gold_chunk_ids": [
+      "n1_doc_004:0"
+    ],
+    "retrieval_recall_at_k": 1.0,
+    "raw_text": " Ocean acidification refers to a reduction in the pH of the ocean over an extended period of time, caused primarily by uptake of carbon dioxide (CO2) from the atmosphere. |",
+    "counterfactual_answer": null,
+    "contradicts_pairs": [],
+    "error": null
+  },
+  {
+    "query_id": "tn_out_of_scope_referendum",
+    "query": "By how many votes did the harbor district referendum pass?",
+    "arm": "no_continuation",
+    "eval_layer": "out_of_scope",
+    "expectation": "out_of_scope",
+    "refused": false,
+    "claims": [
+      {
+        "claim_text": "harbor district referendum passed by 842 votes after a long count.",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "election_centralwire:0",
+        "score": 1.0,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "EXACT",
+        "cited_chunk_ids": [
+          "election_centralwire:0"
+        ]
+      },
+      {
+        "claim_text": "HARBORVIEW \u2014 The harbor district referendum passed by 842 votes after a long count.",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "election_metrodaily:0",
+        "score": 1.0,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "EXACT",
+        "cited_chunk_ids": [
+          "election_metrodaily:0"
+        ]
+      },
+      {
+        "claim_text": "Fall enrollment reached 48,200 students across district campuses.",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "school_district_report:0",
+        "score": 1.0,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "EXACT",
+        "cited_chunk_ids": [
+          "school_district_report:0"
+        ]
+      },
+      {
+        "claim_text": "Combined reservoir storage stood at 74 percent of capacity on Sunday.",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "water_utility_update:0",
+        "score": 1.0,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "EXACT",
+        "cited_chunk_ids": [
+          "water_utility_update:0"
+        ]
+      }
+    ],
+    "eval_tag": "oos_probe",
+    "retrieval_manifest_hash": "16a4ae8e7d2469ee2b70d982b828cc72116410558a43c66ae2e3477fcd1bbc57",
+    "retrieved_chunk_ids": [
+      "election_centralwire:0",
+      "election_metrodaily:0",
+      "school_district_report:0",
+      "water_utility_update:0",
+      "port_authority_brief:0",
+      "incident_metrodaily:0"
+    ],
+    "gold_chunk_ids": [],
+    "retrieval_recall_at_k": null,
+    "raw_text": " harbor district referendum passed by 842 votes after a long count.\n | [1] HARBORVIEW \u2014 The harbor district referendum passed by 842 votes after a long count.\n | [2] Fall enrollment reached 48,200 students across district campuses.\n | [3] Combined reservoir storage stood at 74 percent of capacity on Sunday.\n |",
+    "counterfactual_answer": null,
+    "contradicts_pairs": [],
+    "error": null
+  }
+]
