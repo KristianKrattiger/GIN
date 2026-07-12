@@ -237,16 +237,17 @@ The mid-band-default-contradicts rule inverted at scan scale: measured on the
 (kestrel cos 0.698) while the mid band is cross-topic noise. Contradicts typing
 on both channels now requires a shared story: ≥ 2 corpus-rare tokens including
 an entity-grade anchor (Alderflats, Meridian, RIVERPORT, 842 — not 'remain in
-effect'-style boilerplate). Gold includes the three author-labeled
+effect'-style boilerplate). Gold includes four author-labeled
 `news_corpus.yaml` edges (previously scored as false positives). Scan eval
-reports both chunk-pair and doc-pair granularity, so anchor disagreement with
-the gold YAML (same doc pair, different chunk pair) is a discovery, not a miss
-plus a false positive.
+reports both chunk-pair and doc-pair granularity; admitted chunk pairs on a
+curated doc pair at a different anchor count as **anchor discoveries**, not
+machine false positives (`anchor_discovery_keys` in scan eval output).
 
 **Gold is split by `relation_class`** (`scan_eval.split_gold_by_class`):
 machine metrics score the *story* class (same story, conflicting accounts);
-the three *issue_frame* pairs (same issue, opposing frames, zero shared
-entities — `corpus_edges.yaml`) are curated-ingest edges. The 2026-07-12
+the four *issue_frame* pairs (same issue, opposing frames, zero shared
+entities — `corpus_edges.yaml`, including alternate emissions anchor
+`n1_doc_005:1 ↔ n2_doc_001:1`) are curated-ingest edges. The 2026-07-12
 signal audit measured them machine-undetectable locally: six embedding models
 (margin −0.39…−0.08 vs adjacent noise), NLI ≈ 0 both directions, register-axis
 delta overlapping, Mistral-7B constant-answer zero- and few-shot. Forward path
@@ -254,24 +255,34 @@ for corpora where curation does not scale: `--escalation-judge anthropic`
 routes the anchor-less topically-close residue (91–338 pairs at floors
 0.40–0.30) to an API-class judge (`gin/cartographer/escalation.py`).
 
-| Metric | Old band (`074956Z`) | Story gate (`091415Z`) | Anchors, gold 11 (`094453Z`) | Class split (`202240Z`) |
-|--------|---|---|---|---|
-| Admitted contradicts | 122 | 20 | 11 | 11 (+3 curated at persist) |
-| False positives (chunk) | 120 | 15 | 3 | **3** (see label notes below) |
-| Machine gold admitted | 2/8 | 5/8 | 8/11 | **8/8 — recall 1.0, 0 missed** |
-| Curated gold (issue_frame) | — | — | — | 3/3 via `--curated-edges` |
-| class_c_discrimination | 1.0 | 1.0 | 1.0 | 1.0 |
+| Metric | Old band (`074956Z`) | Story gate (`091415Z`) | Anchors, gold 11 (`094453Z`) | Class split (`202240Z`) | Label closure (`220456Z`) |
+|--------|---|---|---|---|---|
+| Admitted contradicts | 122 | 20 | 11 | 11 (+3 curated at persist) | 11 (+3 curated; scan also hits `:1↔:1`) |
+| False positives (chunk) | 120 | 15 | 3 | **3** | **1** (labor only) |
+| Anchor discoveries | — | — | — | — | **1** (`n1_doc_005:1 ↔ n2_doc_001:1`) |
+| Machine gold admitted | 2/8 | 5/8 | 8/11 | **8/8 — recall 1.0, 0 missed** | **9/9 — recall 1.0, 0 missed** |
+| Curated gold (issue_frame) | — | — | — | 3/3 via `--curated-edges` | **4/4** (3 at persist when scan covers `:1↔:1`) |
+| class_c_discrimination | 1.0 | 1.0 | 1.0 | 1.0 | **0.5** (labor control fails; twonode passes) |
 
-Labeled set: precision 1.0, recall 4/7 (legal and housing 1.0; the three
+Labeled set: precision 1.0, recall 4/7 (legal and housing 1.0; the four
 climate pairs are the issue_frame class). The Bookkeeper re-check is now
 entailment-only (`relation_verify.py`) — its band/nli branches were circular
 (same NLI signal the proposer applied) and are removed; confidence floors live
-at the Bookkeeper gate. Pending label decisions (the 3 nominal FPs):
-`incident_metrodaily:0 ↔ incident_regionalpost:0` (98 vs 142 treated —
-textually verifiable), `labor_bureau_report:0 ↔ labor_independent_survey:0`
-(headline rate vs underemployment challenge), `n1_doc_005:1 ↔ n2_doc_001:1`
-(gold doc pair at different chunk anchors). Artifacts:
-`data/eval_runs/20260712T094453Z/` and `20260712T202240Z/`.
+at the Bookkeeper gate.
+
+**Label decisions closed** (2026-07-12):
+
+- `incident_metrodaily:0 ↔ incident_regionalpost:0` — gold `contradicts` in
+  `news_corpus.yaml` (98 vs 142 treated).
+- `n1_doc_005:1 ↔ n2_doc_001:1` — second `issue_frame` gold in
+  `corpus_edges.yaml`; scan eval reports it as an anchor discovery when the
+  scan admits that anchor (primary gold remains `:2 ↔ :4`).
+- `labor_bureau_report:0 ↔ labor_independent_survey:0` — **no** gold edge
+  (corroboration-with-a-caveat); added to `CLASS_C_CONTROLS` so scan eval
+  penalizes admission. Remains the sole true chunk-level FP until the detector
+  learns interpretation-caveat vs factual divergence.
+
+Artifact: `data/eval_runs/20260712T220456Z/`.
 
 ---
 
@@ -377,7 +388,7 @@ NLI confirms NC fabrication 0 on the 9-query structural baseline (`194024Z`); ex
 | Retrieval determinism + `corpus_fingerprint` in eval meta | ✅ |
 | Convergent sentence-end close (`tn_2023_anomaly` truncation) | ✅ |
 | Cartographer scan + Bookkeeper Postgres persist | ✅ (`scripts/cartographer_scan.py`, `gin/bookkeeper/persist.py`) |
-| Cartographer scan production validation (scan-only divergence eval) | ✅ Machine recall 1.0 on story-class gold, FP 120 → 3 (`20260712T202240Z`); issue_frame class curated via `--curated-edges` (measured machine-undetectable locally; API-judge escalation tier built for scale); framing2/framing3/multipara divergence evals coverage 1.0, fabrication 0.0 (`095050Z`/`095420Z`/`095734Z`) |
+| Cartographer scan production validation (scan-only divergence eval) | ✅ Machine recall 1.0 on 9/9 story-class gold, chunk FP 1 (labor CLASS_C; anchor discovery tracked separately) (`20260712T220456Z`); issue_frame class 4/4 curated via `--curated-edges`; twonode divergence eval coverage 1.0 (`20260712T203110Z`); API-judge escalation tier built for scale |
 | Labeled set expanded + threshold calibration (33 pairs, LOO ≥ 0.85) | ✅ (`data/cartographer_thresholds.json`) |
 | NLI verifier on expanded 20-query set | ✅ (`20260712T035228Z`, `models/Mistral-7B-Instruct-v0.3-Q6_K.gguf`, WSL+GPU; NC realism fabrication 0.0, overall NLI fabrication 0.056 on counterfactual entailment miss) |
 | Bookkeeper + reasoning layer separation (Phase 2) | ✅ (admission gate wired; synthesis reads warm `edges`) |

@@ -95,4 +95,7 @@ def gold_contradicts_keys(sources: Optional[Iterable[Path]] = None) -> set[froze
 # Corroborating pairs that must NOT be typed contradicts (class-C control).
 CLASS_C_CONTROLS: tuple[tuple[str, str, str], ...] = (
     ("n1_doc_008:0", "n1_doc_008:2", "twonode"),
+    # Identical unemployment stats; independent closing line challenges
+    # interpretation, not any asserted fact (corroboration-with-a-caveat).
+    ("labor_bureau_report:0", "labor_independent_survey:0", "news"),
 )

@@ -73,6 +73,7 @@ def main() -> int:
     print(f"    precision: {m.contradicts_precision}")
     print(f"    recall: {m.contradicts_recall}")
     print(f"    false positives: {len(result.false_positive_keys)}")
+    print(f"    anchor discoveries: {len(result.anchor_discovery_keys)}")
     print(f"    missed gold: {len(result.missed_gold_keys)}")
     print(f"    class_c_discrimination: {result.class_c_discrimination}")
     print(f"    artifact: {artifact}")

@@ -23,6 +23,12 @@ edges:
     note: "emissions: institutional reduction-target framing vs grassroots resistance framing"
     relation_class: issue_frame
 
+  - src: n1_doc_005:1        # Paris pledges → 2.5–2.9°C track
+    dst: n2_doc_001:1        # Frontline binding agreements + phase-out demands
+    type: contradicts
+    note: "emissions: institutional pledge trajectory vs grassroots treaty demands (alternate anchor)"
+    relation_class: issue_frame
+
   - src: n1_doc_008:0        # NIFC: 56,580 fires / 2.69M acres, below average
     dst: n2_doc_005:1        # Earthjustice: low-income at risk from wildfire smoke
     type: contradicts

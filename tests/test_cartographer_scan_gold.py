@@ -15,12 +15,14 @@ CORPUS_EDGES = ROOT / "data" / "corpus_edges.yaml"
 
 _TWONODE_COS = {
     frozenset({"n1_doc_005:2", "n2_doc_001:4"}): 0.390,
+    frozenset({"n1_doc_005:1", "n2_doc_001:1"}): 0.380,
     frozenset({"n1_doc_008:0", "n2_doc_005:1"}): 0.418,
     frozenset({"n1_doc_009:0", "n2_doc_008:2"}): 0.134,
     frozenset({"n1_doc_008:0", "n1_doc_008:2"}): 0.727,
 }
 _TWONODE_NLI = {
     frozenset({"n1_doc_005:2", "n2_doc_001:4"}): (0.90, 0.02, 0.08),
+    frozenset({"n1_doc_005:1", "n2_doc_001:1"}): (0.89, 0.02, 0.09),
     frozenset({"n1_doc_008:0", "n2_doc_005:1"}): (0.88, 0.03, 0.09),
     frozenset({"n1_doc_009:0", "n2_doc_008:2"}): (0.85, 0.04, 0.11),
     frozenset({"n1_doc_008:0", "n1_doc_008:2"}): (0.05, 0.90, 0.05),
@@ -119,9 +121,45 @@ def test_machine_metrics_exclude_issue_frame_gold():
     machine_keys = {_key(g.src_chunk_id, g.dst_chunk_id) for g in machine}
     curated_keys = {_key(g.src_chunk_id, g.dst_chunk_id) for g in curated}
     assert _key("n1_doc_009:0", "n2_doc_008:2") in curated_keys
+    assert _key("n1_doc_005:1", "n2_doc_001:1") in curated_keys
     assert _key("hf_alderflats_staff:0", "hf_alderflats_tenants:0") in machine_keys
-    assert len(curated) == 3
-    assert len(machine) == 8
+    assert len(curated) == 4
+    assert len(machine) == 9
+
+
+def test_split_machine_false_positives_excludes_curated_anchor_discoveries():
+    """Admitted chunk pair on a curated doc pair at a different anchor is not
+    a machine false positive."""
+    from gin.cartographer.scan_eval import split_machine_false_positives
+
+    gold = {_key("n1_doc_005:2", "n2_doc_001:4"), _key("a:0", "b:0")}
+    curated = [_key("n1_doc_005:2", "n2_doc_001:4"), _key("n1_doc_005:1", "n2_doc_001:1")]
+    admitted = {_key("n1_doc_005:1", "n2_doc_001:1"), _key("c:0", "d:0")}
+    fps, discoveries = split_machine_false_positives(admitted, gold, curated)
+    assert discoveries == [_key("n1_doc_005:1", "n2_doc_001:1")]
+    assert fps == [_key("c:0", "d:0")]
+
+
+def test_class_c_controls_include_labor_corroboration_pair():
+    from gin.cartographer.gold_edges import CLASS_C_CONTROLS
+    from gin.cartographer.models import Assessment, Relation
+    from gin.cartographer.scan_eval import _class_c_from_proposals
+
+    assert ("labor_bureau_report:0", "labor_independent_survey:0", "news") in CLASS_C_CONTROLS
+
+    assessments = [
+        Assessment(
+            "labor_bureau_report:0",
+            "labor_independent_survey:0",
+            Relation.CONTRADICTS,
+            "combined_relation:band",
+            0.9,
+        )
+    ]
+    rate, total, passed = _class_c_from_proposals(assessments)
+    assert total == 2
+    assert passed == 1
+    assert rate == 0.5
 
 
 def test_scan_eval_result_reports_curated_class_separately():
@@ -136,6 +174,8 @@ def test_scan_eval_result_reports_curated_class_separately():
     d = result.to_dict()
     assert d["curated_gold_count"] == 1
     assert d["curated_gold_keys"] == [["n1_doc_009:0", "n2_doc_008:2"]]
+    assert d["anchor_discovery_count"] == 0
+    assert d["anchor_discovery_keys"] == []
 
 
 def test_gold_pairs_typed_contradicts_directly():
@@ -148,6 +188,7 @@ def test_gold_pairs_typed_contradicts_directly():
     )
     for src, dst in (
         ("n1_doc_005:2", "n2_doc_001:4"),
+        ("n1_doc_005:1", "n2_doc_001:1"),
         ("n1_doc_008:0", "n2_doc_005:1"),
         ("n1_doc_009:0", "n2_doc_008:2"),
     ):

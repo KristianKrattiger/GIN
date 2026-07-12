@@ -119,7 +119,27 @@ def doc_level_metrics(
     return tp, fp, missed
 
 
+def split_machine_false_positives(
+    admitted_keys: set[frozenset],
+    gold_keys: set[frozenset],
+    curated_keys: Iterable[frozenset],
+) -> tuple[list[frozenset], list[frozenset]]:
+    """Split admitted-not-gold into (false_positive_keys, anchor_discovery_keys).
 
+    Chunk pairs on a doc pair that already has curated issue_frame gold are
+    anchor discoveries, not machine false positives.
+    """
+    curated_doc_pairs = doc_pair_keys(curated_keys)
+    not_gold = admitted_keys - gold_keys
+    anchor_discoveries: list[frozenset] = []
+    false_positives: list[frozenset] = []
+    for key in sorted(not_gold):
+        doc_pair = frozenset(doc_id_from_chunk(cid) for cid in key)
+        if doc_pair in curated_doc_pairs:
+            anchor_discoveries.append(key)
+        else:
+            false_positives.append(key)
+    return false_positives, anchor_discoveries
 
 
 @dataclass
@@ -155,10 +175,9 @@ class ScanEvalResult:
     doc_missed_gold_keys: list[frozenset] = field(default_factory=list)
 
     # issue_frame gold: curated-ingest class, excluded from machine metrics.
-
     curated_gold_keys: list[frozenset] = field(default_factory=list)
-
-
+    # Admitted chunk pairs on curated doc pairs but at different anchors.
+    anchor_discovery_keys: list[frozenset] = field(default_factory=list)
 
     def to_dict(self) -> dict:
 
@@ -201,6 +220,10 @@ class ScanEvalResult:
             "curated_gold_count": len(self.curated_gold_keys),
 
             "curated_gold_keys": [sorted(k) for k in self.curated_gold_keys],
+
+            "anchor_discovery_count": len(self.anchor_discovery_keys),
+
+            "anchor_discovery_keys": [sorted(k) for k in self.anchor_discovery_keys],
 
             "admitted_edges": [
 
@@ -382,7 +405,9 @@ def evaluate_scan_on_conn(
 
 
 
-    false_positives = sorted(admitted_keys - gold_keys)
+    false_positives, anchor_discoveries = split_machine_false_positives(
+        admitted_keys, gold_keys, curated_keys
+    )
 
     missed = sorted(gold_keys - admitted_keys)
 
@@ -427,6 +452,8 @@ def evaluate_scan_on_conn(
         doc_missed_gold_keys=doc_missed,
 
         curated_gold_keys=curated_keys,
+
+        anchor_discovery_keys=anchor_discoveries,
 
     )
 
