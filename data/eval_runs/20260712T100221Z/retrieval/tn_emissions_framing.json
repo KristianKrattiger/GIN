@@ -1,0 +1,18 @@
+{
+  "query_id": "tn_emissions_framing",
+  "query": "What is the most important thing the world should do about greenhouse gas emissions?",
+  "eval_layer": "realism",
+  "gold_chunk_ids": [
+    "n1_doc_005:2",
+    "n2_doc_001:4"
+  ],
+  "retrieved_chunk_ids": [
+    "n1_doc_001:7",
+    "n1_doc_005:2",
+    "n2_doc_001:4",
+    "n1_doc_005:4",
+    "n1_doc_007:4"
+  ],
+  "retrieval_recall_at_k": 1.0,
+  "retrieval_manifest_hash": "4803202d1d0843b6b7c390deb52653b7f55fc96ea4c36f56071bb3a0af277c24"
+}

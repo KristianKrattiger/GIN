@@ -17,6 +17,7 @@ DEFAULT_GOLD_SOURCES = (
     ROOT / "data" / "fixtures" / "disclosure_framing.yaml",
     ROOT / "data" / "fixtures" / "housing_framing.yaml",
     ROOT / "data" / "fixtures" / "wildfire_multipara.yaml",
+    ROOT / "data" / "synthetic" / "news_corpus.yaml",
 )
 
 _REGISTER_BY_SOURCE: dict[str, str] = {
@@ -24,6 +25,7 @@ _REGISTER_BY_SOURCE: dict[str, str] = {
     "disclosure_framing.yaml": "legal",
     "housing_framing.yaml": "housing",
     "wildfire_multipara.yaml": "multipara",
+    "news_corpus.yaml": "news",
 }
 
 
@@ -33,6 +35,10 @@ class GoldContradictsEdge:
     dst_chunk_id: str
     register: str
     note: str = ""
+    # "story": same-story conflict, machine-recoverable by the scan.
+    # "issue_frame": same issue, opposing frames, no shared story entities —
+    # machine-undetectable (2026-07-12 signal audit); curated ingest only.
+    relation_class: str = "story"
 
 
 def _register_for(path: Path) -> str:
@@ -52,6 +58,7 @@ def load_gold_contradicts(path: Path) -> list[GoldContradictsEdge]:
                 dst_chunk_id=edge["dst"],
                 register=reg,
                 note=edge.get("note", ""),
+                relation_class=edge.get("relation_class", "story"),
             )
         )
     return out
@@ -70,7 +77,13 @@ def load_all_gold_contradicts(
 
 def gold_pairs(sources: Optional[Iterable[Path]] = None) -> list[GoldPair]:
     return [
-        GoldPair(e.src_chunk_id, e.dst_chunk_id, Relation.CONTRADICTS, e.register)
+        GoldPair(
+            e.src_chunk_id,
+            e.dst_chunk_id,
+            Relation.CONTRADICTS,
+            e.register,
+            relation_class=e.relation_class,
+        )
         for e in load_all_gold_contradicts(sources)
     ]
 

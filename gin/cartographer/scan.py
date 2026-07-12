@@ -10,6 +10,8 @@ import time
 
 from dataclasses import dataclass, field
 
+from pathlib import Path
+
 from typing import Callable, Iterable, Optional, Sequence
 
 
@@ -28,7 +30,11 @@ from gin.cartographer.combined import CombinedRelationProposer
 
 from gin.cartographer.models import EdgeProposal, GRAPH_EDGE_RELATIONS, LabeledChunk, Relation
 
-from gin.cartographer.relatedness import DEFAULT_RELATEDNESS_FLOOR, RelatednessGate
+from gin.cartographer.relatedness import (
+    DEFAULT_RELATEDNESS_FLOOR,
+    RelatednessGate,
+    make_same_story,
+)
 
 from gin.corpus.db import transaction
 
@@ -223,6 +229,20 @@ def prune_pairs_by_relatedness(
 
 
 
+def wire_same_story(
+    proposer: CombinedRelationProposer, chunks: list[LabeledChunk]
+) -> None:
+    """Wire the stage-1 same-story provider from the scanned corpus.
+
+    Story-gates both contradicts channels (combined.classify_relation): built
+    from the chunks actually under scan so token rarity reflects this corpus.
+    An injected provider is left untouched.
+    """
+    if proposer.same_story is None:
+        proposer.same_story = make_same_story([ch.text for ch in chunks])
+
+
+
 def proposals_from_pairs(
 
     proposer: CombinedRelationProposer,
@@ -259,6 +279,46 @@ def proposals_from_pairs(
 
 
 
+
+
+CURATED_CONFIDENCE = 0.95
+
+
+def curated_issue_frame_proposals(
+    sources: "Sequence[Path]",
+    text_by_chunk: Optional[dict[str, str]] = None,
+) -> list[EdgeProposal]:
+    """Load hand-curated issue_frame contradicts edges as EdgeProposals.
+
+    Only the issue_frame class is ingested: story-class edges are
+    machine-recoverable and stay the scan's job (2026-07-12 signal audit —
+    issue-frame pairs share no story entities and no on-hand model detects
+    them). Anchors are derived from chunk texts when available.
+    """
+    from gin.cartographer.gold_edges import load_all_gold_contradicts
+
+    proposals: list[EdgeProposal] = []
+    for edge in load_all_gold_contradicts(sources):
+        if edge.relation_class != "issue_frame":
+            continue
+        src_anchor = dst_anchor = None
+        if text_by_chunk is not None:
+            src_text = text_by_chunk.get(edge.src_chunk_id)
+            dst_text = text_by_chunk.get(edge.dst_chunk_id)
+            src_anchor = sentence_anchor(src_text) if src_text else None
+            dst_anchor = sentence_anchor(dst_text) if dst_text else None
+        proposals.append(
+            EdgeProposal(
+                src_chunk_id=edge.src_chunk_id,
+                dst_chunk_id=edge.dst_chunk_id,
+                relation=Relation.CONTRADICTS,
+                method="curated:issue_frame",
+                confidence=CURATED_CONFIDENCE,
+                src_anchor=src_anchor,
+                dst_anchor=dst_anchor,
+            )
+        )
+    return proposals
 
 
 def _proposal_rank(p: EdgeProposal) -> tuple[float, float]:
@@ -324,10 +384,6 @@ def make_relation_verifier(
 
             nli_scores=_nli_scores,
 
-            contra_threshold=proposer.thresholds.contra_threshold,
-
-            min_confidence=min_confidence,
-
         )
 
 
@@ -376,6 +432,12 @@ def run_scan(
 
     proposer: Optional[CombinedRelationProposer] = None,
 
+    curated_sources: Optional[Sequence[Path]] = None,
+
+    escalation_judge: Optional[Callable[[str, str], str]] = None,
+
+    escalation_cos_floor: Optional[float] = None,
+
     conn: Optional[psycopg.Connection] = None,
 
 ) -> ScanResult:
@@ -412,6 +474,8 @@ def run_scan(
 
 
 
+        wire_same_story(proposer, chunks)
+
         registry = {ch.chunk_id: whitespace_token_count(ch.text) for ch in chunks}
 
         text_by_chunk = {ch.chunk_id: ch.text for ch in chunks}
@@ -439,6 +503,88 @@ def run_scan(
         proposals = proposals_from_pairs(proposer, pairs)
 
         proposals, doc_pair_dropped = dedupe_doc_pair_proposals(proposals)
+
+        curated_count = 0
+
+        if curated_sources:
+
+            # After dedupe: curated issue_frame edges are human-asserted and
+
+            # must not compete with scan proposals for their doc pair.
+
+            curated = curated_issue_frame_proposals(curated_sources, text_by_chunk)
+
+            proposals = proposals + curated
+
+            curated_count = len(curated)
+
+        escalated_count = 0
+
+        if escalation_judge is not None:
+
+            from gin.cartographer.escalation import (
+
+                DEFAULT_ESCALATION_COS_FLOOR,
+
+                escalate_proposals,
+
+                escalation_candidates,
+
+            )
+
+            floor = (
+
+                escalation_cos_floor
+
+                if escalation_cos_floor is not None
+
+                else DEFAULT_ESCALATION_COS_FLOOR
+
+            )
+
+            esc_pairs = escalation_candidates(pairs, proposer, cos_floor=floor)
+
+            escalated = escalate_proposals(esc_pairs, escalation_judge)
+
+            escalated, _esc_dropped = dedupe_doc_pair_proposals(escalated)
+
+            # A doc pair the cheap path (or curation) already typed keeps its
+
+            # higher-evidence edge; the judge only fills uncovered doc pairs.
+
+            covered = {
+
+                frozenset(
+
+                    {doc_id_from_chunk(p.src_chunk_id), doc_id_from_chunk(p.dst_chunk_id)}
+
+                )
+
+                for p in proposals
+
+                if p.relation == Relation.CONTRADICTS
+
+            }
+
+            escalated = [
+
+                p
+
+                for p in escalated
+
+                if frozenset(
+
+                    {doc_id_from_chunk(p.src_chunk_id), doc_id_from_chunk(p.dst_chunk_id)}
+
+                )
+
+                not in covered
+
+            ]
+
+            proposals = proposals + escalated
+
+            escalated_count = len(escalated)
 
 
 
@@ -491,6 +637,10 @@ def run_scan(
             "prune_relatedness": int(prune_relatedness),
 
             "relation_recheck": int(relation_recheck),
+
+            "curated_proposals": curated_count,
+
+            "escalated_proposals": escalated_count,
 
         }
 

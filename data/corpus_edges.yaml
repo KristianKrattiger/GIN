@@ -6,6 +6,13 @@
 # grassroots (node 2) framing of the same topic. These contradicts edges are
 # what make SEAR enter divergent synthesis mode (retrieve._is_ambiguous /
 # _build_pairs), and they mirror the contradicts_pairs in queryset_twonode.yaml.
+#
+# relation_class: issue_frame — these pairs share an issue and opposing frames
+# but no story entities (different documents, different events). Measured
+# machine-undetectable with on-hand models (2026-07-12 signal audit: six
+# embedding models, NLI, register axis, zero-/few-shot Mistral judge all
+# negative), so the scan-first workflow ingests them as curated edges via
+# `cartographer_scan.py --curated-edges` instead of expecting rediscovery.
 
 documents: []
 
@@ -14,13 +21,16 @@ edges:
     dst: n2_doc_001:4        # IEN: Indigenous resistance stopped 1/4 of US+CA emissions
     type: contradicts
     note: "emissions: institutional reduction-target framing vs grassroots resistance framing"
+    relation_class: issue_frame
 
   - src: n1_doc_008:0        # NIFC: 56,580 fires / 2.69M acres, below average
     dst: n2_doc_005:1        # Earthjustice: low-income at risk from wildfire smoke
     type: contradicts
     note: "wildfire: acreage / suppression metrics vs air quality in low-income zones"
+    relation_class: issue_frame
 
   - src: n1_doc_009:0        # CA DWR: snowpack 237% of average
     dst: n2_doc_008:2        # Pacific Institute: shortages hit disadvantaged communities
     type: contradicts
     note: "water: reservoir / snowpack index vs frontline rationing / equity"
+    relation_class: issue_frame

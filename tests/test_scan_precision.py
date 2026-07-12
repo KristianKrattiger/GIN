@@ -159,12 +159,15 @@ def test_verify_contradicts_passes_nli_channel():
         src_text="revenue was overstated",
         dst_text="revenue was accurate",
         nli_scores=nli,
-        min_confidence=0.5,
     )
     assert result.ok
 
 
-def test_verify_contradicts_denies_low_band_below_framing_floor():
+def test_verify_no_longer_owns_confidence_floors():
+    """The re-check is entailment-only: confidence floors are the Bookkeeper's
+    job (it denies band conf < FRAMING_BAND_FLOOR), and the old band/nli
+    branches were circular — same NLI signal, thresholds the proposer already
+    applied — so they could never catch the proposer's systematic errors."""
     proposal = EdgeProposal(
         src_chunk_id="a:0",
         dst_chunk_id="b:0",
@@ -182,7 +185,23 @@ def test_verify_contradicts_denies_low_band_below_framing_floor():
         dst_text="topic B claim",
         nli_scores=nli,
     )
-    assert not result.ok
+    assert result.ok
+
+
+def test_bookkeeper_floor_denies_band_below_framing_floor():
+    """The denial the old verify branch duplicated lives at the Bookkeeper
+    confidence gate."""
+    registry = {"a:0": 10, "b:0": 10}
+    proposal = EdgeProposal(
+        src_chunk_id="a:0",
+        dst_chunk_id="b:0",
+        relation=Relation.CONTRADICTS,
+        method="combined_relation:band",
+        confidence=0.20,
+    )
+    bk = Bookkeeper(min_confidence=0.5)
+    result = bk.admit(proposal, registry=registry)
+    assert result.code == AdmissionCode.DENIED_LOW_CONFIDENCE
 
 
 def test_verify_contradicts_passes_framing_band():

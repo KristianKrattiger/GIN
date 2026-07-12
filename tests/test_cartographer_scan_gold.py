@@ -81,6 +81,63 @@ def test_gold_twonode_pairs_proposed_and_admitted():
             assert p.relation != Relation.CONTRADICTS
 
 
+def test_doc_pair_keys_collapse_chunk_keys():
+    from gin.cartographer.scan_eval import doc_pair_keys
+
+    keys = {
+        _key("n1_doc_005:1", "n2_doc_001:1"),
+        _key("n1_doc_005:2", "n2_doc_001:4"),
+        _key("hf_alderflats_staff:0", "hf_alderflats_tenants:0"),
+    }
+    assert doc_pair_keys(keys) == {
+        frozenset({"n1_doc_005", "n2_doc_001"}),
+        frozenset({"hf_alderflats_staff", "hf_alderflats_tenants"}),
+    }
+
+
+def test_doc_level_metrics_count_anchor_disagreement_as_discovery():
+    """Gold n1_doc_005:2~n2_doc_001:4 admitted at different chunk anchors
+    (:1~:1) is a doc-pair discovery, not a miss plus a false positive — the
+    dedupe keeps one chunk pair per doc pair, the gold YAML picks another."""
+    from gin.cartographer.scan_eval import doc_level_metrics
+
+    gold = {_key("n1_doc_005:2", "n2_doc_001:4"), _key("a:0", "b:0")}
+    admitted = {_key("n1_doc_005:1", "n2_doc_001:1"), _key("c:0", "d:0")}
+    tp, fp_keys, missed_keys = doc_level_metrics(admitted, gold)
+    assert tp == 1
+    assert fp_keys == [frozenset({"c", "d"})]
+    assert missed_keys == [frozenset({"a", "b"})]
+
+
+def test_machine_metrics_exclude_issue_frame_gold():
+    """Machine scan metrics are scored against story-class gold only; the
+    issue_frame class is curated (machine-undetectable) and tracked apart."""
+    from gin.cartographer.scan_eval import split_gold_by_class
+    from gin.cartographer.gold_edges import gold_pairs
+
+    machine, curated = split_gold_by_class(gold_pairs())
+    machine_keys = {_key(g.src_chunk_id, g.dst_chunk_id) for g in machine}
+    curated_keys = {_key(g.src_chunk_id, g.dst_chunk_id) for g in curated}
+    assert _key("n1_doc_009:0", "n2_doc_008:2") in curated_keys
+    assert _key("hf_alderflats_staff:0", "hf_alderflats_tenants:0") in machine_keys
+    assert len(curated) == 3
+    assert len(machine) == 8
+
+
+def test_scan_eval_result_reports_curated_class_separately():
+    from gin.cartographer.evaluation import CartographerMetrics
+    from gin.cartographer.scan_eval import ScanEvalResult
+
+    result = ScanEvalResult(
+        metrics=CartographerMetrics(None, None, None, None),
+        admitted_contradicts=[],
+        curated_gold_keys=[frozenset({"n1_doc_009:0", "n2_doc_008:2"})],
+    )
+    d = result.to_dict()
+    assert d["curated_gold_count"] == 1
+    assert d["curated_gold_keys"] == [["n1_doc_009:0", "n2_doc_008:2"]]
+
+
 def test_gold_pairs_typed_contradicts_directly():
     chunks = {c.chunk_id: c for c in _load_twonode_chunks()}
     embed_cos, nli_scores = _scorers()

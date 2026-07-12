@@ -66,21 +66,33 @@ def load_thresholds(path: Optional[Path] = None) -> Thresholds:
 
 
 def classify_relation(
-    cos: float, p_contra: float, t: Thresholds
+    cos: float, p_contra: float, t: Thresholds, *, same_story: Optional[bool] = None
 ) -> tuple[Relation, str]:
     """Pure combined-detector decision. Returns (relation, channel).
 
     Shared by CombinedRelationProposer and the calibrator so both apply the exact
-    same rule. NLI has priority over the corroborate band so a propositional
-    contradiction that is also highly similar (legal) is not read as corroboration.
+    same rule. ``same_story`` is the stage-1 relatedness tier (shared rare story
+    entities — design §2 allows entity signals there): True/False when a stage-1
+    provider is wired, None when there is no story evidence either way.
+
+    Scan-scale measurements (run 20260712T074956Z) showed cosine measures
+    topicality, not stance: true framing divergences sit ABOVE the corroborate
+    ceiling while the mid band is cross-topic noise. So contradicts typing is
+    story-gated on both channels — the band types any ungated same-story pair
+    as divergent (framing pairs are exactly the highly similar ones), the NLI
+    propositional channel is blocked only when stage 1 positively says the pair
+    is NOT one story (the cross-topic numeric-claim artifact) — and the old
+    mid-band default flips from CONTRADICTS to RELATED_UNTYPED (no edge).
     """
     if cos < t.gate_floor:
         return Relation.UNRELATED, "gate"
-    if p_contra >= t.contra_threshold:
+    if p_contra >= t.contra_threshold and same_story is not False:
         return Relation.CONTRADICTS, "nli"
+    if same_story:
+        return Relation.CONTRADICTS, "band"
     if cos >= t.corroborate_ceiling:
         return Relation.CORROBORATES, "band"
-    return Relation.CONTRADICTS, "band"
+    return Relation.RELATED_UNTYPED, "band"
 
 
 class CombinedRelationProposer:
@@ -91,6 +103,7 @@ class CombinedRelationProposer:
         *,
         embed_cos: Optional[CosineScorer] = None,
         nli_scores: Optional[NliScorer] = None,
+        same_story: Optional[Callable[[str, str], bool]] = None,
         gate_floor: float = DEFAULT_GATE_FLOOR,
         corroborate_ceiling: float = DEFAULT_CORROBORATE_CEILING,
         contra_threshold: float = DEFAULT_CONTRA_THRESHOLD,
@@ -100,6 +113,9 @@ class CombinedRelationProposer:
     ) -> None:
         t = thresholds or load_thresholds()
         self.thresholds = t
+        # Stage-1 same-story provider (see relatedness.make_same_story); the
+        # scan wires this from the scanned corpus. None = no story evidence.
+        self.same_story = same_story
         self.gate_floor = t.gate_floor
         self.corroborate_ceiling = t.corroborate_ceiling
         self.contra_threshold = t.contra_threshold
@@ -166,9 +182,20 @@ class CombinedRelationProposer:
         # pays for a cross-encoder call.
         if cos < self.thresholds.gate_floor:
             return Relation.UNRELATED, {"cos": cos, "channel": "gate"}
+        story = self.same_story(a_text, b_text) if self.same_story is not None else None
+        if story is False:
+            # Both contradicts channels are story-blocked: the outcome is
+            # decided by the corroborate ceiling alone, no cross-encoder call.
+            relation, channel = classify_relation(cos, 0.0, self.thresholds, same_story=False)
+            return relation, {"cos": cos, "channel": channel, "same_story": False}
         p_contra = self._p_contra(a_text, b_text)
-        relation, channel = classify_relation(cos, p_contra, self.thresholds)
-        return relation, {"cos": cos, "p_contra": p_contra, "channel": channel}
+        relation, channel = classify_relation(
+            cos, p_contra, self.thresholds, same_story=story
+        )
+        ev = {"cos": cos, "p_contra": p_contra, "channel": channel}
+        if story is not None:
+            ev["same_story"] = story
+        return relation, ev
 
     def assess_pair(self, a: LabeledChunk, b: LabeledChunk) -> Assessment:
         relation, ev = self.type_relation(a.text, b.text)

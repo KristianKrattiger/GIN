@@ -236,6 +236,12 @@ documents:
         Reviewers warned that inventory drawdowns may have masked weaker demand.
 
 # chunk-level edges (first chunk of each doc unless noted)
+#
+# The bureau-vs-independent counterfactual pairs (labor, inflation, wage,
+# export) carry NO contradicts edge: statistics are identical and the
+# independent outlet's closing sentence challenges the interpretation, not any
+# asserted fact — corroboration-with-a-caveat (2026-07-12 label decision).
+# They are class-C controls in gin/cartographer/gold_edges.py.
 edges:
   - src: incident_centralwire:0
     dst: incident_metrodaily:0
@@ -246,6 +252,11 @@ edges:
     dst: incident_regionalpost:0
     type: contradicts
     note: arrest count diverges after shared treatment count
+
+  - src: incident_metrodaily:0
+    dst: incident_regionalpost:0
+    type: contradicts
+    note: hospital treatment count diverges after shared lede and arrest count
 
   - src: election_centralwire:0
     dst: election_metrodaily:0

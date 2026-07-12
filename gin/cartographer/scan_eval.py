@@ -40,6 +40,8 @@ from .scan import (
 
     dedupe_doc_pair_proposals,
 
+    doc_id_from_chunk,
+
     make_relation_verifier,
 
     proposals_from_pairs,
@@ -48,7 +50,73 @@ from .scan import (
 
     whitespace_token_count,
 
+    wire_same_story,
+
 )
+
+
+
+
+
+def split_gold_by_class(
+
+    gold: Iterable[GoldPair],
+
+) -> tuple[list[GoldPair], list[GoldPair]]:
+
+    """(machine_gold, curated_gold): scan metrics are scored on the story class
+
+    only; issue_frame pairs are curated-ingest edges the scan cannot reach."""
+
+    gold = list(gold)
+
+    machine = [g for g in gold if g.relation_class != "issue_frame"]
+
+    curated = [g for g in gold if g.relation_class == "issue_frame"]
+
+    return machine, curated
+
+
+
+
+
+def doc_pair_keys(keys: Iterable[frozenset]) -> set[frozenset]:
+
+    """Collapse chunk-pair keys to unordered doc-pair keys."""
+
+    return {frozenset(doc_id_from_chunk(cid) for cid in key) for key in keys}
+
+
+
+
+
+def doc_level_metrics(
+
+    admitted_keys: Iterable[frozenset], gold_keys: Iterable[frozenset]
+
+) -> tuple[int, list[frozenset], list[frozenset]]:
+
+    """Score discovery at doc-pair granularity: (tp, fp_keys, missed_keys).
+
+    The dedupe keeps one chunk pair per doc pair while the gold YAML picks a
+
+    specific chunk pair — anchor disagreement on the same doc pair should count
+
+    as a discovery, not a miss plus a false positive.
+
+    """
+
+    admitted_docs = doc_pair_keys(admitted_keys)
+
+    gold_docs = doc_pair_keys(gold_keys)
+
+    tp = len(admitted_docs & gold_docs)
+
+    fp = sorted(admitted_docs - gold_docs)
+
+    missed = sorted(gold_docs - admitted_docs)
+
+    return tp, fp, missed
 
 
 
@@ -80,6 +148,16 @@ class ScanEvalResult:
 
     pair_count_after_prune: int = 0
 
+    doc_tp: int = 0
+
+    doc_false_positive_keys: list[frozenset] = field(default_factory=list)
+
+    doc_missed_gold_keys: list[frozenset] = field(default_factory=list)
+
+    # issue_frame gold: curated-ingest class, excluded from machine metrics.
+
+    curated_gold_keys: list[frozenset] = field(default_factory=list)
+
 
 
     def to_dict(self) -> dict:
@@ -109,6 +187,20 @@ class ScanEvalResult:
             "pair_count_before_prune": self.pair_count_before_prune,
 
             "pair_count_after_prune": self.pair_count_after_prune,
+
+            "doc_tp": self.doc_tp,
+
+            "doc_false_positive_count": len(self.doc_false_positive_keys),
+
+            "doc_missed_gold_count": len(self.doc_missed_gold_keys),
+
+            "doc_false_positive_keys": [sorted(k) for k in self.doc_false_positive_keys],
+
+            "doc_missed_gold_keys": [sorted(k) for k in self.doc_missed_gold_keys],
+
+            "curated_gold_count": len(self.curated_gold_keys),
+
+            "curated_gold_keys": [sorted(k) for k in self.curated_gold_keys],
 
             "admitted_edges": [
 
@@ -206,6 +298,8 @@ def evaluate_scan_on_conn(
 
     )
 
+    wire_same_story(proposer, chunks)
+
     registry = {ch.chunk_id: whitespace_token_count(ch.text) for ch in chunks}
 
     text_by_chunk = {ch.chunk_id: ch.text for ch in chunks}
@@ -268,9 +362,17 @@ def evaluate_scan_on_conn(
 
 
 
-    gold = gold_pairs(gold_sources)
+    machine_gold, curated_gold = split_gold_by_class(gold_pairs(gold_sources))
+
+    gold = machine_gold
 
     gold_keys = {_key(g.src_chunk_id, g.dst_chunk_id) for g in gold}
+
+    curated_keys = sorted(
+
+        _key(g.src_chunk_id, g.dst_chunk_id) for g in curated_gold
+
+    )
 
     admitted_keys = {
 
@@ -283,6 +385,8 @@ def evaluate_scan_on_conn(
     false_positives = sorted(admitted_keys - gold_keys)
 
     missed = sorted(gold_keys - admitted_keys)
+
+    doc_tp, doc_fp, doc_missed = doc_level_metrics(admitted_keys, gold_keys)
 
 
 
@@ -315,6 +419,14 @@ def evaluate_scan_on_conn(
         pair_count_before_prune=pair_count_before_prune,
 
         pair_count_after_prune=len(pairs),
+
+        doc_tp=doc_tp,
+
+        doc_false_positive_keys=doc_fp,
+
+        doc_missed_gold_keys=doc_missed,
+
+        curated_gold_keys=curated_keys,
 
     )
 

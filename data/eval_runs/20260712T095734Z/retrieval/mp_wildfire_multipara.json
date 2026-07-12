@@ -1,0 +1,16 @@
+{
+  "query_id": "mp_wildfire_multipara",
+  "query": "What is the main concern about the Cascade Ridge fire?",
+  "eval_layer": "realism",
+  "gold_chunk_ids": [
+    "wf_multi_inst:0",
+    "wf_multi_grass:0"
+  ],
+  "retrieved_chunk_ids": [
+    "wf_multi_grass:0",
+    "wf_multi_inst:0",
+    "n1_doc_008:2"
+  ],
+  "retrieval_recall_at_k": 1.0,
+  "retrieval_manifest_hash": "bab71ce2e74ce41153c7b8ea6caae3491db4a9568309c4225f05c255e019f0df"
+}

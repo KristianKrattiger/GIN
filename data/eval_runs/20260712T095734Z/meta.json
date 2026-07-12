@@ -1,0 +1,21 @@
+{
+  "generated_at": "2026-07-12T09:57:34.691619+00:00",
+  "model": "models/Mistral-7B-Instruct-v0.3-Q6_K.gguf",
+  "verifier_mode": "overlap",
+  "threshold": 0.5,
+  "queryset": "data/eval/queryset_multipara.yaml",
+  "arms": [
+    "no_continuation"
+  ],
+  "n_queries": 1,
+  "n_gpu_layers": 0,
+  "wall_clock_seconds_per_query": 126.86507441800495,
+  "tokens_per_second": 0.2916484317668826,
+  "corpus_fingerprint": {
+    "chunk_count": 136,
+    "edge_count": 11,
+    "content_hash": "c2a6019a4fd8f3ad"
+  },
+  "edge_source": "cartographer_scan",
+  "cartographer_scan_run_id": "20260712T094453Z"
+}

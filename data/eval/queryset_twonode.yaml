@@ -65,8 +65,13 @@ queries:
       - n1_doc_004:0
 
   # --- out-of-scope control (correct behavior is refusal) -------------------
-  - id: tn_out_of_scope_referendum
-    query: By how many votes did the harbor district referendum pass?
+  # Was tn_out_of_scope_referendum; retired 2026-07-12 — the statistical-probe
+  # corpus expansion added election docs that answer the referendum question
+  # (election_centralwire:0, "passed by 842 votes"), so the expectation went
+  # stale and failure_recall penalized a correct grounded answer. Sports has
+  # zero corpus coverage (matches the main queryset's sports_probe).
+  - id: tn_out_of_scope_sports
+    query: Who won the national football championship final this year?
     eval_layer: out_of_scope
     eval_tag: oos_probe
     expectation: out_of_scope

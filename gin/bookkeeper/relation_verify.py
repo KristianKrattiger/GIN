@@ -15,8 +15,8 @@ from gin.cartographer.models import EdgeProposal, Relation
 NliScorer = Callable[[str, str], tuple[float, float, float]]
 
 DEFAULT_ENTAIL_FLOOR = 0.5
-DEFAULT_BAND_ADMIT_FLOOR = 0.65
-# Mid-band framing divergences (cos 0.13–0.42 on labeled set); below this is noise.
+# Mid-band framing divergences (cos 0.13–0.42 on labeled set); below this is
+# noise. Enforced at the Bookkeeper confidence gate for band-channel proposals.
 FRAMING_BAND_FLOOR = 0.35
 
 
@@ -33,18 +33,21 @@ def verify_contradicts(
     dst_text: str,
     nli_scores: NliScorer,
     entail_floor: float = DEFAULT_ENTAIL_FLOOR,
-    band_admit_floor: float = DEFAULT_BAND_ADMIT_FLOOR,
-    contra_threshold: float = 0.686,
-    min_confidence: float = 0.5,
 ) -> RelationVerifyResult:
-    """Conservative semantic checks for ``contradicts`` proposals."""
+    """Deny a ``contradicts`` proposal whose texts entail each other both ways.
+
+    This is the re-check's only live rule. The earlier band/nli branches were
+    circular — the same NLI scores and thresholds the proposer had already
+    applied — so they could not catch the proposer's systematic errors, and the
+    band confidence floor duplicated the Bookkeeper's gate. A genuinely
+    independent re-check needs a second signal source (a different model);
+    until one exists, this check stays deliberately narrow.
+    """
     if proposal.relation != Relation.CONTRADICTS:
         return RelationVerifyResult(ok=True)
 
-    scores_ab = nli_scores(src_text, dst_text)
-    scores_ba = nli_scores(dst_text, src_text)
-    p_contra = max(scores_ab[0], scores_ba[0])
-    p_ent_ab, p_ent_ba = scores_ab[1], scores_ba[1]
+    p_ent_ab = nli_scores(src_text, dst_text)[1]
+    p_ent_ba = nli_scores(dst_text, src_text)[1]
 
     if p_ent_ab >= entail_floor and p_ent_ba >= entail_floor:
         return RelationVerifyResult(
@@ -54,20 +57,4 @@ def verify_contradicts(
                 f">= {entail_floor:.3f}"
             ),
         )
-
-    if proposal.method.endswith(":nli") and proposal.confidence >= min_confidence:
-        return RelationVerifyResult(ok=True)
-
-    if proposal.method.endswith(":band"):
-        if p_contra >= contra_threshold or proposal.confidence >= band_admit_floor:
-            return RelationVerifyResult(ok=True)
-        if proposal.confidence < FRAMING_BAND_FLOOR:
-            return RelationVerifyResult(
-                ok=False,
-                reason=(
-                    f"band contradicts conf {proposal.confidence:.3f} < "
-                    f"{FRAMING_BAND_FLOOR:.3f} framing floor"
-                ),
-            )
-
     return RelationVerifyResult(ok=True)

@@ -1,0 +1,55 @@
+[
+  {
+    "query_id": "mp_wildfire_multipara",
+    "query": "What is the main concern about the Cascade Ridge fire?",
+    "arm": "no_continuation",
+    "eval_layer": "realism",
+    "expectation": "answerable",
+    "refused": false,
+    "claims": [
+      {
+        "claim_text": "The Cascade Ridge fire burned 214,000 acres across three counties, one of the largest wildfire complexes recorded in the region this decade.",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "wf_multi_inst:0",
+        "score": 1.0,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "EXACT",
+        "cited_chunk_ids": [
+          "wf_multi_inst:0"
+        ]
+      },
+      {
+        "claim_text": "Neighborhood clinics reported a surge in respiratory complaints during the smoke season.",
+        "verdict": "SUPPORTED",
+        "matched_chunk_id": "wf_multi_grass:0",
+        "score": 1.0,
+        "node_scope": "WITHIN_NODE",
+        "span_type": "EXACT",
+        "cited_chunk_ids": [
+          "wf_multi_grass:0"
+        ]
+      }
+    ],
+    "eval_tag": "wildfire_divergence",
+    "retrieval_manifest_hash": "bab71ce2e74ce41153c7b8ea6caae3491db4a9568309c4225f05c255e019f0df",
+    "retrieved_chunk_ids": [
+      "wf_multi_grass:0",
+      "wf_multi_inst:0",
+      "n1_doc_008:2"
+    ],
+    "gold_chunk_ids": [
+      "wf_multi_inst:0",
+      "wf_multi_grass:0"
+    ],
+    "retrieval_recall_at_k": 1.0,
+    "raw_text": " The Cascade Ridge fire burned 214,000 acres across three counties, one of the largest wildfire complexes recorded in the region this decade.\n | [2] Neighborhood clinics reported a surge in respiratory complaints during the smoke season.\n |",
+    "counterfactual_answer": null,
+    "contradicts_pairs": [
+      [
+        "wf_multi_inst:0",
+        "wf_multi_grass:0"
+      ]
+    ],
+    "error": null
+  }
+]

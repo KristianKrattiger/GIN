@@ -9,10 +9,11 @@ upgrade. See docs/nc_cartographer_design.plan.md.
 """
 from __future__ import annotations
 
+import re
 from itertools import combinations
-from typing import Iterable
+from typing import Callable, Iterable
 
-from gin.corpus.relevance import _norm_tokens, corpus_idf
+from gin.corpus.relevance import _norm_tokens, _normalize_token, corpus_idf
 
 from .models import Assessment, LabeledChunk, Relation
 
@@ -20,6 +21,102 @@ from .models import Assessment, LabeledChunk, Relation
 # mass. A distinctive shared entity ("wildfire") clears it; incidental generic
 # overlap does not. Symmetric, so relatedness has no direction.
 DEFAULT_RELATEDNESS_FLOOR = 0.20
+
+# Same-story tier: a pair must share at least this many rare tokens (story
+# entities) before the relation detector may type a divergence from the band.
+# Measured on the 136-chunk scan corpus (run 20260712T074956Z): every
+# recoverable gold contradicts pair shares >= 2 rare tokens, 22/24 sampled
+# false positives share <= 1.
+DEFAULT_STORY_FLOOR = 2
+
+
+def _doc_freq(corpus_texts: Iterable[str]) -> dict[str, int]:
+    df: dict[str, int] = {}
+    for text in corpus_texts:
+        for tok in _norm_tokens(text):
+            df[tok] = df.get(tok, 0) + 1
+    return df
+
+
+def _rare_df_ceiling(n_docs: int) -> int:
+    """A token is 'rare' when it appears in at most this many corpus chunks."""
+    return max(2, n_docs // 30)
+
+
+def shared_rare_token_count(
+    a_text: str,
+    b_text: str,
+    corpus_texts: list[str],
+    *,
+    df_ceiling: int | None = None,
+) -> int:
+    """Number of corpus-rare tokens (story entities) the two texts share."""
+    df = _doc_freq(corpus_texts)
+    ceiling = df_ceiling if df_ceiling is not None else _rare_df_ceiling(len(corpus_texts))
+    shared = _norm_tokens(a_text) & _norm_tokens(b_text)
+    return sum(1 for tok in shared if df.get(tok, 0) <= ceiling)
+
+
+_ANCHOR_WORD = re.compile(r"[A-Za-z0-9]+")
+_SENTENCE_END = re.compile(r"[.!?]\s*$")
+
+
+def anchor_tokens(text: str) -> set[str]:
+    """Normalized tokens with at least one entity-grade occurrence in ``text``.
+
+    An occurrence is entity-grade when it is a mid-sentence capitalized word
+    (proper noun), an all-caps word (dateline), or a multi-digit number (story
+    figure). Sentence-initial capitalization and decimal fragments carry no
+    entity signal — corpus-rare boilerplate ('remain in effect', 'Combined
+    reservoir storage...') drove the residual scan false positives
+    (run 20260712T091415Z).
+    """
+    out: set[str] = set()
+    for m in _ANCHOR_WORD.finditer(text):
+        word = m.group(0)
+        before = text[: m.start()]
+        sentence_initial = (
+            not before.strip()
+            or bool(_SENTENCE_END.search(before))
+            or before.endswith("\n")
+        )
+        entity_grade = (
+            (word.isdigit() and len(word) >= 2)
+            or (len(word) > 2 and word.isupper())
+            or (word[0].isupper() and not word.isupper() and not sentence_initial)
+        )
+        if entity_grade:
+            out.add(_normalize_token(word.lower()))
+    return out
+
+
+def make_same_story(
+    corpus_texts: list[str],
+    *,
+    story_floor: int = DEFAULT_STORY_FLOOR,
+    df_ceiling: int | None = None,
+    require_anchor: bool = True,
+) -> "Callable[[str, str], bool]":
+    """Stage-1 same-story predicate: do the two chunks cover one story?
+
+    True when the pair shares >= ``story_floor`` corpus-rare tokens, at least
+    one of which is entity-grade (see ``anchor_tokens``). Precomputes document
+    frequencies once; the returned callable is the injectable story signal for
+    the relation detector's contradicts channels.
+    """
+    df = _doc_freq(corpus_texts)
+    ceiling = df_ceiling if df_ceiling is not None else _rare_df_ceiling(len(corpus_texts))
+
+    def same_story(a_text: str, b_text: str) -> bool:
+        shared = _norm_tokens(a_text) & _norm_tokens(b_text)
+        rare = {tok for tok in shared if df.get(tok, 0) <= ceiling}
+        if len(rare) < story_floor:
+            return False
+        if not require_anchor:
+            return True
+        return bool((anchor_tokens(a_text) | anchor_tokens(b_text)) & rare)
+
+    return same_story
 
 
 def _idf_mass(text: str, idf: dict[str, float]) -> float:

@@ -1,0 +1,171 @@
+{
+  "generated_at": "2026-07-12T20:22:40.507823+00:00",
+  "run_id": "20260712T202240Z",
+  "metrics": {
+    "contradicts_precision": 1.0,
+    "contradicts_recall": 1.0,
+    "contradicts_f1": 1.0,
+    "class_c_discrimination": null,
+    "tp": 8,
+    "fp": 0,
+    "fn": 0,
+    "by_register": {
+      "housing": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      "legal": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      "multipara": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      "news": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      }
+    }
+  },
+  "gold_count": 8,
+  "admitted_contradicts_count": 11,
+  "false_positive_count": 3,
+  "missed_gold_count": 0,
+  "false_positive_keys": [
+    [
+      "labor_bureau_report:0",
+      "labor_independent_survey:0"
+    ],
+    [
+      "incident_metrodaily:0",
+      "incident_regionalpost:0"
+    ],
+    [
+      "n1_doc_005:1",
+      "n2_doc_001:1"
+    ]
+  ],
+  "missed_gold_keys": [],
+  "class_c_discrimination": 1.0,
+  "class_c_total": 1,
+  "class_c_pass": 1,
+  "pair_count_before_prune": 6222,
+  "pair_count_after_prune": 2157,
+  "doc_tp": 8,
+  "doc_false_positive_count": 3,
+  "doc_missed_gold_count": 0,
+  "doc_false_positive_keys": [
+    [
+      "incident_metrodaily",
+      "incident_regionalpost"
+    ],
+    [
+      "labor_bureau_report",
+      "labor_independent_survey"
+    ],
+    [
+      "n1_doc_005",
+      "n2_doc_001"
+    ]
+  ],
+  "doc_missed_gold_keys": [],
+  "curated_gold_count": 3,
+  "curated_gold_keys": [
+    [
+      "n1_doc_005:2",
+      "n2_doc_001:4"
+    ],
+    [
+      "n1_doc_008:0",
+      "n2_doc_005:1"
+    ],
+    [
+      "n1_doc_009:0",
+      "n2_doc_008:2"
+    ]
+  ],
+  "admitted_edges": [
+    {
+      "src": "disc_meridian_complaint:0",
+      "dst": "disc_meridian_pr:0",
+      "relation": "contradicts",
+      "confidence": 0.5455748438835144,
+      "proposer": "combined_relation:band"
+    },
+    {
+      "src": "disc_northwind_complaint:0",
+      "dst": "disc_northwind_pr:0",
+      "relation": "contradicts",
+      "confidence": 0.9908738136291504,
+      "proposer": "combined_relation:nli"
+    },
+    {
+      "src": "election_centralwire:0",
+      "dst": "election_metrodaily:0",
+      "relation": "contradicts",
+      "confidence": 0.9733647108078003,
+      "proposer": "combined_relation:nli"
+    },
+    {
+      "src": "hf_alderflats_staff:0",
+      "dst": "hf_alderflats_tenants:0",
+      "relation": "contradicts",
+      "confidence": 0.37938588857650757,
+      "proposer": "combined_relation:band"
+    },
+    {
+      "src": "hf_kestrel_inspection:0",
+      "dst": "hf_kestrel_tenants:0",
+      "relation": "contradicts",
+      "confidence": 0.6976142525672913,
+      "proposer": "combined_relation:band"
+    },
+    {
+      "src": "incident_centralwire:0",
+      "dst": "incident_metrodaily:0",
+      "relation": "contradicts",
+      "confidence": 0.9555279016494751,
+      "proposer": "combined_relation:nli"
+    },
+    {
+      "src": "incident_centralwire:0",
+      "dst": "incident_regionalpost:0",
+      "relation": "contradicts",
+      "confidence": 0.949038028717041,
+      "proposer": "combined_relation:nli"
+    },
+    {
+      "src": "incident_metrodaily:0",
+      "dst": "incident_regionalpost:0",
+      "relation": "contradicts",
+      "confidence": 0.9878259301185608,
+      "proposer": "combined_relation:nli"
+    },
+    {
+      "src": "labor_bureau_report:0",
+      "dst": "labor_independent_survey:0",
+      "relation": "contradicts",
+      "confidence": 0.9103329181671143,
+      "proposer": "combined_relation:band"
+    },
+    {
+      "src": "n1_doc_005:1",
+      "dst": "n2_doc_001:1",
+      "relation": "contradicts",
+      "confidence": 0.9117265343666077,
+      "proposer": "combined_relation:nli"
+    },
+    {
+      "src": "wf_multi_grass:0",
+      "dst": "wf_multi_inst:0",
+      "relation": "contradicts",
+      "confidence": 0.5666579008102417,
+      "proposer": "combined_relation:band"
+    }
+  ]
+}

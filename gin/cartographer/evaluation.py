@@ -23,6 +23,8 @@ class GoldPair:
     dst_chunk_id: str
     relation: Relation
     register: str
+    # "story" (machine-recoverable) or "issue_frame" (curated ingest only).
+    relation_class: str = "story"
 
 
 def _key(a: str, b: str) -> frozenset:

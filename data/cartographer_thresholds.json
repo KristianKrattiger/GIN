@@ -1,7 +1,7 @@
 {
   "gate_floor": 0.14,
-  "corroborate_ceiling": 0.485,
+  "corroborate_ceiling": 0.486,
   "contra_threshold": 0.686,
-  "calibrated_on_pairs": 33,
-  "leave_one_out_accuracy": 1.0
+  "calibrated_on_pairs": 39,
+  "leave_one_out_accuracy": 0.923
 }
