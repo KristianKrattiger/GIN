@@ -14,6 +14,7 @@ from .evaluation import (
     evaluate,
     format_report,
 )
+from .combined import CombinedRelationProposer
 from .frame_judge import LlmFrameJudge
 from .models import Assessment, EdgeProposal, LabeledChunk, Relation
 from .nli import NliRelationProposer
@@ -23,6 +24,7 @@ from .relatedness import RelatednessGate, idf_relatedness
 __all__ = [
     "Assessment",
     "CartographerMetrics",
+    "CombinedRelationProposer",
     "EdgeProposal",
     "GoldPair",
     "LabeledChunk",
