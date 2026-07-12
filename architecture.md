@@ -20,7 +20,7 @@ These constraints govern every component decision:
 
 ## System overview
 
-GIN separates **what can be said** (corpus + graph), **what is admitted** (Bookkeeper), and **how answers are produced** (SEAR reasoning). This repository implements the corpus tier and SEAR reasoning layer; Bookkeeper admission and federation are designed but not yet built.
+GIN separates **what can be said** (corpus + graph), **what is admitted** (Bookkeeper), and **how answers are produced** (SEAR reasoning). This repository implements the corpus tier, the SEAR reasoning layer, an automated Cartographer relation detector, and the Bookkeeper admission gate; federation is designed but not yet built.
 
 ```mermaid
 flowchart TB
@@ -65,11 +65,11 @@ The full GIN design assigns distinct responsibilities so no single component can
 
 | Layer | Responsibility | Writes canonical graph? | In this repo |
 |-------|----------------|-------------------------|--------------|
-| **Cartographer** | Proposes typed edges (`cites`, `contradicts`, `supersedes`, `translated_from`) | No | Edges ingested from YAML; automated discovery planned |
-| **Bookkeeper** | Verifies anchors, enforces DAG invariants, stamps provenance | Yes (sole writer) | Not implemented |
+| **Cartographer** | Proposes typed edges (`cites`, `contradicts`, `supersedes`, `translated_from`) | No | `gin/cartographer/` — relatedness gate + combined register-robust relation detector (recall 1.0 / precision 0.875 on a 13-pair labeled set); measured on its own edge precision/recall axis |
+| **Bookkeeper** | Verifies anchors, enforces DAG invariants, stamps provenance | Yes (sole writer) | `gin/bookkeeper/` — uniform admission gate (confidence, endpoint/anchor integrity, dedup, DAG acyclicity), provenance stamp; sole writer of `GraphState` |
 | **Reasoning (SEAR)** | Read-only synthesis with exact span attribution | No | `sear/processor.py`, `scripts/corpus_generate.py` |
 
-The Reasoning layer may feed **proposals** back to discovery, but never writes canonical edges directly.
+The Reasoning layer may feed **proposals** back to discovery, but never writes canonical edges directly. The three layers are independently falsifiable — Cartographer on edge precision/recall (`gin/cartographer/evaluation.py`), Bookkeeper on invariant maintenance (`tests/test_bookkeeper.py`), Reasoning on SEAR grounding rate — so no layer can inflate its own record. See **[docs/nc_cartographer_design.plan.md](docs/nc_cartographer_design.plan.md)** and **[docs/nc_reasoning_robustness_noisy_edges.plan.md](docs/nc_reasoning_robustness_noisy_edges.plan.md)**.
 
 ---
 

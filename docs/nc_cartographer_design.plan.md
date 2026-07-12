@@ -267,6 +267,34 @@ yet textually dissimilar (none such in this set).
 The Bookkeeper admission gate (anchor verification, DAG invariants, provenance
 stamp) is the next step — it now has a detector whose proposals are worth gating.
 
+## 6c. The Bookkeeper admission gate (built)
+
+`gin/bookkeeper/` implements the sole admission gate and sole writer of canonical
+graph state — the layer the three-layer separation depends on. It takes
+Cartographer `EdgeProposal`s and adjudicates each through one **uniform** gate
+(no separate local/federated trust path — the sovereignty membrane):
+
+- **confidence floor**, **endpoint existence**, **no self-loops**;
+- **anchor integrity** — a proposal's `(token_start, token_end)` must resolve
+  within the chunk's token span (the reason `EdgeProposal` carries anchors, §5);
+- **deduplication** — symmetric relations (`contradicts`/`corroborates`) are
+  direction-independent, so `a–b` and `b–a` are one edge;
+- **DAG acyclicity** for ordering relations (`supersedes`): admitting `a→b→c`
+  then `c→a` is refused as a cycle; symmetric relations carry no ordering and are
+  not cycle-checked.
+
+On admission it stamps `Provenance` (proposer method, confidence, UTC timestamp,
+content hash) and is the *only* thing that mutates `GraphState`; a denied proposal
+never reaches canonical state. Its stored decisions double as the federation
+cache. The Bookkeeper is **falsifiable on its own terms** — invariant maintenance,
+independent of Cartographer edge quality — per GIN_Session_Synthesis §1.5.
+Regression: `tests/test_bookkeeper.py`; the Cartographer→Bookkeeper handoff:
+`tests/test_cartographer_bookkeeper_integration.py`.
+
+With this the three layers are all present and independently measured. Remaining:
+threshold calibration on a larger set (§6b), persisting `GraphState` to the
+Postgres `edges` table, and federation (Phase 3).
+
 ## 7. Out of scope (this doc)
 
 - **Threshold calibration on a held-out set** and the Bookkeeper admission gate
