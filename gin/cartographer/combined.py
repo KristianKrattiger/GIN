@@ -24,6 +24,7 @@ See docs/nc_cartographer_design.plan.md.
 """
 from __future__ import annotations
 
+from dataclasses import dataclass
 from typing import Any, Callable, Iterable, Optional
 
 from .models import Assessment, LabeledChunk, Relation
@@ -39,6 +40,31 @@ DEFAULT_EMBED_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
 DEFAULT_NLI_MODEL = "cross-encoder/nli-deberta-v3-xsmall"
 
 
+@dataclass(frozen=True)
+class Thresholds:
+    gate_floor: float = DEFAULT_GATE_FLOOR
+    corroborate_ceiling: float = DEFAULT_CORROBORATE_CEILING
+    contra_threshold: float = DEFAULT_CONTRA_THRESHOLD
+
+
+def classify_relation(
+    cos: float, p_contra: float, t: Thresholds
+) -> tuple[Relation, str]:
+    """Pure combined-detector decision. Returns (relation, channel).
+
+    Shared by CombinedRelationProposer and the calibrator so both apply the exact
+    same rule. NLI has priority over the corroborate band so a propositional
+    contradiction that is also highly similar (legal) is not read as corroboration.
+    """
+    if cos < t.gate_floor:
+        return Relation.UNRELATED, "gate"
+    if p_contra >= t.contra_threshold:
+        return Relation.CONTRADICTS, "nli"
+    if cos >= t.corroborate_ceiling:
+        return Relation.CORROBORATES, "band"
+    return Relation.CONTRADICTS, "band"
+
+
 class CombinedRelationProposer:
     name = "combined_relation"
 
@@ -50,12 +76,15 @@ class CombinedRelationProposer:
         gate_floor: float = DEFAULT_GATE_FLOOR,
         corroborate_ceiling: float = DEFAULT_CORROBORATE_CEILING,
         contra_threshold: float = DEFAULT_CONTRA_THRESHOLD,
+        thresholds: Optional[Thresholds] = None,
         embed_model: str = DEFAULT_EMBED_MODEL,
         nli_model: str = DEFAULT_NLI_MODEL,
     ) -> None:
-        self.gate_floor = gate_floor
-        self.corroborate_ceiling = corroborate_ceiling
-        self.contra_threshold = contra_threshold
+        t = thresholds or Thresholds(gate_floor, corroborate_ceiling, contra_threshold)
+        self.thresholds = t
+        self.gate_floor = t.gate_floor
+        self.corroborate_ceiling = t.corroborate_ceiling
+        self.contra_threshold = t.contra_threshold
         self.embed_model = embed_model
         self.nli_model = nli_model
         self._embed_cos = embed_cos
@@ -111,14 +140,13 @@ class CombinedRelationProposer:
 
     def type_relation(self, a_text: str, b_text: str) -> tuple[Relation, dict]:
         cos = self._cosine(a_text, b_text)
-        if cos < self.gate_floor:
+        # The gate needs only cosine; compute NLI lazily so a gated pair never
+        # pays for a cross-encoder call.
+        if cos < self.thresholds.gate_floor:
             return Relation.UNRELATED, {"cos": cos, "channel": "gate"}
         p_contra = self._p_contra(a_text, b_text)
-        if p_contra >= self.contra_threshold:
-            return Relation.CONTRADICTS, {"cos": cos, "p_contra": p_contra, "channel": "nli"}
-        if cos >= self.corroborate_ceiling:
-            return Relation.CORROBORATES, {"cos": cos, "p_contra": p_contra, "channel": "band"}
-        return Relation.CONTRADICTS, {"cos": cos, "p_contra": p_contra, "channel": "band"}
+        relation, channel = classify_relation(cos, p_contra, self.thresholds)
+        return relation, {"cos": cos, "p_contra": p_contra, "channel": channel}
 
     def assess_pair(self, a: LabeledChunk, b: LabeledChunk) -> Assessment:
         relation, ev = self.type_relation(a.text, b.text)

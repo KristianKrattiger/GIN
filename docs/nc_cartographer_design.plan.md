@@ -234,18 +234,35 @@ whose gold label is itself disputed (both NLI 0.93 and the frame judge read
 divergence). Adjudicating that pair to `contradicts` yields precision **1.0**,
 recall **1.0**, class_c **1.0**. Regression: `tests/test_cartographer_combined.py`.
 
-**This essentially clears the §4 target** (class_c = 1.0 with non-trivial recall,
-modulo one disputed label). Two honest caveats:
+**Dynamic threshold calibration + honest generalization (§6b).** The 0.13 / 0.45 /
+0.5 above were hand-read off the set. `gin/cartographer/calibration.py` instead
+*derives* thresholds by grid-searching the cut points implied by the observed
+values, maximizing 3-way relation accuracy with **max-margin** tie-breaking (each
+threshold as far as possible from the nearest sample it separates — an edge
+threshold generalizes worst). Calibrated thresholds: gate **0.129**, ceiling
+**0.603**, contra **0.686**; in-sample accuracy 12/13, matching the hand-tuned
+detector.
 
-- **Thresholds are calibrated on the 13-pair set** (too small to be production
-  values) — the *architecture* (gate + NLI channel + aspect band) is the
-  contribution; the exact 0.13 / 0.45 / 0.5 need a held-out set. The band's
-  water-divergence floor (0.134) sits perilously close to the unrelated ceiling
-  (0.124), so the gate threshold especially is not yet robust.
-- **The mid-band → divergent rule assumes** a related, non-propositional,
-  not-highly-similar pair is a framing divergence. That holds here but needs
-  validation against corroborating pairs that are topically related yet textually
-  dissimilar (none such in this set).
+Crucially, `leave_one_out()` predicts each pair with thresholds fitted on the
+other twelve — the honest generalization estimate:
+
+| | accuracy | contradicts precision | contradicts recall | class_c |
+|---|---|---|---|---|
+| in-sample | 0.923 | 0.875 | 1.000 | 0.667 |
+| **leave-one-out** | **0.69** | **0.71** | **0.71** | 0.667 |
+
+So the real out-of-sample performance on 13 pairs is ~0.71, not 0.875 — the
+"13 pairs is too few" caveat is now **quantified, not asserted**. The fragility is
+concentrated where expected: the **gate** (the water divergence, cos 0.134, sits
+one hundredth above the unrelated ceiling 0.124, so some folds misgate it) and the
+**disputed** `inst_em`/`clim_pledges` pair. The architecture holds (LOO ≫ chance);
+the thresholds need a larger labeled set to tighten. Regression:
+`tests/test_cartographer_calibration.py`.
+
+**Remaining caveat.** The mid-band → divergent rule assumes a related,
+non-propositional, not-highly-similar pair is a framing divergence. That holds
+here but needs validation against corroborating pairs that are topically related
+yet textually dissimilar (none such in this set).
 
 The Bookkeeper admission gate (anchor verification, DAG invariants, provenance
 stamp) is the next step — it now has a detector whose proposals are worth gating.

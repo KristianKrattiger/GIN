@@ -14,7 +14,8 @@ from .evaluation import (
     evaluate,
     format_report,
 )
-from .combined import CombinedRelationProposer
+from .calibration import Sample, calibrate, default_samples, leave_one_out
+from .combined import CombinedRelationProposer, Thresholds
 from .frame_judge import LlmFrameJudge
 from .models import Assessment, EdgeProposal, LabeledChunk, Relation
 from .nli import NliRelationProposer
@@ -34,9 +35,14 @@ __all__ = [
     "Relation",
     "RelatednessGate",
     "RelatednessProposer",
+    "Sample",
+    "Thresholds",
+    "calibrate",
     "default_chunks",
     "default_gold_pairs",
+    "default_samples",
     "evaluate",
     "format_report",
     "idf_relatedness",
+    "leave_one_out",
 ]
