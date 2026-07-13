@@ -1,0 +1,210 @@
+{
+  "generated_at": "2026-07-13T22:36:53.259984+00:00",
+  "run_id": "20260713T223653Z",
+  "judge_spec": "anthropic:claude-opus-4-8",
+  "method_suffix": "anthropic",
+  "issue_frame_gold_count": 4,
+  "issue_frame_scorable_count": 4,
+  "issue_frame_divergent_count": 0,
+  "issue_frame_recall": 0.0,
+  "class_c_total": 6,
+  "class_c_scorable_count": 6,
+  "class_c_pass": 4,
+  "class_c_discrimination": 0.6666666666666666,
+  "unrelated_total": 4,
+  "unrelated_scorable_count": 4,
+  "unrelated_pass": 4,
+  "unrelated_discrimination": 1.0,
+  "direction_flip_count": 3,
+  "label_distribution": {
+    "AGREE": 5,
+    "UNRELATED": 7,
+    "DIVERGENT": 2
+  },
+  "gold_labels": [
+    {
+      "src": "n1_doc_005:2",
+      "dst": "n2_doc_001:4",
+      "register": "twonode",
+      "label": "AGREE",
+      "label_reverse": "UNRELATED",
+      "flip": true,
+      "reasoning": "1. The shared issue is reducing greenhouse gas emissions to address climate change.\n\n2. Excerpt A prioritizes large-scale global low-carbon transformations to hit specific emission-reduction targets for 2 \u00b0C and 1.5 \u00b0C pathways. Excerpt B highlights the effectiveness of Indigenous-led resistance in preventing substantial greenhouse gas emissions.\n\n3. Both stances point in the same direction\u2014reducing emissions to mitigate climate change\u2014so they CORROBORATE, with B offering a specific example of the reductions A calls for.\n\nFINAL: AGREE",
+      "skipped": null
+    },
+    {
+      "src": "n1_doc_005:1",
+      "dst": "n2_doc_001:1",
+      "register": "twonode",
+      "label": "AGREE",
+      "label_reverse": "AGREE",
+      "flip": false,
+      "reasoning": "1. Shared issue: Both concern the global climate crisis and the adequacy of international climate action (the Paris Agreement framework).\n\n2. Excerpt A: Neutral/factual stance noting that current pledges fall short, projecting a 2.5-2.9\u00b0C rise\u2014implicitly signaling insufficient action. Excerpt B: Advocacy stance urging binding agreements, fossil fuel phase-out, and climate reparations for vulnerable communities.\n\n3. Both point in the same direction\u2014current efforts are inadequate and stronger action is needed. A provides the diagnostic evidence; B provides the prescriptive demand. They corroborate rather than compete.\n\nFINAL: AGREE",
+      "skipped": null
+    },
+    {
+      "src": "n1_doc_008:0",
+      "dst": "n2_doc_005:1",
+      "register": "twonode",
+      "label": "UNRELATED",
+      "label_reverse": "UNRELATED",
+      "flip": false,
+      "reasoning": "1. Both mention wildfires, but Excerpt A addresses the scale/trend of wildfire activity (acreage burned), while Excerpt B addresses the health effects of wildfire smoke on vulnerable populations\u2014these are distinct issues.\n\n2. Excerpt A's stance: a reassuring, quantitative framing suggesting 2023's wildfire acreage was relatively moderate (below historical averages). Excerpt B's stance: a concern-oriented framing emphasizing that certain groups are especially endangered by smoke exposure.\n\n3. The two excerpts don't engage the same question\u2014one is about the magnitude of burning, the other about public health vulnerability\u2014so they neither compete nor corroborate on a shared claim.\n\nFINAL: UNRELATED",
+      "skipped": null
+    },
+    {
+      "src": "n1_doc_009:0",
+      "dst": "n2_doc_008:2",
+      "register": "twonode",
+      "label": "UNRELATED",
+      "label_reverse": "UNRELATED",
+      "flip": false,
+      "reasoning": "1. Excerpt A concerns California's snowpack/water supply abundance, while Excerpt B concerns inequities in water shortage distribution among communities\u2014these are different issues (one about physical water supply measurement, the other about social equity in water access).\n\n2. Excerpt A takes a factual/neutral stance noting a record-high snowpack (abundant water supply); Excerpt B takes a critical stance highlighting that disadvantaged communities disproportionately suffer water shortages.\n\n3. The stances neither compete nor corroborate because they address distinct topics\u2014physical snowpack levels versus social equity in water distribution.\n\nFINAL: UNRELATED",
+      "skipped": null
+    }
+  ],
+  "class_c_labels": [
+    {
+      "src": "n1_doc_008:0",
+      "dst": "n1_doc_008:2",
+      "register": "twonode",
+      "label": "UNRELATED",
+      "label_reverse": "UNRELATED",
+      "flip": false,
+      "reasoning": "1. Shared issue: Both concern U.S. wildfires in 2023 (broadly the same topic).\n\n2. Excerpt A's stance: It presents overall wildfire totals and emphasizes that acreage burned was below historical averages (a comparatively reassuring, magnitude-focused framing). Excerpt B's stance: It offers a neutral descriptive breakdown of where wildfires occurred, noting roughly a quarter were on federally protected lands.\n\n3. Neither takes an opposing evaluative position; they simply report different, non-conflicting statistics about the same year's wildfires (total scale vs. location distribution). They are factual observations that neither corroborate a shared stance nor compete\u2014they address distinct aspects without a common evaluative direction.\n\nFINAL: UNRELAT",
+      "skipped": null,
+      "pass": true
+    },
+    {
+      "src": "labor_bureau_report:0",
+      "dst": "labor_independent_survey:0",
+      "register": "news",
+      "label": "DIVERGENT",
+      "label_reverse": "AGREE",
+      "flip": true,
+      "reasoning": "1. Shared issue: Both discuss the same regional labor market report (3.7% unemployment, +1,200 manufacturing, -400 retail).\n\n2. Stances:\n- Excerpt A: Treats the net job gain positively/neutrally, attributing it to routine seasonal hiring.\n- Excerpt B: Casts skepticism, warning the headline figure conceals underemployment problems.\n\n3. The stances COMPETE: A frames the data as a benign gain, while B challenges the rosy interpretation by flagging hidden weakness\u2014opposing evaluative directions on the same figures.\n\nFINAL: DIVERGENT",
+      "skipped": null,
+      "pass": false
+    },
+    {
+      "src": "wage_bureau_report:0",
+      "dst": "wage_independent_survey:0",
+      "register": "news",
+      "label": "AGREE",
+      "label_reverse": "AGREE",
+      "flip": false,
+      "reasoning": "1. The shared issue is the reported 4.8 percent year-over-year growth in average hourly earnings.\n\n2. Excerpt A's stance: the wage growth is genuine and positive, modestly beating inflation. Excerpt B's stance: the same figure should be treated cautiously because part-time workers were undercounted, questioning its reliability.\n\n3. These CORROBORATE the same underlying data point but differ in confidence\u2014B adds a methodological caveat rather than opposing A's priorities or values; both accept the same figure and direction.\n\nFINAL: AGREE",
+      "skipped": null,
+      "pass": true
+    },
+    {
+      "src": "inflation_bureau_report:0",
+      "dst": "inflation_independent_survey:0",
+      "register": "news",
+      "label": "DIVERGENT",
+      "label_reverse": "UNRELATED",
+      "flip": true,
+      "reasoning": "1. Shared issue: Both discuss the same regional CPI report showing a 2.1 percent annual rise with moderating energy and climbing grocery prices.\n\n2. Excerpt A's stance: Neutral/technical\u2014it explains the reading by noting that base effects faded, implying the figure reflects genuine underlying dynamics. Excerpt B's stance: Critical\u2014it questions the headline figure's accuracy, arguing shelter costs were underweighted.\n\n3. The stances COMPETE: A treats the reported figure as sound and explicable, while B challenges its validity by claiming it understates inflation through underweighted shelter costs.\n\nFINAL: DIVERGENT",
+      "skipped": null,
+      "pass": false
+    },
+    {
+      "src": "export_trade_report:0",
+      "dst": "export_independent_review:0",
+      "register": "news",
+      "label": "AGREE",
+      "label_reverse": "AGREE",
+      "flip": false,
+      "reasoning": "1. Shared issue: Both address the same 3.2 percent decline in regional export volumes reported in the latest monthly trade report.\n\n2. Excerpt A's stance: It attributes the decline to a straightforward, external cause\u2014softer overseas demand\u2014treating the report at face value. Excerpt B's stance: It cautions that the headline figures may understate the problem, since inventory drawdowns could be hiding even weaker underlying demand.\n\n3. The stances CORROBORATE: both point in the same direction (demand weakness driving the decline); B simply adds a cautionary caveat suggesting the weakness may be greater than it appears, rather than opposing A's interpretation.\n\nFINAL: AGREE",
+      "skipped": null,
+      "pass": true
+    },
+    {
+      "src": "n1_doc_002:0",
+      "dst": "n1_doc_006:2",
+      "register": "twonode",
+      "label": "AGREE",
+      "label_reverse": "AGREE",
+      "flip": false,
+      "reasoning": "1. Shared issue: Both address the ranking of 2023 as the warmest year in the global temperature record.\n\n2. Excerpt A's stance: Reporting from NOAA, it affirms 2023 as the warmest year in a record dating to 1850. Excerpt B's stance: Reporting from the WMO, it likewise confirms 2023 as the warmest year on record and adds the specific magnitude above the pre-industrial baseline.\n\n3. The stances CORROBORATE\u2014both point in the same direction (2023 as warmest on record), with B adding a quantitative caveat/detail.\n\nFINAL: AGREE",
+      "skipped": null,
+      "pass": true
+    }
+  ],
+  "unrelated_labels": [
+    {
+      "src": "n1_doc_008:0",
+      "dst": "n2_doc_008:2",
+      "register": "twonode",
+      "label": "UNRELATED",
+      "label_reverse": "UNRELATED",
+      "flip": false,
+      "reasoning": "1. The issues differ: Excerpt A concerns wildfire activity and acreage burned, while Excerpt B concerns water shortages and equity in water resource management.\n\n2. Excerpt A's stance: it presents wildfire data neutrally, noting that 2023's burned acreage fell below historical averages. Excerpt B's stance: it prioritizes equity, highlighting that disadvantaged communities are unfairly burdened by water shortages.\n\n3. Neither\u2014the excerpts address different environmental topics (wildfires vs. water access), so they do not compete or corroborate.\n\nFINAL: UNRELATED",
+      "skipped": null,
+      "pass": true
+    },
+    {
+      "src": "n1_doc_009:0",
+      "dst": "n2_doc_005:1",
+      "register": "twonode",
+      "label": "UNRELATED",
+      "label_reverse": "UNRELATED",
+      "flip": false,
+      "reasoning": "1. The issues differ: Excerpt A concerns California's record snowpack/water levels, while Excerpt B concerns vulnerable populations' risk from wildfire smoke.\n\n2. Excerpt A neutrally reports an unusually large snowpack as a notable measurement. Excerpt B prioritizes protecting vulnerable groups from wildfire smoke health risks.\n\n3. Neither competes nor corroborates\u2014they address distinct topics (snowpack hydrology vs. wildfire smoke public health).\n\nFINAL: UNRELATED",
+      "skipped": null,
+      "pass": true
+    },
+    {
+      "src": "n1_doc_008:0",
+      "dst": "n1_doc_009:0",
+      "register": "twonode",
+      "label": "UNRELATED",
+      "label_reverse": "UNRELATED",
+      "flip": false,
+      "reasoning": "1. The issues differ: Excerpt A concerns wildfire activity/burned acreage in 2023, while Excerpt B concerns California's snowpack levels in 2023.\n\n2. Excerpt A's stance: it presents a neutral-to-favorable observation that wildfire damage was below historical averages. Excerpt B's stance: it presents a factual, notable observation that snowpack was exceptionally high (record-level) that year.\n\n3. These neither compete nor corroborate on a single shared claim\u2014they report on distinct environmental metrics (fire vs. snowpack). While both are climate/weather statistics from the same broad domain, they address different issues.\n\nFINAL: UNRELATED",
+      "skipped": null,
+      "pass": true
+    },
+    {
+      "src": "transit_authority_update:0",
+      "dst": "school_district_report:0",
+      "register": "news",
+      "label": "UNRELATED",
+      "label_reverse": "UNRELATED",
+      "flip": false,
+      "reasoning": "1. The issues differ: Excerpt A concerns public transit (a rail line extension and ridership), while Excerpt B concerns public school enrollment and budgeting.\n\n2. Excerpt A reports positively on the launch and uptake of a new transit line with fare integration. Excerpt B reports positively on rising school enrollment and forthcoming budget planning.\n\n3. The stances neither compete nor corroborate on a shared topic, since they address entirely separate subjects (transit vs. education), even though both are civic statistics.\n\nFINAL: UNRELATED",
+      "skipped": null,
+      "pass": true
+    }
+  ],
+  "labeled_set": {
+    "total": 33,
+    "accuracy": 0.7878787878787878,
+    "by_expected": {
+      "DIVERGENT": {
+        "total": 7,
+        "correct": 3,
+        "got": {
+          "AGREE": 2,
+          "UNRELATED": 2,
+          "DIVERGENT": 3
+        }
+      },
+      "AGREE": {
+        "total": 10,
+        "correct": 7,
+        "got": {
+          "AGREE": 7,
+          "UNRELATED": 3
+        }
+      },
+      "UNRELATED": {
+        "total": 16,
+        "correct": 16,
+        "got": {
+          "UNRELATED": 16
+        }
+      }
+    }
+  }
+}

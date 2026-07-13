@@ -272,29 +272,52 @@ under argument-order swap (`092010Z`) — 7B verdicts on this class are noise.
 Prompt wording is calibration-sensitive; never edit `FRAME_JUDGE_PROMPT`
 without a rerun.
 
-**14B does not clear it either — and the reason is signal, not scale**
-(2026-07-13, Q4_K_M, `[INST]` harness held constant across both models so the
-architecture comparison is fair; small n — 4/6/4 pairs — so read direction, not
+**The bar is signal-bound, not scale-bound — closed at every tier including the
+frontier** (2026-07-13; local models Q4_K_M with the `[INST]` harness held
+constant; Opus 4.8 via API. Small n — 4/6/4 pairs — read direction, not
 decimals):
 
 | Model | Active | issue_frame recall | class_c | unrelated | order-flips | labeled acc |
 |-------|:---:|:---:|:---:|:---:|:---:|:---:|
-| Mistral-7B dense (`092010Z`) | 7B | 0.50 | **0.67** | 0.25 | 7/14 | 0.394 |
+| Mistral-7B dense (`092010Z`) | 7B | 0.50 | 0.67 | 0.25 | 7/14 | 0.394 |
 | Qwen3.6-14B-A3B MoE (`190431Z`) | ~3B | 0.25 | 0.50 | 0.50 | 7/14 | 0.636 |
-| Qwen2.5-14B dense (`192930Z`) | 14B | 0.50 | 0.33 | **1.00** | **3/14** | **0.727** |
+| Qwen2.5-14B dense (`192930Z`) | 14B | 0.50 | 0.33 | **1.00** | **3/14** | 0.727 |
+| Opus 4.8 frontier (`223653Z`) | — | **0.00** | 0.67 | **1.00** | **3/14** | **0.788** |
 
-Active-compute depth (dense 14B) buys what scale is supposed to: order-flips
-halve (7→3), `unrelated` discrimination goes perfect, and it is the only model
-that emits UNRELATED at all — the 3B-active MoE dropped the category entirely,
-folding every different-issue pair into AGREE/DIVERGENT. MoE *total-param*
-breadth helped only generic classification (best labeled-set accuracy among the
-small models) — not the targeted stance call. But the core `issue_frame` recall
-sticks at 0.50 for both dense models and the dense 14B even *regresses* on
-class_c (over-calls DIVERGENT on same-issue corroboration): the residual failure
-is opposing-stance vs same-stance-with-caveat ambiguity, not capacity. A bigger
-local judge is not the lever; the class stays curation-only (or a frontier
-judge). Wording remains calibration-sensitive; never edit `FRAME_JUDGE_PROMPT`
-without a rerun.
+Two readings stack. First, **architecture**: active-compute depth (dense 14B)
+buys what scale is supposed to — order-flips halve (7→3), `unrelated` goes
+perfect, and it's the only *local* model that emits UNRELATED at all (the
+3B-active MoE dropped the category, folding different-issue pairs into
+AGREE/DIVERGENT); MoE total-param breadth helped only generic classification,
+not the targeted stance call.
+
+Second, and decisive, **the frontier inverts the premise**. Opus 4.8 is the best
+general judge on every competence metric (labeled acc 0.788, `unrelated` 1.0,
+best-tier stability) yet scores `issue_frame` recall **0.00** — the worst of any
+model. Recall down the capability ladder is 0.50 → 0.25 → 0.50 → 0.00: it does
+not rise with capability. Opus doesn't fail these pairs, it reads them lucidly
+and *disagrees with the gold*: the climate pairs it calls AGREE ("both point the
+same direction — A the diagnostic, B the prescriptive — they corroborate"), the
+wildfire/water pairs UNRELATED ("distinct questions — magnitude of burning vs
+public-health vulnerability"). The `issue_frame` "contradicts" edge encodes a
+**critical-theory reading** (institutional framing *opposes* justice framing)
+that competent judges recover as same-direction corroboration or topic
+difference, not stance opposition. It is a contestable curatorial judgment, not
+a latent signal — fittingly, a curator-vs-reader divergence of exactly the kind
+GIN exists to hold legible.
+
+**Conclusion:** the escalation-judge path is closed at every tier, not for lack
+of capability but because the label is an editorial stance no off-the-shelf
+judge reproduces. `issue_frame` stays **curation-only by nature.** Wording
+remains calibration-sensitive; never edit `FRAME_JUDGE_PROMPT` without a rerun.
+
+**Forward path (much later phase): a purpose-trained judge.** Supervised
+fine-tuning *learns the labeler's function*, so a judge trained on the
+curatorial framing is the way to scale this class where curation doesn't — but
+this finding reframes what that model is (a learned encoding of one editorial
+frame, not a universal divergence detector) and names its prerequisite: a
+labeled framing corpus at scale (four gold pairs cannot train anything). Not on
+the Phase-1/2 path.
 
 | Metric | Old band (`074956Z`) | Story gate (`091415Z`) | Anchors, gold 11 (`094453Z`) | Class split (`202240Z`) | Label closure (`220456Z`) |
 |--------|---|---|---|---|---|
@@ -429,7 +452,7 @@ NLI confirms NC fabrication 0 on the 9-query structural baseline (`194024Z`); ex
 | Retrieval determinism + `corpus_fingerprint` in eval meta | ✅ |
 | Convergent sentence-end close (`tn_2023_anomaly` truncation) | ✅ |
 | Cartographer scan + Bookkeeper Postgres persist | ✅ (`scripts/cartographer_scan.py`, `gin/bookkeeper/persist.py`) |
-| Cartographer scan production validation (scan-only divergence eval) | ✅ Machine recall 1.0 on 9/9 story-class gold, chunk FP 1 (labor CLASS_C; anchor discovery tracked separately) (`20260712T220456Z`); issue_frame class 4/4 curated via `--curated-edges`; twonode divergence eval coverage 1.0 (`20260712T203110Z`); model-agnostic escalation judge (local llama.cpp + optional anthropic) with reasoning-prompt calibration harness — Mistral-7B, Qwen3.6-14B-A3B MoE, and Qwen2.5-14B dense all measured below bar (`20260713T092010Z`/`190431Z`/`192930Z`); dense 14B halves order-flips + perfects unrelated but `issue_frame` recall stalls at 0.50 — residual failure is signal ambiguity, not capacity; class stays curation-only locally |
+| Cartographer scan production validation (scan-only divergence eval) | ✅ Machine recall 1.0 on 9/9 story-class gold, chunk FP 1 (labor CLASS_C; anchor discovery tracked separately) (`20260712T220456Z`); issue_frame class 4/4 curated via `--curated-edges`; twonode divergence eval coverage 1.0 (`20260712T203110Z`); model-agnostic escalation judge (local llama.cpp + optional anthropic) with reasoning-prompt calibration harness — Mistral-7B, Qwen3.6-14B-A3B MoE, Qwen2.5-14B dense, **and Opus 4.8 frontier** all measured below bar (`20260713T092010Z`/`190431Z`/`192930Z`/`223653Z`); `issue_frame` recall does not rise with capability (0.50→0.25→0.50→**0.00**) — the frontier judge lucidly reads the pairs as corroborate/unrelated and disagrees with the gold, so the `contradicts` label is a contestable curatorial stance, not a latent signal; **epistemic phase closed — class is curation-only by nature; forward path is a purpose-trained judge (much later)** |
 | Labeled set expanded + threshold calibration (33 pairs, LOO ≥ 0.85) | ✅ (`data/cartographer_thresholds.json`) |
 | NLI verifier on expanded 20-query set | ✅ (`20260712T035228Z`, `models/Mistral-7B-Instruct-v0.3-Q6_K.gguf`, WSL+GPU; NC realism fabrication 0.0, overall NLI fabrication 0.056 on counterfactual entailment miss) |
 | Bookkeeper + reasoning layer separation (Phase 2) | ✅ (admission gate wired; synthesis reads warm `edges`) |
