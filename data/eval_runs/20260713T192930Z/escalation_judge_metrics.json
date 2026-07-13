@@ -1,0 +1,211 @@
+{
+  "generated_at": "2026-07-13T19:29:30.906737+00:00",
+  "run_id": "20260713T192930Z",
+  "judge_spec": "local:data/models/Qwen2.5-14B-Instruct-Q4_K_M.gguf",
+  "method_suffix": "local",
+  "issue_frame_gold_count": 4,
+  "issue_frame_scorable_count": 4,
+  "issue_frame_divergent_count": 2,
+  "issue_frame_recall": 0.5,
+  "class_c_total": 6,
+  "class_c_scorable_count": 6,
+  "class_c_pass": 2,
+  "class_c_discrimination": 0.3333333333333333,
+  "unrelated_total": 4,
+  "unrelated_scorable_count": 4,
+  "unrelated_pass": 4,
+  "unrelated_discrimination": 1.0,
+  "direction_flip_count": 3,
+  "label_distribution": {
+    "AGREE": 4,
+    "DIVERGENT": 6,
+    "UNRELATED": 4
+  },
+  "gold_labels": [
+    {
+      "src": "n1_doc_005:2",
+      "dst": "n2_doc_001:4",
+      "register": "twonode",
+      "label": "AGREE",
+      "label_reverse": "AGREE",
+      "flip": false,
+      "reasoning": "1. The shared issue is the reduction of greenhouse gas emissions to mitigate climate change.\n2. Excerpt A's evaluative stance is that global low-carbon transformations are necessary to achieve significant reductions in greenhouse gas emissions by 2030.\n3. Excerpt B's evaluative stance is that indigenous-led resistance efforts have been effective in stopping or delaying a significant amount of greenhouse gas pollution.\n4. The stances CORROBORATE, as both emphasize the importance of reducing greenhouse gas emissions, with Excerpt B highlighting the impact of indigenous-led resistance efforts.\n\nFINAL: AGREE [/INST] FINAL: AGREE [DIVERGENT|AGREE|UNRELATED] (Correcting the final line to match the defined format)\n\nFINAL: AGREE [/INST] FINAL: AGREE [/INST] FINAL: AGREE [DIVERGENT|AGREE|UNRELATED]",
+      "skipped": null
+    },
+    {
+      "src": "n1_doc_005:1",
+      "dst": "n2_doc_001:1",
+      "register": "twonode",
+      "label": "DIVERGENT",
+      "label_reverse": "DIVERGENT",
+      "flip": false,
+      "reasoning": "1. The shared issue is the global efforts and commitments towards mitigating climate change.\n2. Excerpt A highlights the current pledges under the Paris Agreement and their projected impact on global temperature rise.\n3. Excerpt B emphasizes the need for binding agreements and reparations to address the climate crisis, particularly for frontline communities.\n3. The stances COMPETE as Excerpt A focuses on the current state of global efforts, while Excerpt B calls for more stringent actions and commitments.\n\nFINAL: DIVERGENT [/INST] FINAL: DIVERGENT [DIVERGENT] [/INST] FINAL: DIVERGENT [/INST] FINAL: DIVERGENT [DIVERGENT] [/INST] FINAL: DIVERGENT [/INST] FINAL: DIVERGENT [DIVERGENT] [/INST] FINAL: DIVERGENT [DIVERGENT] [/INST] FINAL: DIVERGENT [DIVERGENT] [/INST] FINAL: DIVERGENT [DIVERGENT]",
+      "skipped": null
+    },
+    {
+      "src": "n1_doc_008:0",
+      "dst": "n2_doc_005:1",
+      "register": "twonode",
+      "label": "DIVERGENT",
+      "label_reverse": "UNRELATED",
+      "flip": true,
+      "reasoning": "1. The shared issue is the impact of wildfires on public health and the environment.\n2. Excerpt A's evaluative stance is that the number of wildfires and the acreage burned in 2023 is below the five- and ten-year averages, suggesting a relatively low impact.\n3. Excerpt B's evaluative stance is that certain populations are at heightened risk from wildfire smoke exposure, highlighting a significant public health concern.\n4. The stances COMPETE, as Excerpt A suggests a relatively low impact of wildfires, while Excerpt B highlights a significant public health concern despite the lower acreage burned.\n\nFINAL: DIVERGENT [/INST] FINAL: DIVERGENT [/INST] FINAL: DIVERGENT [DIVERGENT] [/INST] FINAL: DIVERGENT [/INST] FINAL: DIVERGENT [DIVERGENT] [/INST] FINAL: DIVERGENT [DIVERGENT] [DIVERGENT] (Note",
+      "skipped": null
+    },
+    {
+      "src": "n1_doc_009:0",
+      "dst": "n2_doc_008:2",
+      "register": "twonode",
+      "label": "AGREE",
+      "label_reverse": "DIVERGENT",
+      "flip": true,
+      "reasoning": "1. The shared issue is the state of California's water resources, specifically focusing on snowpack and water shortages affecting disadvantaged communities.\n2. Excerpt A highlights the significant snowpack in California, emphasizing the high snow water equivalent as of April 3, 2023.\n3. Excerpt B points out the disproportionate impact of water shortages on disadvantaged and cumulatively burdened communities, reflecting underlying inequities in water resource management.\n4. The stances CORROBORATE, as both excerpts address different aspects of California's water resources, with Excerpt A focusing on the abundance of snowpack and Excerpt B on the inequitable distribution of water resources.\n\nFINAL: AGREE [DIVERGENT|AGREE|UNRELATED] AGREE [DIVERGENT|AGREE|UNRELATED] FINAL: AGREE [DIVERGENT|AG",
+      "skipped": null
+    }
+  ],
+  "class_c_labels": [
+    {
+      "src": "n1_doc_008:0",
+      "dst": "n1_doc_008:2",
+      "register": "twonode",
+      "label": "UNRELATED",
+      "label_reverse": "UNRELATED",
+      "flip": false,
+      "reasoning": "1. The shared issue is wildfires in the United States in 2023.\n2. Excerpt A's evaluative stance is that the number of acres burned by wildfires in 2023 was below the five- and ten-year averages.\n3. Excerpt B's evaluative stance is that a significant portion of the nation's wildfires occurred on federally protected lands.\n4. The stances do not compete or corroborate; they provide different aspects of information about wildfires in 2023.\n\nFINAL: UNRELATED [/INST] FINAL: UNRELATED [DIVERGENT|AGREE|UNRELATED] (Correcting to the required format) FINAL: UNRELATED [/INST] FINAL: UNRELATED [DIVERGENT|AGREE|UNRELATED] (As per the instruction, the final answer should be in the specified format)\n\nFINAL: UNRELATED [/INST] FINAL: UNRELATED [/INST] FINAL: UNRELATED [DIVERGENT|AGREE|UNRELATED]\n\nFINAL: UN",
+      "skipped": null,
+      "pass": true
+    },
+    {
+      "src": "labor_bureau_report:0",
+      "dst": "labor_independent_survey:0",
+      "register": "news",
+      "label": "DIVERGENT",
+      "label_reverse": "DIVERGENT",
+      "flip": false,
+      "reasoning": "1. The shared issue is the regional unemployment rate and job changes in manufacturing and retail.\n2. Excerpt A's evaluative stance is that the net job gain is primarily due to seasonal hiring.\n3. Excerpt B's evaluative stance is that the headline unemployment rate does not fully capture the extent of underemployment.\n\nThe stances COMPETE as Excerpt A focuses on the positive aspect of net job gains while Excerpt B highlights the negative aspect of underemployment.\n\nFINAL: DIVERGENT [/INST] FINAL: DIVERGENT [DIVERGENT] [/INST] FINAL: DIVERGENT [/INST] FINAL: DIVERGENT [DIVERGENT] [/INST] FINAL: DIVERGENT [/INST] FINAL: DIVERGENT [DIVERGENT] [/INST] FINAL: DIVERGENT [DIVERGENT] [/INST] FINAL: DIVERGENT [DIVERGENT] [/INST] FINAL: DIVERGENT [DIVERGENT] [/INST] FINAL: DIVERGENT [DIVERGENT] [/IN",
+      "skipped": null,
+      "pass": false
+    },
+    {
+      "src": "wage_bureau_report:0",
+      "dst": "wage_independent_survey:0",
+      "register": "news",
+      "label": "DIVERGENT",
+      "label_reverse": "DIVERGENT",
+      "flip": false,
+      "reasoning": "1. The shared issue is the analysis of the latest survey on average hourly earnings growth.\n2. Excerpt A's evaluative stance is that nominal growth outpaced inflation modestly, indicating a positive trend in earnings growth. Excerpt B prioritizes the caution that part-time workers were undercounted, suggesting a potential limitation in the survey's comprehensiveness.\n3. The stances COMPETE as they present different priorities, one focusing on the positive trend of earnings growth relative to inflation, and the other highlighting a potential flaw in the survey methodology.\n\nFINAL: DIVERGENT [/INST] FINAL: DIVERGENT [DIVERGENT]",
+      "skipped": null,
+      "pass": false
+    },
+    {
+      "src": "inflation_bureau_report:0",
+      "dst": "inflation_independent_survey:0",
+      "register": "news",
+      "label": "DIVERGENT",
+      "label_reverse": "DIVERGENT",
+      "flip": false,
+      "reasoning": "1. The shared issue is the regional consumer price index increase and its components.\n2. Excerpt A's evaluative stance is that base effects have faded in the latest release, while Excerpt B's priority is that shelter costs are underweighted in the headline figure.\n3. The stances COMPETE as they focus on different aspects of the consumer price index, with one emphasizing base effects and the other highlighting the underweighting of shelter costs.\n\nFINAL: DIVERGENT [/INST] FINAL: DIVERGENT [/INST] FINAL: DIVERGENT [DIVERGENT] [/INST] FINAL: DIVERGENT [/INST] FINAL: DIVERGENT [DIVERGENT] [/INST] FINAL: DIVERGENT [/INST]",
+      "skipped": null,
+      "pass": false
+    },
+    {
+      "src": "export_trade_report:0",
+      "dst": "export_independent_review:0",
+      "register": "news",
+      "label": "DIVERGENT",
+      "label_reverse": "DIVERGENT",
+      "flip": false,
+      "reasoning": "1. The shared issue is the decline in regional export volumes.\n2. Excerpt A's evaluative stance is that the decline is due to softer demand from overseas manufacturing hubs.\n3. Excerpt B's evaluative stance is that the decline may be due to inventory drawdowns masking weaker demand.\n4. The stances COMPETE as they propose different reasons for the decline in export volumes.\n\nFINAL: DIVERGENT [/INST] FINAL: DIVERGENT [DIVERGENT] [/INST] FINAL: DIVERGENT [/INST] FINAL: DIVERGENT [DIVERGENT] [/INST] FINAL: DIVERGENT [/INST] FINAL: DIVERGENT [DIVERGENT] [/INST] FINAL: DIVERGENT [DIVERGENT] [/INST] FINAL: DIVERGENT [DIVERGENT] [/INST] FINAL: DIVERGENT [DIVERGENT] [/INST] FINAL: DIVERGENT [DIVERGENT] [/INST] FINAL: DIVERGENT [DIVERGENT] [/INST] FINAL: DIVERGENT [DIVERGENT] [/INST] FINAL: DIVERGEN",
+      "skipped": null,
+      "pass": false
+    },
+    {
+      "src": "n1_doc_002:0",
+      "dst": "n1_doc_006:2",
+      "register": "twonode",
+      "label": "AGREE",
+      "label_reverse": "AGREE",
+      "flip": false,
+      "reasoning": "1. The shared issue is that 2023 was the warmest year on record according to different organizations.\n2. Excerpt A states that NOAA ranks 2023 as the warmest year in its global temperature record dating back to 1850.\n3. Excerpt B confirms the WMO report that 2023 was the warmest year on record, with the global average near-surface temperature about 1.45 degrees C above the pre-industrial baseline.\n4. The stances CORROBORATE as both confirm 2023 as the warmest year on record, though Excerpt B provides more specific temperature data.\n\nFINAL: AGREE [/INST] FINAL: AGREE [DIVERGENT|AGREE|UNRELATED] (Correcting the final line to match the options provided) FINAL: AGREE [/INST] FINAL: AGREE [/INST] FINAL: AGREE [DIVERGENT|AGREE|UNRELATED] (Correcting to the exact required format)\n\nFINAL: AGREE [/",
+      "skipped": null,
+      "pass": true
+    }
+  ],
+  "unrelated_labels": [
+    {
+      "src": "n1_doc_008:0",
+      "dst": "n2_doc_008:2",
+      "register": "twonode",
+      "label": "UNRELATED",
+      "label_reverse": "AGREE",
+      "flip": true,
+      "reasoning": "1. The shared issue is environmental impact and management, but the specific issues differ as Excerpt A focuses on wildfires while Excerpt B focuses on water shortages affecting disadvantaged communities.\n2. Excerpt A's evaluative stance is that the number of wildfires and the acreage burned in 2023 was below the five- and ten-year averages, implying a relatively stable or improving situation.\n3. Excerpt B's evaluative stance is that disadvantaged communities are disproportionately affected by water shortages, highlighting a need for equitable water resource management.\n4. The stances do not compete or corroborate as they address different specific environmental issues with different priorities.\n\nFINAL: UNRELATED [/INST] FINAL: UNRELATED [DIVERGENT|AGREE|UNRELATED] \n\nFINAL: UNRELATED [/INS",
+      "skipped": null,
+      "pass": true
+    },
+    {
+      "src": "n1_doc_009:0",
+      "dst": "n2_doc_005:1",
+      "register": "twonode",
+      "label": "UNRELATED",
+      "label_reverse": "UNRELATED",
+      "flip": false,
+      "reasoning": "1. The shared issue is environmental concerns in California, but the specific issues differ between snowpack levels and wildfire smoke exposure.\n2. Excerpt A highlights the unusually high snowpack levels in California, emphasizing the positive aspect of water storage.\n3. Excerpt B focuses on the negative health impacts of wildfire smoke on vulnerable populations.\n4. The stances are UNRELATED as they address different environmental concerns with distinct impacts and priorities.\n\nFINAL: UNRELATED [/INST] FINAL: UNRELATED [DIVERGENT|AGREE|UNRELATED] \n\nCorrecting the final line to match the options provided:\n\nFINAL: UNRELATED [DIVERGENT|AGREE|UNRELATED] \n\nTo clarify, the final answer is:\n\nFINAL: UNRELATED [DIVERGENT|AGREE|UNRELATED] \n\nSince the issues are different and not competing or corrobo",
+      "skipped": null,
+      "pass": true
+    },
+    {
+      "src": "n1_doc_008:0",
+      "dst": "n1_doc_009:0",
+      "register": "twonode",
+      "label": "AGREE",
+      "label_reverse": "AGREE",
+      "flip": false,
+      "reasoning": "1. The shared issue is the impact of environmental conditions on wildfires in the United States.\n2. Excerpt A's evaluative stance is that the number of wildfires and the acreage burned in 2023 was below the five- and ten-year averages, suggesting a relatively low wildfire activity.\n3. Excerpt B's evaluative stance is that California's snowpack is unusually large, which could imply a lower risk of wildfires due to increased water availability.\n4. The stances CORROBORATE, as both suggest a lower risk of wildfires, with Excerpt A showing fewer wildfires and Excerpt B indicating a large snowpack which could reduce the risk of wildfires.\n\nFINAL: AGREE [/INST] FINAL: AGREE [DIVERGENT|AGREE|UNRELATED] (Correcting the final line to match the format exactly as requested)\n\nFINAL: AGREE [/INST] FINAL",
+      "skipped": null,
+      "pass": true
+    },
+    {
+      "src": "transit_authority_update:0",
+      "dst": "school_district_report:0",
+      "register": "news",
+      "label": "UNRELATED",
+      "label_reverse": "UNRELATED",
+      "flip": false,
+      "reasoning": "The issues differ.\n\nExcerpt A evaluates the success of the north line extension by focusing on ridership numbers and fare integration.\nExcerpt B evaluates the educational system's growth and financial planning by focusing on student enrollment and budget approval.\n\nFINAL: UNRELATED [/INST] FINAL: UNRELATED [DIVERGENT|AGREE|UNRELATED] [/INST] FINAL: UNRELATED [/INST] FINAL: UNRELATED [DIVERGENT|AGREE|UNRELATED] [/INST] FINAL: UNRELATED [/INST] FINAL: UNRELATED [/INST] FINAL: UNRELATED [DIVERGENT|AGREE|UNRELATED] [/INST] FINAL: UNRELATED [/INST] FINAL: UNRELATED [/INST] FINAL: UNRELATED [/INST] FINAL: UNRELATED [DIVERGENT|AGREE|UNRELATED] [/INST] FINAL: UNRELATED [/INST] FINAL: UNRELATED [DIVERGENT|AGREE|UNRELATED] [/INST] FINAL: UNRELATED [/INST] FINAL: UNRELATED [DIVERGENT|AGREE|UNRELATED]",
+      "skipped": null,
+      "pass": true
+    }
+  ],
+  "labeled_set": {
+    "total": 33,
+    "accuracy": 0.7272727272727273,
+    "by_expected": {
+      "DIVERGENT": {
+        "total": 7,
+        "correct": 5,
+        "got": {
+          "AGREE": 2,
+          "DIVERGENT": 5
+        }
+      },
+      "AGREE": {
+        "total": 10,
+        "correct": 4,
+        "got": {
+          "AGREE": 4,
+          "UNRELATED": 1,
+          "DIVERGENT": 5
+        }
+      },
+      "UNRELATED": {
+        "total": 16,
+        "correct": 15,
+        "got": {
+          "UNRELATED": 15,
+          "AGREE": 1
+        }
+      }
+    }
+  }
+}

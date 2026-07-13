@@ -272,6 +272,30 @@ under argument-order swap (`092010Z`) — 7B verdicts on this class are noise.
 Prompt wording is calibration-sensitive; never edit `FRAME_JUDGE_PROMPT`
 without a rerun.
 
+**14B does not clear it either — and the reason is signal, not scale**
+(2026-07-13, Q4_K_M, `[INST]` harness held constant across both models so the
+architecture comparison is fair; small n — 4/6/4 pairs — so read direction, not
+decimals):
+
+| Model | Active | issue_frame recall | class_c | unrelated | order-flips | labeled acc |
+|-------|:---:|:---:|:---:|:---:|:---:|:---:|
+| Mistral-7B dense (`092010Z`) | 7B | 0.50 | **0.67** | 0.25 | 7/14 | 0.394 |
+| Qwen3.6-14B-A3B MoE (`190431Z`) | ~3B | 0.25 | 0.50 | 0.50 | 7/14 | 0.636 |
+| Qwen2.5-14B dense (`192930Z`) | 14B | 0.50 | 0.33 | **1.00** | **3/14** | **0.727** |
+
+Active-compute depth (dense 14B) buys what scale is supposed to: order-flips
+halve (7→3), `unrelated` discrimination goes perfect, and it is the only model
+that emits UNRELATED at all — the 3B-active MoE dropped the category entirely,
+folding every different-issue pair into AGREE/DIVERGENT. MoE *total-param*
+breadth helped only generic classification (best labeled-set accuracy among the
+small models) — not the targeted stance call. But the core `issue_frame` recall
+sticks at 0.50 for both dense models and the dense 14B even *regresses* on
+class_c (over-calls DIVERGENT on same-issue corroboration): the residual failure
+is opposing-stance vs same-stance-with-caveat ambiguity, not capacity. A bigger
+local judge is not the lever; the class stays curation-only (or a frontier
+judge). Wording remains calibration-sensitive; never edit `FRAME_JUDGE_PROMPT`
+without a rerun.
+
 | Metric | Old band (`074956Z`) | Story gate (`091415Z`) | Anchors, gold 11 (`094453Z`) | Class split (`202240Z`) | Label closure (`220456Z`) |
 |--------|---|---|---|---|---|
 | Admitted contradicts | 122 | 20 | 11 | 11 (+3 curated at persist) | 11 (+3 curated; scan also hits `:1↔:1`) |
@@ -405,7 +429,7 @@ NLI confirms NC fabrication 0 on the 9-query structural baseline (`194024Z`); ex
 | Retrieval determinism + `corpus_fingerprint` in eval meta | ✅ |
 | Convergent sentence-end close (`tn_2023_anomaly` truncation) | ✅ |
 | Cartographer scan + Bookkeeper Postgres persist | ✅ (`scripts/cartographer_scan.py`, `gin/bookkeeper/persist.py`) |
-| Cartographer scan production validation (scan-only divergence eval) | ✅ Machine recall 1.0 on 9/9 story-class gold, chunk FP 1 (labor CLASS_C; anchor discovery tracked separately) (`20260712T220456Z`); issue_frame class 4/4 curated via `--curated-edges`; twonode divergence eval coverage 1.0 (`20260712T203110Z`); model-agnostic escalation judge (local llama.cpp + optional anthropic) with reasoning-prompt calibration harness — Mistral-7B measured below bar (`20260713T092010Z`), 14B+ next candidate |
+| Cartographer scan production validation (scan-only divergence eval) | ✅ Machine recall 1.0 on 9/9 story-class gold, chunk FP 1 (labor CLASS_C; anchor discovery tracked separately) (`20260712T220456Z`); issue_frame class 4/4 curated via `--curated-edges`; twonode divergence eval coverage 1.0 (`20260712T203110Z`); model-agnostic escalation judge (local llama.cpp + optional anthropic) with reasoning-prompt calibration harness — Mistral-7B, Qwen3.6-14B-A3B MoE, and Qwen2.5-14B dense all measured below bar (`20260713T092010Z`/`190431Z`/`192930Z`); dense 14B halves order-flips + perfects unrelated but `issue_frame` recall stalls at 0.50 — residual failure is signal ambiguity, not capacity; class stays curation-only locally |
 | Labeled set expanded + threshold calibration (33 pairs, LOO ≥ 0.85) | ✅ (`data/cartographer_thresholds.json`) |
 | NLI verifier on expanded 20-query set | ✅ (`20260712T035228Z`, `models/Mistral-7B-Instruct-v0.3-Q6_K.gguf`, WSL+GPU; NC realism fabrication 0.0, overall NLI fabrication 0.056 on counterfactual entailment miss) |
 | Bookkeeper + reasoning layer separation (Phase 2) | ✅ (admission gate wired; synthesis reads warm `edges`) |
