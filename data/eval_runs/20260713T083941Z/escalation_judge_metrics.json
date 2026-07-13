@@ -1,0 +1,207 @@
+{
+  "generated_at": "2026-07-13T08:39:41.458276+00:00",
+  "run_id": "20260713T083941Z",
+  "judge_spec": "local:models/Mistral-7B-Instruct-v0.3-Q6_K.gguf",
+  "method_suffix": "local",
+  "issue_frame_gold_count": 4,
+  "issue_frame_scorable_count": 4,
+  "issue_frame_divergent_count": 4,
+  "issue_frame_recall": 1.0,
+  "class_c_total": 6,
+  "class_c_scorable_count": 6,
+  "class_c_pass": 0,
+  "class_c_discrimination": 0.0,
+  "unrelated_total": 4,
+  "unrelated_scorable_count": 4,
+  "unrelated_pass": 0,
+  "unrelated_discrimination": 0.0,
+  "direction_flip_count": 0,
+  "label_distribution": {
+    "DIVERGENT": 14
+  },
+  "gold_labels": [
+    {
+      "src": "n1_doc_005:2",
+      "dst": "n2_doc_001:4",
+      "register": "twonode",
+      "label": "DIVERGENT",
+      "label_reverse": "DIVERGENT",
+      "flip": false,
+      "reasoning": "1. The shared issue in both excerpts is the reduction of greenhouse gas emissions. However, while Excerpt A focuses on global transformations and predicted emissions reductions, Excerpt B highlights the impact of indigenous-led resistance efforts.\n\n2. Excerpt A presents a priority on global transformations to achieve significant emissions reductions for climate change mitigation. Excerpt B emphasizes the significant impact of indigenous-led resistance efforts in reducing greenhouse gas emissions.\n\n3. The stances do not compete, but rather complement each other. Excerpt A provides a top-down approach to emissions reduction, while Excerpt B offers a bottom-up perspective, demonstrating that local actions can have a substantial impact on global emissions.\n\nFINAL: DIVERGENT",
+      "skipped": null
+    },
+    {
+      "src": "n1_doc_005:1",
+      "dst": "n2_doc_001:1",
+      "register": "twonode",
+      "label": "DIVERGENT",
+      "label_reverse": "DIVERGENT",
+      "flip": false,
+      "reasoning": "1. The shared issue is the global response to climate change.\n2. Excerpt A presents a scientific evaluation of the current pledges under the Paris Agreement and their potential impact on global temperatures. Excerpt B expresses the concerns and demands of frontline communities affected by the climate crisis, urging world leaders to take immediate action.\n3. DIVERGENT - The two excerpts have different perspectives and priorities, with Excerpt A focusing on the scientific implications of current pledges, while Excerpt B emphasizes the need for justice and action from world leaders to address the impacts on vulnerable communities.",
+      "skipped": null
+    },
+    {
+      "src": "n1_doc_008:0",
+      "dst": "n2_doc_005:1",
+      "register": "twonode",
+      "label": "DIVERGENT",
+      "label_reverse": "DIVERGENT",
+      "flip": false,
+      "reasoning": "1. The shared issue in both excerpts is wildfires in the United States.\n2. Excerpt A frames the topic by focusing on the extent of wildfires in terms of number and acreage burned, presenting it as below average. Excerpt B, on the other hand, highlights the health risks associated with wildfire smoke exposure, particularly for vulnerable populations.\n3. The stances are DIVERGENT as Excerpt A prioritizes the quantitative aspect of wildfires, while Excerpt B emphasizes the potential human impact and risks.",
+      "skipped": null
+    },
+    {
+      "src": "n1_doc_009:0",
+      "dst": "n2_doc_008:2",
+      "register": "twonode",
+      "label": "DIVERGENT",
+      "label_reverse": "DIVERGENT",
+      "flip": false,
+      "reasoning": "1. The shared issue is water resources in California.\n2. Excerpt A prioritizes the abundance of water resources in California, specifically the snowpack. Excerpt B prioritizes the issue of water shortages and the disproportionate impact on disadvantaged and cumulatively burdened communities.\n3. The stances COMPLETE, as one focuses on the abundance of water resources while the other highlights the disparities in access and impact of water shortages.\n\nFINAL: DIVERGENT",
+      "skipped": null
+    }
+  ],
+  "class_c_labels": [
+    {
+      "src": "n1_doc_008:0",
+      "dst": "n1_doc_008:2",
+      "register": "twonode",
+      "label": "DIVERGENT",
+      "label_reverse": "DIVERGENT",
+      "flip": false,
+      "reasoning": "1. The shared issue in both excerpts is the occurrence and extent of wildfires in the United States in 2023.\n2. Excerpt A frames the topic by reporting the acreage burned was below both the five- and ten-year averages, indicating a relatively smaller impact compared to historical norms. Excerpt B focuses on the location of the wildfires, highlighting that a significant portion occurred on federally protected lands.\n3. The stances in these excerpts are DIVERGENT, as one emphasizes the extent of the wildfires (acreage burned) and the other focuses on the location of the wildfires.",
+      "skipped": null,
+      "pass": false
+    },
+    {
+      "src": "labor_bureau_report:0",
+      "dst": "labor_independent_survey:0",
+      "register": "news",
+      "label": "DIVERGENT",
+      "label_reverse": "DIVERGENT",
+      "flip": false,
+      "reasoning": "1. The shared issue in both excerpts is the regional unemployment rate and job changes in manufacturing and retail sectors.\n2. Excerpt A prioritizes reporting the net gain in jobs and the role of seasonal hiring, while Excerpt B prioritizes highlighting the potential issue of underemployment.\n3. The stances in these excerpts are DIVERGENT, as one emphasizes the net gain in jobs and seasonal hiring, while the other warns about the potential masking of underemployment.",
+      "skipped": null,
+      "pass": false
+    },
+    {
+      "src": "wage_bureau_report:0",
+      "dst": "wage_independent_survey:0",
+      "register": "news",
+      "label": "DIVERGENT",
+      "label_reverse": "DIVERGENT",
+      "flip": false,
+      "reasoning": "1. The shared issue in both excerpts is the analysis of average hourly earnings growth and its distribution across different sectors.\n2. Excerpt A prioritizes the growth of average hourly earnings and its comparison to inflation, while Excerpt B prioritizes the potential undercounting of part-time workers.\n3. The stances do not compete or corroborate, as they focus on different aspects of the same issue.\n\nFINAL: DIVERGENT",
+      "skipped": null,
+      "pass": false
+    },
+    {
+      "src": "inflation_bureau_report:0",
+      "dst": "inflation_independent_survey:0",
+      "register": "news",
+      "label": "DIVERGENT",
+      "label_reverse": "DIVERGENT",
+      "flip": false,
+      "reasoning": "1. The shared issue in both excerpts is the analysis of the regional consumer price index.\n2. Excerpt A prioritizes reporting the specific changes in energy costs and grocery prices, as well as the impact of base effects. Excerpt B prioritizes questioning the accuracy of the headline figure, specifically focusing on the underweighting of shelter costs.\n3. The stances in these excerpts are DIVERGENT, as one emphasizes the details of the report while the other questions the accuracy and completeness of the report.",
+      "skipped": null,
+      "pass": false
+    },
+    {
+      "src": "export_trade_report:0",
+      "dst": "export_independent_review:0",
+      "register": "news",
+      "label": "DIVERGENT",
+      "label_reverse": "DIVERGENT",
+      "flip": false,
+      "reasoning": "1. The shared issue in both excerpts is the decline in regional export volumes.\n2. Excerpt A prioritizes reporting the reasons for the decline, citing softer demand from overseas manufacturing hubs. Excerpt B prioritizes expressing caution about the accuracy of the reported decline, suggesting that inventory drawdowns may have masked weaker demand.\n3. The stances in these excerpts are DIVERGENT, as one emphasizes the reasons for the decline, while the other expresses caution about the accuracy of the reported decline.",
+      "skipped": null,
+      "pass": false
+    },
+    {
+      "src": "n1_doc_002:0",
+      "dst": "n1_doc_006:2",
+      "register": "twonode",
+      "label": "DIVERGENT",
+      "label_reverse": "DIVERGENT",
+      "flip": false,
+      "reasoning": "1. The shared issue in both excerpts is the global temperature record and the determination of the warmest year on record.\n2. Excerpt A prioritizes the historical context of the global temperature record, while Excerpt B emphasizes the temperature's deviation from the pre-industrial baseline.\n3. The stances are DIVERGENT, as Excerpt A focuses on the chronological aspect of the record, while Excerpt B highlights the temperature's departure from a specific baseline.\n\nFINAL: DIVERGENT",
+      "skipped": null,
+      "pass": false
+    }
+  ],
+  "unrelated_labels": [
+    {
+      "src": "n1_doc_008:0",
+      "dst": "n2_doc_008:2",
+      "register": "twonode",
+      "label": "DIVERGENT",
+      "label_reverse": "DIVERGENT",
+      "flip": false,
+      "reasoning": "1. The shared issue in both excerpts is natural disasters and resource management, specifically wildfires and water shortages in the United States.\n2. Excerpt A frames the topic by reporting statistics that show a decrease in the extent of wildfires compared to the average, implying a positive trend. Excerpt B, on the other hand, highlights the disproportionate impact of water shortages on disadvantaged communities, suggesting an issue of social justice and equity.\n3. FINAL: DIVERGENT. While both excerpts discuss natural disasters and resource management, they focus on different aspects: one emphasizes the extent of wildfires and their reduction, while the other focuses on the social and environmental justice implications of water shortages.",
+      "skipped": null,
+      "pass": false
+    },
+    {
+      "src": "n1_doc_009:0",
+      "dst": "n2_doc_005:1",
+      "register": "twonode",
+      "label": "DIVERGENT",
+      "label_reverse": "DIVERGENT",
+      "flip": false,
+      "reasoning": "1. The shared issue in both excerpts is environmental conditions in California, specifically water availability and air quality.\n2. Excerpt A prioritizes the abundance of snowpack in California, presenting it as a positive development. Excerpt B prioritizes the risks faced by certain populations due to wildfire smoke exposure, framing it as a concern.\n3. The stances in these excerpts are DIVERGENT, as one emphasizes a positive aspect of the environment (snowpack), while the other emphasizes a potential negative impact on public health (wildfire smoke exposure).",
+      "skipped": null,
+      "pass": false
+    },
+    {
+      "src": "n1_doc_008:0",
+      "dst": "n1_doc_009:0",
+      "register": "twonode",
+      "label": "DIVERGENT",
+      "label_reverse": "DIVERGENT",
+      "flip": false,
+      "reasoning": "1. The shared issue in both excerpts is natural disasters in the United States, specifically wildfires and snowpack levels.\n2. Excerpt A frames the topic of wildfires as a negative event, with the acreage burned being below the five- and ten-year averages. Excerpt B, on the other hand, presents the snowpack levels in California as a positive event, with the snow water equivalent being significantly above the April 1 average.\n3. The stances in these excerpts are DIVERGENT, as one presents wildfires as a negative event and the other presents snowpack levels as a positive event.",
+      "skipped": null,
+      "pass": false
+    },
+    {
+      "src": "transit_authority_update:0",
+      "dst": "school_district_report:0",
+      "register": "news",
+      "label": "DIVERGENT",
+      "label_reverse": "DIVERGENT",
+      "flip": false,
+      "reasoning": "1. The shared issue in both excerpts is the opening or commencement of a new phase or service. In Excerpt A, it's the opening of the north line extension, and in Excerpt B, it's the start of the fall enrollment or spring term. However, they differ in the specific contexts they refer to - transportation and education, respectively.\n\n2. Excerpt A emphasizes the successful launch of the north line extension, as indicated by the high daily ridership and fare integration with regional buses. Excerpt B, on the other hand, focuses on the growth in student enrollment and the upcoming budget hearing.\n\n3. FINAL: DIVERGENT - Although both excerpts discuss the commencement of a new phase, they are discussing different contexts (transportation and education) and prioritize different aspects (ridership ",
+      "skipped": null,
+      "pass": false
+    }
+  ],
+  "labeled_set": {
+    "total": 33,
+    "accuracy": 0.36363636363636365,
+    "by_expected": {
+      "DIVERGENT": {
+        "total": 7,
+        "correct": 7,
+        "got": {
+          "DIVERGENT": 7
+        }
+      },
+      "AGREE": {
+        "total": 10,
+        "correct": 1,
+        "got": {
+          "AGREE": 1,
+          "DIVERGENT": 9
+        }
+      },
+      "UNRELATED": {
+        "total": 16,
+        "correct": 4,
+        "got": {
+          "DIVERGENT": 12,
+          "UNRELATED": 4
+        }
+      }
+    }
+  }
+}

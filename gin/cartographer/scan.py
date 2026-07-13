@@ -438,6 +438,8 @@ def run_scan(
 
     escalation_cos_floor: Optional[float] = None,
 
+    escalation_method_suffix: str = "unknown",
+
     conn: Optional[psycopg.Connection] = None,
 
 ) -> ScanResult:
@@ -544,7 +546,11 @@ def run_scan(
 
             esc_pairs = escalation_candidates(pairs, proposer, cos_floor=floor)
 
-            escalated = escalate_proposals(esc_pairs, escalation_judge)
+            escalated = escalate_proposals(
+                esc_pairs,
+                escalation_judge,
+                method_suffix=escalation_method_suffix,
+            )
 
             escalated, _esc_dropped = dedupe_doc_pair_proposals(escalated)
 

@@ -70,12 +70,25 @@ def main() -> int:
         "--escalation-judge",
         type=str,
         default=None,
-        metavar="BACKEND[:MODEL]",
+        metavar="BACKEND[:SPEC]",
         help=(
-            "Escalate anchor-less topically-close pairs to an API-class LLM "
-            "frame judge (backend: anthropic; needs ANTHROPIC_API_KEY). "
-            "Example: anthropic or anthropic:claude-sonnet-5"
+            "Escalate anchor-less topically-close pairs to a framing judge. "
+            "Backends: local:path/to/model.gguf (llama.cpp, no API billing), "
+            "local (reads GIN_ESCALATION_MODEL), anthropic:model (optional API). "
+            "Example: local:models/Mistral-7B-Instruct-v0.3-Q6_K.gguf"
         ),
+    )
+    parser.add_argument(
+        "--escalation-gpu-layers",
+        type=int,
+        default=-1,
+        help="GPU layers for local escalation judge (-1 = all, 0 = CPU only)",
+    )
+    parser.add_argument(
+        "--escalation-n-ctx",
+        type=int,
+        default=4096,
+        help="Context window for local escalation judge",
     )
     parser.add_argument(
         "--escalation-cos-floor",
@@ -86,14 +99,19 @@ def main() -> int:
     args = parser.parse_args()
 
     escalation_judge = None
+    escalation_method_suffix = "unknown"
     if args.escalation_judge:
-        backend, _, model = args.escalation_judge.partition(":")
-        if backend != "anthropic":
-            print(f"unknown escalation backend {backend!r}", file=sys.stderr)
-            return 1
-        from gin.cartographer.escalation import DEFAULT_ANTHROPIC_MODEL, AnthropicFrameJudge
+        from gin.cartographer.escalation import resolve_escalation_judge
 
-        escalation_judge = AnthropicFrameJudge(model=model or DEFAULT_ANTHROPIC_MODEL)
+        try:
+            escalation_judge, escalation_method_suffix = resolve_escalation_judge(
+                args.escalation_judge,
+                n_ctx=args.escalation_n_ctx,
+                n_gpu_layers=args.escalation_gpu_layers,
+            )
+        except (ValueError, RuntimeError) as exc:
+            print(exc, file=sys.stderr)
+            return 1
 
     exclude_doc_ids: list[str] | None = args.exclude_doc_ids
     if exclude_doc_ids is None and not args.no_exclude_defaults:
@@ -119,6 +137,7 @@ def main() -> int:
         curated_sources=args.curated_edges,
         escalation_judge=escalation_judge,
         escalation_cos_floor=args.escalation_cos_floor,
+        escalation_method_suffix=escalation_method_suffix,
     )
     print("[*] Cartographer scan complete:")
     print(f"    elapsed_seconds: {result.elapsed_seconds:.2f}")
@@ -138,4 +157,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
+

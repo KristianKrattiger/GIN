@@ -99,3 +99,32 @@ CLASS_C_CONTROLS: tuple[tuple[str, str, str], ...] = (
     # interpretation, not any asserted fact (corroboration-with-a-caveat).
     ("labor_bureau_report:0", "labor_independent_survey:0", "news"),
 )
+
+
+# --- Escalation-judge calibration extras -------------------------------------
+# Deliberately SEPARATE from CLASS_C_CONTROLS: scan_eval counts its class-C
+# metric over that tuple and the denominator is pinned by closed label
+# decisions. These pairs are consumed only by escalation_eval.
+
+# Cross-source corroboration (want NOT DIVERGENT). The wage/inflation/export
+# pairs mirror the labor control — identical stats, closing line challenges
+# interpretation only — the exact sub-pattern the one-word judge failed.
+# The NOAA/WMO pair is clean caveat-free corroboration across sources.
+ESCALATION_CLASS_C_EXTRA: tuple[tuple[str, str, str], ...] = (
+    ("wage_bureau_report:0", "wage_independent_survey:0", "news"),
+    ("inflation_bureau_report:0", "inflation_independent_survey:0", "news"),
+    ("export_trade_report:0", "export_independent_review:0", "news"),
+    ("n1_doc_002:0", "n1_doc_006:2", "twonode"),  # NOAA & WMO: 2023 warmest year
+)
+
+# Topically-close cross-issue pairs (want NOT DIVERGENT; ideally UNRELATED).
+# The first two reuse the issue_frame gold texts with the pairings CROSSED
+# (wildfire-institutional vs water-justice and vice versa), so the register
+# axis is present while the issue does not match — a judge that fires on
+# register alone fails exactly here.
+ESCALATION_UNRELATED_CONTROLS: tuple[tuple[str, str, str], ...] = (
+    ("n1_doc_008:0", "n2_doc_008:2", "twonode"),  # wildfire acreage vs water equity
+    ("n1_doc_009:0", "n2_doc_005:1", "twonode"),  # snowpack vs wildfire smoke equity
+    ("n1_doc_008:0", "n1_doc_009:0", "twonode"),  # both institutional, cross-issue
+    ("transit_authority_update:0", "school_district_report:0", "news"),
+)

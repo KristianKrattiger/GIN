@@ -149,6 +149,7 @@ See **[docs/GIN_ENG_02_Eval_Baseline_v1.md](docs/GIN_ENG_02_Eval_Baseline_v1.md)
 | `scripts/eval_run.py` | RAG vs SEAR eval harness — batch query set, overlap or NLI verifier, write `data/eval_runs/` report |
 | `scripts/cartographer_scan.py` | Cartographer batch scan — propose edges, Bookkeeper admit, persist to Postgres |
 | `scripts/cartographer_eval_scan.py` | Score scan admitted edges against gold hand-curated contradicts |
+| `scripts/cartographer_eval_escalation.py` | Calibrate escalation frame judge on issue_frame gold + CLASS_C |
 | `scripts/edges_wipe.py` | Truncate edges table only (re-scan without re-ingest) |
 | `scripts/corpus_wipe.py` | Reset warm-tier data (development) |
 
@@ -203,9 +204,13 @@ python scripts/cartographer_scan.py --cross-outlet-only --curated-edges data/cor
 #   --no-relation-recheck   skip Bookkeeper semantic re-check (bidirectional-entailment deny)
 #   --exclude-doc-id DOC    exclude chunks from edge discovery (repeatable)
 #   --no-exclude-defaults   include out_of_scope_stub in scan
-#   --escalation-judge anthropic[:model]  route anchor-less topically-close pairs
-#                           to an API-class frame judge (needs ANTHROPIC_API_KEY;
-#                           local models measured unusable for this — see below)
+#   --escalation-judge local:path/to/model.gguf  route anchor-less pairs to a
+#                           local llama.cpp frame judge (no API billing; default path)
+#   --escalation-judge anthropic[:model]  optional API backend (needs ANTHROPIC_API_KEY)
+#   --escalation-gpu-layers -1  GPU layers for local judge (-1 = all)
+# Calibrate before trusting ANY model (bar: issue_frame_recall, class_c_discrimination,
+# unrelated_discrimination all 1.0, mixed labels on the 33-pair breadth set):
+#   python scripts/cartographer_eval_escalation.py --judge local:models/foo.gguf
 python scripts/edges_wipe.py   # truncate edges only — re-scan without re-ingest
 
 # 3. Score scan vs gold
@@ -251,9 +256,21 @@ entities — `corpus_edges.yaml`, including alternate emissions anchor
 signal audit measured them machine-undetectable locally: six embedding models
 (margin −0.39…−0.08 vs adjacent noise), NLI ≈ 0 both directions, register-axis
 delta overlapping, Mistral-7B constant-answer zero- and few-shot. Forward path
-for corpora where curation does not scale: `--escalation-judge anthropic`
+for corpora where curation does not scale: `--escalation-judge local:model.gguf`
 routes the anchor-less topically-close residue (91–338 pairs at floors
-0.40–0.30) to an API-class judge (`gin/cartographer/escalation.py`).
+0.40–0.30) to a model-agnostic framing judge via llama.cpp
+(`gin/cartographer/escalation.py`). Optional `anthropic:model` backend for
+overflow. **Calibrate per model** with `cartographer_eval_escalation.py`
+(4 issue_frame gold + 6 corroboration + 4 cross-issue controls, both
+directions, plus the 33-pair labeled breadth set; judge reasoning stored per
+pair). Measured 2026-07-13: the constant-DIVERGENT collapse was substantially
+**harness-induced** — the one-word budget (`071808Z`) and a register exemplar
+in the DIVERGENT definition (`083941Z`) each reproduce it. With the
+register-neutral reasoning prompt Mistral-7B mixes labels but stays far below
+the bar: recall 0.5, class_c 0.67, unrelated 0.25, and 7/14 pairs flip label
+under argument-order swap (`092010Z`) — 7B verdicts on this class are noise.
+Prompt wording is calibration-sensitive; never edit `FRAME_JUDGE_PROMPT`
+without a rerun.
 
 | Metric | Old band (`074956Z`) | Story gate (`091415Z`) | Anchors, gold 11 (`094453Z`) | Class split (`202240Z`) | Label closure (`220456Z`) |
 |--------|---|---|---|---|---|
@@ -388,7 +405,7 @@ NLI confirms NC fabrication 0 on the 9-query structural baseline (`194024Z`); ex
 | Retrieval determinism + `corpus_fingerprint` in eval meta | ✅ |
 | Convergent sentence-end close (`tn_2023_anomaly` truncation) | ✅ |
 | Cartographer scan + Bookkeeper Postgres persist | ✅ (`scripts/cartographer_scan.py`, `gin/bookkeeper/persist.py`) |
-| Cartographer scan production validation (scan-only divergence eval) | ✅ Machine recall 1.0 on 9/9 story-class gold, chunk FP 1 (labor CLASS_C; anchor discovery tracked separately) (`20260712T220456Z`); issue_frame class 4/4 curated via `--curated-edges`; twonode divergence eval coverage 1.0 (`20260712T203110Z`); API-judge escalation tier built for scale |
+| Cartographer scan production validation (scan-only divergence eval) | ✅ Machine recall 1.0 on 9/9 story-class gold, chunk FP 1 (labor CLASS_C; anchor discovery tracked separately) (`20260712T220456Z`); issue_frame class 4/4 curated via `--curated-edges`; twonode divergence eval coverage 1.0 (`20260712T203110Z`); model-agnostic escalation judge (local llama.cpp + optional anthropic) with reasoning-prompt calibration harness — Mistral-7B measured below bar (`20260713T092010Z`), 14B+ next candidate |
 | Labeled set expanded + threshold calibration (33 pairs, LOO ≥ 0.85) | ✅ (`data/cartographer_thresholds.json`) |
 | NLI verifier on expanded 20-query set | ✅ (`20260712T035228Z`, `models/Mistral-7B-Instruct-v0.3-Q6_K.gguf`, WSL+GPU; NC realism fabrication 0.0, overall NLI fabrication 0.056 on counterfactual entailment miss) |
 | Bookkeeper + reasoning layer separation (Phase 2) | ✅ (admission gate wired; synthesis reads warm `edges`) |

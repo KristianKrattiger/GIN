@@ -1,20 +1,15 @@
-"""Escalation tier: API-class LLM judge for anchor-less, topically-close pairs.
+"""Escalation tier: model-agnostic LLM judge for anchor-less, topically-close pairs."""
+import sys
 
-The 2026-07-12 signal audit showed issue-frame divergence (same issue, opposing
-frames, no shared story entities) is undetectable with local models: six
-bi-encoders (margin -0.39..-0.08), NLI, register axis, and zero-/few-shot
-Mistral-7B all failed. The escalation tier routes only the small candidate set
-the cheap path cannot type (cross-outlet, not same-story, cosine above a floor
-— 91-338 pairs on the 136-chunk corpus depending on floor) to an API-class
-judge, off by default.
-"""
 import pytest
 
 from gin.cartographer.combined import CombinedRelationProposer, Thresholds
 from gin.cartographer.escalation import (
     AnthropicFrameJudge,
-    escalation_candidates,
     escalate_proposals,
+    escalation_candidates,
+    make_local_frame_judge,
+    resolve_escalation_judge,
 )
 from gin.cartographer.models import LabeledChunk, Relation
 
@@ -89,11 +84,11 @@ def test_escalate_proposals_types_only_divergent_labels():
         ids = {c.text: cid for cid, c in _CHUNKS.items()}
         return labels[frozenset({ids[a_text], ids[b_text]})]
 
-    proposals = escalate_proposals(pairs, judge)
+    proposals = escalate_proposals(pairs, judge, method_suffix="test")
     assert len(proposals) == 1
     p = proposals[0]
     assert p.relation == Relation.CONTRADICTS
-    assert p.method == "llm_frame_judge:escalation"
+    assert p.method == "llm_frame_judge:escalation:test"
     assert p.confidence >= 0.5  # must clear the Bookkeeper floor
 
 
@@ -117,6 +112,50 @@ def test_anthropic_judge_parses_model_reply():
     assert judge("official framing text", "justice framing text") == "DIVERGENT"
 
 
+def test_anthropic_judge_reasoning_budget_and_text_capture():
+    class FakeMessages:
+        def create(self, **kwargs):
+            self.last_kwargs = kwargs
+
+            class Block:
+                text = "1. Same issue; one might say DIVERGENT.\nFINAL: AGREE"
+
+            class Resp:
+                content = [Block()]
+
+            return Resp()
+
+    class FakeClient:
+        def __init__(self):
+            self.messages = FakeMessages()
+
+    client = FakeClient()
+    judge = AnthropicFrameJudge(client=client)
+    assert judge("a", "b") == "AGREE"
+    # Reasoning prompt needs budget; one-word budget (8) starves it.
+    assert client.messages.last_kwargs["max_tokens"] == 256
+    assert "FINAL: AGREE" in judge.last_completion_text
+
+
+def test_local_judge_defaults_to_reasoning_budget(monkeypatch):
+    captured: dict = {}
+
+    class FakeLlm:
+        def create_completion(self, prompt, **kwargs):
+            captured.update(kwargs)
+            captured["prompt"] = prompt
+            return {"choices": [{"text": "FINAL: UNRELATED"}]}
+
+    fake_module = type(sys)("llama_cpp")
+    fake_module.Llama = lambda **kwargs: FakeLlm()
+    monkeypatch.setitem(sys.modules, "llama_cpp", fake_module)
+
+    judge = make_local_frame_judge("/fake/model.gguf")
+    assert judge("a", "b") == "UNRELATED"
+    assert captured["max_tokens"] == 256
+    assert "FINAL:" in captured["prompt"]
+
+
 def test_anthropic_judge_without_client_or_key_raises():
     import os
 
@@ -124,3 +163,59 @@ def test_anthropic_judge_without_client_or_key_raises():
         pytest.skip("key present in environment")
     with pytest.raises(RuntimeError):
         AnthropicFrameJudge()
+
+
+def test_resolve_unknown_backend_raises():
+    with pytest.raises(ValueError, match="unknown escalation backend"):
+        resolve_escalation_judge("openai:gpt-4")
+
+
+def test_resolve_local_without_path_raises():
+    import os
+
+    env = os.environ.pop("GIN_ESCALATION_MODEL", None)
+    try:
+        with pytest.raises(RuntimeError, match="local escalation judge needs"):
+            resolve_escalation_judge("local")
+    finally:
+        if env is not None:
+            os.environ["GIN_ESCALATION_MODEL"] = env
+
+
+def test_make_local_frame_judge_uses_injected_llm(monkeypatch):
+    class FakeLlama:
+        def __init__(self, **kwargs):
+            self.kwargs = kwargs
+
+    class FakeLlm:
+        def create_completion(self, prompt, **kwargs):
+            assert "[INST]" in prompt
+            return {"choices": [{"text": "DIVERGENT"}]}
+
+    fake_module = type(sys)("llama_cpp")
+    fake_module.Llama = lambda **kwargs: FakeLlm()
+    monkeypatch.setitem(sys.modules, "llama_cpp", fake_module)
+
+    judge = make_local_frame_judge("/fake/model.gguf", n_ctx=2048, n_gpu_layers=0)
+    assert judge("official text", "grassroots text") == "DIVERGENT"
+
+
+def test_resolve_local_returns_local_suffix(monkeypatch):
+    captured: dict = {}
+
+    def fake_make(path, **kwargs):
+        captured["path"] = path
+        captured.update(kwargs)
+        return lambda a, b: "AGREE"
+
+    monkeypatch.setattr(
+        "gin.cartographer.escalation.make_local_frame_judge",
+        fake_make,
+    )
+    judge, suffix = resolve_escalation_judge(
+        "local:/models/test.gguf", n_ctx=8192, n_gpu_layers=-1
+    )
+    assert suffix == "local"
+    assert judge("a", "b") == "AGREE"
+    assert captured["path"] == "/models/test.gguf"
+    assert captured["n_ctx"] == 8192

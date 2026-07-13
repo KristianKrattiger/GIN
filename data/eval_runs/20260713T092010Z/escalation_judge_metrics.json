@@ -1,0 +1,210 @@
+{
+  "generated_at": "2026-07-13T09:20:10.672891+00:00",
+  "run_id": "20260713T092010Z",
+  "judge_spec": "local:models/Mistral-7B-Instruct-v0.3-Q6_K.gguf",
+  "method_suffix": "local",
+  "issue_frame_gold_count": 4,
+  "issue_frame_scorable_count": 4,
+  "issue_frame_divergent_count": 2,
+  "issue_frame_recall": 0.5,
+  "class_c_total": 6,
+  "class_c_scorable_count": 6,
+  "class_c_pass": 4,
+  "class_c_discrimination": 0.6666666666666666,
+  "unrelated_total": 4,
+  "unrelated_scorable_count": 4,
+  "unrelated_pass": 1,
+  "unrelated_discrimination": 0.25,
+  "direction_flip_count": 7,
+  "label_distribution": {
+    "AGREE": 3,
+    "DIVERGENT": 7,
+    "UNRELATED": 4
+  },
+  "gold_labels": [
+    {
+      "src": "n1_doc_005:2",
+      "dst": "n2_doc_001:4",
+      "register": "twonode",
+      "label": "AGREE",
+      "label_reverse": "DIVERGENT",
+      "flip": true,
+      "reasoning": "1. The shared issue is the reduction of greenhouse gas emissions.\n2. Excerpt A prioritizes the need for global low-carbon transformations to meet specific emission reduction targets. Excerpt B prioritizes the impact of indigenous-led resistance efforts in reducing greenhouse gas emissions.\n3. The stances do not compete; they complement each other as they both aim to reduce greenhouse gas emissions, but from different perspectives.\n\nFINAL: AGREE",
+      "skipped": null
+    },
+    {
+      "src": "n1_doc_005:1",
+      "dst": "n2_doc_001:1",
+      "register": "twonode",
+      "label": "DIVERGENT",
+      "label_reverse": "DIVERGENT",
+      "flip": false,
+      "reasoning": "1. The shared issue is the global response to climate change.\n2. Excerpt A expresses concern about the current pledges under the Paris Agreement not being enough to prevent a significant temperature rise. Excerpt B calls for binding agreements to phase out dirty energy and commit to climate reparations for affected communities.\n3. The stances COMPLETE, as they address different aspects of the same issue: Excerpt A focuses on the insufficientness of current climate pledges, while Excerpt B emphasizes the need for specific actions and reparations.\n\nFINAL: DIVERGENT",
+      "skipped": null
+    },
+    {
+      "src": "n1_doc_008:0",
+      "dst": "n2_doc_005:1",
+      "register": "twonode",
+      "label": "AGREE",
+      "label_reverse": "AGREE",
+      "flip": false,
+      "reasoning": "1. The shared issue is wildfires and their impact.\n2. Excerpt A prioritizes reporting statistics about the extent of wildfires in the United States in 2023. Excerpt B prioritizes highlighting the risks faced by elderly, immunocompromised, and low-income populations from wildfire smoke exposure.\n3. The stances do not compete; they address different aspects of the same issue.\n\nFINAL: AGREE",
+      "skipped": null
+    },
+    {
+      "src": "n1_doc_009:0",
+      "dst": "n2_doc_008:2",
+      "register": "twonode",
+      "label": "DIVERGENT",
+      "label_reverse": "DIVERGENT",
+      "flip": false,
+      "reasoning": "1. The shared issue is water resources in California.\n2. Excerpt A prioritizes the abundance of water resources, while Excerpt B prioritizes the equitable distribution of water resources.\n3. The stances COMPLETE, as one focuses on the quantity of water resources and the other on the equitable distribution of those resources.\n\nFINAL: DIVERGENT",
+      "skipped": null
+    }
+  ],
+  "class_c_labels": [
+    {
+      "src": "n1_doc_008:0",
+      "dst": "n1_doc_008:2",
+      "register": "twonode",
+      "label": "UNRELATED",
+      "label_reverse": "DIVERGENT",
+      "flip": true,
+      "reasoning": "1. The shared issue is wildfires in the United States.\n2. Excerpt A prioritizes reporting the acreage burned in wildfires, which is below the five- and ten-year averages. Excerpt B prioritizes reporting the proportion of wildfires that occurred on federally protected lands.\n3. The stances do not compete or corroborate. They focus on different aspects of the same issue.\n\nFINAL: UNRELATED",
+      "skipped": null,
+      "pass": true
+    },
+    {
+      "src": "labor_bureau_report:0",
+      "dst": "labor_independent_survey:0",
+      "register": "news",
+      "label": "UNRELATED",
+      "label_reverse": "DIVERGENT",
+      "flip": true,
+      "reasoning": "1. The shared issue is the regional unemployment rate and job changes in manufacturing and retail sectors.\n2. Excerpt A prioritizes the net gain in jobs, emphasizing the seasonal hiring driving the increase. Excerpt B prioritizes the potential underemployment issue, warning that the headline rate may mask this problem.\n3. The stances COMPLETE, as one focuses on the positive aspect of job growth (Excerpt A) and the other on a potential negative aspect (Excerpt B).",
+      "skipped": null,
+      "pass": true
+    },
+    {
+      "src": "wage_bureau_report:0",
+      "dst": "wage_independent_survey:0",
+      "register": "news",
+      "label": "DIVERGENT",
+      "label_reverse": "AGREE",
+      "flip": true,
+      "reasoning": "1. The shared issue in both excerpts is the growth of average hourly earnings and the differences in growth between leisure and hospitality, public sector, and potentially part-time workers.\n2. Excerpt A prioritizes reporting the growth rate of average hourly earnings and its comparison to inflation. Excerpt B prioritizes reporting the potential undercounting of part-time workers.\n3. The stances do not compete or corroborate, as one focuses on the growth rate and inflation comparison, while the other focuses on the potential undercounting of part-time workers.\n\nFINAL: DIVERGENT",
+      "skipped": null,
+      "pass": false
+    },
+    {
+      "src": "inflation_bureau_report:0",
+      "dst": "inflation_independent_survey:0",
+      "register": "news",
+      "label": "UNRELATED",
+      "label_reverse": "AGREE",
+      "flip": true,
+      "reasoning": "1. The shared issue is the increase in the regional consumer price index and its components, such as energy costs and grocery prices.\n2. Excerpt A: The evaluative stance prioritizes the moderation of energy costs and the 2.1% overall increase in the consumer price index.\n   Excerpt B: The evaluative stance prioritizes the argument that shelter costs may be underweighted in the headline figure.\n3. The stances do not compete, as they address different aspects of the same issue.\n\nFINAL: UNRELATED (in terms of the evaluative stances, but they discuss the same issue)",
+      "skipped": null,
+      "pass": true
+    },
+    {
+      "src": "export_trade_report:0",
+      "dst": "export_independent_review:0",
+      "register": "news",
+      "label": "DIVERGENT",
+      "label_reverse": "DIVERGENT",
+      "flip": false,
+      "reasoning": "1. The shared issue is the decline in regional export volumes.\n2. Excerpt A's evaluative stance is that the decline in export volumes is due to softer demand from overseas manufacturing hubs.\n3. Excerpt B's evaluative stance is that inventory drawdowns may have masked weaker demand.\n4. FINAL: DIVERGENT",
+      "skipped": null,
+      "pass": false
+    },
+    {
+      "src": "n1_doc_002:0",
+      "dst": "n1_doc_006:2",
+      "register": "twonode",
+      "label": "AGREE",
+      "label_reverse": "AGREE",
+      "flip": false,
+      "reasoning": "1. The shared issue is the global temperature increase.\n2. Excerpt A prioritizes reporting the warmest year in the NOAA's global temperature record.\nExcerpt B prioritizes reporting the global average near-surface temperature and its deviation from the pre-industrial baseline.\n3. The stances do not compete; they provide different perspectives on the same issue.\n\nFINAL: AGREE",
+      "skipped": null,
+      "pass": true
+    }
+  ],
+  "unrelated_labels": [
+    {
+      "src": "n1_doc_008:0",
+      "dst": "n2_doc_008:2",
+      "register": "twonode",
+      "label": "DIVERGENT",
+      "label_reverse": "UNRELATED",
+      "flip": true,
+      "reasoning": "1. The shared issue is natural disasters and environmental inequity.\n2. Excerpt A prioritizes reporting on the extent of wildfires in the United States, with a focus on the acreage burned being below average. Excerpt B prioritizes highlighting the disproportionate impact of water shortages on disadvantaged and cumulatively burdened communities, reflecting underlying inequities in water resource management.\n3. The stances are DIVERGENT, as they address different aspects of environmental issues: wildfires and water shortages, with different communities affected and priorities in focus.",
+      "skipped": null,
+      "pass": false
+    },
+    {
+      "src": "n1_doc_009:0",
+      "dst": "n2_doc_005:1",
+      "register": "twonode",
+      "label": "DIVERGENT",
+      "label_reverse": "DIVERGENT",
+      "flip": false,
+      "reasoning": "1. The shared issue is environmental conditions in California.\n2. Excerpt A prioritizes the abundance of snowpack, while Excerpt B prioritizes the health risks associated with wildfire smoke exposure.\n3. The stances COMPLETE, as the abundance of snowpack can potentially lead to increased wildfire risk, which in turn poses health risks to vulnerable populations.\n\nFINAL: DIVERGENT",
+      "skipped": null,
+      "pass": false
+    },
+    {
+      "src": "n1_doc_008:0",
+      "dst": "n1_doc_009:0",
+      "register": "twonode",
+      "label": "DIVERGENT",
+      "label_reverse": "DIVERGENT",
+      "flip": false,
+      "reasoning": "1. The shared issue is natural disasters, specifically wildfires and snowpack levels.\n2. Excerpt A prioritizes reporting a decrease in wildfire activity compared to averages, while Excerpt B prioritizes reporting an increase in snowpack levels compared to the average.\n3. The stances COMPPETE, as an increase in snowpack can potentially lead to an increase in wildfire activity due to melting snow providing fuel for wildfires.\n\nFINAL: DIVERGENT",
+      "skipped": null,
+      "pass": false
+    },
+    {
+      "src": "transit_authority_update:0",
+      "dst": "school_district_report:0",
+      "register": "news",
+      "label": "UNRELATED",
+      "label_reverse": "DIVERGENT",
+      "flip": true,
+      "reasoning": "1. The shared issue in both excerpts is the opening or commencement of something (the north line extension or the new school term). However, they are different in that one is about transportation and the other is about education.\n\n2. Excerpt A prioritizes the opening of the north line extension and the integration of fares with regional buses, as well as the high ridership on the first week. Excerpt B prioritizes the increase in fall enrollment and the kindergarten intake, as well as the approval of a budget hearing for the spring term.\n\n3. The stances do not compete or corroborate as they are focused on different topics.\n\nFINAL: UNRELATED",
+      "skipped": null,
+      "pass": true
+    }
+  ],
+  "labeled_set": {
+    "total": 33,
+    "accuracy": 0.3939393939393939,
+    "by_expected": {
+      "DIVERGENT": {
+        "total": 7,
+        "correct": 5,
+        "got": {
+          "AGREE": 2,
+          "DIVERGENT": 5
+        }
+      },
+      "AGREE": {
+        "total": 10,
+        "correct": 0,
+        "got": {
+          "DIVERGENT": 9,
+          "UNRELATED": 1
+        }
+      },
+      "UNRELATED": {
+        "total": 16,
+        "correct": 8,
+        "got": {
+          "DIVERGENT": 8,
+          "UNRELATED": 8
+        }
+      }
+    }
+  }
+}

@@ -9,7 +9,11 @@ variant), so it provides no discrimination. Deterministic via injected judges.
 import pytest
 
 from gin.cartographer import default_chunks, default_gold_pairs, evaluate
-from gin.cartographer.frame_judge import LlmFrameJudge, _parse_label
+from gin.cartographer.frame_judge import (
+    LlmFrameJudge,
+    _parse_label,
+    format_frame_judge_prompt,
+)
 from gin.cartographer.models import Relation
 
 
@@ -75,7 +79,67 @@ def test_an_oracle_judge_would_score_perfectly():
     assert metrics.contradicts_precision == 1.0
 
 
-def test_parse_label_extracts_first_keyword():
+def test_parse_label_single_keyword_and_conservative_default():
     assert _parse_label(" DIVERGENT") == "DIVERGENT"
     assert _parse_label("The answer is AGREE.") == "AGREE"
     assert _parse_label("hmm, unclear") == "UNRELATED"  # conservative default
+
+
+def test_parse_label_final_line_wins_over_reasoning_mentions():
+    # Reasoning text routinely names labels it then rejects; the FINAL line
+    # is the verdict. First-keyword parsing would return DIVERGENT here.
+    text = (
+        "1. Both discuss wildfire impacts.\n"
+        "2. A reports acreage; B reports smoke risk.\n"
+        "3. One could call these DIVERGENT, but the stances do not compete.\n"
+        "FINAL: AGREE"
+    )
+    assert _parse_label(text) == "AGREE"
+
+
+def test_parse_label_final_tolerates_markup_and_case():
+    assert _parse_label("FINAL: **UNRELATED**") == "UNRELATED"
+    assert _parse_label("final: <AGREE>") == "AGREE"
+
+
+def test_parse_label_without_final_uses_last_keyword():
+    # A conclusion sits at the end of reasoning text, not the start.
+    assert _parse_label("They are not DIVERGENT; they simply AGREE.") == "AGREE"
+
+
+def test_prompt_requests_reasoning_then_final_line():
+    p = format_frame_judge_prompt("text-a", "text-b")
+    assert "text-a" in p and "text-b" in p
+    assert "FINAL:" in p
+    assert "Reason" in p
+    assert "[INST]" not in p
+    wrapped = format_frame_judge_prompt("text-a", "text-b", llama_inst=True)
+    assert wrapped.startswith("[INST]") and wrapped.rstrip().endswith("[/INST]")
+
+
+class _ReasoningLlm:
+    """Fake llama.cpp handle returning a canned reasoning completion."""
+
+    def __init__(self, text: str):
+        self.text = text
+        self.calls: list = []
+
+    def create_completion(self, prompt, **kwargs):
+        self.calls.append((prompt, kwargs))
+        return {"choices": [{"text": self.text}]}
+
+
+def test_llm_judge_reads_final_from_reasoning_and_keeps_text():
+    llm = _ReasoningLlm(
+        "1. Same issue.\n2. Stances could look DIVERGENT at first.\nFINAL: AGREE"
+    )
+    judge = LlmFrameJudge(llm=llm)
+    assert judge.label("a", "b") == "AGREE"
+    assert "FINAL: AGREE" in judge.last_completion_text
+    # Reasoning needs budget; the old one-word budget (4 tokens) starved it.
+    assert llm.calls[0][1]["max_tokens"] == 256
+
+
+def test_llm_frame_judge_instance_is_callable():
+    judge = LlmFrameJudge(judge=lambda a, b: "AGREE")
+    assert judge("x", "y") == "AGREE"
