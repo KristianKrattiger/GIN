@@ -42,9 +42,25 @@ def test_secret_env_override(tmp_path, monkeypatch):
 def test_apply_env(tmp_path, monkeypatch):
     p = tmp_path / "node_a.yaml"
     p.write_text(_YAML, encoding="utf-8")
-    monkeypatch.delenv("GIN_DATABASE_URL", raising=False)
-    monkeypatch.delenv("GIN_COLD_PATH", raising=False)
-    cfg = load_node_config(p)
-    apply_env(cfg)
-    assert os.environ["GIN_DATABASE_URL"].endswith("/gin_node_a")
-    assert os.environ["GIN_COLD_PATH"] == "data/cold_node_a"
+
+    # Snapshot the env vars to restore them exactly as they were, regardless
+    # of prior state. apply_env() writes directly to os.environ, and monkeypatch
+    # alone cannot track and revert direct writes to vars that were absent before.
+    original_db_url = os.environ.get("GIN_DATABASE_URL")
+    original_cold_path = os.environ.get("GIN_COLD_PATH")
+
+    try:
+        cfg = load_node_config(p)
+        apply_env(cfg)
+        assert os.environ["GIN_DATABASE_URL"].endswith("/gin_node_a")
+        assert os.environ["GIN_COLD_PATH"] == "data/cold_node_a"
+    finally:
+        # Restore to original state
+        if original_db_url is None:
+            os.environ.pop("GIN_DATABASE_URL", None)
+        else:
+            os.environ["GIN_DATABASE_URL"] = original_db_url
+        if original_cold_path is None:
+            os.environ.pop("GIN_COLD_PATH", None)
+        else:
+            os.environ["GIN_COLD_PATH"] = original_cold_path
