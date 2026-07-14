@@ -58,6 +58,13 @@ class ArmOutput:
     node_of: dict[str, str] = field(default_factory=dict)
     # (chunk_id, text) candidates the verifier scores claims against.
     chunks: list[tuple[str, str]] = field(default_factory=list)
+    # Structured grounding-failure signal: "" when not refused, else
+    # "retrieval_floor" (pre-decode confidence floor) or "zero_cursors"
+    # (decode produced no grounded, query-relevant claims). Federation v1
+    # delegates on exactly these pre-commitment reasons.
+    refusal_reason: str = ""
+    # Bundle mode on success ("convergent"/"divergent"), "" on refusal.
+    synthesis_mode: str = ""
 
 
 @runtime_checkable
@@ -119,6 +126,8 @@ def _claims_query_relevant(
 def _refusal_output(
     manifest_hash: str = "",
     bundle: Optional[SynthesisBundle] = None,
+    *,
+    reason: str = "zero_cursors",
 ) -> ArmOutput:
     return ArmOutput(
         raw_text=REFUSAL_SENTINEL,
@@ -127,6 +136,7 @@ def _refusal_output(
         refused=True,
         node_of=_node_map(bundle) if bundle else {},
         chunks=_chunk_texts(bundle) if bundle else [],
+        refusal_reason=reason,
     )
 
 
@@ -233,7 +243,7 @@ class NoContinuationArm:
                 gold_chunk_ids=cfg.gold_chunk_ids if cfg.boost_gold_chunks else None,
             )
         except RetrievalConfidenceError:
-            return _refusal_output()
+            return _refusal_output(reason="retrieval_floor")
 
         bundle = result.bundle
         if not _retrieval_relevant(query, bundle, cfg.relevance_floor):
@@ -276,6 +286,7 @@ class NoContinuationArm:
             refused=False,
             node_of=_node_map(result.bundle),
             chunks=_chunk_texts(result.bundle),
+            synthesis_mode=result.bundle.mode,
         )
 
 
