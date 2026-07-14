@@ -8,6 +8,7 @@ are injected so tests run without a model, a database, or a network.
 """
 from __future__ import annotations
 
+import hmac
 import time
 from typing import Optional
 
@@ -37,7 +38,8 @@ def create_app(
     fingerprint = corpus_fingerprint or {}
 
     def _check_auth(authorization: str = Header(default="")) -> None:
-        if authorization != f"Bearer {config.shared_secret}":
+        expected = f"Bearer {config.shared_secret}"
+        if not hmac.compare_digest(authorization, expected):
             raise HTTPException(status_code=401, detail="bad or missing bearer token")
 
     def _refusal(
@@ -114,7 +116,9 @@ def create_app(
                 node_id=routed.source_node,
                 answer_text=routed.answer_text,
                 claims=routed.claims,
-                corpus_fingerprint=routed.corpus_fingerprint or fingerprint,
+                corpus_fingerprint=(
+                    routed.corpus_fingerprint if routed.federation else fingerprint
+                ),
                 synthesis_mode=routed.synthesis_mode,
                 timing_s=time.monotonic() - started,
             ),

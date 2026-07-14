@@ -115,3 +115,34 @@ def test_hop_zero_local_success_no_federation_layer():
     resp = FederatedResponse.model_validate(r.json())
     assert resp.answer.node_id == "node_b"
     assert resp.federation is None
+
+
+def test_relayed_answer_keeps_peer_empty_fingerprint():
+    # Node A refuses locally, so it delegates; peer B returns an answer with an
+    # EMPTY corpus_fingerprint. A must NOT stamp its own fingerprint onto B's answer.
+    from gin.federation.schema import FederatedAnswer, WireClaim
+
+    class FingerprintlessPeer:
+        def query(self, peer, fq):
+            return FederatedAnswer(
+                request_id=fq.request_id, node_id="node_a_peer",
+                answer_text="peer answer",
+                claims=[WireClaim(text="peer answer", span_type="EXACT",
+                                  cited_chunk_ids=["n2_doc_002:3"])],
+                corpus_fingerprint={},  # peer advertises no fingerprint
+                synthesis_mode="convergent",
+            )
+
+    # CFG in this file is node_b with a peer; reuse a config that HAS a peer and
+    # a non-empty local fingerprint so the bug (if present) would be visible.
+    app = create_app(
+        CFG, answer_fn=_refusing, peer_client=FingerprintlessPeer(),
+        corpus_fingerprint={"chunk_count": 999},  # A's own fingerprint
+    )
+    client = TestClient(app)
+    r = _post(client, _fq(0))  # hop 0 so A may delegate
+    resp = FederatedResponse.model_validate(r.json())
+    assert resp.answer is not None
+    assert resp.federation is not None  # it was relayed
+    # The relayed answer must carry B's (empty) fingerprint, NOT A's {"chunk_count": 999}
+    assert resp.answer.corpus_fingerprint == {}
