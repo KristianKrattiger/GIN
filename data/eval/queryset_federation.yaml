@@ -1,0 +1,44 @@
+# Federation v1 bar queryset.
+# Spec: docs/superpowers/specs/2026-07-13-federation-v1-sovereign-delegation-design.md
+# Node A holds corpus_node1.json (institutional); Node B holds corpus_node2.json
+# (grassroots). Classes:
+#   a_answerable -> A grounds locally; routing is a false positive
+#   b_only       -> A cannot ground; must route; B grounds
+#   neither      -> both refuse; honest aggregated refusal is the pass
+# The two a_answerable queries are the proven single-node controls from
+# queryset_twonode.yaml. If a b_only query turns out to ground on A at the
+# retrieval floor, replace it with a query deeper in B's corpus — the class
+# labels are part of the falsifiable setup, not sacred text.
+queries:
+  - id: fed_a_2023_anomaly
+    query: How much warmer was 2023 than the twentieth-century average?
+    federation_class: a_answerable
+    gold_chunk_ids:
+      - n1_doc_002:1
+
+  - id: fed_a_ocean_acidification
+    query: What is ocean acidification and what causes it?
+    federation_class: a_answerable
+    gold_chunk_ids:
+      - n1_doc_004:0
+
+  - id: fed_b_landback
+    query: What is LANDBACK and what does it seek to reclaim?
+    federation_class: b_only
+    gold_chunk_ids:
+      - n2_doc_002:3
+
+  - id: fed_b_weact_founding
+    query: How was WE ACT for Environmental Justice founded?
+    federation_class: b_only
+    gold_chunk_ids:
+      - n2_doc_007:0
+      - n2_doc_007:1
+
+  - id: fed_neither_sports
+    query: Who won the national football championship final this year?
+    federation_class: neither
+
+  - id: fed_neither_sourdough
+    query: What temperature should sourdough bread be baked at?
+    federation_class: neither
