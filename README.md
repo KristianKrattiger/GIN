@@ -348,6 +348,27 @@ at the Bookkeeper gate.
 
 Artifact: `data/eval_runs/20260712T220456Z/`.
 
+### Federation v1 — sovereign delegation (two nodes, one machine)
+
+```bash
+# one-time: create + populate per-node databases (A: corpus_node1, B: corpus_node2)
+bash scripts/federation_db_setup.sh
+
+# serve both nodes (two terminals)
+python scripts/node_serve.py --config config/node_b.yaml
+python scripts/node_serve.py --config config/node_a.yaml
+
+# measure the bar
+python scripts/eval_federation.py
+```
+
+When Node A cannot ground a query (retrieval floor or zero cursors before any
+content), it delegates to Node B over HTTP; B runs its own SEAR decode and
+returns the answer + attribution, relayed with a federation provenance layer
+(`answered_by`, `hop_count`). B's corpus never leaves B except as the spans it
+chose to emit. Requests at `hop_count >= 1` are never re-delegated. Bar and
+scope: docs/superpowers/specs/2026-07-13-federation-v1-sovereign-delegation-design.md.
+
 ---
 
 ## Manifest version handoff to cursor resolver
@@ -456,7 +477,7 @@ NLI confirms NC fabrication 0 on the 9-query structural baseline (`194024Z`); ex
 | Labeled set expanded + threshold calibration (33 pairs, LOO ≥ 0.85) | ✅ (`data/cartographer_thresholds.json`) |
 | NLI verifier on expanded 20-query set | ✅ (`20260712T035228Z`, `models/Mistral-7B-Instruct-v0.3-Q6_K.gguf`, WSL+GPU; NC realism fabrication 0.0, overall NLI fabrication 0.056 on counterfactual entailment miss) |
 | Bookkeeper + reasoning layer separation (Phase 2) | ✅ (admission gate wired; synthesis reads warm `edges`) |
-| Federation routing with sync metadata (Phase 3) | 🔲 |
+| Federation routing with sync metadata (Phase 3) | ✅ v1 sovereign delegation loop measured (run `20260714T175645Z`: routing FP 0, recall 1.0, routed fabrication 0.0, honest refusal 1.0); Merkle sync + trust weights deferred to spec #2+ |
 
 ---
 

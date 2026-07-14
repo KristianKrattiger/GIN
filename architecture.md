@@ -382,8 +382,15 @@ Prove SEAR behavior on stock Mistral with grammar-constrained extractive synthes
 ### Phase 3 — Federation
 
 - ✅ Two-node divergence demo (inter-corpus, same machinery) — measured on **real fetched text** (`20260705T043114Z`, `divergence_fidelity` 1.0), generalized across three framing registers and confirmed model-independent on Qwen2.5-7B. See [docs/nc_real_text_divergence_generalization.plan.md](docs/nc_real_text_divergence_generalization.plan.md). This is the divergence *signal* across two corpora; the transport below is still unbuilt.
-- 🔲 Merkle diff sync of anchor metadata
-- 🔲 Zero-cursor routing to peer nodes
+- ✅ Sovereign delegation loop (zero-cursor routing v1) — two node processes,
+  HTTP+JSON schema-first transport behind the `PeerClient` seam
+  (`gin/federation/`); pre-commitment grounding failures delegate to the
+  configured peer; B's answer relays with attribution intact and explicitly
+  marked as B's. Measured: `data/eval_runs/20260714T175645Z/federation_metrics.json`.
+  Spec: docs/superpowers/specs/2026-07-13-federation-v1-sovereign-delegation-design.md
+- 🔲 Merkle diff sync of anchor metadata (spec #2 — load-bearing at N>2)
+- 🔲 gRPC/QUIC wire (swap inside `PeerClient`; institutional target)
+- 🔲 Trust weights, PKI/mTLS, peer selection
 
 ### Phase 4 — SEAR training loop (Tier 1)
 

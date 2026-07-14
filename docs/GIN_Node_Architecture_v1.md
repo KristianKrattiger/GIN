@@ -118,6 +118,12 @@ The RLHF pass is where "honest by architecture" gets stress-tested. The training
 
 **Protocol**: gRPC over QUIC (primary) — low latency for synthesis requests, stream support for long reasoning traces, tolerant of variable network conditions between institutional nodes.
 
+> **v1 implementation note (2026-07):** the shipped two-node loop speaks
+> HTTP/1.1 + JSON behind the `PeerClient` seam (`gin/federation/client.py`);
+> the Pydantic schema is the protocol contract. gRPC/QUIC remains the
+> institutional-deployment target and replaces the transport without touching
+> routing logic.
+
 **Federation layer — three interfaces**:
 
 1. **Query/Synthesis API**: accepts a query + optional anchor constraints, returns a SEAR-traced response with anchor IDs, confidence markers, and divergence flags
