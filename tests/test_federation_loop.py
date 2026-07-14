@@ -118,6 +118,7 @@ def test_delegation_crosses_the_wire(two_nodes):
     assert resp.answer.claims[0].cited_chunk_ids == ["n2_doc_001:4"]
     assert resp.federation.answered_by == "node_b"
     assert resp.federation.hop_count == 1
+    assert resp.refusal is None
 
 
 @pytest.mark.parametrize(
@@ -128,6 +129,7 @@ def test_local_answer_does_not_route(two_nodes):
     resp = FederatedResponse.model_validate(_ask(url_a).json())
     assert resp.answer.node_id == "node_a"
     assert resp.federation is None
+    assert resp.refusal is None
 
 
 @pytest.mark.parametrize(
@@ -141,6 +143,7 @@ def test_both_refuse_aggregated_over_wire(two_nodes):
     assert resp.refusal.node_id == "node_a"
     assert resp.refusal.reason == "retrieval_floor"
     assert resp.refusal.peer_reasons == {"node_b": "zero_cursors"}
+    assert resp.answer is None
 
 
 @pytest.mark.parametrize(
@@ -153,6 +156,7 @@ def test_hop_one_at_a_never_reaches_b(two_nodes):
     resp = FederatedResponse.model_validate(_ask(url_a, hop=1).json())
     assert resp.refusal is not None
     assert resp.refusal.reason == "retrieval_floor"
+    assert resp.answer is None
 
 
 @pytest.mark.parametrize(
