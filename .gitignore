@@ -1,5 +1,7 @@
 .env
 data/cold/
+data/cold_node_*/
+.superpowers/
 __pycache__/
 *.py[cod]
 .pytest_cache/
