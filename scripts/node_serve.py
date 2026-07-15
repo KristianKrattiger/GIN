@@ -33,9 +33,13 @@ def main() -> int:
     from llama_cpp import Llama
 
     from gin.corpus.fingerprint import corpus_fingerprint
+    from gin.corpus.hot import embed_query
     from gin.eval.arms import ArmConfig
     from gin.federation.anchor_store import PostgresPeerAnchorStore, local_anchor_rows
     from gin.federation.client import HttpPeerClient
+    from gin.federation.peer_summary_store import (
+        PostgresPeerSummaryStore, build_local_summary,
+    )
     from gin.federation.server import create_app
     from gin.federation.service import answer_query
 
@@ -58,6 +62,9 @@ def main() -> int:
         corpus_fingerprint=fingerprint,
         local_anchor_rows=local_anchor_rows,
         peer_anchor_store=PostgresPeerAnchorStore(),
+        local_summary=lambda: build_local_summary(config.node_id),
+        peer_summary_store=PostgresPeerSummaryStore(),
+        embed_query_fn=embed_query,
     )
     uvicorn.run(app, host=config.host, port=config.port, log_level="info")
     return 0
