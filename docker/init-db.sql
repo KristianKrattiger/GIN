@@ -66,3 +66,10 @@ CREATE TABLE IF NOT EXISTS peer_anchors (
 
 CREATE INDEX IF NOT EXISTS idx_peer_anchors_bucket
     ON peer_anchors(peer_node_id, bucket_index);
+
+CREATE TABLE IF NOT EXISTS peer_summaries (
+    peer_node_id       TEXT PRIMARY KEY,
+    embedding_centroid REAL[] NOT NULL,
+    distinctive_terms  JSONB NOT NULL,
+    synced_at          TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
