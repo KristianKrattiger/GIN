@@ -10,6 +10,7 @@ for the full rationale.
 from __future__ import annotations
 
 import hashlib
+import json
 from dataclasses import dataclass, field
 
 from .schema import NUM_BUCKETS, AnchorLeaf
@@ -31,12 +32,21 @@ def build_buckets(rows: list[AnchorLeaf]) -> dict[int, list[AnchorLeaf]]:
 
 
 def bucket_hash(rows: list[AnchorLeaf]) -> str:
+    """Hash each row individually via an unambiguous JSON serialization
+    (outlet/title are free-text fields sourced from a peer node — untrusted
+    input that may contain any delimiter character, including ':' and '|'),
+    then join the fixed-width hex digests. Joining hex digests is itself safe
+    from the same ambiguity: hex digits can never contain a separator, so no
+    escaping question arises at the join step."""
     if not rows:
         return _EMPTY_BUCKET_SENTINEL
-    payload = "|".join(
-        f"{r.chunk_id}:{r.content_hash}:{r.outlet}:{r.title}" for r in rows
+    row_hashes = (
+        hashlib.sha256(
+            json.dumps([r.chunk_id, r.content_hash, r.outlet, r.title]).encode("utf-8")
+        ).hexdigest()
+        for r in rows
     )
-    return hashlib.sha256(payload.encode("utf-8")).hexdigest()
+    return hashlib.sha256("|".join(row_hashes).encode("utf-8")).hexdigest()
 
 
 def all_bucket_hashes(rows: list[AnchorLeaf]) -> list[str]:

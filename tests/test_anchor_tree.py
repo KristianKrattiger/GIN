@@ -6,6 +6,7 @@ import pytest
 from gin.federation.anchor_tree import (
     NUM_BUCKETS,
     all_bucket_hashes,
+    bucket_hash,
     bucket_index,
     build_buckets,
     diff_leaves,
@@ -96,3 +97,27 @@ def test_build_buckets_sorts_within_bucket():
     for bucket_rows in buckets.values():
         ids = [r.chunk_id for r in bucket_rows]
         assert ids == sorted(ids)
+
+
+def test_bucket_hash_no_field_boundary_collision():
+    """outlet/title are free-text fields sourced from a peer node (untrusted
+    input). Naive ':'-joined serialization lets a delimiter character inside
+    one field masquerade as the boundary between fields, so two genuinely
+    different rows can hash identically. Reproduces the reviewer's case."""
+    a = [_leaf("x", content_hash="h", outlet="c", title="d:e")]
+    b = [_leaf("x", content_hash="h", outlet="c:d", title="e")]
+    assert bucket_hash(a) != bucket_hash(b)
+
+
+def test_bucket_hash_no_row_boundary_collision():
+    """A '|'-joined payload lets a title containing '|' merge what should be
+    two separate rows into a payload indistinguishable from one row whose
+    title happens to contain the joined text."""
+    two_rows = [
+        _leaf("x", content_hash="h", outlet="o", title="a"),
+        _leaf("y", content_hash="h", outlet="o", title="b"),
+    ]
+    one_row_with_pipe_title = [
+        _leaf("x", content_hash="h", outlet="o", title="a|y:h:o:b"),
+    ]
+    assert bucket_hash(two_rows) != bucket_hash(one_row_with_pipe_title)
