@@ -137,3 +137,34 @@ def test_run_forever_fetches_summary_on_root_mismatch():
     got = summary_store.get("node_b")
     assert got is not None
     assert got.distinctive_terms == {"x": 1.0}
+
+
+def test_run_forever_fetches_summary_even_when_root_always_matches():
+    """Root matches every cycle (empty peer + empty local), but summary should still
+    be fetched and cached until it is present."""
+    client = FakePeerClient([])  # empty -> root will always be empty
+    client.summary = PeerSummaryResponse(
+        node_id="node_b", embedding_centroid=[1.0, 0.0], distinctive_terms={"x": 1.0}
+    )
+    anchor_store = InMemoryPeerAnchorStore()  # empty -> root always matches
+    summary_store = InMemoryPeerSummaryStore()  # empty -> should still fetch
+    stats = AnchorSyncStats(node_id="node_a", peer_node_id="node_b")
+
+    async def _run():
+        task = asyncio.create_task(
+            run_forever(PEER, client, anchor_store, 0.02, stats, summary_store=summary_store)
+        )
+        for _ in range(50):
+            if summary_store.get("node_b") is not None:
+                break
+            await asyncio.sleep(0.02)
+        task.cancel()
+        try:
+            await task
+        except asyncio.CancelledError:
+            pass
+
+    asyncio.run(_run())
+    got = summary_store.get("node_b")
+    assert got is not None
+    assert got.distinctive_terms == {"x": 1.0}

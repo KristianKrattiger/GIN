@@ -78,7 +78,10 @@ async def run_forever(
             stats.last_root_matched = result.root_matched
             stats.last_cycle_buckets_synced = result.buckets_synced
             stats.last_cycle_bytes = result.bytes_transferred
-            if summary_store is not None and not result.root_matched:
+            if summary_store is not None and (
+                not result.root_matched
+                or summary_store.get(peer.node_id) is None
+            ):
                 summary = await asyncio.to_thread(peer_client.get_summary, peer)
                 summary_store.set(peer.node_id, summary)
         except Exception:
