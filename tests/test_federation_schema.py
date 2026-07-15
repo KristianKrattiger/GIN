@@ -131,6 +131,7 @@ def test_peer_summary_response_round_trip():
         node_id="node_c",
         embedding_centroid=[0.1, 0.2, 0.3],
         distinctive_terms={"inflation": 2.1, "reserve": 1.8},
+        domains=["monetary_policy"],
     )
     again = PeerSummaryResponse.model_validate(resp.model_dump())
     assert again == resp
@@ -141,6 +142,15 @@ def test_peer_summary_defaults_empty_collections():
     resp = PeerSummaryResponse(node_id="node_c")
     assert resp.embedding_centroid == []
     assert resp.distinctive_terms == {}
+    assert resp.domains == []
+
+
+def test_peer_summary_domains_round_trips_multiple():
+    resp = PeerSummaryResponse(
+        node_id="node_a", domains=["environmental_measurement", "monetary_policy"],
+    )
+    again = PeerSummaryResponse.model_validate(resp.model_dump())
+    assert again.domains == ["environmental_measurement", "monetary_policy"]
 
 
 def test_federation_layer_peers_attempted_defaults_empty():

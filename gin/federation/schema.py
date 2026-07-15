@@ -90,13 +90,15 @@ class FederatedResponse(BaseModel):
 
 
 class PeerSummaryResponse(BaseModel):
-    """A node's routing signal: an embedding centroid + distinctive IDF terms.
-    Chunk text never appears here — only these aggregate statistics."""
+    """A node's routing signal: an embedding centroid + distinctive IDF terms
+    + the distinct domains this node's corpus covers. Chunk text never
+    appears here — only these aggregate statistics."""
 
     protocol_version: int = PROTOCOL_VERSION
     node_id: str
     embedding_centroid: list[float] = Field(default_factory=list)
     distinctive_terms: dict[str, float] = Field(default_factory=dict)
+    domains: list[str] = Field(default_factory=list)
 
 
 # --- Anchor sync wire messages -------------------------------------------
