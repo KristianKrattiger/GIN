@@ -34,6 +34,7 @@ def main() -> int:
 
     from gin.corpus.fingerprint import corpus_fingerprint
     from gin.eval.arms import ArmConfig
+    from gin.federation.anchor_store import PostgresPeerAnchorStore, local_anchor_rows
     from gin.federation.client import HttpPeerClient
     from gin.federation.server import create_app
     from gin.federation.service import answer_query
@@ -55,6 +56,8 @@ def main() -> int:
         answer_fn=lambda q: answer_query(q, llm, arm_cfg),
         peer_client=HttpPeerClient(config.shared_secret, config.peer_timeout_s),
         corpus_fingerprint=fingerprint,
+        local_anchor_rows=local_anchor_rows,
+        peer_anchor_store=PostgresPeerAnchorStore(),
     )
     uvicorn.run(app, host=config.host, port=config.port, log_level="info")
     return 0
