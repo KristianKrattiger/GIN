@@ -1,0 +1,32 @@
+# Peer-selection bar queryset (three nodes).
+# Spec: docs/superpowers/specs/2026-07-15-peer-selection-n3-design.md
+# Node A: corpus_node1 (institutional/climate). Node B: corpus_node2
+# (grassroots/environmental-justice). Node C: corpus_node3 (monetary policy).
+# Classes: a_answerable -> A local (routing is a false positive);
+# b_only -> route, B grounds, correct peer node_b; c_only -> route, C grounds,
+# correct peer node_c; neither -> all refuse honestly.
+queries:
+  - id: sel_a_2023_anomaly
+    query: How much warmer was 2023 than the twentieth-century average?
+    federation_class: a_answerable
+  - id: sel_a_ocean_acidification
+    query: What is ocean acidification and what causes it?
+    federation_class: a_answerable
+  - id: sel_b_landback
+    query: What is LANDBACK and what does it seek to reclaim?
+    federation_class: b_only
+  - id: sel_b_weact_founding
+    query: How was WE ACT for Environmental Justice founded?
+    federation_class: b_only
+  - id: sel_c_dual_mandate
+    query: What is the Federal Reserve's dual mandate?
+    federation_class: c_only
+  - id: sel_c_quantitative_easing
+    query: What is quantitative easing and when was it used?
+    federation_class: c_only
+  - id: sel_neither_sports
+    query: Who won the national football championship final this year?
+    federation_class: neither
+  - id: sel_neither_sourdough
+    query: What temperature should sourdough bread be baked at?
+    federation_class: neither

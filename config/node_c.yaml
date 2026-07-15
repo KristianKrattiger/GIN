@@ -1,0 +1,19 @@
+# GIN federation node C (monetary-policy corpus: corpus_node3.json).
+# Runs CPU-only (n_gpu_layers: 0) so all three 7B models fit alongside
+# node A and node B on a single 12GB GPU.
+node_id: node_c
+host: 127.0.0.1
+port: 8473
+database_url: postgresql://gin:gin@localhost:5432/gin_node_c
+cold_path: data/cold_node_c
+model_path: data/models/Mistral-7B-Instruct-v0.3-Q4_K_M.gguf
+n_gpu_layers: 0
+n_ctx: 4096
+shared_secret: dev-federation-secret
+peer_timeout_s: 300
+anchor_sync_interval_s: 10
+peers:
+  - node_id: node_a
+    url: http://127.0.0.1:8471
+  - node_id: node_b
+    url: http://127.0.0.1:8472

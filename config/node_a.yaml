@@ -14,4 +14,6 @@ peer_timeout_s: 300
 peers:
   - node_id: node_b
     url: http://127.0.0.1:8472
+  - node_id: node_c
+    url: http://127.0.0.1:8473
 anchor_sync_interval_s: 10

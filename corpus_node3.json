@@ -1,0 +1,71 @@
+{
+  "node_id": "node_3_monetary",
+  "documents": [
+    {
+      "doc_id": "n3_doc_001",
+      "source": "Federal Reserve: The Dual Mandate Explained",
+      "url": "https://www.federalreserve.gov/dual-mandate",
+      "node": "node_3_monetary",
+      "metadata": {"domain": "monetary_policy", "type": "institutional_report", "author": "Federal Reserve", "category": "central_banking"},
+      "chunks": [
+        {"chunk_id": "n3_doc_001_c000", "position": 0, "text": "The Federal Reserve operates under a dual mandate set by Congress: to promote maximum employment and stable prices across the United States economy."},
+        {"chunk_id": "n3_doc_001_c001", "position": 1, "text": "The Federal Open Market Committee sets a target range for the federal funds rate to steer monetary policy toward those two goals."}
+      ]
+    },
+    {
+      "doc_id": "n3_doc_002",
+      "source": "Bureau of Labor Statistics: Understanding the Consumer Price Index",
+      "url": "https://www.bls.gov/cpi",
+      "node": "node_3_monetary",
+      "metadata": {"domain": "monetary_policy", "type": "institutional_report", "author": "BLS", "category": "inflation"},
+      "chunks": [
+        {"chunk_id": "n3_doc_002_c000", "position": 0, "text": "The Consumer Price Index measures the average change over time in the prices paid by urban consumers for a market basket of goods and services."},
+        {"chunk_id": "n3_doc_002_c001", "position": 1, "text": "Core inflation strips out volatile food and energy prices, and central banks commonly target an annual inflation rate near two percent."}
+      ]
+    },
+    {
+      "doc_id": "n3_doc_003",
+      "source": "Federal Reserve: Quantitative Easing and the Balance Sheet",
+      "url": "https://www.federalreserve.gov/quantitative-easing",
+      "node": "node_3_monetary",
+      "metadata": {"domain": "monetary_policy", "type": "institutional_report", "author": "Federal Reserve", "category": "central_banking"},
+      "chunks": [
+        {"chunk_id": "n3_doc_003_c000", "position": 0, "text": "Quantitative easing is a monetary policy tool in which a central bank purchases longer-term securities to expand its balance sheet and lower long-term interest rates."},
+        {"chunk_id": "n3_doc_003_c001", "position": 1, "text": "The Federal Reserve used large-scale asset purchases during the 2008 financial crisis and again in 2020 to support market functioning and the broader economy."}
+      ]
+    },
+    {
+      "doc_id": "n3_doc_004",
+      "source": "Bank for International Settlements: The Federal Funds Rate Transmission",
+      "url": "https://www.bis.org/funds-rate",
+      "node": "node_3_monetary",
+      "metadata": {"domain": "monetary_policy", "type": "institutional_report", "author": "BIS", "category": "central_banking"},
+      "chunks": [
+        {"chunk_id": "n3_doc_004_c000", "position": 0, "text": "When the central bank raises the policy interest rate, borrowing costs rise across mortgages, business loans, and consumer credit, cooling aggregate demand."},
+        {"chunk_id": "n3_doc_004_c001", "position": 1, "text": "This transmission mechanism operates with a lag, so rate hikes intended to curb inflation can take many months to fully reach the real economy."}
+      ]
+    },
+    {
+      "doc_id": "n3_doc_005",
+      "source": "IMF: Why Central Bank Independence Matters",
+      "url": "https://www.imf.org/central-bank-independence",
+      "node": "node_3_monetary",
+      "metadata": {"domain": "monetary_policy", "type": "institutional_report", "author": "IMF", "category": "central_banking"},
+      "chunks": [
+        {"chunk_id": "n3_doc_005_c000", "position": 0, "text": "Central bank independence insulates monetary policy decisions from short-term political pressures, which helps anchor long-run inflation expectations."},
+        {"chunk_id": "n3_doc_005_c001", "position": 1, "text": "Empirical studies find that countries with more independent central banks have historically experienced lower and more stable inflation."}
+      ]
+    },
+    {
+      "doc_id": "n3_doc_006",
+      "source": "Federal Reserve: Money Supply and Monetary Aggregates",
+      "url": "https://www.federalreserve.gov/money-supply",
+      "node": "node_3_monetary",
+      "metadata": {"domain": "monetary_policy", "type": "institutional_report", "author": "Federal Reserve", "category": "central_banking"},
+      "chunks": [
+        {"chunk_id": "n3_doc_006_c000", "position": 0, "text": "Monetary aggregates such as M1 and M2 measure the stock of money circulating in the economy, from physical currency to savings deposits."},
+        {"chunk_id": "n3_doc_006_c001", "position": 1, "text": "The velocity of money describes how quickly a unit of currency is spent, linking the money supply to nominal economic output."}
+      ]
+    }
+  ]
+}
