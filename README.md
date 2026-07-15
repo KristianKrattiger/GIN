@@ -369,6 +369,23 @@ returns the answer + attribution, relayed with a federation provenance layer
 chose to emit. Requests at `hop_count >= 1` are never re-delegated. Bar and
 scope: docs/superpowers/specs/2026-07-13-federation-v1-sovereign-delegation-design.md.
 
+### Merkle anchor sync (background, both nodes)
+
+Once both node servers are running (see above), each polls its peer's
+anchor-metadata root on `anchor_sync_interval_s` (config, default 10s in
+`config/node_*.yaml`) and drills into mismatched buckets only — never chunk
+text. Inspect live convergence:
+
+```bash
+curl -H "Authorization: Bearer dev-federation-secret" \
+  http://127.0.0.1:8471/v1/federated/anchors/sync_stats
+
+# measure the bar (correctness + bandwidth)
+python scripts/eval_anchor_sync.py
+```
+
+Scope and bar: docs/superpowers/specs/2026-07-14-merkle-anchor-sync-design.md.
+
 ---
 
 ## Manifest version handoff to cursor resolver
@@ -477,7 +494,7 @@ NLI confirms NC fabrication 0 on the 9-query structural baseline (`194024Z`); ex
 | Labeled set expanded + threshold calibration (33 pairs, LOO ≥ 0.85) | ✅ (`data/cartographer_thresholds.json`) |
 | NLI verifier on expanded 20-query set | ✅ (`20260712T035228Z`, `models/Mistral-7B-Instruct-v0.3-Q6_K.gguf`, WSL+GPU; NC realism fabrication 0.0, overall NLI fabrication 0.056 on counterfactual entailment miss) |
 | Bookkeeper + reasoning layer separation (Phase 2) | ✅ (admission gate wired; synthesis reads warm `edges`) |
-| Federation routing with sync metadata (Phase 3) | ✅ v1 sovereign delegation loop measured (run `20260714T175645Z`: routing FP 0, recall 1.0, routed fabrication 0.0, honest refusal 1.0); Merkle sync + trust weights deferred to spec #2+ |
+| Federation routing with sync metadata (Phase 3) | ✅ v1 sovereign delegation loop measured (run `20260714T175645Z`: routing FP 0, recall 1.0, routed fabrication 0.0, honest refusal 1.0); ✅ Merkle anchor sync measured (run `20260715T073932Z`: 0 diff vs. ground truth, no-op O(1) bytes, single-change cycle « full corpus); trust weights + peer selection deferred to N>2 |
 
 ---
 

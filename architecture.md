@@ -388,7 +388,13 @@ Prove SEAR behavior on stock Mistral with grammar-constrained extractive synthes
   configured peer; B's answer relays with attribution intact and explicitly
   marked as B's. Measured: `data/eval_runs/20260714T175645Z/federation_metrics.json`.
   Spec: docs/superpowers/specs/2026-07-13-federation-v1-sovereign-delegation-design.md
-- 🔲 Merkle diff sync of anchor metadata (spec #2 — load-bearing at N>2)
+- ✅ Merkle diff sync of anchor metadata (spec #2) — 16-bucket Merkle tree
+  over (chunk_id, content_hash, outlet, title); background asyncio loop per
+  node pulls its peer's root, drills into mismatched buckets only. Measured:
+  `data/eval_runs/20260715T073932Z/anchor_sync_metrics.json` (0 diff vs. peer ground
+  truth; no-op cycle O(1) bytes; single-chunk-change cycle « full corpus).
+  Not load-bearing at N=2 (built as the primitive for N>2 peer selection).
+  Spec: docs/superpowers/specs/2026-07-14-merkle-anchor-sync-design.md
 - 🔲 gRPC/QUIC wire (swap inside `PeerClient`; institutional target)
 - 🔲 Trust weights, PKI/mTLS, peer selection
 

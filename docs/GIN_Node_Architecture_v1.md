@@ -128,6 +128,14 @@ The RLHF pass is where "honest by architecture" gets stress-tested. The training
 
 1. **Query/Synthesis API**: accepts a query + optional anchor constraints, returns a SEAR-traced response with anchor IDs, confidence markers, and divergence flags
 2. **Corpus-Diff Sync Endpoint**: Merkle-tree diffing of anchor sets — nodes propagate new anchors without full corpus transfer. Delta sync only.
+
+> **v1 implementation note (2026-07):** the shipped sync endpoint is a
+> 2-level, 16-bucket prefix tree (`gin/federation/anchor_tree.py`), not a
+> full Merkle trie — sufficient at corpus sizes in the tens to low hundreds
+> of chunks per node. A deeper tree is a later revision if bucket sizes grow
+> enough that a single changed bucket still means transferring hundreds of
+> leaves.
+
 3. **Divergence Exchange**: specialized endpoint for sharing `contradicts`-type anchor pairs. Tier 1 nodes actively contribute to each other's Stage 3 training data through this channel.
 
 **Identity and trust**:
