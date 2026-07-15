@@ -34,6 +34,7 @@ from .schema import (
     FederatedQuery,
     FederatedResponse,
     NodeRefusal,
+    PeerSummaryResponse,
 )
 from .service import claims_to_wire
 
@@ -46,9 +47,11 @@ def create_app(
     corpus_fingerprint: Optional[dict] = None,
     local_anchor_rows: Optional[Callable[[], list[AnchorLeaf]]] = None,
     peer_anchor_store: Optional[PeerAnchorStore] = None,
+    local_summary: Optional[Callable[[], PeerSummaryResponse]] = None,
 ) -> FastAPI:
     fingerprint = corpus_fingerprint or {}
     anchor_rows_fn = local_anchor_rows or (lambda: [])
+    summary_fn = local_summary or (lambda: PeerSummaryResponse(node_id=config.node_id))
     sync_stats = AnchorSyncStats(
         node_id=config.node_id,
         peer_node_id=config.peers[0].node_id if config.peers else "",
@@ -187,5 +190,9 @@ def create_app(
     @app.get("/v1/federated/anchors/sync_stats", response_model=AnchorSyncStats)
     def anchors_sync_stats(_: None = Depends(_check_auth)) -> AnchorSyncStats:
         return sync_stats
+
+    @app.get("/v1/federated/summary", response_model=PeerSummaryResponse)
+    def federated_summary(_: None = Depends(_check_auth)) -> PeerSummaryResponse:
+        return summary_fn()
 
     return app
