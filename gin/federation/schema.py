@@ -41,6 +41,8 @@ class FederationLayer(BaseModel):
     transport: str = "http"
     peer_url: str = ""
     request_id: str
+    # Ordered node_ids A actually contacted for this query (v1: one peer).
+    peers_attempted: list[str] = Field(default_factory=list)
 
 
 class FederatedQuery(BaseModel):
@@ -85,6 +87,16 @@ class FederatedResponse(BaseModel):
         if (self.answer is None) == (self.refusal is None):
             raise ValueError("exactly one of answer/refusal must be set")
         return self
+
+
+class PeerSummaryResponse(BaseModel):
+    """A node's routing signal: an embedding centroid + distinctive IDF terms.
+    Chunk text never appears here — only these aggregate statistics."""
+
+    protocol_version: int = PROTOCOL_VERSION
+    node_id: str
+    embedding_centroid: list[float] = Field(default_factory=list)
+    distinctive_terms: dict[str, float] = Field(default_factory=dict)
 
 
 # --- Anchor sync wire messages -------------------------------------------

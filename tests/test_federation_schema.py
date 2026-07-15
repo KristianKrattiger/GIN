@@ -121,3 +121,37 @@ def test_anchor_sync_stats_defaults():
     assert stats.last_root_matched is False
     assert stats.last_cycle_buckets_synced == 0
     assert stats.last_cycle_bytes == 0
+
+
+from gin.federation.schema import PeerSummaryResponse
+
+
+def test_peer_summary_response_round_trip():
+    resp = PeerSummaryResponse(
+        node_id="node_c",
+        embedding_centroid=[0.1, 0.2, 0.3],
+        distinctive_terms={"inflation": 2.1, "reserve": 1.8},
+    )
+    again = PeerSummaryResponse.model_validate(resp.model_dump())
+    assert again == resp
+    assert again.protocol_version == PROTOCOL_VERSION
+
+
+def test_peer_summary_defaults_empty_collections():
+    resp = PeerSummaryResponse(node_id="node_c")
+    assert resp.embedding_centroid == []
+    assert resp.distinctive_terms == {}
+
+
+def test_federation_layer_peers_attempted_defaults_empty():
+    layer = FederationLayer(answered_by="node_b", hop_count=1, request_id="r")
+    assert layer.peers_attempted == []
+
+
+def test_federation_layer_carries_peers_attempted():
+    layer = FederationLayer(
+        answered_by="node_c", hop_count=1, request_id="r",
+        peers_attempted=["node_b", "node_c"],
+    )
+    again = FederationLayer.model_validate(layer.model_dump())
+    assert again.peers_attempted == ["node_b", "node_c"]
