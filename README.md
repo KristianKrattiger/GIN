@@ -386,6 +386,26 @@ python scripts/eval_anchor_sync.py
 
 Scope and bar: docs/superpowers/specs/2026-07-14-merkle-anchor-sync-design.md.
 
+### Peer selection (three nodes)
+
+With a third node (monetary-policy corpus) added, a node that can't ground a
+query ranks its peers by dense+sparse RRF fusion over routing summaries synced
+alongside anchors, then delegates to the best-matching peer first (falling back
+through the ranked list on refusal). Only aggregate statistics — an embedding
+centroid and distinctive IDF terms — ever cross the wire, never chunk text.
+
+```bash
+bash scripts/federation_db_setup.sh   # provisions gin_node_a/b/c
+# serve three nodes (node C is CPU-only so all three 7B models fit on one GPU)
+python scripts/node_serve.py --config config/node_b.yaml
+python scripts/node_serve.py --config config/node_c.yaml
+python scripts/node_serve.py --config config/node_a.yaml
+python scripts/eval_peer_selection.py
+```
+
+Selection is content-similarity only; trust weights remain a later mechanism.
+Bar and scope: docs/superpowers/specs/2026-07-15-peer-selection-n3-design.md.
+
 ---
 
 ## Manifest version handoff to cursor resolver
@@ -494,7 +514,7 @@ NLI confirms NC fabrication 0 on the 9-query structural baseline (`194024Z`); ex
 | Labeled set expanded + threshold calibration (33 pairs, LOO ≥ 0.85) | ✅ (`data/cartographer_thresholds.json`) |
 | NLI verifier on expanded 20-query set | ✅ (`20260712T035228Z`, `models/Mistral-7B-Instruct-v0.3-Q6_K.gguf`, WSL+GPU; NC realism fabrication 0.0, overall NLI fabrication 0.056 on counterfactual entailment miss) |
 | Bookkeeper + reasoning layer separation (Phase 2) | ✅ (admission gate wired; synthesis reads warm `edges`) |
-| Federation routing with sync metadata (Phase 3) | ✅ v1 sovereign delegation loop measured (run `20260714T175645Z`: routing FP 0, recall 1.0, routed fabrication 0.0, honest refusal 1.0); ✅ Merkle anchor sync measured (run `20260715T073932Z`: 0 diff vs. ground truth, no-op O(1) bytes, single-change cycle « full corpus); trust weights + peer selection deferred to N>2 |
+| Federation routing with sync metadata (Phase 3) | ✅ v1 sovereign delegation loop measured (run `20260714T175645Z`: routing FP 0, recall 1.0, routed fabrication 0.0, honest refusal 1.0); ✅ Merkle anchor sync measured (run `20260715T073932Z`: 0 diff vs. ground truth, no-op O(1) bytes, single-change cycle « full corpus); ✅ peer selection at N=3 measured (run `20260715T192750Z`: selection precision@1 1.0, avg peers tried 1.0, routing FP 0, fabrication 0.0, honest refusal 1.0); trust weights + gRPC/QUIC + mTLS deferred |
 
 ---
 

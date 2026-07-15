@@ -142,6 +142,14 @@ The RLHF pass is where "honest by architecture" gets stress-tested. The training
 
 - Mutual TLS across all node-to-node connections; federation-wide PKI
 - Trust weights are explicit in the protocol — not binary allow/deny. Node A may weight Node B's corpus highly for domain X and skeptically for domain Y. This asymmetry is first-class in the data model.
+
+> **v1 peer selection (2026-07):** when a node routes a query it ranks peers
+> by content similarity only — dense (query embedding vs. each peer's synced
+> centroid) and sparse (query keywords vs. each peer's distinctive IDF terms),
+> RRF-fused with the same constant as hybrid retrieval. Trust weights (the
+> per-domain asymmetric weighting described above) remain a separate, later
+> mechanism layered on top of this similarity signal.
+
 - Epistemic Council governance maps onto permissioned access: council decisions can modify trust weights between nodes, quarantine a node's anchor contributions, or revoke federation membership
 
 **Sync cadence**: anchor updates propagate async — eventual consistency is appropriate. Epistemic claims don't need real-time consistency; they need traceable versioning. Every anchor has a version vector; conflict resolution on sync follows last-write-wins for metadata, human review for trust-weight changes.

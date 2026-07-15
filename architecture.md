@@ -395,8 +395,19 @@ Prove SEAR behavior on stock Mistral with grammar-constrained extractive synthes
   truth; no-op cycle O(1) bytes; single-chunk-change cycle « full corpus).
   Not load-bearing at N=2 (built as the primitive for N>2 peer selection).
   Spec: docs/superpowers/specs/2026-07-14-merkle-anchor-sync-design.md
+- ✅ Peer selection at N>2 (spec #3) — third node added (monetary-policy
+  corpus); a node that can't ground locally ranks its peers by dense+sparse
+  RRF fusion (reusing the retrieval stack's `RRF_K`) over routing summaries
+  synced alongside anchors — one background sync loop per peer, each refetching
+  a peer's summary until it is cached — and delegates to the best-matching peer
+  first, falling back through the ranked list (every hop still `hop_count=1`).
+  Measured on three real Mistral-7B nodes (one CPU-only):
+  `data/eval_runs/20260715T192750Z/peer_selection_metrics.json` — selection
+  precision@1 1.0, avg peers tried 1.0, routing FP 0, fabrication 0.0,
+  attribution 1.0, honest refusal 1.0.
+  Spec: docs/superpowers/specs/2026-07-15-peer-selection-n3-design.md
 - 🔲 gRPC/QUIC wire (swap inside `PeerClient`; institutional target)
-- 🔲 Trust weights, PKI/mTLS, peer selection
+- 🔲 Trust weights (per-domain asymmetric), PKI/mTLS
 
 ### Phase 4 — SEAR training loop (Tier 1)
 
