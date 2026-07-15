@@ -14,7 +14,7 @@ from typing import Callable, Optional
 from gin.eval.arms import ArmOutput
 
 from .client import PeerClient, PeerUnreachable
-from .config import NodeConfig
+from .config import NodeConfig, PeerConfig
 from .schema import (
     FederatedQuery,
     FederationLayer,
@@ -41,6 +41,7 @@ class RoutedResult:
     corpus_fingerprint: dict = field(default_factory=dict)
     federation: Optional[FederationLayer] = None
     refusal_reasons: dict[str, str] = field(default_factory=dict)
+    peers_attempted: list[str] = field(default_factory=list)
     request_id: str = ""
 
 
@@ -51,6 +52,7 @@ def answer_or_delegate(
     answer_fn: AnswerFn,
     peer_client: PeerClient,
     request_id: Optional[str] = None,
+    peer_ranker: Optional[Callable[[str], list[PeerConfig]]] = None,
 ) -> RoutedResult:
     rid = request_id or new_request_id()
     local = answer_fn(query)
@@ -71,37 +73,41 @@ def answer_or_delegate(
             refusal_reasons=reasons, request_id=rid,
         )
 
-    peer = config.peers[0]
-    fq = FederatedQuery(
-        request_id=rid, query=query, origin_node=config.node_id, hop_count=1
-    )
-    try:
-        outcome = peer_client.query(peer, fq)
-    except PeerUnreachable:
-        reasons[peer.node_id] = "unreachable"
-        return RoutedResult(
-            refused=True, source_node=config.node_id,
-            refusal_reasons=reasons, request_id=rid,
+    peers_to_try = peer_ranker(query) if peer_ranker is not None else list(config.peers)
+    attempted: list[str] = []
+    for peer in peers_to_try:
+        attempted.append(peer.node_id)
+        fq = FederatedQuery(
+            request_id=rid, query=query, origin_node=config.node_id, hop_count=1
         )
-    if isinstance(outcome, NodeRefusal):
-        reasons[outcome.node_id] = outcome.reason
+        try:
+            outcome = peer_client.query(peer, fq)
+        except PeerUnreachable:
+            reasons[peer.node_id] = "unreachable"
+            continue
+        if isinstance(outcome, NodeRefusal):
+            reasons[outcome.node_id] = outcome.reason
+            continue
         return RoutedResult(
-            refused=True, source_node=config.node_id,
-            refusal_reasons=reasons, request_id=rid,
-        )
-    return RoutedResult(
-        refused=False,
-        source_node=outcome.node_id,
-        answer_text=outcome.answer_text,
-        claims=list(outcome.claims),
-        synthesis_mode=outcome.synthesis_mode,
-        corpus_fingerprint=outcome.corpus_fingerprint,
-        federation=FederationLayer(
-            answered_by=outcome.node_id,
-            hop_count=1,
-            transport="http",
-            peer_url=peer.url,
+            refused=False,
+            source_node=outcome.node_id,
+            answer_text=outcome.answer_text,
+            claims=list(outcome.claims),
+            synthesis_mode=outcome.synthesis_mode,
+            corpus_fingerprint=outcome.corpus_fingerprint,
+            federation=FederationLayer(
+                answered_by=outcome.node_id,
+                hop_count=1,
+                transport="http",
+                peer_url=peer.url,
+                request_id=rid,
+                peers_attempted=list(attempted),
+            ),
+            peers_attempted=list(attempted),
             request_id=rid,
-        ),
-        request_id=rid,
+        )
+
+    return RoutedResult(
+        refused=True, source_node=config.node_id,
+        refusal_reasons=reasons, peers_attempted=list(attempted), request_id=rid,
     )

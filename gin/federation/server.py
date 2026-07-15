@@ -17,11 +17,14 @@ from typing import Callable, Optional
 
 from fastapi import Depends, FastAPI, Header, HTTPException
 
+from gin.corpus.relevance import query_keywords
+
 from .anchor_store import PeerAnchorStore
 from .anchor_sync import run_forever
 from .anchor_tree import all_bucket_hashes, build_buckets, root_hash
 from .client import PeerClient
-from .config import NodeConfig
+from .config import NodeConfig, PeerConfig
+from .peer_selection import rank_peers
 from .peer_summary_store import PeerSummaryStore
 from .router import AnswerFn, answer_or_delegate
 from .schema import (
@@ -50,10 +53,33 @@ def create_app(
     peer_anchor_store: Optional[PeerAnchorStore] = None,
     local_summary: Optional[Callable[[], PeerSummaryResponse]] = None,
     peer_summary_store: Optional[PeerSummaryStore] = None,
+    embed_query_fn: Optional[Callable[[str], list[float]]] = None,
 ) -> FastAPI:
     fingerprint = corpus_fingerprint or {}
     anchor_rows_fn = local_anchor_rows or (lambda: [])
     summary_fn = local_summary or (lambda: PeerSummaryResponse(node_id=config.node_id))
+
+    def _rank_peers_for_query(query: str) -> list[PeerConfig]:
+        if (
+            peer_summary_store is None
+            or embed_query_fn is None
+            or len(config.peers) <= 1
+        ):
+            return list(config.peers)
+        summaries = {}
+        for p in config.peers:
+            s = peer_summary_store.get(p.node_id)
+            if s is not None:
+                summaries[p.node_id] = s
+        if not summaries:
+            return list(config.peers)
+        order = rank_peers(
+            embed_query_fn(query), query_keywords(query),
+            summaries, [p.node_id for p in config.peers],
+        )
+        by_id = {p.node_id: p for p in config.peers}
+        return [by_id[nid] for nid in order]
+
     sync_stats = AnchorSyncStats(
         node_id=config.node_id,
         peer_node_id=config.peers[0].node_id if config.peers else "",
@@ -143,6 +169,7 @@ def create_app(
             answer_fn=answer_fn,
             peer_client=peer_client,
             request_id=fq.request_id,
+            peer_ranker=_rank_peers_for_query,
         )
         if routed.refused:
             own = routed.refusal_reasons.get(config.node_id, "zero_cursors")
