@@ -39,6 +39,20 @@ def test_secret_env_override(tmp_path, monkeypatch):
     assert cfg.shared_secret == "real-secret"
 
 
+def test_anchor_sync_interval_default(tmp_path):
+    p = tmp_path / "node_a.yaml"
+    p.write_text(_YAML, encoding="utf-8")
+    cfg = load_node_config(p)
+    assert cfg.anchor_sync_interval_s == 30.0
+
+
+def test_anchor_sync_interval_override(tmp_path):
+    p = tmp_path / "node_a.yaml"
+    p.write_text(_YAML + "anchor_sync_interval_s: 5\n", encoding="utf-8")
+    cfg = load_node_config(p)
+    assert cfg.anchor_sync_interval_s == 5.0
+
+
 def test_apply_env(tmp_path, monkeypatch):
     p = tmp_path / "node_a.yaml"
     p.write_text(_YAML, encoding="utf-8")

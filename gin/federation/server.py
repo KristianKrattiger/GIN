@@ -8,12 +8,17 @@ are injected so tests run without a model, a database, or a network.
 """
 from __future__ import annotations
 
+import asyncio
+import contextlib
 import hmac
 import time
+from contextlib import asynccontextmanager
 from typing import Callable, Optional
 
 from fastapi import Depends, FastAPI, Header, HTTPException
 
+from .anchor_store import PeerAnchorStore
+from .anchor_sync import run_forever
 from .anchor_tree import all_bucket_hashes, build_buckets, root_hash
 from .client import PeerClient
 from .config import NodeConfig
@@ -40,14 +45,32 @@ def create_app(
     peer_client: Optional[PeerClient] = None,
     corpus_fingerprint: Optional[dict] = None,
     local_anchor_rows: Optional[Callable[[], list[AnchorLeaf]]] = None,
+    peer_anchor_store: Optional[PeerAnchorStore] = None,
 ) -> FastAPI:
-    app = FastAPI(title=f"GIN federation node {config.node_id}")
     fingerprint = corpus_fingerprint or {}
     anchor_rows_fn = local_anchor_rows or (lambda: [])
     sync_stats = AnchorSyncStats(
         node_id=config.node_id,
         peer_node_id=config.peers[0].node_id if config.peers else "",
     )
+
+    @asynccontextmanager
+    async def lifespan(app: FastAPI):
+        task = None
+        if peer_anchor_store is not None and peer_client is not None and config.peers:
+            task = asyncio.create_task(
+                run_forever(
+                    config.peers[0], peer_client, peer_anchor_store,
+                    config.anchor_sync_interval_s, sync_stats,
+                )
+            )
+        yield
+        if task is not None:
+            task.cancel()
+            with contextlib.suppress(asyncio.CancelledError):
+                await task
+
+    app = FastAPI(title=f"GIN federation node {config.node_id}", lifespan=lifespan)
 
     def _check_auth(authorization: str = Header(default="")) -> None:
         expected = f"Bearer {config.shared_secret}"

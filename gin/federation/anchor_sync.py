@@ -4,12 +4,17 @@ matched buckets are never fetched.
 """
 from __future__ import annotations
 
+import asyncio
+import logging
 from dataclasses import dataclass
 
 from .anchor_store import PeerAnchorStore
 from .anchor_tree import NUM_BUCKETS, all_bucket_hashes, root_hash
 from .client import PeerClient
 from .config import PeerConfig
+from .schema import AnchorSyncStats
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -50,3 +55,25 @@ def sync_once(
     return SyncStats(
         root_matched=False, buckets_synced=len(mismatched), bytes_transferred=bytes_transferred
     )
+
+
+async def run_forever(
+    peer: PeerConfig,
+    peer_client: PeerClient,
+    store: PeerAnchorStore,
+    interval_s: float,
+    stats: AnchorSyncStats,
+) -> None:
+    """One sync_once() per interval, forever, until the task is cancelled.
+    Any failure (unreachable peer, transport error) is logged and skipped —
+    this is background maintenance and must never affect query answering."""
+    while True:
+        try:
+            result = await asyncio.to_thread(sync_once, peer, peer_client, store)
+            stats.cycles_run += 1
+            stats.last_root_matched = result.root_matched
+            stats.last_cycle_buckets_synced = result.buckets_synced
+            stats.last_cycle_bytes = result.bytes_transferred
+        except Exception:
+            logger.exception("anchor sync with %s failed", peer.node_id)
+        await asyncio.sleep(interval_s)

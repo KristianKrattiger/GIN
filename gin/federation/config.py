@@ -34,6 +34,7 @@ class NodeConfig:
     peer_timeout_s: float
     peers: tuple[PeerConfig, ...]
     chat_template: str = "mistral"
+    anchor_sync_interval_s: float = 30.0
 
 
 def load_node_config(path: str | Path) -> NodeConfig:
@@ -58,6 +59,7 @@ def load_node_config(path: str | Path) -> NodeConfig:
         peer_timeout_s=float(raw.get("peer_timeout_s", 300.0)),
         peers=peers,
         chat_template=raw.get("chat_template", "mistral"),
+        anchor_sync_interval_s=float(raw.get("anchor_sync_interval_s", 30.0)),
     )
 
 

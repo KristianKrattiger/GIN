@@ -86,3 +86,58 @@ def test_sync_stats_defaults_before_any_cycle():
     assert resp.node_id == "node_a"
     assert resp.peer_node_id == "node_b"
     assert resp.cycles_run == 0
+
+
+import asyncio
+
+from gin.federation.anchor_store import InMemoryPeerAnchorStore
+from gin.federation.anchor_tree import all_bucket_hashes, root_hash
+from gin.federation.schema import AnchorBucketsResponse
+
+
+class StubPeerClient:
+    """Serves one fixed peer row set over the anchor GET methods only."""
+
+    def __init__(self, rows):
+        self.rows = rows
+
+    def get_anchor_root(self, peer):
+        return AnchorRootResponse(
+            node_id=peer.node_id, root_hash=root_hash(all_bucket_hashes(self.rows)),
+            leaf_count=len(self.rows),
+        )
+
+    def get_anchor_buckets(self, peer):
+        return AnchorBucketsResponse(node_id=peer.node_id, bucket_hashes=all_bucket_hashes(self.rows))
+
+    def get_anchor_bucket(self, peer, index):
+        from gin.federation.anchor_tree import bucket_index as _bi
+        matches = [r for r in self.rows if _bi(r.chunk_id) == index]
+        return AnchorLeavesResponse(node_id=peer.node_id, bucket_index=index, leaves=matches)
+
+
+def test_lifespan_starts_and_stops_background_sync():
+    peer_rows = [AnchorLeaf(chunk_id="p:0", content_hash="h", outlet="o", title="t")]
+    store = InMemoryPeerAnchorStore()
+    app = create_app(
+        CFG, answer_fn=_grounded, peer_client=StubPeerClient(peer_rows),
+        peer_anchor_store=store,
+    )
+
+    async def _run():
+        async with app.router.lifespan_context(app):
+            await asyncio.sleep(0.2)
+
+    asyncio.run(_run())
+    assert {r.chunk_id for r in store.all_rows("node_b")} == {"p:0"}
+
+
+def test_no_background_task_without_peer_anchor_store():
+    # Existing callers (no peer_anchor_store) must see no background activity.
+    app = create_app(CFG, answer_fn=_grounded, local_anchor_rows=_rows)
+
+    async def _run():
+        async with app.router.lifespan_context(app):
+            await asyncio.sleep(0.1)
+
+    asyncio.run(_run())  # must not raise, must not hang
