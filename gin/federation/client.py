@@ -20,6 +20,7 @@ from .schema import (
     FederatedQuery,
     FederatedResponse,
     NodeRefusal,
+    PeerSummaryResponse,
 )
 
 
@@ -40,6 +41,7 @@ class PeerClient(Protocol):
     def get_anchor_root(self, peer: PeerConfig) -> AnchorRootResponse: ...
     def get_anchor_buckets(self, peer: PeerConfig) -> AnchorBucketsResponse: ...
     def get_anchor_bucket(self, peer: PeerConfig, index: int) -> AnchorLeavesResponse: ...
+    def get_summary(self, peer: PeerConfig) -> PeerSummaryResponse: ...
 
 
 class HttpPeerClient:
@@ -85,6 +87,9 @@ class HttpPeerClient:
 
     def get_anchor_bucket(self, peer: PeerConfig, index: int) -> AnchorLeavesResponse:
         return self._get(peer, f"/v1/federated/anchors/bucket/{index}", AnchorLeavesResponse)
+
+    def get_summary(self, peer: PeerConfig) -> PeerSummaryResponse:
+        return self._get(peer, "/v1/federated/summary", PeerSummaryResponse)
 
     def _get(self, peer: PeerConfig, path: str, model_cls):
         try:

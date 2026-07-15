@@ -127,3 +127,35 @@ def test_anchor_endpoint_http_error_maps_to_peer_unreachable():
     client = HttpPeerClient("s", transport=httpx.MockTransport(handler))
     with pytest.raises(PeerUnreachable):
         client.get_anchor_root(PEER)
+
+
+from gin.federation.schema import PeerSummaryResponse
+
+
+def test_get_summary_parses_and_hits_summary_path():
+    seen = {}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen["url"] = str(request.url)
+        seen["auth"] = request.headers.get("authorization")
+        body = PeerSummaryResponse(
+            node_id="node_c", embedding_centroid=[0.1, 0.2],
+            distinctive_terms={"inflation": 2.0},
+        )
+        return httpx.Response(200, json=body.model_dump())
+
+    client = HttpPeerClient("s3cret", transport=httpx.MockTransport(handler))
+    out = client.get_summary(PEER)
+    assert out.node_id == "node_c"
+    assert out.distinctive_terms == {"inflation": 2.0}
+    assert seen["url"] == "http://peer-b/v1/federated/summary"
+    assert seen["auth"] == "Bearer s3cret"
+
+
+def test_get_summary_http_error_maps_to_peer_unreachable():
+    def handler(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(500)
+
+    client = HttpPeerClient("s", transport=httpx.MockTransport(handler))
+    with pytest.raises(PeerUnreachable):
+        client.get_summary(PEER)
