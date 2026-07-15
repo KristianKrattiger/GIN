@@ -74,8 +74,8 @@ class PostgresPeerSummaryStore:
 
 
 def _unit_mean(vectors: list[list[float]]) -> list[float]:
-    if not vectors:
-        return [0.0] * EMBEDDING_DIM
+    # Callers guard against an empty corpus before this point (they never
+    # embed an empty list), so vectors is always non-empty here.
     dim = len(vectors[0])
     mean = [sum(v[i] for v in vectors) / len(vectors) for i in range(dim)]
     norm = sum(x * x for x in mean) ** 0.5

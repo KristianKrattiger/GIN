@@ -1,7 +1,6 @@
 """Multi-peer ranked delegation: try peers in ranker order, fall back on
 refusal, record the full attempt order — never exceeding hop_count=1."""
 from gin.eval.arms import ArmOutput
-from gin.eval.claims import RawClaim
 from gin.federation.config import NodeConfig, PeerConfig
 from gin.federation.router import answer_or_delegate
 from gin.federation.schema import FederatedAnswer, NodeRefusal, WireClaim
