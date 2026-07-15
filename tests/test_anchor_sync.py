@@ -28,6 +28,10 @@ class FakePeerClient:
     def __init__(self, rows: list[AnchorLeaf]) -> None:
         self.rows = rows
         self.bucket_fetch_calls: list[int] = []
+        self.summary = None
+
+    def get_summary(self, peer):
+        return self.summary
 
     def get_anchor_root(self, peer):
         return AnchorRootResponse(
@@ -95,3 +99,41 @@ def test_no_op_cycle_transfers_far_fewer_bytes_than_bootstrap():
     bootstrap_stats = sync_once(PEER, client, store)
     noop_stats = sync_once(PEER, client, store)
     assert noop_stats.bytes_transferred < bootstrap_stats.bytes_transferred / 10
+
+
+import asyncio
+
+from gin.federation.anchor_store import InMemoryPeerAnchorStore
+from gin.federation.anchor_sync import run_forever
+from gin.federation.peer_summary_store import InMemoryPeerSummaryStore
+from gin.federation.schema import AnchorSyncStats, PeerSummaryResponse
+
+
+def test_run_forever_fetches_summary_on_root_mismatch():
+    rows = _corpus(20)
+    client = FakePeerClient(rows)
+    client.summary = PeerSummaryResponse(
+        node_id="node_b", embedding_centroid=[1.0, 0.0], distinctive_terms={"x": 1.0}
+    )
+    anchor_store = InMemoryPeerAnchorStore()  # empty -> first cycle mismatches
+    summary_store = InMemoryPeerSummaryStore()
+    stats = AnchorSyncStats(node_id="node_a", peer_node_id="node_b")
+
+    async def _run():
+        task = asyncio.create_task(
+            run_forever(PEER, client, anchor_store, 0.02, stats, summary_store=summary_store)
+        )
+        for _ in range(50):
+            if summary_store.get("node_b") is not None:
+                break
+            await asyncio.sleep(0.02)
+        task.cancel()
+        try:
+            await task
+        except asyncio.CancelledError:
+            pass
+
+    asyncio.run(_run())
+    got = summary_store.get("node_b")
+    assert got is not None
+    assert got.distinctive_terms == {"x": 1.0}

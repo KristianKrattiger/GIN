@@ -7,11 +7,13 @@ from __future__ import annotations
 import asyncio
 import logging
 from dataclasses import dataclass
+from typing import Optional
 
 from .anchor_store import PeerAnchorStore
 from .anchor_tree import NUM_BUCKETS, all_bucket_hashes, root_hash
 from .client import PeerClient
 from .config import PeerConfig
+from .peer_summary_store import PeerSummaryStore
 from .schema import AnchorSyncStats
 
 logger = logging.getLogger(__name__)
@@ -63,10 +65,12 @@ async def run_forever(
     store: PeerAnchorStore,
     interval_s: float,
     stats: AnchorSyncStats,
+    summary_store: Optional[PeerSummaryStore] = None,
 ) -> None:
-    """One sync_once() per interval, forever, until the task is cancelled.
-    Any failure (unreachable peer, transport error) is logged and skipped —
-    this is background maintenance and must never affect query answering."""
+    """One sync_once() per interval, forever, until cancelled. When the peer's
+    anchor root changed this cycle, its routing summary is assumed stale too and
+    refetched. Any failure is logged and skipped — background maintenance must
+    never affect query answering."""
     while True:
         try:
             result = await asyncio.to_thread(sync_once, peer, peer_client, store)
@@ -74,6 +78,9 @@ async def run_forever(
             stats.last_root_matched = result.root_matched
             stats.last_cycle_buckets_synced = result.buckets_synced
             stats.last_cycle_bytes = result.bytes_transferred
+            if summary_store is not None and not result.root_matched:
+                summary = await asyncio.to_thread(peer_client.get_summary, peer)
+                summary_store.set(peer.node_id, summary)
         except Exception:
             logger.exception("anchor sync with %s failed", peer.node_id)
         await asyncio.sleep(interval_s)

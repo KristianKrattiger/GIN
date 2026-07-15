@@ -22,6 +22,7 @@ from .anchor_sync import run_forever
 from .anchor_tree import all_bucket_hashes, build_buckets, root_hash
 from .client import PeerClient
 from .config import NodeConfig
+from .peer_summary_store import PeerSummaryStore
 from .router import AnswerFn, answer_or_delegate
 from .schema import (
     PROTOCOL_VERSION,
@@ -48,6 +49,7 @@ def create_app(
     local_anchor_rows: Optional[Callable[[], list[AnchorLeaf]]] = None,
     peer_anchor_store: Optional[PeerAnchorStore] = None,
     local_summary: Optional[Callable[[], PeerSummaryResponse]] = None,
+    peer_summary_store: Optional[PeerSummaryStore] = None,
 ) -> FastAPI:
     fingerprint = corpus_fingerprint or {}
     anchor_rows_fn = local_anchor_rows or (lambda: [])
@@ -65,6 +67,7 @@ def create_app(
                 run_forever(
                     config.peers[0], peer_client, peer_anchor_store,
                     config.anchor_sync_interval_s, sync_stats,
+                    summary_store=peer_summary_store,
                 )
             )
         yield
