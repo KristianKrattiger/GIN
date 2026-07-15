@@ -87,18 +87,28 @@ def create_app(
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
-        task = None
+        tasks: list[asyncio.Task] = []
         if peer_anchor_store is not None and peer_client is not None and config.peers:
-            task = asyncio.create_task(
-                run_forever(
-                    config.peers[0], peer_client, peer_anchor_store,
-                    config.anchor_sync_interval_s, sync_stats,
-                    summary_store=peer_summary_store,
+            for i, peer in enumerate(config.peers):
+                # peers[0] updates the stats object the /sync_stats endpoint
+                # serves; additional peers sync into the same (peer-id-keyed)
+                # stores with their own throwaway stats.
+                stats = sync_stats if i == 0 else AnchorSyncStats(
+                    node_id=config.node_id, peer_node_id=peer.node_id
                 )
-            )
+                tasks.append(
+                    asyncio.create_task(
+                        run_forever(
+                            peer, peer_client, peer_anchor_store,
+                            config.anchor_sync_interval_s, stats,
+                            summary_store=peer_summary_store,
+                        )
+                    )
+                )
         yield
-        if task is not None:
+        for task in tasks:
             task.cancel()
+        for task in tasks:
             with contextlib.suppress(asyncio.CancelledError):
                 await task
 
