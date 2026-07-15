@@ -12,7 +12,15 @@ from typing import Optional, Protocol, Union, runtime_checkable
 import httpx
 
 from .config import PeerConfig
-from .schema import FederatedAnswer, FederatedQuery, FederatedResponse, NodeRefusal
+from .schema import (
+    AnchorBucketsResponse,
+    AnchorLeavesResponse,
+    AnchorRootResponse,
+    FederatedAnswer,
+    FederatedQuery,
+    FederatedResponse,
+    NodeRefusal,
+)
 
 
 class PeerUnreachable(Exception):
@@ -29,6 +37,9 @@ class PeerClient(Protocol):
     def query(
         self, peer: PeerConfig, fq: FederatedQuery
     ) -> Union[FederatedAnswer, NodeRefusal]: ...
+    def get_anchor_root(self, peer: PeerConfig) -> AnchorRootResponse: ...
+    def get_anchor_buckets(self, peer: PeerConfig) -> AnchorBucketsResponse: ...
+    def get_anchor_bucket(self, peer: PeerConfig, index: int) -> AnchorLeavesResponse: ...
 
 
 class HttpPeerClient:
@@ -65,3 +76,23 @@ class HttpPeerClient:
             raise PeerUnreachable(peer, exc) from exc
         resp = FederatedResponse.model_validate(r.json())
         return resp.answer if resp.answer is not None else resp.refusal
+
+    def get_anchor_root(self, peer: PeerConfig) -> AnchorRootResponse:
+        return self._get(peer, "/v1/federated/anchors/root", AnchorRootResponse)
+
+    def get_anchor_buckets(self, peer: PeerConfig) -> AnchorBucketsResponse:
+        return self._get(peer, "/v1/federated/anchors/buckets", AnchorBucketsResponse)
+
+    def get_anchor_bucket(self, peer: PeerConfig, index: int) -> AnchorLeavesResponse:
+        return self._get(peer, f"/v1/federated/anchors/bucket/{index}", AnchorLeavesResponse)
+
+    def _get(self, peer: PeerConfig, path: str, model_cls):
+        try:
+            with httpx.Client(
+                transport=self._transport, timeout=self._timeout
+            ) as client:
+                r = client.get(f"{peer.url}{path}", headers=self._headers)
+                r.raise_for_status()
+        except httpx.HTTPError as exc:
+            raise PeerUnreachable(peer, exc) from exc
+        return model_cls.model_validate(r.json())

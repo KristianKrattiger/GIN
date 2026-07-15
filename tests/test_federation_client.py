@@ -72,3 +72,58 @@ def test_connect_error_maps_to_peer_unreachable():
     client = HttpPeerClient("s", transport=httpx.MockTransport(handler))
     with pytest.raises(PeerUnreachable):
         client.query(PEER, _fq())
+
+
+from gin.federation.schema import AnchorBucketsResponse, AnchorLeaf, AnchorLeavesResponse, AnchorRootResponse
+
+
+def test_get_anchor_root_parses_and_sends_bearer():
+    seen = {}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen["url"] = str(request.url)
+        seen["auth"] = request.headers.get("authorization")
+        body = AnchorRootResponse(node_id="node_b", root_hash="abc", leaf_count=50)
+        return httpx.Response(200, json=body.model_dump())
+
+    client = HttpPeerClient("s3cret", transport=httpx.MockTransport(handler))
+    out = client.get_anchor_root(PEER)
+    assert out.root_hash == "abc"
+    assert seen["url"] == "http://peer-b/v1/federated/anchors/root"
+    assert seen["auth"] == "Bearer s3cret"
+
+
+def test_get_anchor_buckets_parses():
+    def handler(request: httpx.Request) -> httpx.Response:
+        body = AnchorBucketsResponse(node_id="node_b", bucket_hashes=["h"] * 16)
+        return httpx.Response(200, json=body.model_dump())
+
+    client = HttpPeerClient("s", transport=httpx.MockTransport(handler))
+    out = client.get_anchor_buckets(PEER)
+    assert len(out.bucket_hashes) == 16
+
+
+def test_get_anchor_bucket_hits_indexed_path():
+    seen = {}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen["url"] = str(request.url)
+        body = AnchorLeavesResponse(
+            node_id="node_b", bucket_index=7,
+            leaves=[AnchorLeaf(chunk_id="c", content_hash="h", outlet="o", title="t")],
+        )
+        return httpx.Response(200, json=body.model_dump())
+
+    client = HttpPeerClient("s", transport=httpx.MockTransport(handler))
+    out = client.get_anchor_bucket(PEER, 7)
+    assert seen["url"] == "http://peer-b/v1/federated/anchors/bucket/7"
+    assert out.leaves[0].chunk_id == "c"
+
+
+def test_anchor_endpoint_http_error_maps_to_peer_unreachable():
+    def handler(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(401)
+
+    client = HttpPeerClient("s", transport=httpx.MockTransport(handler))
+    with pytest.raises(PeerUnreachable):
+        client.get_anchor_root(PEER)
