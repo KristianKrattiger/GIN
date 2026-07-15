@@ -76,3 +76,48 @@ def test_response_exactly_one_of_answer_refusal():
 def test_federation_layer_defaults():
     layer = FederationLayer(answered_by="node_b", hop_count=1, request_id="r")
     assert layer.transport == "http"
+
+
+from gin.federation.schema import (
+    AnchorBucketsResponse,
+    AnchorLeaf,
+    AnchorLeavesResponse,
+    AnchorRootResponse,
+    AnchorSyncStats,
+)
+
+
+def test_anchor_root_response_round_trip():
+    resp = AnchorRootResponse(node_id="node_a", root_hash="abc123", leaf_count=55)
+    again = AnchorRootResponse.model_validate(resp.model_dump())
+    assert again == resp
+    assert again.protocol_version == PROTOCOL_VERSION
+
+
+def test_anchor_buckets_response_round_trip():
+    resp = AnchorBucketsResponse(node_id="node_a", bucket_hashes=["h"] * 16)
+    again = AnchorBucketsResponse.model_validate(resp.model_dump())
+    assert len(again.bucket_hashes) == 16
+
+
+def test_anchor_leaves_response_round_trip():
+    resp = AnchorLeavesResponse(
+        node_id="node_b",
+        bucket_index=3,
+        leaves=[
+            AnchorLeaf(
+                chunk_id="n2_doc_001:0", content_hash="h1",
+                outlet="node_2_grassroots", title="WE ACT",
+            )
+        ],
+    )
+    again = AnchorLeavesResponse.model_validate(resp.model_dump())
+    assert again.leaves[0].chunk_id == "n2_doc_001:0"
+
+
+def test_anchor_sync_stats_defaults():
+    stats = AnchorSyncStats(node_id="node_a", peer_node_id="node_b")
+    assert stats.cycles_run == 0
+    assert stats.last_root_matched is False
+    assert stats.last_cycle_buckets_synced == 0
+    assert stats.last_cycle_bytes == 0

@@ -85,3 +85,48 @@ class FederatedResponse(BaseModel):
         if (self.answer is None) == (self.refusal is None):
             raise ValueError("exactly one of answer/refusal must be set")
         return self
+
+
+# --- Anchor sync wire messages -------------------------------------------
+# A 2-level Merkle tree over (chunk_id, content_hash, outlet, title) tuples,
+# bucketed by sha256(chunk_id)[0] into NUM_BUCKETS (gin/federation/anchor_tree.py)
+# fixed buckets. Right-to-opacity applies here too: chunk TEXT never appears
+# on this wire, only these four fields.
+
+NUM_BUCKETS = 16
+
+
+class AnchorLeaf(BaseModel):
+    chunk_id: str
+    content_hash: str
+    outlet: str
+    title: str
+
+
+class AnchorRootResponse(BaseModel):
+    protocol_version: int = PROTOCOL_VERSION
+    node_id: str
+    root_hash: str
+    leaf_count: int
+
+
+class AnchorBucketsResponse(BaseModel):
+    protocol_version: int = PROTOCOL_VERSION
+    node_id: str
+    bucket_hashes: list[str]
+
+
+class AnchorLeavesResponse(BaseModel):
+    protocol_version: int = PROTOCOL_VERSION
+    node_id: str
+    bucket_index: int
+    leaves: list[AnchorLeaf] = Field(default_factory=list)
+
+
+class AnchorSyncStats(BaseModel):
+    node_id: str
+    peer_node_id: str
+    cycles_run: int = 0
+    last_root_matched: bool = False
+    last_cycle_buckets_synced: int = 0
+    last_cycle_bytes: int = 0
