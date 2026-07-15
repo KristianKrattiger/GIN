@@ -10,15 +10,21 @@ from __future__ import annotations
 
 import hmac
 import time
-from typing import Optional
+from typing import Callable, Optional
 
 from fastapi import Depends, FastAPI, Header, HTTPException
 
+from .anchor_tree import all_bucket_hashes, build_buckets, root_hash
 from .client import PeerClient
 from .config import NodeConfig
 from .router import AnswerFn, answer_or_delegate
 from .schema import (
     PROTOCOL_VERSION,
+    AnchorBucketsResponse,
+    AnchorLeaf,
+    AnchorLeavesResponse,
+    AnchorRootResponse,
+    AnchorSyncStats,
     FederatedAnswer,
     FederatedQuery,
     FederatedResponse,
@@ -33,9 +39,15 @@ def create_app(
     answer_fn: AnswerFn,
     peer_client: Optional[PeerClient] = None,
     corpus_fingerprint: Optional[dict] = None,
+    local_anchor_rows: Optional[Callable[[], list[AnchorLeaf]]] = None,
 ) -> FastAPI:
     app = FastAPI(title=f"GIN federation node {config.node_id}")
     fingerprint = corpus_fingerprint or {}
+    anchor_rows_fn = local_anchor_rows or (lambda: [])
+    sync_stats = AnchorSyncStats(
+        node_id=config.node_id,
+        peer_node_id=config.peers[0].node_id if config.peers else "",
+    )
 
     def _check_auth(authorization: str = Header(default="")) -> None:
         expected = f"Bearer {config.shared_secret}"
@@ -124,5 +136,33 @@ def create_app(
             ),
             federation=routed.federation,
         )
+
+    @app.get("/v1/federated/anchors/root", response_model=AnchorRootResponse)
+    def anchors_root(_: None = Depends(_check_auth)) -> AnchorRootResponse:
+        rows = anchor_rows_fn()
+        return AnchorRootResponse(
+            node_id=config.node_id,
+            root_hash=root_hash(all_bucket_hashes(rows)),
+            leaf_count=len(rows),
+        )
+
+    @app.get("/v1/federated/anchors/buckets", response_model=AnchorBucketsResponse)
+    def anchors_buckets(_: None = Depends(_check_auth)) -> AnchorBucketsResponse:
+        rows = anchor_rows_fn()
+        return AnchorBucketsResponse(node_id=config.node_id, bucket_hashes=all_bucket_hashes(rows))
+
+    @app.get(
+        "/v1/federated/anchors/bucket/{index}", response_model=AnchorLeavesResponse
+    )
+    def anchors_bucket(index: int, _: None = Depends(_check_auth)) -> AnchorLeavesResponse:
+        rows = anchor_rows_fn()
+        buckets = build_buckets(rows)
+        return AnchorLeavesResponse(
+            node_id=config.node_id, bucket_index=index, leaves=buckets.get(index, [])
+        )
+
+    @app.get("/v1/federated/anchors/sync_stats", response_model=AnchorSyncStats)
+    def anchors_sync_stats(_: None = Depends(_check_auth)) -> AnchorSyncStats:
+        return sync_stats
 
     return app
