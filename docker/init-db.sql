@@ -52,3 +52,17 @@ CREATE TABLE IF NOT EXISTS ingest_runs (
     status TEXT NOT NULL DEFAULT 'running',
     stats_json JSONB NOT NULL DEFAULT '{}'::jsonb
 );
+
+CREATE TABLE IF NOT EXISTS peer_anchors (
+    peer_node_id  TEXT NOT NULL,
+    chunk_id      TEXT NOT NULL,
+    content_hash  TEXT NOT NULL,
+    outlet        TEXT NOT NULL,
+    title         TEXT NOT NULL,
+    bucket_index  SMALLINT NOT NULL,
+    synced_at     TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    PRIMARY KEY (peer_node_id, chunk_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_peer_anchors_bucket
+    ON peer_anchors(peer_node_id, bucket_index);
