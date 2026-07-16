@@ -27,6 +27,12 @@ def main() -> int:
     args = parser.parse_args()
 
     config = load_node_config(args.config)
+    if not config.peers:
+        raise RuntimeError(
+            f"node {config.node_id} has no configured peers — refusing to "
+            f"serve with no client-cert authentication. Configure at least "
+            f"one pinned peer in peers[] before starting this node."
+        )
     apply_env(config)
 
     # Imports after apply_env so the first DB connection sees this node's URL.
@@ -77,8 +83,15 @@ def main() -> int:
         ssl_kwargs["ssl_ca_certs"] = str(ca_bundle)
         ssl_kwargs["ssl_cert_reqs"] = ssl.CERT_REQUIRED
     else:
-        print(f"[*] node {config.node_id}: no peers configured — server "
-              f"accepts TLS connections but cannot authenticate any client cert")
+        # Unreachable in practice: config.peers is checked non-empty at the
+        # top of main(), before the (slow) model load, and build_ca_bundle
+        # only returns None for an empty peer list. Kept as a defensive
+        # fail-fast in case that invariant is ever broken by future changes.
+        raise RuntimeError(
+            f"node {config.node_id} has no configured peers — refusing to "
+            f"serve with no client-cert authentication. Configure at least "
+            f"one pinned peer in peers[] before starting this node."
+        )
 
     uvicorn.run(app, host=config.host, port=config.port, log_level="info", **ssl_kwargs)
     return 0
