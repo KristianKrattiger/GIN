@@ -57,7 +57,8 @@ def _cfg(node_id, port, peers):
         node_id=node_id, host="127.0.0.1", port=port,
         database_url=f"postgresql://x/{node_id}", cold_path=f"data/cold_{node_id}",
         model_path="", n_gpu_layers=0, n_ctx=4096,
-        shared_secret=SECRET, peer_timeout_s=10.0, peers=peers,
+        cert_path=f"{node_id}_cert.pem", key_path=f"{node_id}_key.pem",
+        peer_timeout_s=10.0, peers=peers,
     )
 
 
