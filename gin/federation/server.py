@@ -41,6 +41,7 @@ from .schema import (
     PeerSummaryResponse,
 )
 from .service import claims_to_wire
+from .trust_gate import filter_trusted
 
 
 def create_app(
@@ -76,6 +77,10 @@ def create_app(
         order = rank_peers(
             embed_query_fn(query), query_keywords(query),
             summaries, [p.node_id for p in config.peers],
+        )
+        domains_by_peer = {nid: s.domains for nid, s in summaries.items()}
+        order = filter_trusted(
+            order, domains_by_peer, config.trust_weights, config.trust_gate_threshold
         )
         by_id = {p.node_id: p for p in config.peers}
         return [by_id[nid] for nid in order]
