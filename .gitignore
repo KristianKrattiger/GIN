@@ -11,3 +11,4 @@ models/
 .idea/
 .claude/
 .worktrees/
+certs/

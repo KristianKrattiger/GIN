@@ -1,6 +1,4 @@
 # GIN federation node A (institutional corpus: corpus_node1.json).
-# shared_secret here is a NON-secret dev default for localhost;
-# set GIN_FED_SECRET in the environment to override off-localhost.
 node_id: node_a
 host: 127.0.0.1
 port: 8471
@@ -9,11 +7,14 @@ cold_path: data/cold_node_a
 model_path: data/models/Mistral-7B-Instruct-v0.3-Q4_K_M.gguf
 n_gpu_layers: -1
 n_ctx: 4096
-shared_secret: dev-federation-secret
+cert_path: certs/node_a/cert.pem
+key_path: certs/node_a/key.pem
 peer_timeout_s: 300
 peers:
   - node_id: node_b
-    url: http://127.0.0.1:8472
+    url: https://127.0.0.1:8472
+    pinned_cert_path: certs/node_b/cert.pem
   - node_id: node_c
-    url: http://127.0.0.1:8473
+    url: https://127.0.0.1:8473
+    pinned_cert_path: certs/node_c/cert.pem
 anchor_sync_interval_s: 10

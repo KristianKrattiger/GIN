@@ -9,11 +9,14 @@ cold_path: data/cold_node_c
 model_path: data/models/Mistral-7B-Instruct-v0.3-Q4_K_M.gguf
 n_gpu_layers: 0
 n_ctx: 4096
-shared_secret: dev-federation-secret
+cert_path: certs/node_c/cert.pem
+key_path: certs/node_c/key.pem
 peer_timeout_s: 300
 anchor_sync_interval_s: 10
 peers:
   - node_id: node_a
-    url: http://127.0.0.1:8471
+    url: https://127.0.0.1:8471
+    pinned_cert_path: certs/node_a/cert.pem
   - node_id: node_b
-    url: http://127.0.0.1:8472
+    url: https://127.0.0.1:8472
+    pinned_cert_path: certs/node_b/cert.pem
