@@ -29,8 +29,6 @@ from gin.federation.schema import (
 )
 from gin.federation.server import create_app
 
-SECRET = "multi-peer-secret"
-
 
 def _leaf(chunk_id: str, content_hash: str = "h") -> AnchorLeaf:
     return AnchorLeaf(chunk_id=chunk_id, content_hash=content_hash, outlet="o", title="t")
@@ -83,7 +81,8 @@ def _config(peers: tuple[PeerConfig, ...]) -> NodeConfig:
         node_id="node_a", host="127.0.0.1", port=8471,
         database_url="postgresql://x/node_a", cold_path="data/cold_node_a",
         model_path="", n_gpu_layers=0, n_ctx=4096,
-        shared_secret=SECRET, peer_timeout_s=5.0, peers=peers,
+        cert_path="a_cert.pem", key_path="a_key.pem",
+        peer_timeout_s=5.0, peers=peers,
         anchor_sync_interval_s=0.02,
     )
 
