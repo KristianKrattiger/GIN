@@ -1,4 +1,5 @@
-"""Server guards: auth, version, hop limit; local-only for hop>=1."""
+# tests/test_federation_server.py
+"""Server guards: version, hop limit; local-only for hop>=1."""
 from fastapi.testclient import TestClient
 
 from gin.eval.arms import ArmOutput
@@ -11,10 +12,9 @@ CFG = NodeConfig(
     node_id="node_b", host="127.0.0.1", port=8472,
     database_url="postgresql://x/gin_node_b", cold_path="data/cold_node_b",
     model_path="", n_gpu_layers=0, n_ctx=4096,
-    shared_secret="s3cret", peer_timeout_s=5.0,
+    cert_path="b_cert.pem", key_path="b_key.pem", peer_timeout_s=5.0,
     peers=(PeerConfig(node_id="node_a", url="http://peer-a"),),
 )
-AUTH = {"Authorization": "Bearer s3cret"}
 
 
 def _grounded(q: str) -> ArmOutput:
@@ -41,28 +41,14 @@ class ExplodingPeer:
         raise AssertionError("peer consulted on a hop>=1 request")
 
 
-def _post(client, payload, headers=AUTH):
-    return client.post("/v1/federated/query", json=payload, headers=headers)
+def _post(client, payload):
+    return client.post("/v1/federated/query", json=payload)
 
 
 def _fq(hop: int) -> dict:
     return FederatedQuery(
         query="q", origin_node="node_a", hop_count=hop
     ).model_dump()
-
-
-def test_missing_bearer_is_401():
-    app = create_app(CFG, answer_fn=_grounded, peer_client=ExplodingPeer())
-    client = TestClient(app)
-    r = client.post("/v1/federated/query", json=_fq(1))
-    assert r.status_code == 401
-
-
-def test_wrong_bearer_is_401():
-    app = create_app(CFG, answer_fn=_grounded, peer_client=ExplodingPeer())
-    client = TestClient(app)
-    r = _post(client, _fq(1), headers={"Authorization": "Bearer wrong"})
-    assert r.status_code == 401
 
 
 def test_version_mismatch_refused():
@@ -111,15 +97,12 @@ def test_hop_zero_local_success_no_federation_layer():
     app = create_app(CFG, answer_fn=_grounded, peer_client=ExplodingPeer())
     client = TestClient(app)
     r = _post(client, _fq(0))
-    # ExplodingPeer proves the peer is not consulted on local success.
     resp = FederatedResponse.model_validate(r.json())
     assert resp.answer.node_id == "node_b"
     assert resp.federation is None
 
 
 def test_relayed_answer_keeps_peer_empty_fingerprint():
-    # Node A refuses locally, so it delegates; peer B returns an answer with an
-    # EMPTY corpus_fingerprint. A must NOT stamp its own fingerprint onto B's answer.
     from gin.federation.schema import FederatedAnswer, WireClaim
 
     class FingerprintlessPeer:
@@ -129,20 +112,17 @@ def test_relayed_answer_keeps_peer_empty_fingerprint():
                 answer_text="peer answer",
                 claims=[WireClaim(text="peer answer", span_type="EXACT",
                                   cited_chunk_ids=["n2_doc_002:3"])],
-                corpus_fingerprint={},  # peer advertises no fingerprint
+                corpus_fingerprint={},
                 synthesis_mode="convergent",
             )
 
-    # CFG in this file is node_b with a peer; reuse a config that HAS a peer and
-    # a non-empty local fingerprint so the bug (if present) would be visible.
     app = create_app(
         CFG, answer_fn=_refusing, peer_client=FingerprintlessPeer(),
-        corpus_fingerprint={"chunk_count": 999},  # A's own fingerprint
+        corpus_fingerprint={"chunk_count": 999},
     )
     client = TestClient(app)
-    r = _post(client, _fq(0))  # hop 0 so A may delegate
+    r = _post(client, _fq(0))
     resp = FederatedResponse.model_validate(r.json())
     assert resp.answer is not None
-    assert resp.federation is not None  # it was relayed
-    # The relayed answer must carry B's (empty) fingerprint, NOT A's {"chunk_count": 999}
+    assert resp.federation is not None
     assert resp.answer.corpus_fingerprint == {}

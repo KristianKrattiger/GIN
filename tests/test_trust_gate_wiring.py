@@ -1,3 +1,4 @@
+# tests/test_trust_gate_wiring.py
 """Trust gate wired into create_app: a peer below the configured trust
 threshold for a domain it serves is never contacted, even when it ranks
 first on similarity. An unconfigured (empty) trust_weights config must
@@ -17,16 +18,13 @@ from gin.federation.schema import (
 )
 from gin.federation.server import create_app
 
-SECRET = "trust-secret"
-AUTH = {"Authorization": f"Bearer {SECRET}"}
-
 
 def _cfg(trust_weights=None, trust_gate_threshold=0.5):
     return NodeConfig(
         node_id="node_a", host="127.0.0.1", port=8471,
         database_url="postgresql://x/a", cold_path="data/cold_a",
         model_path="", n_gpu_layers=0, n_ctx=4096,
-        shared_secret=SECRET, peer_timeout_s=5.0,
+        cert_path="a_cert.pem", key_path="a_key.pem", peer_timeout_s=5.0,
         peers=(PeerConfig("node_b", "http://b"), PeerConfig("node_c", "http://c")),
         trust_weights=trust_weights or {},
         trust_gate_threshold=trust_gate_threshold,
@@ -59,8 +57,6 @@ class ScriptedPeer:
 
 def _summaries():
     store = InMemoryPeerSummaryStore()
-    # node_c ranks first on similarity (matches the fake embedder below),
-    # but its only domain, monetary_policy, will be untrusted in the gated test.
     store.set("node_c", PeerSummaryResponse(
         node_id="node_c", embedding_centroid=[1.0, 0.0],
         distinctive_terms={"inflation": 3.0}, domains=["monetary_policy"],
@@ -77,7 +73,7 @@ def _embed(q):
 
 
 def test_gated_peer_never_contacted_falls_back_to_refusal():
-    peer_client = ScriptedPeer(answerer="node_c")  # only node_c could ground it
+    peer_client = ScriptedPeer(answerer="node_c")
     app = create_app(
         _cfg(trust_weights={"node_c": {"monetary_policy": 0.1}}),
         answer_fn=_refuse, peer_client=peer_client,
@@ -85,23 +81,23 @@ def test_gated_peer_never_contacted_falls_back_to_refusal():
     )
     client = TestClient(app)
     fq = FederatedQuery(query="what drives inflation", origin_node="d", hop_count=0)
-    r = client.post("/v1/federated/query", headers=AUTH, json=fq.model_dump())
+    r = client.post("/v1/federated/query", json=fq.model_dump())
     resp = FederatedResponse.model_validate(r.json())
     assert resp.refusal is not None
-    assert peer_client.calls == ["node_b"]  # node_c never contacted
+    assert peer_client.calls == ["node_b"]
     assert "node_c" not in (resp.refusal.peer_reasons or {})
 
 
 def test_ungated_query_still_reaches_correct_peer():
     peer_client = ScriptedPeer(answerer="node_c")
     app = create_app(
-        _cfg(),  # no trust_weights configured -> fully trusted, sub-project 3 baseline
+        _cfg(),
         answer_fn=_refuse, peer_client=peer_client,
         peer_summary_store=_summaries(), embed_query_fn=_embed,
     )
     client = TestClient(app)
     fq = FederatedQuery(query="what drives inflation", origin_node="d", hop_count=0)
-    r = client.post("/v1/federated/query", headers=AUTH, json=fq.model_dump())
+    r = client.post("/v1/federated/query", json=fq.model_dump())
     resp = FederatedResponse.model_validate(r.json())
     assert resp.answer.node_id == "node_c"
     assert peer_client.calls == ["node_c"]

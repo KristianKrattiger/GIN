@@ -1,21 +1,26 @@
+# gin/federation/server.py
 """FastAPI app factory for one federation node.
 
-Guards run in order: bearer auth (401) -> protocol version (typed refusal) ->
-hop limit (typed refusal). hop_count >= 1 requests are answered locally and
-NEVER re-delegated — that, plus the router only running at hop 0, is the
-entire loop-prevention story. answer_fn / peer_client / corpus_fingerprint
-are injected so tests run without a model, a database, or a network.
+Peer authentication happens at the TLS layer (mutual TLS, self-signed pinned
+certificates — see docs/superpowers/specs/2026-07-16-federation-mtls-design.md
+and scripts/node_serve.py's uvicorn.run wiring). A connection that doesn't
+present a pinned peer certificate never completes its handshake, so it never
+reaches any endpoint here — there is no app-layer auth check to perform.
+Guards that DO run here: protocol version (typed refusal) -> hop limit
+(typed refusal). hop_count >= 1 requests are answered locally and NEVER
+re-delegated — that, plus the router only running at hop 0, is the entire
+loop-prevention story. answer_fn / peer_client / corpus_fingerprint are
+injected so tests run without a model, a database, or a network.
 """
 from __future__ import annotations
 
 import asyncio
 import contextlib
-import hmac
 import time
 from contextlib import asynccontextmanager
 from typing import Callable, Optional
 
-from fastapi import Depends, FastAPI, Header, HTTPException
+from fastapi import FastAPI
 
 from gin.corpus.relevance import query_keywords
 
@@ -98,9 +103,6 @@ def create_app(
         tasks: list[asyncio.Task] = []
         if peer_anchor_store is not None and peer_client is not None and config.peers:
             for i, peer in enumerate(config.peers):
-                # peers[0] updates the stats object the /sync_stats endpoint
-                # serves; additional peers sync into the same (peer-id-keyed)
-                # stores with their own throwaway stats.
                 stats = sync_stats if i == 0 else AnchorSyncStats(
                     node_id=config.node_id, peer_node_id=peer.node_id
                 )
@@ -121,11 +123,6 @@ def create_app(
                 await task
 
     app = FastAPI(title=f"GIN federation node {config.node_id}", lifespan=lifespan)
-
-    def _check_auth(authorization: str = Header(default="")) -> None:
-        expected = f"Bearer {config.shared_secret}"
-        if not hmac.compare_digest(authorization, expected):
-            raise HTTPException(status_code=401, detail="bad or missing bearer token")
 
     def _refusal(
         fq: FederatedQuery,
@@ -148,9 +145,7 @@ def create_app(
         response_model=FederatedResponse,
         response_model_exclude_none=True,
     )
-    def federated_query(
-        fq: FederatedQuery, _: None = Depends(_check_auth)
-    ) -> FederatedResponse:
+    def federated_query(fq: FederatedQuery) -> FederatedResponse:
         if fq.protocol_version != PROTOCOL_VERSION:
             return _refusal(
                 fq, "version_mismatch",
@@ -164,7 +159,6 @@ def create_app(
         started = time.monotonic()
 
         if fq.hop_count >= 1 or peer_client is None or not config.peers:
-            # Incoming federated request (or no peer configured): local only.
             local = answer_fn(fq.query)
             if local.refused:
                 return _refusal(fq, local.refusal_reason or "zero_cursors")
@@ -180,7 +174,6 @@ def create_app(
                 )
             )
 
-        # hop 0: caller-facing — may delegate.
         routed = answer_or_delegate(
             fq.query,
             config=config,
@@ -212,7 +205,7 @@ def create_app(
         )
 
     @app.get("/v1/federated/anchors/root", response_model=AnchorRootResponse)
-    def anchors_root(_: None = Depends(_check_auth)) -> AnchorRootResponse:
+    def anchors_root() -> AnchorRootResponse:
         rows = anchor_rows_fn()
         return AnchorRootResponse(
             node_id=config.node_id,
@@ -221,14 +214,14 @@ def create_app(
         )
 
     @app.get("/v1/federated/anchors/buckets", response_model=AnchorBucketsResponse)
-    def anchors_buckets(_: None = Depends(_check_auth)) -> AnchorBucketsResponse:
+    def anchors_buckets() -> AnchorBucketsResponse:
         rows = anchor_rows_fn()
         return AnchorBucketsResponse(node_id=config.node_id, bucket_hashes=all_bucket_hashes(rows))
 
     @app.get(
         "/v1/federated/anchors/bucket/{index}", response_model=AnchorLeavesResponse
     )
-    def anchors_bucket(index: int, _: None = Depends(_check_auth)) -> AnchorLeavesResponse:
+    def anchors_bucket(index: int) -> AnchorLeavesResponse:
         rows = anchor_rows_fn()
         buckets = build_buckets(rows)
         return AnchorLeavesResponse(
@@ -236,11 +229,11 @@ def create_app(
         )
 
     @app.get("/v1/federated/anchors/sync_stats", response_model=AnchorSyncStats)
-    def anchors_sync_stats(_: None = Depends(_check_auth)) -> AnchorSyncStats:
+    def anchors_sync_stats() -> AnchorSyncStats:
         return sync_stats
 
     @app.get("/v1/federated/summary", response_model=PeerSummaryResponse)
-    def federated_summary(_: None = Depends(_check_auth)) -> PeerSummaryResponse:
+    def federated_summary() -> PeerSummaryResponse:
         return summary_fn()
 
     return app
