@@ -1,3 +1,4 @@
+# tests/test_federation_config.py
 """NodeConfig loading and env application."""
 import os
 
@@ -12,11 +13,13 @@ cold_path: data/cold_node_a
 model_path: data/models/Mistral-7B-Instruct-v0.3-Q4_K_M.gguf
 n_gpu_layers: -1
 n_ctx: 4096
-shared_secret: dev-federation-secret
+cert_path: certs/node_a/cert.pem
+key_path: certs/node_a/key.pem
 peer_timeout_s: 300
 peers:
   - node_id: node_b
     url: http://127.0.0.1:8472/
+    pinned_cert_path: certs/node_b/cert.pem
 """
 
 
@@ -26,17 +29,16 @@ def test_load_node_config(tmp_path):
     cfg = load_node_config(p)
     assert cfg.node_id == "node_a"
     assert cfg.port == 8471
-    assert cfg.peers == (PeerConfig(node_id="node_b", url="http://127.0.0.1:8472"),)
+    assert cfg.cert_path == "certs/node_a/cert.pem"
+    assert cfg.key_path == "certs/node_a/key.pem"
+    assert cfg.peers == (
+        PeerConfig(
+            node_id="node_b", url="http://127.0.0.1:8472",
+            pinned_cert_path="certs/node_b/cert.pem",
+        ),
+    )
     assert cfg.peer_timeout_s == 300.0
     assert cfg.chat_template == "mistral"  # default
-
-
-def test_secret_env_override(tmp_path, monkeypatch):
-    p = tmp_path / "node_a.yaml"
-    p.write_text(_YAML, encoding="utf-8")
-    monkeypatch.setenv("GIN_FED_SECRET", "real-secret")
-    cfg = load_node_config(p)
-    assert cfg.shared_secret == "real-secret"
 
 
 def test_anchor_sync_interval_default(tmp_path):
@@ -57,9 +59,6 @@ def test_apply_env(tmp_path, monkeypatch):
     p = tmp_path / "node_a.yaml"
     p.write_text(_YAML, encoding="utf-8")
 
-    # Snapshot the env vars to restore them exactly as they were, regardless
-    # of prior state. apply_env() writes directly to os.environ, and monkeypatch
-    # alone cannot track and revert direct writes to vars that were absent before.
     original_db_url = os.environ.get("GIN_DATABASE_URL")
     original_cold_path = os.environ.get("GIN_COLD_PATH")
 
@@ -69,7 +68,6 @@ def test_apply_env(tmp_path, monkeypatch):
         assert os.environ["GIN_DATABASE_URL"].endswith("/gin_node_a")
         assert os.environ["GIN_COLD_PATH"] == "data/cold_node_a"
     finally:
-        # Restore to original state
         if original_db_url is None:
             os.environ.pop("GIN_DATABASE_URL", None)
         else:

@@ -1,8 +1,12 @@
+# gin/federation/config.py
 """Per-node configuration.
 
 Each node process is sovereign: its own Postgres database, cold store, model,
-port, and peer list. The corpus tier reads GIN_DATABASE_URL / GIN_COLD_PATH
-from the environment at call time (gin/corpus/db.py), so ``apply_env`` must be
+port, and peer list. Peer authentication is mutual TLS: each node presents
+its own self-signed certificate (cert_path/key_path) and trusts only the
+specific pinned certificate configured for each peer — no CA, no shared
+secret. The corpus tier reads GIN_DATABASE_URL / GIN_COLD_PATH from the
+environment at call time (gin/corpus/db.py), so ``apply_env`` must be
 called before the process touches the database.
 """
 from __future__ import annotations
@@ -18,6 +22,7 @@ import yaml
 class PeerConfig:
     node_id: str
     url: str  # base URL, no trailing slash
+    pinned_cert_path: str = ""
 
 
 @dataclass(frozen=True)
@@ -30,7 +35,8 @@ class NodeConfig:
     model_path: str
     n_gpu_layers: int
     n_ctx: int
-    shared_secret: str
+    cert_path: str
+    key_path: str
     peer_timeout_s: float
     peers: tuple[PeerConfig, ...]
     chat_template: str = "mistral"
@@ -42,12 +48,13 @@ class NodeConfig:
 def load_node_config(path: str | Path) -> NodeConfig:
     raw = yaml.safe_load(Path(path).read_text(encoding="utf-8"))
     peers = tuple(
-        PeerConfig(node_id=p["node_id"], url=str(p["url"]).rstrip("/"))
+        PeerConfig(
+            node_id=p["node_id"],
+            url=str(p["url"]).rstrip("/"),
+            pinned_cert_path=p["pinned_cert_path"],
+        )
         for p in raw.get("peers", [])
     )
-    # Committed config files carry a non-secret dev default; a real secret is
-    # injected via env so it never lands in git.
-    secret = os.environ.get("GIN_FED_SECRET") or raw["shared_secret"]
     return NodeConfig(
         node_id=raw["node_id"],
         host=raw.get("host", "127.0.0.1"),
@@ -57,7 +64,8 @@ def load_node_config(path: str | Path) -> NodeConfig:
         model_path=raw.get("model_path", ""),
         n_gpu_layers=int(raw.get("n_gpu_layers", -1)),
         n_ctx=int(raw.get("n_ctx", 4096)),
-        shared_secret=secret,
+        cert_path=raw["cert_path"],
+        key_path=raw["key_path"],
         peer_timeout_s=float(raw.get("peer_timeout_s", 300.0)),
         peers=peers,
         chat_template=raw.get("chat_template", "mistral"),
