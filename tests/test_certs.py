@@ -1,4 +1,5 @@
 """Self-signed cert generation, fingerprinting, and CA-bundle building."""
+import os
 import ssl
 
 from cryptography import x509
@@ -52,3 +53,18 @@ def test_build_ca_bundle_is_usable_as_a_real_ca_store(tmp_path):
 def test_build_ca_bundle_returns_none_for_empty_peer_list(tmp_path):
     assert build_ca_bundle([], tmp_path / "bundle.pem") is None
     assert not (tmp_path / "bundle.pem").exists()
+
+
+def test_generate_self_signed_cert_key_file_is_owner_only(tmp_path):
+    """The private key is the sole credential once nodes run on shared
+    multi-user hosts; it must not be world/group-readable (0644)."""
+    _, key_path = generate_self_signed_cert("node_a", tmp_path)
+    mode = key_path.stat().st_mode
+    if os.name == "posix":
+        assert oct(mode)[-3:] == "600"
+    else:
+        # Windows permission bits don't map to POSIX owner/group/other; the
+        # chmod call is a harmless near no-op there. Just confirm the code
+        # path that calls chmod(0o600) executed without raising — the file
+        # exists and is readable, which it wouldn't be if chmod had errored.
+        assert key_path.exists()

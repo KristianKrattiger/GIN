@@ -72,6 +72,7 @@ def generate_self_signed_cert(node_id: str, certs_root: str | Path) -> tuple[Pat
             serialization.NoEncryption(),
         )
     )
+    key_path.chmod(0o600)
     return cert_path, key_path
 
 
