@@ -10,3 +10,4 @@ venv/
 models/
 .idea/
 .claude/
+.worktrees/
