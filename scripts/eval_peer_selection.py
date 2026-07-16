@@ -26,6 +26,8 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+import ssl
+
 import httpx
 
 from gin.federation.eval import verify_claims_in_db
@@ -43,11 +45,22 @@ DB_FOR_NODE = {
 }
 
 
-def _await_summaries(node_a_url: str, headers: dict, timeout_s: float) -> None:
+def _driver_ssl_context(trust_cert: str, driver_cert: str, driver_key: str) -> ssl.SSLContext:
+    """Node A's server only accepts client certs it has pinned (node_b/node_c) —
+    the driver authenticates as one of those, trusting node_a's own cert as
+    the server identity. Same pinned-cert pattern as HttpPeerClient."""
+    ctx = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+    ctx.check_hostname = False
+    ctx.load_verify_locations(cafile=trust_cert)
+    ctx.load_cert_chain(certfile=driver_cert, keyfile=driver_key)
+    return ctx
+
+
+def _await_summaries(node_a_url: str, ssl_context: ssl.SSLContext, timeout_s: float) -> None:
     """Wait until A has run enough sync cycles to have cached peer summaries."""
     deadline = time.monotonic() + timeout_s
     while time.monotonic() < deadline:
-        r = httpx.get(f"{node_a_url}/v1/federated/anchors/sync_stats", headers=headers, timeout=10.0)
+        r = httpx.get(f"{node_a_url}/v1/federated/anchors/sync_stats", verify=ssl_context, timeout=10.0)
         if r.status_code == 200 and r.json().get("cycles_run", 0) >= 1:
             time.sleep(2.0)  # let the summary fetch that follows the mismatch land
             return
@@ -56,9 +69,13 @@ def _await_summaries(node_a_url: str, headers: dict, timeout_s: float) -> None:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--node-a-url", default="http://127.0.0.1:8471")
+    parser.add_argument("--node-a-url", default="https://127.0.0.1:8471")
     parser.add_argument("--queryset", default=str(ROOT / "data" / "eval" / "queryset_peer_selection.yaml"))
-    parser.add_argument("--secret", default="dev-federation-secret")
+    parser.add_argument("--trust-cert", default=str(ROOT / "certs" / "node_a" / "cert.pem"),
+                        help="node_a's own cert, to validate it as the server")
+    parser.add_argument("--driver-cert", default=str(ROOT / "certs" / "node_b" / "cert.pem"),
+                        help="a cert node_a has pinned as a peer, presented as the driver's own identity")
+    parser.add_argument("--driver-key", default=str(ROOT / "certs" / "node_b" / "key.pem"))
     parser.add_argument("--timeout", type=float, default=600.0)
     parser.add_argument("--summary-wait", type=float, default=60.0)
     parser.add_argument("--out", type=Path, default=DEFAULT_OUT)
@@ -70,14 +87,14 @@ def main() -> int:
     args = parser.parse_args()
 
     queries = load_selection_queryset(args.queryset)
-    headers = {"Authorization": f"Bearer {args.secret}"}
-    _await_summaries(args.node_a_url, headers, args.summary_wait)
+    ssl_context = _driver_ssl_context(args.trust_cert, args.driver_cert, args.driver_key)
+    _await_summaries(args.node_a_url, ssl_context, args.summary_wait)
 
     outcomes: list[SelectionOutcome] = []
-    with httpx.Client(timeout=args.timeout) as client:
+    with httpx.Client(timeout=args.timeout, verify=ssl_context) as client:
         for q in queries:
             fq = FederatedQuery(query=q.query, origin_node="eval_driver", hop_count=0)
-            r = client.post(f"{args.node_a_url}/v1/federated/query", headers=headers, json=fq.model_dump())
+            r = client.post(f"{args.node_a_url}/v1/federated/query", json=fq.model_dump())
             r.raise_for_status()
             resp = FederatedResponse.model_validate(r.json())
 

@@ -23,6 +23,8 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+import ssl
+
 import httpx
 import psycopg
 
@@ -72,10 +74,21 @@ def _wait_for_convergence(node_a_db: str, node_b_db: str, timeout_s: float) -> d
     return diff
 
 
-def _sync_stats(node_a_url: str, secret: str) -> AnchorSyncStats:
+def _driver_ssl_context(trust_cert: str, driver_cert: str, driver_key: str) -> ssl.SSLContext:
+    """Node A's server only accepts client certs it has pinned (node_b) — the
+    driver authenticates as node_b, trusting node_a's own cert as the server
+    identity. Same pinned-cert pattern as HttpPeerClient."""
+    ctx = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+    ctx.check_hostname = False
+    ctx.load_verify_locations(cafile=trust_cert)
+    ctx.load_cert_chain(certfile=driver_cert, keyfile=driver_key)
+    return ctx
+
+
+def _sync_stats(node_a_url: str, ssl_context: ssl.SSLContext) -> AnchorSyncStats:
     r = httpx.get(
         f"{node_a_url}/v1/federated/anchors/sync_stats",
-        headers={"Authorization": f"Bearer {secret}"}, timeout=10.0,
+        verify=ssl_context, timeout=10.0,
     )
     r.raise_for_status()
     return AnchorSyncStats.model_validate(r.json())
@@ -89,13 +102,18 @@ def _full_corpus_bytes(truth: dict[str, dict]) -> int:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--node-a-url", default="http://127.0.0.1:8471")
+    parser.add_argument("--node-a-url", default="https://127.0.0.1:8471")
     parser.add_argument("--node-a-db", default="postgresql://gin:gin@localhost:5432/gin_node_a")
     parser.add_argument("--node-b-db", default="postgresql://gin:gin@localhost:5432/gin_node_b")
-    parser.add_argument("--secret", default="dev-federation-secret")
+    parser.add_argument("--trust-cert", default=str(ROOT / "certs" / "node_a" / "cert.pem"),
+                        help="node_a's own cert, to validate it as the server")
+    parser.add_argument("--driver-cert", default=str(ROOT / "certs" / "node_b" / "cert.pem"),
+                        help="a cert node_a has pinned as a peer, presented as the driver's own identity")
+    parser.add_argument("--driver-key", default=str(ROOT / "certs" / "node_b" / "key.pem"))
     parser.add_argument("--converge-timeout", type=float, default=60.0)
     parser.add_argument("--out", type=Path, default=DEFAULT_OUT)
     args = parser.parse_args()
+    ssl_context = _driver_ssl_context(args.trust_cert, args.driver_cert, args.driver_key)
 
     print("[1/4] waiting for initial convergence (node A's cache of B vs. B's ground truth)")
     initial_diff = _wait_for_convergence(args.node_a_db, args.node_b_db, args.converge_timeout)
@@ -106,7 +124,7 @@ def main() -> int:
     no_op_bytes = None
     deadline = time.monotonic() + args.converge_timeout
     while time.monotonic() < deadline:
-        stats = _sync_stats(args.node_a_url, args.secret)
+        stats = _sync_stats(args.node_a_url, ssl_context)
         if stats.last_root_matched:
             no_op_bytes = stats.last_cycle_bytes
             break
@@ -126,10 +144,10 @@ def main() -> int:
 
     try:
         mutation_bytes = None
-        cycles_before = _sync_stats(args.node_a_url, args.secret).cycles_run
+        cycles_before = _sync_stats(args.node_a_url, ssl_context).cycles_run
         deadline = time.monotonic() + args.converge_timeout
         while time.monotonic() < deadline:
-            stats = _sync_stats(args.node_a_url, args.secret)
+            stats = _sync_stats(args.node_a_url, ssl_context)
             if stats.cycles_run > cycles_before and not stats.last_root_matched:
                 mutation_bytes = stats.last_cycle_bytes
                 break
