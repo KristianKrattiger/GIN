@@ -417,7 +417,22 @@ Prove SEAR behavior on stock Mistral with grammar-constrained extractive synthes
   `data/eval_runs/20260716T004515Z/peer_selection_metrics.json` reproduces
   sub-project 3's exact bar (precision@1 1.0, avg peers tried 1.0).
   Spec: docs/superpowers/specs/2026-07-15-trust-weights-design.md
-- 🔲 gRPC/QUIC wire, PKI/mTLS
+- ✅ mTLS: self-signed pinned peer certificates (spec #5) — replaces the
+  federation shared-secret bearer scheme (`shared_secret`/`GIN_FED_SECRET`,
+  fully removed) with mutual TLS. Each node self-signs its own identity
+  cert (`scripts/node_keygen.py`); peer operators exchange `cert.pem`
+  out-of-band and pin it (`peers[].pinned_cert_path`) — an unpinned cert
+  fails the TLS handshake and never reaches the ASGI app. Measured on the
+  live 3-node deployment over real TLS handshakes, not a simulation:
+  ungated run
+  `data/eval_runs/20260716T095519Z/peer_selection_metrics.json` reproduces
+  sub-project 3's exact bar (precision@1 1.0, avg peers tried 1.0, routing
+  FP 0, fabrication 0.0, attribution 1.0, honest refusal 1.0); gated run
+  `data/eval_runs/20260716T095704Z/peer_selection_metrics.json` reproduces
+  sub-project 4's exact bar (gated_peer_contacted 0, same figures
+  otherwise).
+  Spec: docs/superpowers/specs/2026-07-16-federation-mtls-design.md
+- 🔲 gRPC/QUIC wire
 
 ### Phase 4 — SEAR training loop (Tier 1)
 

@@ -377,8 +377,9 @@ anchor-metadata root on `anchor_sync_interval_s` (config, default 10s in
 text. Inspect live convergence:
 
 ```bash
-curl -H "Authorization: Bearer dev-federation-secret" \
-  http://127.0.0.1:8471/v1/federated/anchors/sync_stats
+curl --cert certs/node_b/cert.pem --key certs/node_b/key.pem \
+  --cacert certs/node_a/cert.pem \
+  https://127.0.0.1:8471/v1/federated/anchors/sync_stats
 
 # measure the bar (correctness + bandwidth)
 python scripts/eval_anchor_sync.py
@@ -426,6 +427,47 @@ python scripts/eval_peer_selection.py
 Domain coverage syncs automatically (no query-time classification); a peer
 with no known domains is never gated. Bar and scope:
 docs/superpowers/specs/2026-07-15-trust-weights-design.md.
+
+### Peer authentication (mutual TLS)
+
+Federation transport is mutual TLS with self-signed, pinned certificates —
+no CA, no shared secret. The prior `shared_secret` / `GIN_FED_SECRET`
+bearer scheme no longer exists; the TLS handshake itself is the
+authentication boundary. Each node generates its own identity:
+
+```bash
+python scripts/node_keygen.py --node-id node_a --out-dir certs
+```
+
+This writes `certs/node_a/{cert.pem,key.pem}` and prints a SHA-256
+fingerprint. Send `cert.pem` to peer operators out-of-band and have them
+confirm the fingerprint matches before pinning it — an unpinned cert never
+completes the TLS handshake, so it never reaches the application.
+
+Add the peer's cert path to `peers[].pinned_cert_path` in your node's YAML
+(`config/node_a.yaml`):
+
+```yaml
+node_id: node_a
+cert_path: certs/node_a/cert.pem
+key_path: certs/node_a/key.pem
+peers:
+  - node_id: node_b
+    url: https://127.0.0.1:8472
+    pinned_cert_path: certs/node_b/cert.pem
+  - node_id: node_c
+    url: https://127.0.0.1:8473
+    pinned_cert_path: certs/node_c/cert.pem
+```
+
+Certs are long-lived (10-year validity); rotation is manual re-pinning, not
+automated. The eval driver scripts (`eval_federation.py`,
+`eval_peer_selection.py`, `eval_anchor_sync.py`) authenticate the same way,
+via `--trust-cert`/`--driver-cert`/`--driver-key` in place of the old
+`--secret` flag — defaulting to trusting `certs/node_a/cert.pem` as the
+server and presenting `certs/node_b/{cert.pem,key.pem}` as the driver's own
+(already-pinned) identity. Bar and scope:
+docs/superpowers/specs/2026-07-16-federation-mtls-design.md.
 
 ---
 
@@ -535,7 +577,7 @@ NLI confirms NC fabrication 0 on the 9-query structural baseline (`194024Z`); ex
 | Labeled set expanded + threshold calibration (33 pairs, LOO ≥ 0.85) | ✅ (`data/cartographer_thresholds.json`) |
 | NLI verifier on expanded 20-query set | ✅ (`20260712T035228Z`, `models/Mistral-7B-Instruct-v0.3-Q6_K.gguf`, WSL+GPU; NC realism fabrication 0.0, overall NLI fabrication 0.056 on counterfactual entailment miss) |
 | Bookkeeper + reasoning layer separation (Phase 2) | ✅ (admission gate wired; synthesis reads warm `edges`) |
-| Federation routing with sync metadata (Phase 3) | ✅ v1 sovereign delegation loop measured (run `20260714T175645Z`: routing FP 0, recall 1.0, routed fabrication 0.0, honest refusal 1.0); ✅ Merkle anchor sync measured (run `20260715T073932Z`: 0 diff vs. ground truth, no-op O(1) bytes, single-change cycle « full corpus); ✅ peer selection at N=3 measured (run `20260715T192750Z`: selection precision@1 1.0, avg peers tried 1.0, routing FP 0, fabrication 0.0, honest refusal 1.0); ✅ trust weights measured (gated run `20260716T004321Z`: gated_peer_contacted 0; ungated regression `20260716T004515Z` reproduces N=3 bar exactly); gRPC/QUIC + mTLS deferred |
+| Federation routing with sync metadata (Phase 3) | ✅ v1 sovereign delegation loop measured (run `20260714T175645Z`: routing FP 0, recall 1.0, routed fabrication 0.0, honest refusal 1.0); ✅ Merkle anchor sync measured (run `20260715T073932Z`: 0 diff vs. ground truth, no-op O(1) bytes, single-change cycle « full corpus); ✅ peer selection at N=3 measured (run `20260715T192750Z`: selection precision@1 1.0, avg peers tried 1.0, routing FP 0, fabrication 0.0, honest refusal 1.0); ✅ trust weights measured (gated run `20260716T004321Z`: gated_peer_contacted 0; ungated regression `20260716T004515Z` reproduces N=3 bar exactly); ✅ mTLS (self-signed pinned certs, replacing shared-secret bearer auth) measured on live 3-node deployment (ungated run `20260716T095519Z` reproduces N=3 bar exactly; gated run `20260716T095704Z` reproduces trust-weights bar exactly); gRPC/QUIC deferred |
 
 ---
 

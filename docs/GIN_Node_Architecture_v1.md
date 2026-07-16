@@ -143,6 +143,18 @@ The RLHF pass is where "honest by architecture" gets stress-tested. The training
 - Mutual TLS across all node-to-node connections; federation-wide PKI
 - Trust weights are explicit in the protocol — not binary allow/deny. Node A may weight Node B's corpus highly for domain X and skeptically for domain Y. This asymmetry is first-class in the data model.
 
+> **v1 mTLS (2026-07):** the shipped identity layer is self-signed,
+> pinned certificates — not the federation-wide PKI described above. Each
+> node generates its own keypair (`scripts/node_keygen.py`); peer
+> operators exchange `cert.pem` out-of-band and confirm the printed
+> SHA-256 fingerprint before pinning it (`peers[].pinned_cert_path`). An
+> unpinned cert fails the TLS handshake itself, so no application-layer
+> check is needed — the prior shared-secret bearer scheme
+> (`shared_secret` / `GIN_FED_SECRET`) has been removed outright, not
+> layered under TLS. Certs are long-lived (10-year validity); rotation is
+> manual re-pinning. CA-based issuance, automated rotation, and revocation
+> (CRL/OCSP) all remain future work.
+
 > **v1 peer selection (2026-07):** when a node routes a query it ranks peers
 > by content similarity only — dense (query embedding vs. each peer's synced
 > centroid) and sparse (query keywords vs. each peer's distinctive IDF terms),
