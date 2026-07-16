@@ -67,3 +67,32 @@ def test_build_local_summary_over_ingested_corpus(isolated_db, tmp_cold_root):
     norm = sum(x * x for x in summary.embedding_centroid) ** 0.5
     assert abs(norm - 1.0) < 1e-6
     assert 0 < len(summary.distinctive_terms) <= 10
+
+
+@pytest.mark.integration
+def test_postgres_summary_store_round_trips_domains(isolated_db):
+    store = PostgresPeerSummaryStore()
+    store.set("node_c", PeerSummaryResponse(
+        node_id="node_c", embedding_centroid=[0.5], distinctive_terms={},
+        domains=["monetary_policy"],
+    ))
+    got = store.get("node_c")
+    assert got.domains == ["monetary_policy"]
+
+
+@pytest.mark.integration
+def test_build_local_summary_includes_domains(isolated_db, tmp_cold_root):
+    from gin.corpus.ingest import ingest_path
+
+    ingest_path(ROOT / "corpus_node3.json", embed=True, ingest_edges=False)
+    summary = build_local_summary("node_c")
+    assert summary.domains == ["monetary_policy"]
+
+
+@pytest.mark.integration
+def test_build_local_summary_domains_empty_when_untagged(isolated_db, tmp_cold_root):
+    from gin.corpus.ingest import ingest_path
+
+    ingest_path(NEWS, embed=True)
+    summary = build_local_summary("node_local")
+    assert summary.domains == []

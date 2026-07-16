@@ -42,33 +42,37 @@ class PostgresPeerSummaryStore:
     def get(self, peer_node_id: str) -> Optional[PeerSummaryResponse]:
         with connect() as conn:
             row = conn.execute(
-                "SELECT embedding_centroid, distinctive_terms FROM peer_summaries "
+                "SELECT embedding_centroid, distinctive_terms, domains FROM peer_summaries "
                 "WHERE peer_node_id = %s",
                 (peer_node_id,),
             ).fetchone()
         if row is None:
             return None
         terms = row[1] if isinstance(row[1], dict) else json.loads(row[1])
+        domains = row[2] if isinstance(row[2], list) else json.loads(row[2])
         return PeerSummaryResponse(
             node_id=peer_node_id,
             embedding_centroid=[float(x) for x in row[0]],
             distinctive_terms=terms,
+            domains=domains,
         )
 
     def set(self, peer_node_id: str, summary: PeerSummaryResponse) -> None:
         with transaction() as conn:
             conn.execute(
                 "INSERT INTO peer_summaries "
-                "(peer_node_id, embedding_centroid, distinctive_terms) "
-                "VALUES (%s, %s, %s) "
+                "(peer_node_id, embedding_centroid, distinctive_terms, domains) "
+                "VALUES (%s, %s, %s, %s) "
                 "ON CONFLICT (peer_node_id) DO UPDATE SET "
                 "embedding_centroid = EXCLUDED.embedding_centroid, "
                 "distinctive_terms = EXCLUDED.distinctive_terms, "
+                "domains = EXCLUDED.domains, "
                 "synced_at = NOW()",
                 (
                     peer_node_id,
                     list(summary.embedding_centroid),
                     json.dumps(summary.distinctive_terms),
+                    json.dumps(summary.domains),
                 ),
             )
 
@@ -87,7 +91,8 @@ def _unit_mean(vectors: list[list[float]]) -> list[float]:
 def build_local_summary(
     node_id: str, top_n: int = 40, conn: Optional[psycopg.Connection] = None
 ) -> PeerSummaryResponse:
-    """This node's routing summary: unit-mean chunk embedding + top-N IDF terms."""
+    """This node's routing summary: unit-mean chunk embedding + top-N IDF
+    terms + the distinct non-empty domains this node's corpus covers."""
     if conn is None:
         with connect() as conn:
             return build_local_summary(node_id, top_n, conn)
@@ -95,6 +100,12 @@ def build_local_summary(
     centroid = _unit_mean(embed_texts(texts)) if texts else [0.0] * EMBEDDING_DIM
     idf = corpus_idf(texts)
     top = dict(sorted(idf.items(), key=lambda kv: (-kv[1], kv[0]))[:top_n])
+    domains = sorted({
+        r[0] for r in conn.execute(
+            "SELECT DISTINCT domain FROM documents WHERE domain != ''"
+        ).fetchall()
+    })
     return PeerSummaryResponse(
-        node_id=node_id, embedding_centroid=centroid, distinctive_terms=top
+        node_id=node_id, embedding_centroid=centroid, distinctive_terms=top,
+        domains=domains,
     )

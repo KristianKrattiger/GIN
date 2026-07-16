@@ -74,5 +74,8 @@ CREATE TABLE IF NOT EXISTS peer_summaries (
     peer_node_id       TEXT PRIMARY KEY,
     embedding_centroid REAL[] NOT NULL,
     distinctive_terms  JSONB NOT NULL,
+    domains            JSONB NOT NULL DEFAULT '[]'::jsonb,
     synced_at          TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+ALTER TABLE peer_summaries ADD COLUMN IF NOT EXISTS domains JSONB NOT NULL DEFAULT '[]'::jsonb;
