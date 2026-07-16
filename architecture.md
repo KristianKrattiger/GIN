@@ -406,8 +406,18 @@ Prove SEAR behavior on stock Mistral with grammar-constrained extractive synthes
   precision@1 1.0, avg peers tried 1.0, routing FP 0, fabrication 0.0,
   attribution 1.0, honest refusal 1.0.
   Spec: docs/superpowers/specs/2026-07-15-peer-selection-n3-design.md
-- 🔲 gRPC/QUIC wire (swap inside `PeerClient`; institutional target)
-- 🔲 Trust weights (per-domain asymmetric), PKI/mTLS
+- ✅ Trust weights (per-domain peer gating, spec #4) — a node excludes a
+  peer from ranked delegation candidates when a configured
+  `(peer, domain)` trust weight falls below threshold; domain coverage
+  synced automatically alongside the routing summary, gating applied after
+  RRF ranking and before delegation. Measured on the live 3-node
+  deployment: gated run `data/eval_runs/20260716T004321Z/peer_selection_metrics.json`
+  (gated_peer_contacted 0, honest_refusal_rate 1.0 for the affected
+  queries); ungated regression run
+  `data/eval_runs/20260716T004515Z/peer_selection_metrics.json` reproduces
+  sub-project 3's exact bar (precision@1 1.0, avg peers tried 1.0).
+  Spec: docs/superpowers/specs/2026-07-15-trust-weights-design.md
+- 🔲 gRPC/QUIC wire, PKI/mTLS
 
 ### Phase 4 — SEAR training loop (Tier 1)
 

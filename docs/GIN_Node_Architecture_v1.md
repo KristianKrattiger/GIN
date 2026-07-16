@@ -150,6 +150,14 @@ The RLHF pass is where "honest by architecture" gets stress-tested. The training
 > per-domain asymmetric weighting described above) remain a separate, later
 > mechanism layered on top of this similarity signal.
 
+> **v1 trust weights (2026-07):** gating only, not yet blended into the
+> ranking score — a peer is excluded entirely if any domain it's known to
+> serve (synced automatically, never query-classified) falls below a
+> configured `(peer, domain)` weight. Configured statically by a human in
+> each node's own YAML, standing in for the not-yet-built Epistemic
+> Council; dynamic weight-setting and blending trust into the fused RRF
+> score remain future work.
+
 - Epistemic Council governance maps onto permissioned access: council decisions can modify trust weights between nodes, quarantine a node's anchor contributions, or revoke federation membership
 
 **Sync cadence**: anchor updates propagate async — eventual consistency is appropriate. Epistemic claims don't need real-time consistency; they need traceable versioning. Every anchor has a version vector; conflict resolution on sync follows last-write-wins for metadata, human review for trust-weight changes.

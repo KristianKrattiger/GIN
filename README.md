@@ -406,6 +406,27 @@ python scripts/eval_peer_selection.py
 Selection is content-similarity only; trust weights remain a later mechanism.
 Bar and scope: docs/superpowers/specs/2026-07-15-peer-selection-n3-design.md.
 
+### Trust weights (per-domain peer gating)
+
+A node can exclude a specific peer from delegation for a domain it serves,
+via its own config — no runtime API, no automated inference. `config/node_a_trust_gated.yaml`
+is a variant of `config/node_a.yaml` carrying a below-threshold weight for
+`node_c`'s `monetary_policy` domain:
+
+```bash
+# gated run (node_c excluded for monetary_policy)
+python scripts/node_serve.py --config config/node_a_trust_gated.yaml
+python scripts/eval_peer_selection.py --gated-peer node_c
+
+# ungated regression (default config, reproduces sub-project 3 exactly)
+python scripts/node_serve.py --config config/node_a.yaml
+python scripts/eval_peer_selection.py
+```
+
+Domain coverage syncs automatically (no query-time classification); a peer
+with no known domains is never gated. Bar and scope:
+docs/superpowers/specs/2026-07-15-trust-weights-design.md.
+
 ---
 
 ## Manifest version handoff to cursor resolver
@@ -514,7 +535,7 @@ NLI confirms NC fabrication 0 on the 9-query structural baseline (`194024Z`); ex
 | Labeled set expanded + threshold calibration (33 pairs, LOO ≥ 0.85) | ✅ (`data/cartographer_thresholds.json`) |
 | NLI verifier on expanded 20-query set | ✅ (`20260712T035228Z`, `models/Mistral-7B-Instruct-v0.3-Q6_K.gguf`, WSL+GPU; NC realism fabrication 0.0, overall NLI fabrication 0.056 on counterfactual entailment miss) |
 | Bookkeeper + reasoning layer separation (Phase 2) | ✅ (admission gate wired; synthesis reads warm `edges`) |
-| Federation routing with sync metadata (Phase 3) | ✅ v1 sovereign delegation loop measured (run `20260714T175645Z`: routing FP 0, recall 1.0, routed fabrication 0.0, honest refusal 1.0); ✅ Merkle anchor sync measured (run `20260715T073932Z`: 0 diff vs. ground truth, no-op O(1) bytes, single-change cycle « full corpus); ✅ peer selection at N=3 measured (run `20260715T192750Z`: selection precision@1 1.0, avg peers tried 1.0, routing FP 0, fabrication 0.0, honest refusal 1.0); trust weights + gRPC/QUIC + mTLS deferred |
+| Federation routing with sync metadata (Phase 3) | ✅ v1 sovereign delegation loop measured (run `20260714T175645Z`: routing FP 0, recall 1.0, routed fabrication 0.0, honest refusal 1.0); ✅ Merkle anchor sync measured (run `20260715T073932Z`: 0 diff vs. ground truth, no-op O(1) bytes, single-change cycle « full corpus); ✅ peer selection at N=3 measured (run `20260715T192750Z`: selection precision@1 1.0, avg peers tried 1.0, routing FP 0, fabrication 0.0, honest refusal 1.0); ✅ trust weights measured (gated run `20260716T004321Z`: gated_peer_contacted 0; ungated regression `20260716T004515Z` reproduces N=3 bar exactly); gRPC/QUIC + mTLS deferred |
 
 ---
 

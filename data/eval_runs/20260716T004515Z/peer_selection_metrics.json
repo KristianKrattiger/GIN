@@ -1,0 +1,117 @@
+{
+  "run_id": "20260716T004515Z",
+  "generated_at": "2026-07-16T00:45:15.935355+00:00",
+  "node_a_url": "http://127.0.0.1:8471",
+  "queryset": "C:\\Users\\krist\\Projects\\GIN\\data\\eval\\queryset_peer_selection.yaml",
+  "n_queries": 8,
+  "selection_precision_at_1": 1.0,
+  "avg_peers_tried": 1.0,
+  "routing_false_positives": 0,
+  "routed_attribution_verified": 1.0,
+  "routed_fabrication_rate": 0.0,
+  "honest_refusal_rate": 1.0,
+  "per_query": [
+    {
+      "id": "sel_a_2023_anomaly",
+      "federation_class": "a_answerable",
+      "refused": false,
+      "routed": false,
+      "source_node": "node_a",
+      "peers_attempted": [],
+      "attribution_verified": null,
+      "refusal_reasons": {}
+    },
+    {
+      "id": "sel_a_ocean_acidification",
+      "federation_class": "a_answerable",
+      "refused": false,
+      "routed": false,
+      "source_node": "node_a",
+      "peers_attempted": [],
+      "attribution_verified": null,
+      "refusal_reasons": {}
+    },
+    {
+      "id": "sel_b_landback",
+      "federation_class": "b_only",
+      "refused": false,
+      "routed": true,
+      "source_node": "node_b",
+      "peers_attempted": [
+        "node_b"
+      ],
+      "attribution_verified": true,
+      "refusal_reasons": {}
+    },
+    {
+      "id": "sel_b_weact_founding",
+      "federation_class": "b_only",
+      "refused": false,
+      "routed": true,
+      "source_node": "node_b",
+      "peers_attempted": [
+        "node_b"
+      ],
+      "attribution_verified": true,
+      "refusal_reasons": {}
+    },
+    {
+      "id": "sel_c_dual_mandate",
+      "federation_class": "c_only",
+      "refused": false,
+      "routed": true,
+      "source_node": "node_c",
+      "peers_attempted": [
+        "node_c"
+      ],
+      "attribution_verified": true,
+      "refusal_reasons": {}
+    },
+    {
+      "id": "sel_c_quantitative_easing",
+      "federation_class": "c_only",
+      "refused": false,
+      "routed": true,
+      "source_node": "node_c",
+      "peers_attempted": [
+        "node_c"
+      ],
+      "attribution_verified": true,
+      "refusal_reasons": {}
+    },
+    {
+      "id": "sel_neither_sports",
+      "federation_class": "neither",
+      "refused": true,
+      "routed": true,
+      "source_node": "",
+      "peers_attempted": [
+        "node_b",
+        "node_c"
+      ],
+      "attribution_verified": null,
+      "refusal_reasons": {
+        "node_a": "zero_cursors",
+        "node_b": "zero_cursors",
+        "node_c": "zero_cursors"
+      }
+    },
+    {
+      "id": "sel_neither_sourdough",
+      "federation_class": "neither",
+      "refused": true,
+      "routed": true,
+      "source_node": "",
+      "peers_attempted": [
+        "node_b",
+        "node_c"
+      ],
+      "attribution_verified": null,
+      "refusal_reasons": {
+        "node_a": "zero_cursors",
+        "node_b": "zero_cursors",
+        "node_c": "zero_cursors"
+      }
+    }
+  ]
+}
