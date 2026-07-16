@@ -62,8 +62,8 @@ def load_node_config(path: str | Path) -> NodeConfig:
         peers=peers,
         chat_template=raw.get("chat_template", "mistral"),
         anchor_sync_interval_s=float(raw.get("anchor_sync_interval_s", 30.0)),
-        trust_weights=raw.get("trust_weights", {}),
-        trust_gate_threshold=float(raw.get("trust_gate_threshold", 0.5)),
+        trust_weights=raw.get("trust_weights") or {},
+        trust_gate_threshold=float(raw.get("trust_gate_threshold") or 0.5),
     )
 
 

@@ -78,6 +78,9 @@ def create_app(
             embed_query_fn(query), query_keywords(query),
             summaries, [p.node_id for p in config.peers],
         )
+        # Scoped to summaries (synced peers only) — a peer with no cached
+        # summary is absent here too, so filter_trusted defaults it to
+        # trusted rather than gating on missing information.
         domains_by_peer = {nid: s.domains for nid, s in summaries.items()}
         order = filter_trusted(
             order, domains_by_peer, config.trust_weights, config.trust_gate_threshold
