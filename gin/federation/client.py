@@ -2,11 +2,19 @@
 
 The Protocol is the seam — the router depends on it, tests inject fakes, and
 a gRPC/QUIC implementation (the documented institutional target) can replace
-HttpPeerClient without touching routing logic. HTTP failures of any kind
-surface as PeerUnreachable; the caller decides what an unreachable peer means.
+HttpPeerClient without touching routing logic. Peer authentication is mutual
+TLS: each connection trusts only the specific peer's pinned self-signed
+certificate as its CA, and presents this node's own cert as its client
+identity — no shared secret, no CA, no hostname check (the pinned cert IS
+the identity check; see
+docs/superpowers/specs/2026-07-16-federation-mtls-design.md). HTTP failures
+of any kind, including TLS handshake/cert-verification rejection (which
+httpx surfaces as RemoteProtocolError, itself an httpx.HTTPError), surface
+as PeerUnreachable; the caller decides what an unreachable peer means.
 """
 from __future__ import annotations
 
+import ssl
 from typing import Optional, Protocol, Union, runtime_checkable
 
 import httpx
@@ -45,32 +53,42 @@ class PeerClient(Protocol):
 
 
 class HttpPeerClient:
-    """HTTP/JSON implementation of PeerClient.
+    """HTTP/JSON implementation of PeerClient, authenticated with mutual TLS.
 
     ``transport`` is injectable for tests (httpx.MockTransport); production
-    uses the default network transport.
+    uses the default network transport. Each call builds a fresh SSLContext
+    trusting only the target peer's pinned certificate.
     """
 
     def __init__(
         self,
-        shared_secret: str,
+        cert_path: str,
+        key_path: str,
         timeout_s: float = 300.0,
         transport: Optional[httpx.BaseTransport] = None,
     ) -> None:
-        self._headers = {"Authorization": f"Bearer {shared_secret}"}
+        self._cert_path = cert_path
+        self._key_path = key_path
         self._timeout = timeout_s
         self._transport = transport
+
+    def _ssl_context(self, peer: PeerConfig) -> ssl.SSLContext:
+        ctx = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+        ctx.check_hostname = False  # the pinned cert IS the identity check
+        ctx.load_verify_locations(cafile=peer.pinned_cert_path)
+        ctx.load_cert_chain(certfile=self._cert_path, keyfile=self._key_path)
+        return ctx
 
     def query(
         self, peer: PeerConfig, fq: FederatedQuery
     ) -> Union[FederatedAnswer, NodeRefusal]:
         try:
             with httpx.Client(
-                transport=self._transport, timeout=self._timeout
+                transport=self._transport, timeout=self._timeout,
+                verify=self._ssl_context(peer),
             ) as client:
                 r = client.post(
                     f"{peer.url}/v1/federated/query",
-                    headers=self._headers,
                     json=fq.model_dump(),
                 )
                 r.raise_for_status()
@@ -94,9 +112,10 @@ class HttpPeerClient:
     def _get(self, peer: PeerConfig, path: str, model_cls):
         try:
             with httpx.Client(
-                transport=self._transport, timeout=self._timeout
+                transport=self._transport, timeout=self._timeout,
+                verify=self._ssl_context(peer),
             ) as client:
-                r = client.get(f"{peer.url}{path}", headers=self._headers)
+                r = client.get(f"{peer.url}{path}")
                 r.raise_for_status()
         except httpx.HTTPError as exc:
             raise PeerUnreachable(peer, exc) from exc
