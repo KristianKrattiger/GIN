@@ -8,7 +8,7 @@ called before the process touches the database.
 from __future__ import annotations
 
 import os
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 import yaml
@@ -35,6 +35,8 @@ class NodeConfig:
     peers: tuple[PeerConfig, ...]
     chat_template: str = "mistral"
     anchor_sync_interval_s: float = 30.0
+    trust_weights: dict[str, dict[str, float]] = field(default_factory=dict)
+    trust_gate_threshold: float = 0.5
 
 
 def load_node_config(path: str | Path) -> NodeConfig:
@@ -60,6 +62,8 @@ def load_node_config(path: str | Path) -> NodeConfig:
         peers=peers,
         chat_template=raw.get("chat_template", "mistral"),
         anchor_sync_interval_s=float(raw.get("anchor_sync_interval_s", 30.0)),
+        trust_weights=raw.get("trust_weights", {}),
+        trust_gate_threshold=float(raw.get("trust_gate_threshold", 0.5)),
     )
 
 

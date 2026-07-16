@@ -78,3 +78,23 @@ def test_apply_env(tmp_path, monkeypatch):
             os.environ.pop("GIN_COLD_PATH", None)
         else:
             os.environ["GIN_COLD_PATH"] = original_cold_path
+
+
+def test_trust_weights_default_empty(tmp_path):
+    p = tmp_path / "node_a.yaml"
+    p.write_text(_YAML, encoding="utf-8")
+    cfg = load_node_config(p)
+    assert cfg.trust_weights == {}
+    assert cfg.trust_gate_threshold == 0.5
+
+
+def test_trust_weights_parsed_from_yaml(tmp_path):
+    p = tmp_path / "node_a.yaml"
+    p.write_text(
+        _YAML + "trust_weights:\n  node_c:\n    monetary_policy: 0.1\n"
+        "trust_gate_threshold: 0.6\n",
+        encoding="utf-8",
+    )
+    cfg = load_node_config(p)
+    assert cfg.trust_weights == {"node_c": {"monetary_policy": 0.1}}
+    assert cfg.trust_gate_threshold == 0.6
