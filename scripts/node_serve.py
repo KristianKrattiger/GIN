@@ -5,11 +5,12 @@ Usage:
 
 Loads the node config, points the corpus tier at this node's database and
 cold store (apply_env BEFORE any DB touch), loads the local model, and serves
-POST /v1/federated/query.
+POST /v1/federated/query over mutual TLS.
 """
 from __future__ import annotations
 
 import argparse
+import ssl
 import sys
 from pathlib import Path
 
@@ -36,6 +37,7 @@ def main() -> int:
     from gin.corpus.hot import embed_query
     from gin.eval.arms import ArmConfig
     from gin.federation.anchor_store import PostgresPeerAnchorStore, local_anchor_rows
+    from gin.federation.certs import build_ca_bundle
     from gin.federation.client import HttpPeerClient
     from gin.federation.peer_summary_store import (
         PostgresPeerSummaryStore, build_local_summary,
@@ -58,7 +60,7 @@ def main() -> int:
     app = create_app(
         config,
         answer_fn=lambda q: answer_query(q, llm, arm_cfg),
-        peer_client=HttpPeerClient(config.shared_secret, config.peer_timeout_s),
+        peer_client=HttpPeerClient(config.cert_path, config.key_path, config.peer_timeout_s),
         corpus_fingerprint=fingerprint,
         local_anchor_rows=local_anchor_rows,
         peer_anchor_store=PostgresPeerAnchorStore(),
@@ -66,7 +68,19 @@ def main() -> int:
         peer_summary_store=PostgresPeerSummaryStore(),
         embed_query_fn=embed_query,
     )
-    uvicorn.run(app, host=config.host, port=config.port, log_level="info")
+    ca_bundle = build_ca_bundle(
+        [p.pinned_cert_path for p in config.peers],
+        Path(config.cert_path).parent / "peer_ca_bundle.pem",
+    )
+    ssl_kwargs = {"ssl_certfile": config.cert_path, "ssl_keyfile": config.key_path}
+    if ca_bundle is not None:
+        ssl_kwargs["ssl_ca_certs"] = str(ca_bundle)
+        ssl_kwargs["ssl_cert_reqs"] = ssl.CERT_REQUIRED
+    else:
+        print(f"[*] node {config.node_id}: no peers configured — server "
+              f"accepts TLS connections but cannot authenticate any client cert")
+
+    uvicorn.run(app, host=config.host, port=config.port, log_level="info", **ssl_kwargs)
     return 0
 
 
