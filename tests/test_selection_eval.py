@@ -39,3 +39,18 @@ def test_routing_false_positive_and_honest_refusal():
     m = compute_selection_metrics(outcomes)
     assert m["routing_false_positives"] == 0
     assert m["honest_refusal_rate"] == 1.0
+
+
+def test_gated_peer_contacted_counts_outcomes_that_reach_it():
+    outcomes = [
+        _routed("c1", "c_only", "", ["node_b", "node_c"], verified=None),
+        _routed("c2", "c_only", "", ["node_b"], verified=None),
+    ]
+    m = compute_selection_metrics(outcomes, gated_peer="node_c")
+    assert m["gated_peer_contacted"] == 1
+
+
+def test_gated_peer_contacted_absent_when_not_requested():
+    outcomes = [_routed("c1", "c_only", "node_c", ["node_c"])]
+    m = compute_selection_metrics(outcomes)
+    assert "gated_peer_contacted" not in m

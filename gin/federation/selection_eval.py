@@ -47,7 +47,9 @@ class SelectionOutcome:
     refusal_reasons: dict = field(default_factory=dict)
 
 
-def compute_selection_metrics(outcomes: list[SelectionOutcome]) -> dict:
+def compute_selection_metrics(
+    outcomes: list[SelectionOutcome], gated_peer: Optional[str] = None
+) -> dict:
     a = [o for o in outcomes if o.federation_class == "a_answerable"]
     neither = [o for o in outcomes if o.federation_class == "neither"]
     routed_grounded = [
@@ -60,7 +62,7 @@ def compute_selection_metrics(outcomes: list[SelectionOutcome]) -> dict:
     ]
     verified = [o for o in routed_grounded if o.attribution_verified]
     tried_counts = [len(o.peers_attempted) for o in routed_grounded]
-    return {
+    result = {
         "n_queries": len(outcomes),
         # Bar: 1.0 — the correct peer is contacted first.
         "selection_precision_at_1": (len(correct_first) / len(routed_grounded)) if routed_grounded else None,
@@ -73,5 +75,11 @@ def compute_selection_metrics(outcomes: list[SelectionOutcome]) -> dict:
         "routed_fabrication_rate": (1.0 - len(verified) / len(routed_grounded)) if routed_grounded else None,
         # Bar: 1.0 — neither-class queries end in refusal.
         "honest_refusal_rate": (sum(1 for o in neither if o.refused) / len(neither)) if neither else None,
-        "per_query": [o.__dict__ for o in outcomes],
     }
+    if gated_peer is not None:
+        # Bar: 0 — a gated peer is never contacted at all.
+        result["gated_peer_contacted"] = sum(
+            1 for o in outcomes if gated_peer in o.peers_attempted
+        )
+    result["per_query"] = [o.__dict__ for o in outcomes]
+    return result

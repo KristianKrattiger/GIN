@@ -62,6 +62,11 @@ def main() -> int:
     parser.add_argument("--timeout", type=float, default=600.0)
     parser.add_argument("--summary-wait", type=float, default=60.0)
     parser.add_argument("--out", type=Path, default=DEFAULT_OUT)
+    parser.add_argument(
+        "--gated-peer", default=None,
+        help="If set, report how many outcomes still reached this peer_node_id "
+             "(expected 0 when that peer is trust-gated in the target node's config)",
+    )
     args = parser.parse_args()
 
     queries = load_selection_queryset(args.queryset)
@@ -99,7 +104,7 @@ def main() -> int:
             print(f"[{q.id}] class={q.federation_class} routed={o.routed} "
                   f"source={o.source_node!r} attempted={o.peers_attempted} verified={o.attribution_verified}")
 
-    metrics = compute_selection_metrics(outcomes)
+    metrics = compute_selection_metrics(outcomes, gated_peer=args.gated_peer)
     ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     run_dir = args.out / ts
     run_dir.mkdir(parents=True, exist_ok=True)

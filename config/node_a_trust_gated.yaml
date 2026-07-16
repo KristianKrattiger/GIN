@@ -1,0 +1,25 @@
+# GIN federation node A (institutional corpus: corpus_node1.json).
+# shared_secret here is a NON-secret dev default for localhost;
+# set GIN_FED_SECRET in the environment to override off-localhost.
+# This variant additionally trust-gates node_c out of consideration for its
+# monetary_policy domain, for the trust-weights live eval's gated run.
+node_id: node_a
+host: 127.0.0.1
+port: 8471
+database_url: postgresql://gin:gin@localhost:5432/gin_node_a
+cold_path: data/cold_node_a
+model_path: data/models/Mistral-7B-Instruct-v0.3-Q4_K_M.gguf
+n_gpu_layers: -1
+n_ctx: 4096
+shared_secret: dev-federation-secret
+peer_timeout_s: 300
+peers:
+  - node_id: node_b
+    url: http://127.0.0.1:8472
+  - node_id: node_c
+    url: http://127.0.0.1:8473
+anchor_sync_interval_s: 10
+trust_weights:
+  node_c:
+    monetary_policy: 0.1
+trust_gate_threshold: 0.5
