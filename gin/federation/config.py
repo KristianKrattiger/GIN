@@ -1,4 +1,3 @@
-# gin/federation/config.py
 """Per-node configuration.
 
 Each node process is sovereign: its own Postgres database, cold store, model,

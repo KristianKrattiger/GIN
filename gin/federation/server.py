@@ -1,4 +1,3 @@
-# gin/federation/server.py
 """FastAPI app factory for one federation node.
 
 Peer authentication happens at the TLS layer (mutual TLS, self-signed pinned
