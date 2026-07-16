@@ -35,6 +35,7 @@ class DocumentDraft:
     source_type: str = "synthetic"
     chunks: list[str] = field(default_factory=list)
     eval_tag: Optional[str] = None
+    domain: str = ""
 
 
 @dataclass

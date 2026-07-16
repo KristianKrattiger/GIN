@@ -25,20 +25,22 @@ def upsert_document(
     title: str,
     source_uri: str = "",
     source_type: str = "synthetic",
+    domain: str = "",
 ) -> UUID:
     uid = _doc_uuid(doc_id)
     conn.execute(
         """
-        INSERT INTO documents (doc_id, content_hash, source_uri, source_type, outlet, title)
-        VALUES (%s, %s, %s, %s, %s, %s)
+        INSERT INTO documents (doc_id, content_hash, source_uri, source_type, outlet, title, domain)
+        VALUES (%s, %s, %s, %s, %s, %s, %s)
         ON CONFLICT (content_hash) DO UPDATE SET
             outlet = EXCLUDED.outlet,
             title = EXCLUDED.title,
             source_uri = EXCLUDED.source_uri,
-            source_type = EXCLUDED.source_type
+            source_type = EXCLUDED.source_type,
+            domain = EXCLUDED.domain
         RETURNING doc_id
         """,
-        (uid, content_hash, source_uri, source_type, outlet, title),
+        (uid, content_hash, source_uri, source_type, outlet, title, domain),
     )
     row = conn.execute(
         "SELECT doc_id FROM documents WHERE content_hash = %s",

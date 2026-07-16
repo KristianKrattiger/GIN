@@ -68,7 +68,7 @@ def load_json(path: Path) -> tuple[list[DocumentDraft], list[EdgeDraft]]:
     Maps the fetched-corpus schema to the ingest model:
       source   -> title           node              -> outlet (federation node)
       url      -> source_uri       metadata.type     -> source_type
-      metadata.category -> eval_tag
+      metadata.category -> eval_tag   metadata.domain -> domain
     ``outlet`` is the document's node id (node_1_institutional / node_2_grassroots)
     so the eval's chunk->outlet map is the federation boundary; the per-source
     name is preserved in ``title``.
@@ -95,6 +95,7 @@ def load_json(path: Path) -> tuple[list[DocumentDraft], list[EdgeDraft]]:
                 source_type=meta.get("type", "curated"),
                 chunks=texts,
                 eval_tag=meta.get("category"),
+                domain=meta.get("domain", ""),
             )
         )
     return documents, []
@@ -153,6 +154,7 @@ def ingest_documents(
                     title=doc.title,
                     source_uri=doc.source_uri,
                     source_type=doc.source_type,
+                    domain=doc.domain,
                 )
                 stats["documents"] += 1
 

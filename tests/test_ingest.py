@@ -38,3 +38,26 @@ def test_ingest_writes_cold_warm_and_is_idempotent(isolated_db, tmp_cold_root):
         sample = next(h for h in hits if h.chunk_id == "incident_centralwire:0")
     blob = cold.load(sample.content_hash, tmp_cold_root)
     assert sample.text.encode("utf-8") == blob
+
+
+NODE3_JSON = ROOT / "corpus_node3.json"
+
+
+def test_load_json_maps_metadata_domain():
+    from gin.corpus.ingest import load_json
+
+    docs, _ = load_json(NODE3_JSON)
+    assert len(docs) >= 1
+    assert all(d.domain == "monetary_policy" for d in docs)
+
+
+@pytest.mark.integration
+def test_ingest_persists_document_domain(isolated_db, tmp_cold_root):
+    from gin.corpus.db import connect
+
+    ingest_path(NODE3_JSON, embed=False, ingest_edges=False)
+    with connect() as conn:
+        row = conn.execute(
+            "SELECT DISTINCT domain FROM documents"
+        ).fetchall()
+    assert row == [("monetary_policy",)]

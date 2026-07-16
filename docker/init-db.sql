@@ -7,8 +7,11 @@ CREATE TABLE IF NOT EXISTS documents (
     source_type TEXT NOT NULL DEFAULT 'synthetic',
     outlet TEXT NOT NULL DEFAULT '',
     title TEXT NOT NULL DEFAULT '',
+    domain TEXT NOT NULL DEFAULT '',
     ingested_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS domain TEXT NOT NULL DEFAULT '';
 
 CREATE TABLE IF NOT EXISTS chunks (
     chunk_id TEXT PRIMARY KEY,
