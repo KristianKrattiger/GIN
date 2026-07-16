@@ -45,9 +45,17 @@ def test_gated_peer_contacted_counts_outcomes_that_reach_it():
     outcomes = [
         _routed("c1", "c_only", "", ["node_b", "node_c"], verified=None),
         _routed("c2", "c_only", "", ["node_b"], verified=None),
+        # Refused, neither-class outcome: excluded from routed_grounded (which
+        # requires federation_class in CLASS_TO_PEER and routed and not refused),
+        # but it still attempted the gated peer, so it must still be counted.
+        # This distinguishes summing over ALL outcomes from summing over
+        # routed_grounded, which would both contain c1/c2 above (c_only routes
+        # unrefused) and so couldn't tell the two implementations apart alone.
+        SelectionOutcome(id="n1", federation_class="neither", refused=True,
+                         routed=True, peers_attempted=["node_c"]),
     ]
     m = compute_selection_metrics(outcomes, gated_peer="node_c")
-    assert m["gated_peer_contacted"] == 1
+    assert m["gated_peer_contacted"] == 2
 
 
 def test_gated_peer_contacted_absent_when_not_requested():
