@@ -124,6 +124,19 @@ The RLHF pass is where "honest by architecture" gets stress-tested. The training
 > institutional-deployment target and replaces the transport without touching
 > routing logic.
 
+> **v1 streaming trace (2026-07):** "stream support for long reasoning
+> traces" above shipped as NDJSON over the existing HTTP/mTLS stack
+> (`POST /v1/federated/query/stream`, `gin/federation/server.py`) rather
+> than as a gRPC/QUIC feature — incremental `retrieval_settled` /
+> `claim_admitted` events drain from a queue as SEAR decode admits claims,
+> followed by a terminal `synthesis_complete` event with the same
+> `FederatedResponse` shape the non-streaming endpoint already returns.
+> gRPC/QUIC remains the deferred institutional-deployment target for the
+> transport itself, unchanged by this: gRPC's mature, off-the-shelf
+> transport is HTTP/2, and QUIC support in gRPC's Python ecosystem is
+> still immature, so "gRPC over QUIC" isn't yet an off-the-shelf
+> combination to build against.
+
 **Federation layer — three interfaces**:
 
 1. **Query/Synthesis API**: accepts a query + optional anchor constraints, returns a SEAR-traced response with anchor IDs, confidence markers, and divergence flags

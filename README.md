@@ -469,6 +469,60 @@ server and presenting `certs/node_b/{cert.pem,key.pem}` as the driver's own
 (already-pinned) identity. Bar and scope:
 docs/superpowers/specs/2026-07-16-federation-mtls-design.md.
 
+### Streaming reasoning trace
+
+`POST /v1/federated/query/stream` accepts the same `FederatedQuery` body
+as the non-streaming endpoint but returns NDJSON
+(`application/x-ndjson`) — one JSON event per line, flushed as SEAR
+decode produces them rather than batched at the end. Three event shapes,
+discriminated by their `event` field:
+
+- `retrieval_settled` — `synthesis_mode`, `manifest_hash`, `chunk_count`;
+  emitted once retrieval settles, before decode starts.
+- `claim_admitted` — `claim: WireClaim` (`text`, `span_type`,
+  `cited_chunk_ids`), the same claim shape the non-streaming response
+  already uses; emitted once per claim as SEAR's copy constraint closes
+  each span.
+- `synthesis_complete` — `response: FederatedResponse`, the terminal
+  event. Carries the exact envelope (`answer` or `refusal`, plus an
+  optional `federation` layer) the non-streaming endpoint returns, and is
+  always the last line.
+
+```python
+import ssl, time, httpx, json
+
+ctx = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+ctx.check_hostname = False
+ctx.load_verify_locations(cafile="certs/node_a/cert.pem")
+ctx.load_cert_chain(certfile="certs/node_b/cert.pem", keyfile="certs/node_b/key.pem")
+
+started = time.monotonic()
+with httpx.Client(verify=ctx, timeout=120.0) as client:
+    with client.stream(
+        "POST", "https://127.0.0.1:8471/v1/federated/query/stream",
+        json={"query": "what caused the 2023 anomaly", "origin_node": "driver"},
+    ) as r:
+        for line in r.iter_lines():
+            if not line:
+                continue
+            evt = json.loads(line)
+            print(f"{time.monotonic() - started:6.2f}s  {evt['event']}")
+```
+
+The endpoint is terminal-node-only: it wraps the exact same
+local-answer-or-delegate logic (`answer_fn` / `answer_or_delegate`) the
+non-streaming endpoint uses, unmodified. A query that ends up delegating
+to a peer streams its own (possibly empty) local-attempt trace, then goes
+quiet while the peer-to-peer `HttpPeerClient` call blocks on the remote
+node — that call remains plain request/response, untouched by this work
+— then emits the terminal `synthesis_complete` event once the delegate
+answers. That quiet gap during delegation is documented behavior, not a
+bug.
+
+`POST /v1/federated/query` (non-streaming) is unchanged and remains the
+endpoint peer-to-peer delegation uses internally. Scope:
+docs/superpowers/specs/2026-07-16-streaming-reasoning-trace-design.md.
+
 ---
 
 ## Manifest version handoff to cursor resolver

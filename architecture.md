@@ -432,7 +432,10 @@ Prove SEAR behavior on stock Mistral with grammar-constrained extractive synthes
   sub-project 4's exact bar (gated_peer_contacted 0, same figures
   otherwise).
   Spec: docs/superpowers/specs/2026-07-16-federation-mtls-design.md
-- 🔲 gRPC/QUIC wire
+- ✅ Streaming reasoning trace: NDJSON incremental claim events over the
+  existing mTLS stack — reframes (does not build) the gRPC/QUIC line;
+  see docs/superpowers/specs/2026-07-16-streaming-reasoning-trace-design.md
+  for why gRPC/QUIC itself remains deferred.
 
 ### Phase 4 — SEAR training loop (Tier 1)
 
