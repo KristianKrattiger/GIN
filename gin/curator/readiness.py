@@ -7,6 +7,7 @@ detector that will be measured on it). Pure counting — trains nothing.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from functools import lru_cache
 
 from gin.cartographer.escalation_eval import default_calibration_sets
 from gin.cartographer.models import Relation
@@ -31,13 +32,18 @@ class ReadinessReport:
     ready: bool
 
 
-def bar_pair_keys() -> set[tuple[str, str]]:
-    """The fixed escalation-bar pairs (issue_frame + corroboration + unrelated)."""
+@lru_cache(maxsize=1)
+def bar_pair_keys() -> frozenset[tuple[str, str]]:
+    """The fixed escalation-bar pairs (issue_frame + corroboration + unrelated).
+
+    Cached: the bar is constant, so the gold YAML fixtures behind
+    default_calibration_sets() are read once, not on every readiness() call.
+    """
     keys: set[tuple[str, str]] = set()
     for group in default_calibration_sets().values():
         for src, dst, _reg in group:
             keys.add(pair_key(src, dst))
-    return keys
+    return frozenset(keys)
 
 
 def readiness(store: Store, target: ReadinessTarget = ReadinessTarget()) -> ReadinessReport:

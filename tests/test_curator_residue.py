@@ -30,15 +30,18 @@ def test_pairs_excludes_same_story_and_below_floor():
     assert keys == {pair_key("n1_doc_005:0", "n2_doc_001:0")}
 
 
-def test_pairs_sorted_by_cosine_desc():
-    cos = {frozenset({A.text, B.text}): 0.40,
-           frozenset({A.text, C.text}): 0.60,
-           frozenset({B.text, C.text}): 0.50}
+def test_pairs_prioritizes_mid_band_over_high_cosine():
+    # The moderate-cosine (issue_frame band) pair must survive a tight cap that
+    # cosine-desc ordering would spend on a high-cosine AGREE pair — otherwise
+    # the target class never reaches the curator.
+    cos = {frozenset({A.text, B.text}): 0.30,   # mid-band (issue_frame territory)
+           frozenset({A.text, C.text}): 0.72,   # high cosine (AGREE territory)
+           frozenset({B.text, C.text}): 0.68}
     src = EscalationResidueCandidateSource(
-        [A, B, C], proposer=_proposer({}, cos), cos_floor=0.30,
+        [A, B, C], proposer=_proposer({}, cos), cos_floor=0.20, max_candidates=1,
     )
-    ordered = [(a.chunk_id, b.chunk_id) for a, b in src.pairs()]
-    assert ordered[0] == ("n1_doc_005:0", "n1_doc_008:0")  # 0.60 first
+    kept = [pair_key(a.chunk_id, b.chunk_id) for a, b in src.pairs()]
+    assert kept == [pair_key("n1_doc_005:0", "n2_doc_001:0")]  # the 0.30 mid-band pair
 
 
 def test_chunks_returns_input():

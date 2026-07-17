@@ -9,6 +9,7 @@ so already-known pairs are not re-surfaced.
 from __future__ import annotations
 
 import argparse
+import sys
 from pathlib import Path
 
 import uvicorn
@@ -47,7 +48,14 @@ def main() -> None:
 
     proposer = CombinedRelationProposer()  # real embed + NLI, lazily loaded
     if args.source == "escalation-residue":
-        source = EscalationResidueCandidateSource(load_corpus_chunks(args.corpus))
+        try:
+            chunks = load_corpus_chunks(args.corpus)
+        except (FileNotFoundError, ValueError) as exc:
+            sys.exit(f"error: {exc}")
+        # Share the one proposer with the residue source so the whole run loads
+        # a single model set and the displayed signals reflect the same
+        # story-gating the residue filter uses.
+        source = EscalationResidueCandidateSource(chunks, proposer=proposer)
         print(f"escalation-residue source over {len(source.chunks())} corpus chunks")
     else:
         source = OfflineCandidateSource(labeled_set.chunks())

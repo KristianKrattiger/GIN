@@ -59,3 +59,10 @@ def test_missing_doc_id_raises(tmp_path):
     bad = {"documents": [{"chunks": [{"position": 0, "text": "x"}]}]}
     with pytest.raises(ValueError, match="doc_id"):
         load_corpus_chunks([_write(tmp_path, bad)])
+
+
+def test_non_dict_top_level_raises(tmp_path):
+    p = tmp_path / "list.json"
+    p.write_text("[1, 2, 3]", encoding="utf-8")
+    with pytest.raises(ValueError, match="object"):
+        load_corpus_chunks([p])

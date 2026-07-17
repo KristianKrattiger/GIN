@@ -20,6 +20,8 @@ def load_corpus_chunks(paths: Iterable[Union[Path, str]]) -> list[LabeledChunk]:
         if not path.is_file():
             raise FileNotFoundError(f"corpus file not found: {path}")
         data = json.loads(path.read_text(encoding="utf-8"))
+        if not isinstance(data, dict):
+            raise ValueError(f"{path}: top-level JSON must be an object, got {type(data).__name__}")
         for doc in data.get("documents", []):
             if "doc_id" not in doc:
                 raise ValueError(f"{path}: document missing 'doc_id'")
