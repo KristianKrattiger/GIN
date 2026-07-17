@@ -17,7 +17,8 @@ PROTOCOL_VERSION = 1
 # A node's own failure reason. peer_reasons values are free-form strings
 # (they include transport outcomes like "unreachable").
 RefusalReason = Literal[
-    "retrieval_floor", "zero_cursors", "hop_limit", "version_mismatch"
+    "retrieval_floor", "zero_cursors", "hop_limit", "version_mismatch",
+    "internal_error",
 ]
 
 
