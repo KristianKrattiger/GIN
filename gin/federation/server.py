@@ -15,13 +15,17 @@ from __future__ import annotations
 
 import asyncio
 import contextlib
+import queue
 import time
 from contextlib import asynccontextmanager
 from typing import Callable, Optional
 
 from fastapi import FastAPI
+from starlette.responses import StreamingResponse
 
 from gin.corpus.relevance import query_keywords
+from gin.corpus.trace_events import ClaimClosedTrace, RetrievalSettledTrace
+from gin.corpus.trace_events import current_trace_sink as corpus_trace_sink
 
 from .anchor_store import PeerAnchorStore
 from .anchor_sync import run_forever
@@ -43,8 +47,10 @@ from .schema import (
     FederatedResponse,
     NodeRefusal,
     PeerSummaryResponse,
+    WireClaim,
 )
 from .service import claims_to_wire
+from .trace_events import ClaimAdmittedEvent, RetrievalSettledEvent, SynthesisCompleteEvent
 from .trust_gate import filter_trusted
 
 
@@ -139,12 +145,7 @@ def create_app(
             )
         )
 
-    @app.post(
-        "/v1/federated/query",
-        response_model=FederatedResponse,
-        response_model_exclude_none=True,
-    )
-    def federated_query(fq: FederatedQuery) -> FederatedResponse:
+    def _answer_federated_query(fq: FederatedQuery) -> FederatedResponse:
         if fq.protocol_version != PROTOCOL_VERSION:
             return _refusal(
                 fq, "version_mismatch",
@@ -202,6 +203,63 @@ def create_app(
             ),
             federation=routed.federation,
         )
+
+    @app.post(
+        "/v1/federated/query",
+        response_model=FederatedResponse,
+        response_model_exclude_none=True,
+    )
+    def federated_query(fq: FederatedQuery) -> FederatedResponse:
+        return _answer_federated_query(fq)
+
+    @app.post("/v1/federated/query/stream")
+    async def federated_query_stream(fq: FederatedQuery) -> StreamingResponse:
+        async def event_lines():
+            q: "queue.Queue" = queue.Queue()
+
+            def sink(trace) -> None:
+                if isinstance(trace, RetrievalSettledTrace):
+                    q.put(RetrievalSettledEvent(
+                        synthesis_mode=trace.synthesis_mode,
+                        manifest_hash=trace.manifest_hash,
+                        chunk_count=trace.chunk_count,
+                    ))
+                elif isinstance(trace, ClaimClosedTrace):
+                    q.put(ClaimAdmittedEvent(claim=WireClaim(
+                        text=trace.text,
+                        span_type=trace.span_type,
+                        cited_chunk_ids=trace.cited_chunk_ids,
+                    )))
+
+            def run() -> FederatedResponse:
+                token = corpus_trace_sink.set(sink)
+                try:
+                    return _answer_federated_query(fq)
+                finally:
+                    corpus_trace_sink.reset(token)
+
+            task = asyncio.ensure_future(asyncio.to_thread(run))
+            while not task.done():
+                try:
+                    event = q.get_nowait()
+                except queue.Empty:
+                    await asyncio.sleep(0.02)
+                    continue
+                yield (event.model_dump_json() + "\n").encode("utf-8")
+            while True:
+                try:
+                    event = q.get_nowait()
+                except queue.Empty:
+                    break
+                yield (event.model_dump_json() + "\n").encode("utf-8")
+
+            try:
+                response = task.result()
+            except Exception as exc:
+                response = _refusal(fq, "internal_error", detail=str(exc))
+            yield (SynthesisCompleteEvent(response=response).model_dump_json() + "\n").encode("utf-8")
+
+        return StreamingResponse(event_lines(), media_type="application/x-ndjson")
 
     @app.get("/v1/federated/anchors/root", response_model=AnchorRootResponse)
     def anchors_root() -> AnchorRootResponse:
