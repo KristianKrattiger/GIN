@@ -348,6 +348,32 @@ at the Bookkeeper gate.
 
 Artifact: `data/eval_runs/20260712T220456Z/`.
 
+### Curator labeling tool (framing corpus)
+
+The `issue_frame` class is curation-only by nature — no off-the-shelf judge
+(7B → Opus 4.8 frontier) reproduces the curatorial stance, so the forward path
+is a curator-in-the-loop labeled corpus (spec:
+`docs/superpowers/specs/2026-07-17-curator-ui-label-store-design.md`). The
+curator UI is the shared spine that grows a labeled framing corpus at scale,
+feeding both a future bi-encoder frame detector and the cheap pipeline's
+larger-set recalibration.
+
+```bash
+# Serve the local labeling app (seeds the 33 existing gold labels on first run)
+venv/Scripts/python.exe scripts/curator_serve.py
+# then open http://127.0.0.1:8600/curator/
+```
+
+Pick a relation with number keys `1`–`5`; `contradicts` also requires a
+`relation_class` (`story` | `issue_frame`); Enter saves and advances. Labels
+append to `data/curator/labels.jsonl` (git-tracked). Each line is one immutable
+`LabelRecord`; pairs are keyed order-independently (`A↔B` == `B↔A`), and the
+current gold is the **latest-wins fold** of the log — a relabel or adjudication
+is a new record superseding an earlier one, so labeling history survives.
+Unlabeled pairs are surfaced **hard-cases-first** (signal disagreements, then
+the ambiguous mid-band). `gin.curator.store.Store(path).gold()` returns the
+folded `(src, dst, relation, relation_class)` tuples later work consumes.
+
 ### Federation v1 — sovereign delegation (two nodes, one machine)
 
 ```bash
