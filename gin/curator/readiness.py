@@ -1,0 +1,60 @@
+"""No-model readiness gauge for sub-project B (bi-encoder).
+
+Counts NEW labeled pairs per frame class, EXCLUDING the fixed escalation-bar
+14 pairs (so the bar's own data never counts as progress toward training a
+detector that will be measured on it). Pure counting — trains nothing.
+"""
+from __future__ import annotations
+
+from dataclasses import dataclass
+
+from gin.cartographer.escalation_eval import default_calibration_sets
+from gin.cartographer.models import Relation
+
+from .models import pair_key
+from .store import Store
+
+
+@dataclass(frozen=True)
+class ReadinessTarget:
+    issue_frame: int = 20
+    agree: int = 20
+    unrelated: int = 20
+
+
+@dataclass(frozen=True)
+class ReadinessReport:
+    new_issue_frame: int
+    new_agree: int
+    new_unrelated: int
+    target: ReadinessTarget
+    ready: bool
+
+
+def bar_pair_keys() -> set[tuple[str, str]]:
+    """The fixed escalation-bar pairs (issue_frame + corroboration + unrelated)."""
+    keys: set[tuple[str, str]] = set()
+    for group in default_calibration_sets().values():
+        for src, dst, _reg in group:
+            keys.add(pair_key(src, dst))
+    return keys
+
+
+def readiness(store: Store, target: ReadinessTarget = ReadinessTarget()) -> ReadinessReport:
+    bar = bar_pair_keys()
+    n_if = n_ag = n_un = 0
+    for src, dst, relation, relation_class in store.gold():
+        if pair_key(src, dst) in bar:
+            continue
+        if relation is Relation.CONTRADICTS and relation_class == "issue_frame":
+            n_if += 1
+        elif relation is Relation.CORROBORATES:
+            n_ag += 1
+        elif relation is Relation.UNRELATED:
+            n_un += 1
+    ready = (
+        n_if >= target.issue_frame
+        and n_ag >= target.agree
+        and n_un >= target.unrelated
+    )
+    return ReadinessReport(n_if, n_ag, n_un, target, ready)
