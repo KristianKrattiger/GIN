@@ -123,3 +123,7 @@ class SynthesisContext:
     active_edge_types: set[str] = field(default_factory=set)
     retrieval_manifest_hash: str = ""
     top_doc_idx: Optional[int] = None
+
+
+def doc_index_to_chunk_id(ctx: SynthesisContext) -> dict[int, str]:
+    return {i: hit.chunk_id for i, hit in ctx.doc_index_to_hit.items()}
