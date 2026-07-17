@@ -34,7 +34,7 @@ class Store:
                 continue
             try:
                 records.append(LabelRecord.from_json(json.loads(line)))
-            except (json.JSONDecodeError, KeyError, ValueError) as exc:
+            except (json.JSONDecodeError, KeyError, TypeError, ValueError) as exc:
                 raise ValueError(f"{self.path}: malformed record on line {lineno}: {exc}") from exc
         return records
 

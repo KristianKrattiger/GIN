@@ -52,6 +52,23 @@ def test_read_log_raises_loudly_on_malformed_line(tmp_path):
         Store(path).read_log()
 
 
+def test_read_log_raises_loudly_on_valid_json_non_dict_line(tmp_path):
+    path = tmp_path / "labels.jsonl"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text('[1, 2, 3]\n', encoding="utf-8")
+    with pytest.raises(ValueError, match="line 1"):
+        Store(path).read_log()
+
+
+def test_append_creates_missing_parent_dir(tmp_path):
+    store = Store(tmp_path / "nested" / "labels.jsonl")
+    assert not (tmp_path / "nested").exists()
+    r = _rec("1", "a:0", "b:0", Relation.CONTRADICTS, "2026-07-17T00:00:00Z", "story")
+    store.append(r)
+    assert (tmp_path / "nested").is_dir()
+    assert store.read_log() == [r]
+
+
 def test_empty_store_reads_empty(tmp_path):
     store = Store(tmp_path / "labels.jsonl")
     assert store.read_log() == []
