@@ -147,3 +147,53 @@ def test_convergent_numeric_sentence_closes_at_sentence_end():
     )
     assert "2.12 degrees" in result.raw_text
     assert "20th-century average" in result.raw_text
+
+
+def test_decode_bundle_emits_trace_events():
+    from gin.corpus.trace_events import (
+        ClaimClosedTrace,
+        RetrievalSettledTrace,
+        current_trace_sink,
+    )
+
+    llm = GreedyMaskDecoder()
+    corpus = Corpus.from_texts({"anomaly": ANOMALY_TEXT}, tokenize=llm.tokenize)
+    hit = ChunkHit(
+        chunk_id="n1_doc_002:1", doc_id=DOC, text=ANOMALY_TEXT,
+        head_sentence=ANOMALY_TEXT.split(",")[0] + ".",
+        eval_layer="realism", eval_tag=None, content_hash="x",
+        outlet="NOAA", title="2023 anomaly", rrf_score=0.9,
+    )
+    bundle = SynthesisBundle(hits=[hit], edges=[], mode="convergent", pairs=[])
+    spans = corpus.sentence_starts
+    preferred = {(0, pos) for (doc, pos) in spans if doc == 0}
+    ctx = SynthesisContext(
+        doc_index_to_hit={0: hit}, cite_index_to_doc={1: 0}, mode="convergent",
+        preferred_starts=preferred,
+        ranked_sentence_starts=[(0, pos, 1.0) for (doc, pos) in spans if doc == 0],
+        top_doc_idx=0,
+    )
+
+    received: list = []
+    token = current_trace_sink.set(received.append)
+    try:
+        result = decode_bundle(
+            "2023 global surface temperature anomaly",
+            corpus, ctx, bundle, llm,
+            chat_template="plain", query_steered=True,
+        )
+    finally:
+        current_trace_sink.reset(token)
+
+    retrieval_events = [e for e in received if isinstance(e, RetrievalSettledTrace)]
+    claim_events = [e for e in received if isinstance(e, ClaimClosedTrace)]
+    assert len(retrieval_events) == 1
+    assert retrieval_events[0].synthesis_mode == "convergent"
+    assert retrieval_events[0].chunk_count == 1
+    assert received.index(retrieval_events[0]) == 0  # retrieval event fires before any claim event
+    assert len(claim_events) >= 1
+    assert claim_events[0].cited_chunk_ids == ["n1_doc_002:1"]
+    assert "2.12 degrees" in claim_events[0].text or any(
+        "2.12 degrees" in e.text for e in claim_events
+    )
+    assert result.raw_text  # unchanged existing behavior still holds

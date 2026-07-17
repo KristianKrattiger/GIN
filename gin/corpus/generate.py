@@ -16,10 +16,11 @@ from sear.corpus import Corpus
 from sear.processor import ExtractiveCopyConstraint, Segment
 
 from .materialize import materialize_from_synthesis
-from .models import SynthesisBundle, SynthesisContext
+from .models import SynthesisBundle, SynthesisContext, doc_index_to_chunk_id
 from .prompts import build_synthesis_prompt
 from .retrieval_manifest import RetrievalManifest
 from .retrieve import RETRIEVAL_CONFIDENCE_FLOOR
+from .trace_events import ClaimClosedTrace, RetrievalSettledTrace, current_trace_sink
 
 
 @dataclass
@@ -232,6 +233,29 @@ def decode_bundle(
                     mirrored.add((other, pos))
         preferred_starts = mirrored
 
+    sink = current_trace_sink.get()
+    if sink is not None:
+        sink(RetrievalSettledTrace(
+            synthesis_mode=bundle.mode,
+            manifest_hash=retrieval_manifest.manifest_hash if retrieval_manifest else "",
+            chunk_count=len(bundle.hits),
+        ))
+
+    def _on_segment_closed(seg: Segment) -> None:
+        sink = current_trace_sink.get()
+        if sink is None or seg.kind != "extract":
+            return
+        text = detok(seg.token_ids).strip()
+        if not text:
+            return
+        chunk_map = doc_index_to_chunk_id(ctx)
+        source_ids = [chunk_map[d] for (d, _s, _e) in seg.sources if d in chunk_map]
+        # "EXACT"/"AMBIGUOUS" mirror gin.eval.claims.SpanType's values exactly
+        # (gin/eval/claims.py:36-37) — hardcoded, not imported, per the
+        # gin.corpus/gin.eval/gin.federation layering constraint.
+        span_type = "AMBIGUOUS" if len(seg.sources) > 1 else "EXACT"
+        sink(ClaimClosedTrace(text=text, span_type=span_type, cited_chunk_ids=source_ids))
+
     constraint = ExtractiveCopyConstraint(
         corpus=corpus,
         prompt_len=len(prompt_ids),
@@ -262,6 +286,7 @@ def decode_bundle(
         divergence_sentence_ends=ctx.divergence_sentence_ends if divergent else None,
         ranked_sentence_starts=ctx.ranked_sentence_starts if steered else None,
         require_divergence_after_first=divergent,
+        on_segment_closed=_on_segment_closed,
     )
 
     processor = BiasedGINLogitsProcessor(constraint, dynamic_bias=use_logit_bias)
