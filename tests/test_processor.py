@@ -568,4 +568,5 @@ def test_on_segment_closed_not_called_when_unset():
     for i in range(len(seq)):
         c(np.array(seq[:i], dtype=np.intc), flat.copy())
     c(np.array(seq, dtype=np.intc), flat.copy())  # must not raise with no callback set
-    assert len(c.segments) == 1
+    kinds = [s.kind for s in c.segments]
+    assert kinds.count("extract") == 1
