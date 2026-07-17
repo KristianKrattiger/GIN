@@ -9,7 +9,7 @@ most boundary signal. No retraining loop (that needs the bi-encoder to exist).
 from __future__ import annotations
 
 from itertools import combinations
-from typing import Optional, Protocol
+from typing import Protocol
 
 from gin.cartographer.models import LabeledChunk
 
