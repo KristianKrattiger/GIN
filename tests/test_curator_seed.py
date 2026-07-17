@@ -1,5 +1,7 @@
 """Seeding imports the existing ~33 labels; the regression guard proves the
 store reproduces today's gold before it grows it."""
+import types
+
 from gin.cartographer import gold_edges, labeled_set
 from gin.cartographer.models import Relation
 from gin.curator.models import pair_key
@@ -34,13 +36,13 @@ def test_gold_edges_class_is_preserved(tmp_path):
     fold = store.fold_current()
     edges = gold_edges.load_all_gold_contradicts()
     assert edges  # fixtures exist in-repo
-    classed = [
-        fold[pair_key(e.src_chunk_id, e.dst_chunk_id)]
-        for e in edges
-        if pair_key(e.src_chunk_id, e.dst_chunk_id) in fold
-    ]
-    assert classed
-    assert all(r.relation_class in {"story", "issue_frame"} for r in classed)
+    # Full coverage: EVERY gold_edges pair must be present with a real class. A
+    # silently dropped pair must FAIL here (the old `if key in fold` filter let
+    # a partial-drop regression pass as long as one pair survived).
+    for e in edges:
+        key = pair_key(e.src_chunk_id, e.dst_chunk_id)
+        assert key in fold, f"gold_edges pair dropped by seed: {key}"
+        assert fold[key].relation_class in {"story", "issue_frame"}
 
 
 def test_seed_is_idempotent(tmp_path):
@@ -48,3 +50,28 @@ def test_seed_is_idempotent(tmp_path):
     first = seed_store(store)
     assert first > 0
     assert seed_store(store) == 0
+
+
+def test_collision_labeled_set_wins(monkeypatch, tmp_path):
+    # Real gold has no cross-source pair collision, so nothing else exercises
+    # the docstring's "labeled_set is emitted first, so it wins any collision"
+    # claim. Force a synthetic collision: labeled_set says CORROBORATES (class
+    # None), gold_edges says the same pair is CONTRADICTS/story. labeled_set is
+    # looped first in seed_records, so it must win. This FAILS if the two loops
+    # were ever swapped.
+    monkeypatch.setattr(
+        labeled_set, "gold",
+        lambda: [("x:0", "y:0", Relation.CORROBORATES, "reg")],
+    )
+    monkeypatch.setattr(
+        gold_edges, "load_all_gold_contradicts",
+        lambda: [types.SimpleNamespace(
+            src_chunk_id="x:0", dst_chunk_id="y:0",
+            relation_class="story", note="",
+        )],
+    )
+    store = Store(tmp_path / "labels.jsonl")
+    seed_store(store)
+    rec = store.fold_current()[pair_key("x:0", "y:0")]
+    assert rec.relation is Relation.CORROBORATES  # labeled_set (first) won
+    assert rec.relation_class is None
