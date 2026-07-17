@@ -35,6 +35,7 @@ def _make_constraint(
     cite_ids: dict[int, int] | None = None,
     close_on_doc_divergence: bool = False,
     required_doc_groups: list[frozenset[int]] | None = None,
+    on_segment_closed=None,
 ) -> ExtractiveCopyConstraint:
     starts = connective_starts if connective_starts is not None else frozenset({_VOCAB["but"]})
     phrases = connective_phrases if connective_phrases is not None else {_VOCAB["but"]: [_VOCAB["but"]]}
@@ -52,6 +53,7 @@ def _make_constraint(
         cite_sequences_by_doc=cite_sequences,
         close_on_doc_divergence=close_on_doc_divergence,
         required_doc_groups=required_doc_groups,
+        on_segment_closed=on_segment_closed,
     )
 
 
@@ -542,3 +544,28 @@ def test_guidance_divergence_steered():
     _emit_extract_span(c, seq)
     ext = [s for s in c.finalize() if s.kind == "extract"][0]
     assert ext.guidance == "divergence-steered"
+
+
+def test_on_segment_closed_fires_on_span_close():
+    corpus = _make_corpus()
+    closed: list = []
+    c = _make_constraint(corpus, on_segment_closed=closed.append)
+    seq = [_VOCAB["the"], _VOCAB["fox"], _VOCAB["ran"], _VOCAB["|"]]
+    flat = np.zeros(_V, dtype=np.float32)
+    for i in range(len(seq)):
+        c(np.array(seq[:i], dtype=np.intc), flat.copy())
+    c(np.array(seq, dtype=np.intc), flat.copy())  # consumes "|", closing the span
+    assert len(closed) == 1
+    assert closed[0].kind == "extract"
+    assert closed[0] is c.segments[0]
+
+
+def test_on_segment_closed_not_called_when_unset():
+    corpus = _make_corpus()
+    c = _make_constraint(corpus)  # on_segment_closed defaults to None
+    seq = [_VOCAB["the"], _VOCAB["fox"], _VOCAB["ran"], _VOCAB["|"]]
+    flat = np.zeros(_V, dtype=np.float32)
+    for i in range(len(seq)):
+        c(np.array(seq[:i], dtype=np.intc), flat.copy())
+    c(np.array(seq, dtype=np.intc), flat.copy())  # must not raise with no callback set
+    assert len(c.segments) == 1

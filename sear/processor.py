@@ -59,6 +59,7 @@ class ExtractiveCopyConstraint:
         span_must_close_at_sentence_end: bool = False,
         divergence_sentence_ends: Optional[dict[int, dict[int, int]]] = None,
         ranked_sentence_starts: Optional[list[tuple[int, int, float]]] = None,
+        on_segment_closed: Optional[Callable[["Segment"], None]] = None,
     ):
         self.corpus = corpus
         self.prompt_len = prompt_len
@@ -90,6 +91,7 @@ class ExtractiveCopyConstraint:
         self.span_must_close_at_sentence_end = span_must_close_at_sentence_end
         self.divergence_sentence_ends = divergence_sentence_ends or {}
         self.ranked_sentence_starts = ranked_sentence_starts or []
+        self.on_segment_closed = on_segment_closed
 
         self.structural = {eos_id, delim_id}
         self.structural.update(self.cite_ids.keys())
@@ -521,6 +523,8 @@ class ExtractiveCopyConstraint:
                 guidance=self._current_span_guidance,
             )
         )
+        if self.on_segment_closed is not None:
+            self.on_segment_closed(self.segments[-1])
         self._has_closed_extract = True
         self.allow_shared_prefix = False
         self._pending_cite_docs = {d for d, _, _ in sources}
