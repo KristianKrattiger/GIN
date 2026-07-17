@@ -374,6 +374,30 @@ Unlabeled pairs are surfaced **hard-cases-first** (signal disagreements, then
 the ambiguous mid-band). `gin.curator.store.Store(path).gold()` returns the
 folded `(src, dst, relation, relation_class)` tuples later work consumes.
 
+**Growing the issue_frame set for the bi-encoder (B0).** The bi-encoder frame
+detector is gated on labels — the 4 issue_frame pairs are the escalation eval
+set, so there is no held-out training data yet. To label the real residue over
+the full corpus (not just the 18 `labeled_set` chunks), launch with the residue
+source:
+
+```bash
+venv/Scripts/python.exe scripts/curator_serve.py --source escalation-residue
+# surfaces the escalation residue (not-same-story, cosine >= floor) over
+# corpus_node*.json — chunk ids normalized to {doc_id}:{position}
+```
+
+Check progress toward B with the readiness gauge (trains no model — it only
+counts labels, excluding the fixed escalation-bar pairs so they never inflate
+progress):
+
+```bash
+venv/Scripts/python.exe scripts/curator_readiness.py
+# issue_frame N/20 · agree M/20 · unrelated K/20 · READY: <bool>
+```
+
+The same summary shows live in the labeling page's progress line
+(`GET /curator/readiness`). B unblocks when the gauge reads READY.
+
 ### Federation v1 — sovereign delegation (two nodes, one machine)
 
 ```bash
