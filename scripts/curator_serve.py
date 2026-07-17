@@ -17,6 +17,8 @@ from gin.cartographer import labeled_set
 from gin.cartographer.combined import CombinedRelationProposer
 from gin.curator.app import create_curator_app
 from gin.curator.candidates import OfflineCandidateSource
+from gin.curator.corpus_json import load_corpus_chunks
+from gin.curator.residue import EscalationResidueCandidateSource
 from gin.curator.seed import seed_store
 from gin.curator.signals import pair_signals
 from gin.curator.store import Store
@@ -30,6 +32,12 @@ def main() -> None:
     ap.add_argument("--port", type=int, default=8600)
     ap.add_argument("--log", type=Path, default=DEFAULT_LOG)
     ap.add_argument("--no-seed", action="store_true", help="skip seeding existing gold")
+    ap.add_argument("--source", choices=["labeled-set", "escalation-residue"],
+                    default="labeled-set", help="candidate source")
+    ap.add_argument("--corpus", type=Path, nargs="+",
+                    default=[Path("corpus_node1.json"), Path("corpus_node2.json"),
+                             Path("corpus_node3.json")],
+                    help="corpus_node*.json exports for the escalation-residue source")
     args = ap.parse_args()
 
     store = Store(args.log)
@@ -38,7 +46,11 @@ def main() -> None:
         print(f"seeded {added} existing labels into {args.log}")
 
     proposer = CombinedRelationProposer()  # real embed + NLI, lazily loaded
-    source = OfflineCandidateSource(labeled_set.chunks())
+    if args.source == "escalation-residue":
+        source = EscalationResidueCandidateSource(load_corpus_chunks(args.corpus))
+        print(f"escalation-residue source over {len(source.chunks())} corpus chunks")
+    else:
+        source = OfflineCandidateSource(labeled_set.chunks())
     app = create_curator_app(
         store=store,
         source=source,
