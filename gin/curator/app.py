@@ -20,6 +20,7 @@ from gin.cartographer.scan import sentence_anchor
 
 from .candidates import CandidateSource, order_backlog
 from .models import LabelRecord, pair_key
+from .readiness import ReadinessTarget, readiness
 from .store import Store
 
 _VALID_RELATIONS = {r.value for r in Relation}
@@ -44,6 +45,7 @@ def create_curator_app(
     signals_fn: Callable[[str, str], dict],
     curator: str = "curator",
     scan_limit: int = 500,
+    readiness_target: ReadinessTarget = ReadinessTarget(),
 ) -> FastAPI:
     app = FastAPI(title="GIN Curator")
     text_by_id = {c.chunk_id: c.text for c in source.chunks()}
@@ -71,6 +73,21 @@ def create_curator_app(
             for (a, b), sig in ordered[:n]
         ]
         return {"pairs": pairs, "labeled": len(labeled), "remaining": len(ordered)}
+
+    @app.get("/curator/readiness")
+    def readiness_report() -> dict:
+        rep = readiness(store, readiness_target)
+        return {
+            "new_issue_frame": rep.new_issue_frame,
+            "new_agree": rep.new_agree,
+            "new_unrelated": rep.new_unrelated,
+            "target": {
+                "issue_frame": rep.target.issue_frame,
+                "agree": rep.target.agree,
+                "unrelated": rep.target.unrelated,
+            },
+            "ready": rep.ready,
+        }
 
     @app.post("/curator/label")
     def label(req: LabelRequest) -> dict:
@@ -148,7 +165,14 @@ function fmt(x){return x==null?"\\u2013":Number(x).toFixed(3);}
 async function loadNext(){
   const d=await (await fetch("/curator/next?n=20")).json();
   queue=d.pairs;
-  document.getElementById("progress").textContent=`labeled ${d.labeled} \\u00b7 remaining ${d.remaining}`;
+  let rtxt="";
+  try{
+    const r=await (await fetch("/curator/readiness")).json();
+    const t=r.target;
+    rtxt=`  |  issue_frame ${r.new_issue_frame}/${t.issue_frame} \\u00b7 agree ${r.new_agree}/${t.agree}`
+      +` \\u00b7 unrelated ${r.new_unrelated}/${t.unrelated} \\u00b7 ${r.ready?"READY":"not ready"}`;
+  }catch(e){}
+  document.getElementById("progress").textContent=`labeled ${d.labeled} \\u00b7 remaining ${d.remaining}${rtxt}`;
   show();
 }
 function show(){

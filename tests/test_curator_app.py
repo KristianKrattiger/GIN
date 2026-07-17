@@ -94,3 +94,27 @@ def test_index_page_served(tmp_path):
     r = _client(tmp_path).get("/curator/")
     assert r.status_code == 200
     assert "GIN Curator" in r.text
+
+
+def test_readiness_endpoint_returns_report_shape(tmp_path):
+    from gin.cartographer.models import Relation
+    from gin.curator.models import LabelRecord
+    from gin.curator.store import Store
+    from gin.curator.app import create_curator_app
+    from gin.curator.candidates import OfflineCandidateSource
+    from gin.curator.readiness import ReadinessTarget
+    from fastapi.testclient import TestClient
+
+    store = Store(tmp_path / "labels.jsonl")
+    store.append(LabelRecord(id="1", src_chunk_id="x:0", dst_chunk_id="y:0",
+                             relation=Relation.CONTRADICTS, relation_class="issue_frame",
+                             rationale="", curator="t", ts="2026-07-17T00:00:00Z"))
+    app = create_curator_app(store=store, source=OfflineCandidateSource(CHUNKS),
+                             signals_fn=_fake_signals,
+                             readiness_target=ReadinessTarget(issue_frame=1, agree=1, unrelated=1))
+    r = TestClient(app).get("/curator/readiness")
+    assert r.status_code == 200
+    body = r.json()
+    assert body["new_issue_frame"] == 1
+    assert body["target"] == {"issue_frame": 1, "agree": 1, "unrelated": 1}
+    assert body["ready"] is False  # agree/unrelated still 0
