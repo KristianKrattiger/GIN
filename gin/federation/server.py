@@ -257,7 +257,14 @@ def create_app(
                 response = task.result()
             except Exception as exc:
                 response = _refusal(fq, "internal_error", detail=str(exc))
-            yield (SynthesisCompleteEvent(response=response).model_dump_json() + "\n").encode("utf-8")
+            # exclude_none matches the non-streaming endpoint's
+            # response_model_exclude_none=True (see the /v1/federated/query
+            # route above) so the terminal event's `response` payload has
+            # the same shape here as there for the same query.
+            yield (
+                SynthesisCompleteEvent(response=response).model_dump_json(exclude_none=True)
+                + "\n"
+            ).encode("utf-8")
 
         return StreamingResponse(event_lines(), media_type="application/x-ndjson")
 

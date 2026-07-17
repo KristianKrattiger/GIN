@@ -245,6 +245,19 @@ class NoContinuationArm:
         except RetrievalConfidenceError:
             return _refusal_output(reason="retrieval_floor")
 
+        # From here down are post-decode grounding gates. generate_no_continuation
+        # (above) already ran SEAR's constrained decode, which pushes a
+        # ClaimClosedTrace through gin.corpus.trace_events' ambient sink as each
+        # span closes -- that's what the streaming endpoint
+        # (POST /v1/federated/query/stream, gin/federation/server.py) turns into
+        # claim_admitted events in real time. These gates (_retrieval_relevant,
+        # _claims_query_relevant, gold-coverage below) can still reject the whole
+        # answer after decode has finished, refusing an ArmOutput whose claims
+        # already streamed. That divergence between the live stream and the
+        # terminal, gated response is intentional -- SEAR's copy-constraint has
+        # no visibility into these query-relevance/coverage checks -- not a bug.
+        # See tests/test_streaming_endpoint.py::
+        # test_streamed_claim_can_diverge_from_refused_terminal_response.
         bundle = result.bundle
         if not _retrieval_relevant(query, bundle, cfg.relevance_floor):
             manifest_hash = (

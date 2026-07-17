@@ -43,6 +43,21 @@ def _refusing(q: str) -> ArmOutput:
                      refused=True, refusal_reason="retrieval_floor")
 
 
+def _streamed_then_gated_refusal(q: str) -> ArmOutput:
+    """Simulates gin.eval.arms.NoContinuationArm.run: SEAR's constrained
+    decode streams a claim_admitted event as its span closes (same sink
+    mechanism as _grounded_with_events above), but a post-decode grounding
+    gate (_retrieval_relevant / _claims_query_relevant / gold-coverage)
+    then rejects the answer entirely -- a real ArmOutput refusal, even
+    though a real claim already streamed."""
+    sink = current_trace_sink.get()
+    if sink is not None:
+        sink(RetrievalSettledTrace(synthesis_mode="convergent", manifest_hash="h", chunk_count=1))
+        sink(ClaimClosedTrace(text="streamed but ungrounded claim", span_type="EXACT", cited_chunk_ids=["c:0"]))
+    return ArmOutput(raw_text="[REFUSAL]", claims=[], retrieval_manifest_hash="h",
+                     refused=True, refusal_reason="zero_cursors")
+
+
 def _raising(q: str) -> ArmOutput:
     raise RuntimeError("simulated synthesis failure")
 
@@ -93,6 +108,32 @@ def test_instant_refusal_streams_zero_claim_events():
     events = _lines(r)
     assert [e["event"] for e in events] == ["synthesis_complete"]
     assert events[0]["response"]["refusal"]["reason"] == "retrieval_floor"
+
+
+def test_streamed_claim_can_diverge_from_refused_terminal_response():
+    """Locks in real, documented behavior (not a bug): claim_admitted events
+    reflect SEAR's real-time admission during decode, while the terminal
+    synthesis_complete event reflects the final answer after post-decode
+    grounding gates run. A claim can stream and still not appear in -- or
+    match -- the terminal response, because those gates run after decode
+    and can reject the whole answer. See gin/eval/arms.py's
+    NoContinuationArm.run for where this happens for real."""
+    app = create_app(CFG, answer_fn=_streamed_then_gated_refusal)
+    client = TestClient(app)
+    fq = FederatedQuery(query="q", origin_node="driver", hop_count=0)
+    r = client.post("/v1/federated/query/stream", json=fq.model_dump())
+    assert r.status_code == 200
+    events = _lines(r)
+
+    assert [e["event"] for e in events] == [
+        "retrieval_settled", "claim_admitted", "synthesis_complete",
+    ]
+    assert events[1]["claim"]["text"] == "streamed but ungrounded claim"
+
+    terminal = events[2]["response"]
+    assert terminal["refusal"] is not None
+    assert terminal["refusal"]["reason"] == "zero_cursors"
+    assert terminal.get("answer") is None
 
 
 def test_synthesis_exception_yields_internal_error_terminal_event():

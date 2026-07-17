@@ -519,6 +519,19 @@ node — that call remains plain request/response, untouched by this work
 answers. That quiet gap during delegation is documented behavior, not a
 bug.
 
+`claim_admitted` events are not a preview guarantee of the terminal
+response. They fire as SEAR's copy constraint closes each span *during*
+constrained decode; the terminal `synthesis_complete` event reflects the
+answer *after* decode finishes, once post-decode grounding gates
+(retrieval relevance, claim-query relevance, gold coverage) have had a
+chance to reject it outright, and once a delegated query's answer has
+been replaced by whatever the remote peer returned. So a `claim_admitted`
+event can legitimately be followed by a `synthesis_complete` event whose
+`response.refusal` is set and whose claim never appears in the final
+answer, or by a delegate's unrelated answer — that divergence is expected
+and observable, not a bug. See
+`tests/test_streaming_endpoint.py::test_streamed_claim_can_diverge_from_refused_terminal_response`.
+
 `POST /v1/federated/query` (non-streaming) is unchanged and remains the
 endpoint peer-to-peer delegation uses internally. Scope:
 docs/superpowers/specs/2026-07-16-streaming-reasoning-trace-design.md.
