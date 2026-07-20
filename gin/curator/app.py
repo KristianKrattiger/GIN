@@ -177,11 +177,12 @@ PAGE_HTML = """<!doctype html>
 <div><button id="save">Save &amp; next <kbd>Enter</kbd></button></div>
 <script>
 const RELS=["contradicts","corroborates","supersedes","related_untyped","unrelated"];
-let queue=[],cur=null,pending=null;
+let queue=[],cur=null,pending=null,labeled=0,remaining=0;
 function fmt(x){return x==null?"\\u2013":Number(x).toFixed(3);}
-async function loadNext(){
-  const d=await (await fetch("/curator/next?n=20")).json();
-  queue=d.pairs;
+// Rendered after EVERY saved label, not only when the 20-pair queue drains —
+// otherwise the readiness counters sit stale for a whole batch of labels.
+// /curator/readiness is pure counting over the store (no models), so this is cheap.
+async function renderProgress(){
   let rtxt="";
   try{
     const r=await (await fetch("/curator/readiness")).json();
@@ -189,7 +190,14 @@ async function loadNext(){
     rtxt=`  |  issue_frame ${r.new_issue_frame}/${t.issue_frame} \\u00b7 agree ${r.new_agree}/${t.agree}`
       +` \\u00b7 unrelated ${r.new_unrelated}/${t.unrelated} \\u00b7 ${r.ready?"READY":"not ready"}`;
   }catch(e){}
-  document.getElementById("progress").textContent=`labeled ${d.labeled} \\u00b7 remaining ${d.remaining}${rtxt}`;
+  document.getElementById("progress").textContent=`labeled ${labeled} \\u00b7 remaining ${remaining}${rtxt}`;
+}
+async function loadNext(){
+  const d=await (await fetch("/curator/next?n=20")).json();
+  queue=d.pairs;
+  labeled=d.labeled;
+  remaining=d.remaining;
+  await renderProgress();
   show();
 }
 function show(){
@@ -219,10 +227,19 @@ async function save(){
     if(!c){alert("pick story or issue_frame");return;}
     cls=c.value;
   }
-  await fetch("/curator/label",{method:"POST",headers:{"Content-Type":"application/json"},
+  const res=await fetch("/curator/label",{method:"POST",headers:{"Content-Type":"application/json"},
     body:JSON.stringify({src_chunk_id:cur.src,dst_chunk_id:cur.dst,relation:pending,
       relation_class:cls,rationale:document.getElementById("rationale").value})});
-  show();
+  if(!res.ok){
+    let detail="";
+    try{detail=(await res.json()).detail||"";}catch(e){}
+    alert(`save failed (${res.status}) ${detail}`);
+    return;  // keep the pair on screen so a rejected label is not silently lost
+  }
+  labeled+=1;
+  if(remaining>0){remaining-=1;}
+  show();            // advance immediately; don't make the curator wait on a fetch
+  renderProgress();  // then refresh the counters, readiness included
 }
 document.querySelectorAll(".rel").forEach(b=>b.addEventListener("click",()=>pick(b.dataset.rel)));
 document.getElementById("save").addEventListener("click",save);
