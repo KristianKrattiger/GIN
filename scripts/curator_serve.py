@@ -37,7 +37,7 @@ def main() -> None:
                     default="labeled-set", help="candidate source")
     ap.add_argument("--corpus", type=Path, nargs="+",
                     default=[Path("corpus_node1.json"), Path("corpus_node2.json"),
-                             Path("corpus_node3.json")],
+                             Path("corpus_node3.json"), Path("corpus_node4.json")],
                     help="corpus_node*.json exports for the escalation-residue source")
     args = ap.parse_args()
 
@@ -55,7 +55,11 @@ def main() -> None:
         # Share the one proposer with the residue source so the whole run loads
         # a single model set and the displayed signals reflect the same
         # story-gating the residue filter uses.
-        source = EscalationResidueCandidateSource(chunks, proposer=proposer)
+        # Retain the full filtered residue (uncapped) so high-cosine framing
+        # issue_frame pairs — which NLI cannot rank to the top — still reach a
+        # curator paging the backlog rather than being truncated by the cap.
+        cap = max(1, len(chunks) * (len(chunks) - 1) // 2)
+        source = EscalationResidueCandidateSource(chunks, proposer=proposer, max_candidates=cap)
         print(f"escalation-residue source over {len(source.chunks())} corpus chunks")
     else:
         source = OfflineCandidateSource(labeled_set.chunks())

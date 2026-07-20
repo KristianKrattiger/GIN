@@ -160,3 +160,50 @@ def test_nli_channel_has_priority_over_corroborate_band():
         embed_cos=lambda x, y: 0.95, nli_scores=lambda x, y: (0.9, 0.0, 0.1)
     )
     assert prop.type_relation(a.text, b.text)[0] == Relation.CONTRADICTS
+
+
+def test_nli_p_contra_is_memoized_on_unordered_pair():
+    """nli_p_contra caches its result keyed on the unordered pair of texts, like
+    the embedding cache. A third call — even with arguments swapped — must not
+    invoke the underlying scorer again."""
+    calls = []
+
+    def scorer(premise, hypothesis):
+        calls.append((premise, hypothesis))
+        return (0.8, 0.1, 0.1)
+
+    prop = CombinedRelationProposer(nli_scores=scorer)
+    first = prop.nli_p_contra("text a", "text b")
+    n_calls_after_first = len(calls)
+    second = prop.nli_p_contra("text a", "text b")
+    third = prop.nli_p_contra("text b", "text a")  # swapped order, same pair
+    assert first == second == third == 0.8
+    assert len(calls) == n_calls_after_first  # no new scorer calls after the first
+
+
+def test_p_contra_cache_is_bounded():
+    """F5: _p_contra_cache grows O(pairs typed) and scan.py shares one
+    proposer across a whole scan — it must not grow unboundedly. Bound it to
+    a small size here and prove a pair evicted by the reset is recomputed
+    (a cache miss), while nothing blows up memory-wise."""
+    calls = []
+
+    def scorer(premise, hypothesis):
+        calls.append((premise, hypothesis))
+        return (0.7, 0.1, 0.2)
+
+    prop = CombinedRelationProposer(nli_scores=scorer, max_p_contra_cache=2)
+    prop.nli_p_contra("a", "b")
+    prop.nli_p_contra("c", "d")
+    assert len(prop._p_contra_cache) == 2
+    n_calls_before_overflow = len(calls)
+
+    # A third distinct pair overflows the bound -> cache clears before insert.
+    prop.nli_p_contra("e", "f")
+    assert len(prop._p_contra_cache) == 1
+
+    # The first pair is gone from the cache, so asking again is a fresh call.
+    # 2 scorer calls (both directions) for "e","f", then 2 more for the
+    # re-asked "a","b" that the reset evicted.
+    prop.nli_p_contra("a", "b")
+    assert len(calls) == n_calls_before_overflow + 4

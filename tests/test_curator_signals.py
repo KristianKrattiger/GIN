@@ -22,3 +22,20 @@ def test_related_pair_reports_nli_p_contra():
     sig = pair_signals("x", "y", _proposer(cos=0.55, p_contra=0.9))
     assert sig["nli_p_contra"] == 0.9
     assert sig["cheap_verdict"] in {"contradicts", "corroborates", "related_untyped"}
+
+
+def test_story_blocked_pair_falls_back_to_nli_p_contra():
+    # F1 part 2: type_relation story-blocks the NLI channel for not-same-story
+    # pairs (combined.py), so its own evidence dict never carries p_contra for
+    # them — but that is exactly the population every residue pair belongs to.
+    # The signal panel must not go blind for the very pairs the residue's
+    # ranking floated on the strength of a contradiction; fall back to the
+    # same cross-encoder call directly.
+    prop = CombinedRelationProposer(
+        embed_cos=lambda a, b: 0.70,
+        same_story=lambda a, b: False,
+        nli_scores=lambda a, b: (0.9, 0.0, 0.1),
+    )
+    sig = pair_signals("x", "y", prop)
+    assert sig["same_story"] is False
+    assert sig["nli_p_contra"] == 0.9
