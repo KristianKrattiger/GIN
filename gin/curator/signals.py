@@ -2,8 +2,14 @@
 
 Wraps CombinedRelationProposer.type_relation — no new model code. Whatever the
 detector already computes for a pair (cosine always; NLI p_contra only when the
-pair passes the gate and isn't story-blocked) is surfaced; unavailable signals
-are reported as None rather than recomputed.
+pair passes the gate and isn't story-blocked) is surfaced, and signals it leaves
+unavailable are reported as None.
+
+One deliberate exception: for story-blocked pairs — which is the entire
+escalation residue — p_contra is fetched directly from the proposer instead of
+being reported as None, because that value is what ranked the pair to the top of
+the curator's queue and a blind signal panel would hide it. The call is memoized
+on the proposer, so it is a cache hit whenever the ranking already consulted it.
 """
 from __future__ import annotations
 
