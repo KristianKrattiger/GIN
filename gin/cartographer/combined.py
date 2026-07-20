@@ -127,6 +127,7 @@ class CombinedRelationProposer:
         self._emb_cache: dict[str, Any] = {}
         self._nli = None
         self._nli_label_index: dict[str, int] = {}
+        self._p_contra_cache: dict[frozenset, float] = {}
 
     # -- backends -----------------------------------------------------------
 
@@ -180,8 +181,15 @@ class CombinedRelationProposer:
         return float(row[c]), float(row[e]), float(row[n])
 
     def _p_contra(self, a_text: str, b_text: str) -> float:
+        # Memoized on the UNORDERED pair of texts: the result already takes the
+        # max over both directions, so a(b) and b(a) share one cache entry.
+        key = frozenset((a_text, b_text))
+        if key in self._p_contra_cache:
+            return self._p_contra_cache[key]
         scorer = self._nli_scores or self._nli_model_scores
-        return max(scorer(a_text, b_text)[0], scorer(b_text, a_text)[0])
+        value = max(scorer(a_text, b_text)[0], scorer(b_text, a_text)[0])
+        self._p_contra_cache[key] = value
+        return value
 
     # -- relation typing ----------------------------------------------------
 

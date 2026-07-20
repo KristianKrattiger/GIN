@@ -160,3 +160,22 @@ def test_nli_channel_has_priority_over_corroborate_band():
         embed_cos=lambda x, y: 0.95, nli_scores=lambda x, y: (0.9, 0.0, 0.1)
     )
     assert prop.type_relation(a.text, b.text)[0] == Relation.CONTRADICTS
+
+
+def test_nli_p_contra_is_memoized_on_unordered_pair():
+    """nli_p_contra caches its result keyed on the unordered pair of texts, like
+    the embedding cache. A third call — even with arguments swapped — must not
+    invoke the underlying scorer again."""
+    calls = []
+
+    def scorer(premise, hypothesis):
+        calls.append((premise, hypothesis))
+        return (0.8, 0.1, 0.1)
+
+    prop = CombinedRelationProposer(nli_scores=scorer)
+    first = prop.nli_p_contra("text a", "text b")
+    n_calls_after_first = len(calls)
+    second = prop.nli_p_contra("text a", "text b")
+    third = prop.nli_p_contra("text b", "text a")  # swapped order, same pair
+    assert first == second == third == 0.8
+    assert len(calls) == n_calls_after_first  # no new scorer calls after the first

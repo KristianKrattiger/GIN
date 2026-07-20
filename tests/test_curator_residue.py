@@ -67,3 +67,41 @@ def test_pairs_surfaces_high_cosine_contradiction():
 def test_chunks_returns_input():
     src = EscalationResidueCandidateSource([A, B, C], proposer=_proposer({}, {}))
     assert src.chunks() == [A, B, C]
+
+
+def test_pairs_bounds_nli_to_rank_limit():
+    # The ~7min-hang fix: NLI (a per-pair model call) must be consulted only
+    # for the nli_rank_limit highest-cosine residue pairs. Pairs beyond the
+    # limit are ranked by cosine alone and must NEVER trigger an NLI call —
+    # enforced here by raising if the injected scorer sees any other pair.
+    cos = {frozenset({A.text, B.text}): 0.72,   # top cosine -> only this is consulted
+           frozenset({A.text, C.text}): 0.50,
+           frozenset({B.text, C.text}): 0.40}
+    top_pair = frozenset({A.text, B.text})
+    consulted: list[frozenset] = []
+
+    def nli_scores(p, h):
+        key = frozenset({p, h})
+        consulted.append(key)
+        if key != top_pair:
+            raise AssertionError(f"NLI consulted beyond rank limit: {p!r}, {h!r}")
+        return (0.0, 0.0, 1.0)  # below threshold -> no contradiction float
+
+    proposer = CombinedRelationProposer(
+        embed_cos=lambda a, b: cos.get(frozenset({a, b}), 0.0),
+        same_story=lambda a, b: False,
+        nli_scores=nli_scores,
+    )
+    src = EscalationResidueCandidateSource(
+        [A, B, C], proposer=proposer, cos_floor=0.20, nli_rank_limit=1,
+    )
+    kept = [pair_key(a.chunk_id, b.chunk_id) for a, b in src.pairs()]
+    # No contradiction floats (p_contra stayed 0.0), so the order is pure
+    # cosine-descending: A-B (0.72) > A-C (0.50) > B-C (0.40).
+    assert kept == [
+        pair_key(A.chunk_id, B.chunk_id),
+        pair_key(A.chunk_id, C.chunk_id),
+        pair_key(B.chunk_id, C.chunk_id),
+    ]
+    assert consulted, "expected the top-cosine pair to be consulted at least once"
+    assert set(consulted) == {top_pair}
