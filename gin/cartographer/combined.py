@@ -152,6 +152,15 @@ class CombinedRelationProposer:
         """Public cosine accessor for scan-stage candidate pruning."""
         return self._cosine(a_text, b_text)
 
+    def nli_p_contra(self, a_text: str, b_text: str) -> float:
+        """Public NLI-contradiction accessor (max over both directions).
+
+        Lets candidate ranking consult the propositional channel directly (e.g.
+        to float high-cosine contradictions), reusing the same cross-encoder the
+        typer uses. Injected nli_scores keep this model-free under test.
+        """
+        return self._p_contra(a_text, b_text)
+
     def _nli_model_scores(self, premise: str, hypothesis: str) -> tuple[float, float, float]:
         import numpy as np
 

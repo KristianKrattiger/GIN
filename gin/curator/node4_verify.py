@@ -44,7 +44,13 @@ def verify_surfacing(
     documents: list[dict],
     proposer: CombinedRelationProposer,
 ) -> list[TopicResult]:
-    source = EscalationResidueCandidateSource(chunks, proposer=proposer)
+    # PASS = the thesis pair reaches the curator backlog at all (passes the
+    # residue filter: not-same-story, cosine >= floor). Retain the FULL residue
+    # (uncapped) so "reachable" is honest — the framing issue_frame pairs NLI
+    # cannot rank still reach a curator paging the backlog, even if not near the
+    # top. rank is reported for transparency, not used as the PASS bar.
+    cap = max(1, len(chunks) * (len(chunks) - 1) // 2)
+    source = EscalationResidueCandidateSource(chunks, proposer=proposer, max_candidates=cap)
     surfaced = [pair_key(a.chunk_id, b.chunk_id) for a, b in source.pairs()]
     rank_of = {key: i for i, key in enumerate(surfaced)}
     results = []

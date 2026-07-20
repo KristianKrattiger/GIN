@@ -2,11 +2,17 @@
 
 Reuses cartographer.escalation.escalation_candidates for the residue FILTER
 (not same-story, cosine >= floor) so what the curator labels stays aligned with
-what the escalation bar tests — but re-ranks the result mid-band-first before
-capping. escalation_candidates sorts cosine-descending, which buries the
-moderate-cosine issue_frame divergent band under high-cosine same-topic AGREE
-pairs; a cosine-desc cap would then truncate away the exact class B0 exists to
-collect. Implements sub-project A's CandidateSource protocol.
+what the escalation bar tests — then re-ranks the result before capping.
+
+Ranking (corrected 2026-07-20 from real corpus_node4 evidence): real opposed
+pairs on one proposition share dense vocabulary, so issue_frame lives at HIGH
+cosine, not the mid band the module originally assumed. A strong NLI
+contradiction is the sharpest instance, but framing/efficacy divergences (which
+no cheap signal reliably flags — the reason the LLM escalation judge exists) are
+also high-cosine. So the residue floats NLI contradictions first (by strength),
+then ranks the rest cosine-descending. High-cosine AGREE pairs surface here too,
+which is wanted — the readiness gauge also needs agree labels. Implements
+sub-project A's CandidateSource protocol.
 """
 from __future__ import annotations
 
@@ -22,7 +28,7 @@ from gin.cartographer.escalation import (
 from gin.cartographer.models import LabeledChunk
 from gin.cartographer.scan import wire_same_story
 
-from .candidates import informativeness
+from .candidates import CONTRA_THRESHOLD
 
 
 class EscalationResidueCandidateSource:
@@ -65,13 +71,16 @@ class EscalationResidueCandidateSource:
             cos_floor=self._cos_floor,
             max_candidates=len(all_pairs),
         )
-        # Re-rank mid-band-first (A's informativeness, cosine-only — no NLI), so
-        # the cap keeps the issue_frame divergent band rather than high-cosine
-        # AGREE pairs. A's order_backlog re-ranks again downstream once NLI
-        # signals exist; this only decides what survives the cap.
+        # Contradictions first (by strength), then cosine-descending: within the
+        # already-filtered residue, high cosine IS the issue_frame zone, so the
+        # cap keeps the highest-cosine pairs rather than mid-band cross-topic
+        # noise. NLI runs once per residue pair here (cached); the injected
+        # nli_scores keep this model-free under test.
         def rank_key(pair: tuple[LabeledChunk, LabeledChunk]):
             cos = self._proposer.embedding_cosine(pair[0].text, pair[1].text)
-            return (-informativeness({"cosine": cos, "nli_p_contra": None}), -cos)
+            p_contra = self._proposer.nli_p_contra(pair[0].text, pair[1].text)
+            is_contra = p_contra >= CONTRA_THRESHOLD
+            return (0 if is_contra else 1, -p_contra, -cos)
 
         residue.sort(key=rank_key)
         self._pairs = residue[: self._max_candidates]

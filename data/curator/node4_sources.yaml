@@ -1,6 +1,6 @@
 # Node4 corpus source list (contested policy citations)
-# Generated for branch issue-frame-corpus-node4. Extraction (chunks) happens in a later task.
-# Each entry verified via WebFetch to confirm the URL resolves and the source argues the assigned stance.
+# Generated for branch issue-frame-corpus-node4.
+# Each entry verified via WebFetch; chunks are real claim sentences (position 0 = thesis).
 
 - topic: carbon_tax
   stance: pro
@@ -10,7 +10,11 @@
   url: "https://www.brookings.edu/articles/the-tax-favored-by-most-economists/"
   domain: fiscal_policy
   type: opinion
-  chunks: []
+  chunks:
+    - "Unlike most taxes, carbon taxation can correct a market failure and make the economy more efficient."
+    - "Economists have long recommended a tax on fossil-fuel energy sources as an efficient way to address this problem."
+    - "Most analyses find that a carbon tax could significantly reduce emissions."
+    - "As one of the few taxes favored by economists, carbon taxes could help the nation address several issues simultaneously."
 
 - topic: carbon_tax
   stance: con
@@ -20,7 +24,11 @@
   url: "https://www.instituteforenergyresearch.org/regulation/the-case-against-a-carbon-tax/"
   domain: fiscal_policy
   type: advocacy
-  chunks: []
+  chunks:
+    - "Carbon taxes are nonobjective, they are coercive, and they are impediments to prosperity."
+    - "Americans in the lowest income quintile use a greater percentage of their income to meet their energy needs than the remainder of Americans, rendering carbon taxes regressive."
+    - "Carbon taxes slow economic growth unless a large portion of the tax revenue is allocated to corporate tax reductions."
+    - "The U.S. is only responsible for around 15 percent of global carbon dioxide emissions."
 
 - topic: nuclear_power
   stance: pro
@@ -30,7 +38,11 @@
   url: "https://world-nuclear.org/nuclear-essentials/how-can-nuclear-combat-climate-change"
   domain: energy_policy
   type: advocacy
-  chunks: []
+  chunks:
+    - "Combating climate change would be much harder, without an increased role for nuclear in achieving the deep decarbonization required to keep global temperature rise below 1.5C."
+    - "Nuclear power plants produce no greenhouse gas emissions during operation, and over its life-cycle nuclear produces about the same emissions per unit of electricity as wind."
+    - "Because nuclear power is reliable and can be deployed on a large scale, it can directly replace fossil fuel plant, avoiding the combustion of fossil fuels for electricity generation."
+    - "The use of nuclear energy today avoids emissions roughly equivalent to removing one-third of all cars from the world's roads."
 
 - topic: nuclear_power
   stance: con
@@ -40,7 +52,11 @@
   url: "https://www.forbes.com/sites/amorylovins/2019/11/18/does-nuclear-power-slow-or-speed-climate-change/"
   domain: energy_policy
   type: opinion
-  chunks: []
+  chunks:
+    - "Building new reactors, or operating most existing ones, makes climate change worse compared with spending the same money on more-climate-effective ways to deliver the same energy services."
+    - "New nuclear plants will save many-fold less carbon per dollar than competing carbon-free resources, in proportion to their relative costs."
+    - "Being both slower and costlier than its modern competitors makes nuclear power doubly unhelpful for protecting the climate."
+    - "Nuclear plants take many years to build, typically around a decade, while renewable projects can take a year or less."
 
 - topic: carbon_offsets
   stance: pro
@@ -50,7 +66,11 @@
   url: "https://www.nature.org/en-us/what-we-do/our-insights/perspectives/carbon-offsetting-moral-imperative/"
   domain: climate_policy
   type: opinion
-  chunks: []
+  chunks:
+    - "Carbon offsets are essential because they provide a simple way to keep, improve and expand forests."
+    - "Nature can deliver a third of the emissions cuts needed by 2030 to avert climate disaster."
+    - "Carbon markets create positive incentives that upend the conventional economic motivations that render tropical forests more valuable dead than alive."
+    - "High-quality forest carbon projects provide the financing needed to ensure governments and local communities keep their forests standing."
 
 - topic: carbon_offsets
   stance: con
@@ -60,7 +80,11 @@
   url: "https://www.theguardian.com/environment/2023/jan/18/revealed-forest-carbon-offsets-biggest-provider-worthless-verra-aoe"
   domain: climate_policy
   type: analysis
-  chunks: []
+  chunks:
+    - "More than 90 percent of the rainforest offset credits are likely to be phantom credits and do not represent genuine carbon reductions."
+    - "Companies are using credits to make claims of reducing emissions when most of these credits don't represent emissions reductions at all."
+    - "Credits from 21 projects had no climate benefit, and seven had between 98 percent and 52 percent fewer than claimed using Verra's system."
+    - "The offset market is broken."
 
 - topic: degrowth_vs_growth
   stance: pro
@@ -70,7 +94,11 @@
   url: "https://thecorrespondent.com/357/outgrowing-growth-why-quality-of-life-not-gdp-should-be-our-measure-of-success/413218170519-b4d036a5"
   domain: climate_policy
   type: opinion
-  chunks: []
+  chunks:
+    - "If we want a decent shot at climate stability, high-income nations will have to shift to post-growth economic principles."
+    - "By reducing the material 'throughput' of our economy - the amount of stuff we produce and consume - we can reduce our energy demand."
+    - "The less energy we use, the easier it is to accomplish a rapid transition to renewables."
+    - "We can accomplish our social goals right now, without any growth at all, simply by sharing what we already have more fairly."
 
 - topic: degrowth_vs_growth
   stance: con
@@ -80,7 +108,11 @@
   url: "https://www.noahpinion.blog/p/people-are-realizing-that-degrowth"
   domain: climate_policy
   type: opinion
-  chunks: []
+  chunks:
+    - "Degrowth is a non-starter, and green growth won't happen fast enough on its own."
+    - "Demanding that people in rich countries accept absolutely catastrophic declines in their living standards is a political non-starter."
+    - "The claim that economic growth requires growth in resource use is false; rich countries have started to grow while using less of the planet's most important resources."
+    - "Rapid decarbonization, curbing of global pollution, and resource conservation are tall orders, but unlike degrowth, they are possible."
 
 - topic: fossil_divestment
   stance: pro
@@ -90,7 +122,11 @@
   url: "https://350.org/press-release/global-divestment-day/"
   domain: fiscal_policy
   type: advocacy
-  chunks: []
+  chunks:
+    - "Divestment serves as a key tool in moving the world beyond fossil fuels and towards renewable energy."
+    - "An Oxford University research called the effort the fastest growing divestment campaign in history, one that could have a far reaching impact on the industry's bottom line."
+    - "The fossil fuel divestment movement has grown exponentially over the last two years - now it's going global."
+    - "Over twenty colleges and universities, dozens of religious institutions, and numerous cities have committed to divest, representing over USD 50 billion in assets."
 
 - topic: fossil_divestment
   stance: con
@@ -100,7 +136,11 @@
   url: "https://www.nsenergybusiness.com/analysis/fossil-fuel-divestment/"
   domain: fiscal_policy
   type: analysis
-  chunks: []
+  chunks:
+    - "The divestment movement will simply force IOCs to cede market share to NOCs, and if anything this would cause CO2 emissions to rise."
+    - "The push for oil and gas divestment is likely to have unintended consequences."
+    - "IOCs are generally better placed and more willing than are NOCs to reduce the carbon intensity of their products and support the transition to renewable energy."
+    - "The divestment movement will transfer the supply of fossil fuel to companies that are more polluting, less transparent, and less committed to addressing the climate crisis."
 
 - topic: solar_geoengineering
   stance: pro
@@ -110,7 +150,11 @@
   url: "https://issues.org/toward-a-responsible-solar-geoengineering-research-program/"
   domain: climate_policy
   type: analysis
-  chunks: []
+  chunks:
+    - "The potential benefits of solar geoengineering warrant a large-scale international research effort."
+    - "Uncertainty is real, but it speaks louder as an argument for rather than against research."
+    - "Each of these concerns has merit, but they do not, individually or collectively, amount to a strong argument against research."
+    - "A project large enough to cut the economic damage in half could be implemented at a cost of a few billion dollars per year, several hundred times less than the damage it would prevent."
 
 - topic: solar_geoengineering
   stance: con
@@ -120,7 +164,11 @@
   url: "https://www.solargeoeng.org/non-use-agreement/open-letter/"
   domain: climate_policy
   type: advocacy
-  chunks: []
+  chunks:
+    - "Solar geoengineering is not necessary, desirable, ethical, or politically governable in the current context."
+    - "The risks of solar geoengineering are poorly understood and can never be fully known."
+    - "Speculative hopes about the future availability of solar geoengineering technologies threaten commitments to mitigation and can disincentivize governments."
+    - "Without effective global and democratic controls, the geopolitics of possible unilateral deployment of solar geoengineering would be frightening and inequitable."
 
 - topic: renewables_grid
   stance: pro
@@ -130,7 +178,11 @@
   url: "https://www.scientificamerican.com/article/a-path-to-sustainable-energy-by-2030/"
   domain: energy_policy
   type: analysis
-  chunks: []
+  chunks:
+    - "A large-scale wind, water and solar energy system can reliably supply the world's needs, significantly benefiting climate, air quality, water quality, ecology and energy security."
+    - "The mix of WWS sources in our plan can reliably supply the residential, commercial, industrial and transportation sectors."
+    - "Interconnecting wind farms that are only 100 to 200 miles apart can compensate for hours of zero power at any one farm should the wind not be blowing there."
+    - "Because the wind often blows during stormy conditions when the sun does not shine, combining wind and solar can go a long way toward meeting demand."
 
 - topic: renewables_grid
   stance: con
@@ -140,7 +192,11 @@
   url: "https://www.forbes.com/sites/jamesconca/2019/03/21/green-new-deal-is-dead-without-nuclear-power/"
   domain: energy_policy
   type: opinion
-  chunks: []
+  chunks:
+    - "Renewables alone cannot meet the goal of decarbonizing the world economy."
+    - "The nuclear and hydro are needed, in place of natural gas, for baseload power and to load-follow the enormous amount of renewables."
+    - "We don't have a century, and if so many new gas plants are built to load-follow wind and solar, then we lock ourselves into gas for a long, long time."
+    - "No one is going to decommission or destroy a relatively new gas plant."
 
 - topic: gas_bridge_fuel
   stance: pro
@@ -150,7 +206,11 @@
   url: "https://www.americanprogress.org/article/natural-gas-a-bridge-fuel-for-the-21st-century/"
   domain: energy_policy
   type: advocacy
-  chunks: []
+  chunks:
+    - "Natural gas can serve as a bridge fuel to a 21st-century energy economy that relies on efficiency, renewable sources, and low-carbon fossil fuels."
+    - "Natural gas is the cleanest fossil fuel - it produces less than half as much carbon pollution as coal."
+    - "Recent technology advancements make affordable the development of unconventional natural gas resources."
+    - "This creates an unprecedented opportunity to use gas as a bridge fuel to a 21st-century energy economy."
 
 - topic: gas_bridge_fuel
   stance: con
@@ -160,7 +220,11 @@
   url: "https://oilchange.org/publications/gas-is-not-a-bridge-fuel/"
   domain: energy_policy
   type: advocacy
-  chunks: []
+  chunks:
+    - "The myth of gas as a 'bridge' to a stable climate does not stand up to scrutiny."
+    - "Multibillion-dollar gas infrastructure built today is designed to operate for decades to come, locking in emissions."
+    - "Further development of untapped gas reserves is inconsistent with the climate goals in the Paris Agreement."
+    - "Given the barriers to closing down infrastructure ahead of its expected economic lifespan, it is critical to stop building new infrastructure."
 
 - topic: climate_spending
   stance: pro
@@ -170,7 +234,11 @@
   url: "https://jwmason.org/slackwire/can-we-afford-a-green-new-deal/"
   domain: fiscal_policy
   type: opinion
-  chunks: []
+  chunks:
+    - "The problem is austerity bias; for whatever reason governments refuse to spend even when the economic case for it is overwhelming."
+    - "When interest rates are below GDP growth rates, the debt-to-GDP ratio stabilizes on its own, even if you run deficits forever."
+    - "By any measure, the US economy has operated below potential for the large majority of the time in recent decades."
+    - "Climate change may be a crisis urgent enough to overcome the entrenched austerity bias of governments."
 
 - topic: climate_spending
   stance: con
@@ -180,7 +248,11 @@
   url: "https://www.cato.org/publications/commentary/why-us-cant-afford-green-new-deal"
   domain: fiscal_policy
   type: opinion
-  chunks: []
+  chunks:
+    - "Given that the US cannot afford its existing entitlement programs, adopting the massively expensive policies proposed by Democratic candidates would be foolish."
+    - "Federal debt held by the public, currently at 78 percent of GDP, will approach 100 percent in the next decade and reach 152 percent by 2048."
+    - "The Green New Deal would likely cost upwards of $6.6 trillion per year."
+    - "Even if the US adopted all three of these new taxes, annual federal revenue would increase by at most $280 billion."
 
 - topic: border_carbon_adjustment
   stance: pro
@@ -190,7 +262,11 @@
   url: "https://www.piie.com/blogs/realtime-economics/2023/putting-progress-over-protectionism-climate-policy"
   domain: fiscal_policy
   type: analysis
-  chunks: []
+  chunks:
+    - "Such reciprocity serves as a useful enforcement mechanism for global emissions reductions rather than mere protectionism."
+    - "The CBAM counteracts the competitive disadvantage to local firms from carbon pricing, avoiding the possibility that European consumers would choose lower cost dirty imports over cleaner domestic alternatives."
+    - "The European approach is nondiscriminatory, asking trading partners to bear the same costs that domestic companies face when serving the European market."
+    - "As more countries join such efforts, the rest of the world has an incentive to adopt carbon pricing to avoid tariffs on their exports."
 
 - topic: border_carbon_adjustment
   stance: con
@@ -200,4 +276,8 @@
   url: "https://www.cato.org/policy-analysis/are-carbon-border-adjustments-dream-climate-policy-or-protectionist-nightmare"
   domain: fiscal_policy
   type: analysis
-  chunks: []
+  chunks:
+    - "At worst, they are disguised economic protectionism providing avenues for rent seeking and cronyism."
+    - "A carbon tariff system or CBAM could serve as a vehicle for protecting special interests - not the environment - at the expense of American businesses, consumers, and the economy."
+    - "These policies are likely to create uneven distributional effects on consumers as well as multiple pathways for rent seeking, cronyism, and protectionism."
+    - "It makes little sense to base a potentially damaging and far-reaching policy on an idea that lacks clear empirical support and scholarly consensus."

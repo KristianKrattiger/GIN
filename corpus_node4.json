@@ -1,0 +1,765 @@
+{
+  "node_id": "node_4_contested",
+  "documents": [
+    {
+      "doc_id": "n4_doc_001",
+      "global_id": "gid_67284b59493c4b9b",
+      "source": "The Tax Favored By Most Economists",
+      "url": "https://www.brookings.edu/articles/the-tax-favored-by-most-economists/",
+      "node": "node_4_contested",
+      "metadata": {
+        "author": "William G. Gale",
+        "category": "carbon_tax",
+        "date": "2013-03",
+        "domain": "fiscal_policy",
+        "type": "opinion",
+        "stance": "pro",
+        "topic": "carbon_tax"
+      },
+      "chunks": [
+        {
+          "chunk_id": "n4_doc_001_c000",
+          "position": "0",
+          "text": "Unlike most taxes, carbon taxation can correct a market failure and make the economy more efficient."
+        },
+        {
+          "chunk_id": "n4_doc_001_c001",
+          "position": "1",
+          "text": "Economists have long recommended a tax on fossil-fuel energy sources as an efficient way to address this problem."
+        },
+        {
+          "chunk_id": "n4_doc_001_c002",
+          "position": "2",
+          "text": "Most analyses find that a carbon tax could significantly reduce emissions."
+        },
+        {
+          "chunk_id": "n4_doc_001_c003",
+          "position": "3",
+          "text": "As one of the few taxes favored by economists, carbon taxes could help the nation address several issues simultaneously."
+        }
+      ]
+    },
+    {
+      "doc_id": "n4_doc_002",
+      "global_id": "gid_ca84675a92fe3f74",
+      "source": "The Case Against a Carbon Tax",
+      "url": "https://www.instituteforenergyresearch.org/regulation/the-case-against-a-carbon-tax/",
+      "node": "node_4_contested",
+      "metadata": {
+        "author": "Jordan McGillis, Institute for Energy Research",
+        "category": "carbon_tax",
+        "date": "2019-04",
+        "domain": "fiscal_policy",
+        "type": "advocacy",
+        "stance": "con",
+        "topic": "carbon_tax"
+      },
+      "chunks": [
+        {
+          "chunk_id": "n4_doc_002_c000",
+          "position": "0",
+          "text": "Carbon taxes are nonobjective, they are coercive, and they are impediments to prosperity."
+        },
+        {
+          "chunk_id": "n4_doc_002_c001",
+          "position": "1",
+          "text": "Americans in the lowest income quintile use a greater percentage of their income to meet their energy needs than the remainder of Americans, rendering carbon taxes regressive."
+        },
+        {
+          "chunk_id": "n4_doc_002_c002",
+          "position": "2",
+          "text": "Carbon taxes slow economic growth unless a large portion of the tax revenue is allocated to corporate tax reductions."
+        },
+        {
+          "chunk_id": "n4_doc_002_c003",
+          "position": "3",
+          "text": "The U.S. is only responsible for around 15 percent of global carbon dioxide emissions."
+        }
+      ]
+    },
+    {
+      "doc_id": "n4_doc_003",
+      "global_id": "gid_1f25a9d016b017e6",
+      "source": "How can nuclear combat climate change?",
+      "url": "https://world-nuclear.org/nuclear-essentials/how-can-nuclear-combat-climate-change",
+      "node": "node_4_contested",
+      "metadata": {
+        "author": "World Nuclear Association",
+        "category": "nuclear_power",
+        "date": "2024-05",
+        "domain": "energy_policy",
+        "type": "advocacy",
+        "stance": "pro",
+        "topic": "nuclear_power"
+      },
+      "chunks": [
+        {
+          "chunk_id": "n4_doc_003_c000",
+          "position": "0",
+          "text": "Combating climate change would be much harder, without an increased role for nuclear in achieving the deep decarbonization required to keep global temperature rise below 1.5C."
+        },
+        {
+          "chunk_id": "n4_doc_003_c001",
+          "position": "1",
+          "text": "Nuclear power plants produce no greenhouse gas emissions during operation, and over its life-cycle nuclear produces about the same emissions per unit of electricity as wind."
+        },
+        {
+          "chunk_id": "n4_doc_003_c002",
+          "position": "2",
+          "text": "Because nuclear power is reliable and can be deployed on a large scale, it can directly replace fossil fuel plant, avoiding the combustion of fossil fuels for electricity generation."
+        },
+        {
+          "chunk_id": "n4_doc_003_c003",
+          "position": "3",
+          "text": "The use of nuclear energy today avoids emissions roughly equivalent to removing one-third of all cars from the world's roads."
+        }
+      ]
+    },
+    {
+      "doc_id": "n4_doc_004",
+      "global_id": "gid_acf1bced710c2733",
+      "source": "Does Nuclear Power Slow Or Speed Climate Change?",
+      "url": "https://www.forbes.com/sites/amorylovins/2019/11/18/does-nuclear-power-slow-or-speed-climate-change/",
+      "node": "node_4_contested",
+      "metadata": {
+        "author": "Amory B. Lovins",
+        "category": "nuclear_power",
+        "date": "2019-11",
+        "domain": "energy_policy",
+        "type": "opinion",
+        "stance": "con",
+        "topic": "nuclear_power"
+      },
+      "chunks": [
+        {
+          "chunk_id": "n4_doc_004_c000",
+          "position": "0",
+          "text": "Building new reactors, or operating most existing ones, makes climate change worse compared with spending the same money on more-climate-effective ways to deliver the same energy services."
+        },
+        {
+          "chunk_id": "n4_doc_004_c001",
+          "position": "1",
+          "text": "New nuclear plants will save many-fold less carbon per dollar than competing carbon-free resources, in proportion to their relative costs."
+        },
+        {
+          "chunk_id": "n4_doc_004_c002",
+          "position": "2",
+          "text": "Being both slower and costlier than its modern competitors makes nuclear power doubly unhelpful for protecting the climate."
+        },
+        {
+          "chunk_id": "n4_doc_004_c003",
+          "position": "3",
+          "text": "Nuclear plants take many years to build, typically around a decade, while renewable projects can take a year or less."
+        }
+      ]
+    },
+    {
+      "doc_id": "n4_doc_005",
+      "global_id": "gid_8469fa299728e7dc",
+      "source": "Why We Can't Afford to Dismiss Carbon Offsetting",
+      "url": "https://www.nature.org/en-us/what-we-do/our-insights/perspectives/carbon-offsetting-moral-imperative/",
+      "node": "node_4_contested",
+      "metadata": {
+        "author": "Bronson Griscom, Conservation International (via The Nature Conservancy)",
+        "category": "carbon_offsets",
+        "date": "2021-05",
+        "domain": "climate_policy",
+        "type": "opinion",
+        "stance": "pro",
+        "topic": "carbon_offsets"
+      },
+      "chunks": [
+        {
+          "chunk_id": "n4_doc_005_c000",
+          "position": "0",
+          "text": "Carbon offsets are essential because they provide a simple way to keep, improve and expand forests."
+        },
+        {
+          "chunk_id": "n4_doc_005_c001",
+          "position": "1",
+          "text": "Nature can deliver a third of the emissions cuts needed by 2030 to avert climate disaster."
+        },
+        {
+          "chunk_id": "n4_doc_005_c002",
+          "position": "2",
+          "text": "Carbon markets create positive incentives that upend the conventional economic motivations that render tropical forests more valuable dead than alive."
+        },
+        {
+          "chunk_id": "n4_doc_005_c003",
+          "position": "3",
+          "text": "High-quality forest carbon projects provide the financing needed to ensure governments and local communities keep their forests standing."
+        }
+      ]
+    },
+    {
+      "doc_id": "n4_doc_006",
+      "global_id": "gid_81fbf1c76f6fad78",
+      "source": "Revealed: more than 90% of rainforest carbon offsets by biggest provider are worthless, analysis shows",
+      "url": "https://www.theguardian.com/environment/2023/jan/18/revealed-forest-carbon-offsets-biggest-provider-worthless-verra-aoe",
+      "node": "node_4_contested",
+      "metadata": {
+        "author": "Patrick Greenfield, The Guardian",
+        "category": "carbon_offsets",
+        "date": "2023-01",
+        "domain": "climate_policy",
+        "type": "analysis",
+        "stance": "con",
+        "topic": "carbon_offsets"
+      },
+      "chunks": [
+        {
+          "chunk_id": "n4_doc_006_c000",
+          "position": "0",
+          "text": "More than 90 percent of the rainforest offset credits are likely to be phantom credits and do not represent genuine carbon reductions."
+        },
+        {
+          "chunk_id": "n4_doc_006_c001",
+          "position": "1",
+          "text": "Companies are using credits to make claims of reducing emissions when most of these credits don't represent emissions reductions at all."
+        },
+        {
+          "chunk_id": "n4_doc_006_c002",
+          "position": "2",
+          "text": "Credits from 21 projects had no climate benefit, and seven had between 98 percent and 52 percent fewer than claimed using Verra's system."
+        },
+        {
+          "chunk_id": "n4_doc_006_c003",
+          "position": "3",
+          "text": "The offset market is broken."
+        }
+      ]
+    },
+    {
+      "doc_id": "n4_doc_007",
+      "global_id": "gid_82dac100323eca31",
+      "source": "Outgrowing growth: why quality of life, not GDP, should be our measure of success",
+      "url": "https://thecorrespondent.com/357/outgrowing-growth-why-quality-of-life-not-gdp-should-be-our-measure-of-success/413218170519-b4d036a5",
+      "node": "node_4_contested",
+      "metadata": {
+        "author": "Jason Hickel",
+        "category": "degrowth_vs_growth",
+        "date": "2020-03",
+        "domain": "climate_policy",
+        "type": "opinion",
+        "stance": "pro",
+        "topic": "degrowth_vs_growth"
+      },
+      "chunks": [
+        {
+          "chunk_id": "n4_doc_007_c000",
+          "position": "0",
+          "text": "If we want a decent shot at climate stability, high-income nations will have to shift to post-growth economic principles."
+        },
+        {
+          "chunk_id": "n4_doc_007_c001",
+          "position": "1",
+          "text": "By reducing the material 'throughput' of our economy - the amount of stuff we produce and consume - we can reduce our energy demand."
+        },
+        {
+          "chunk_id": "n4_doc_007_c002",
+          "position": "2",
+          "text": "The less energy we use, the easier it is to accomplish a rapid transition to renewables."
+        },
+        {
+          "chunk_id": "n4_doc_007_c003",
+          "position": "3",
+          "text": "We can accomplish our social goals right now, without any growth at all, simply by sharing what we already have more fairly."
+        }
+      ]
+    },
+    {
+      "doc_id": "n4_doc_008",
+      "global_id": "gid_05768ad37615c64e",
+      "source": "People are realizing that degrowth is bad",
+      "url": "https://www.noahpinion.blog/p/people-are-realizing-that-degrowth",
+      "node": "node_4_contested",
+      "metadata": {
+        "author": "Noah Smith",
+        "category": "degrowth_vs_growth",
+        "date": "2021-09",
+        "domain": "climate_policy",
+        "type": "opinion",
+        "stance": "con",
+        "topic": "degrowth_vs_growth"
+      },
+      "chunks": [
+        {
+          "chunk_id": "n4_doc_008_c000",
+          "position": "0",
+          "text": "Degrowth is a non-starter, and green growth won't happen fast enough on its own."
+        },
+        {
+          "chunk_id": "n4_doc_008_c001",
+          "position": "1",
+          "text": "Demanding that people in rich countries accept absolutely catastrophic declines in their living standards is a political non-starter."
+        },
+        {
+          "chunk_id": "n4_doc_008_c002",
+          "position": "2",
+          "text": "The claim that economic growth requires growth in resource use is false; rich countries have started to grow while using less of the planet's most important resources."
+        },
+        {
+          "chunk_id": "n4_doc_008_c003",
+          "position": "3",
+          "text": "Rapid decarbonization, curbing of global pollution, and resource conservation are tall orders, but unlike degrowth, they are possible."
+        }
+      ]
+    },
+    {
+      "doc_id": "n4_doc_009",
+      "global_id": "gid_b149f4b07aacafce",
+      "source": "\"Global Divestment Day\" Challenges Fossil Fuel Industry on February 13-14",
+      "url": "https://350.org/press-release/global-divestment-day/",
+      "node": "node_4_contested",
+      "metadata": {
+        "author": "350.org",
+        "category": "fossil_divestment",
+        "date": "2015-02",
+        "domain": "fiscal_policy",
+        "type": "advocacy",
+        "stance": "pro",
+        "topic": "fossil_divestment"
+      },
+      "chunks": [
+        {
+          "chunk_id": "n4_doc_009_c000",
+          "position": "0",
+          "text": "Divestment serves as a key tool in moving the world beyond fossil fuels and towards renewable energy."
+        },
+        {
+          "chunk_id": "n4_doc_009_c001",
+          "position": "1",
+          "text": "An Oxford University research called the effort the fastest growing divestment campaign in history, one that could have a far reaching impact on the industry's bottom line."
+        },
+        {
+          "chunk_id": "n4_doc_009_c002",
+          "position": "2",
+          "text": "The fossil fuel divestment movement has grown exponentially over the last two years - now it's going global."
+        },
+        {
+          "chunk_id": "n4_doc_009_c003",
+          "position": "3",
+          "text": "Over twenty colleges and universities, dozens of religious institutions, and numerous cities have committed to divest, representing over USD 50 billion in assets."
+        }
+      ]
+    },
+    {
+      "doc_id": "n4_doc_010",
+      "global_id": "gid_c78f5af01736a0a8",
+      "source": "Fossil fuel divestment could prove counterproductive to curbing carbon emissions",
+      "url": "https://www.nsenergybusiness.com/analysis/fossil-fuel-divestment/",
+      "node": "node_4_contested",
+      "metadata": {
+        "author": "Andrew Fawthrop (quoting Stefan Andreasson), NS Energy Business",
+        "category": "fossil_divestment",
+        "date": "2019-11",
+        "domain": "fiscal_policy",
+        "type": "analysis",
+        "stance": "con",
+        "topic": "fossil_divestment"
+      },
+      "chunks": [
+        {
+          "chunk_id": "n4_doc_010_c000",
+          "position": "0",
+          "text": "The divestment movement will simply force IOCs to cede market share to NOCs, and if anything this would cause CO2 emissions to rise."
+        },
+        {
+          "chunk_id": "n4_doc_010_c001",
+          "position": "1",
+          "text": "The push for oil and gas divestment is likely to have unintended consequences."
+        },
+        {
+          "chunk_id": "n4_doc_010_c002",
+          "position": "2",
+          "text": "IOCs are generally better placed and more willing than are NOCs to reduce the carbon intensity of their products and support the transition to renewable energy."
+        },
+        {
+          "chunk_id": "n4_doc_010_c003",
+          "position": "3",
+          "text": "The divestment movement will transfer the supply of fossil fuel to companies that are more polluting, less transparent, and less committed to addressing the climate crisis."
+        }
+      ]
+    },
+    {
+      "doc_id": "n4_doc_011",
+      "global_id": "gid_627c8898480f275e",
+      "source": "Toward a Responsible Solar Geoengineering Research Program",
+      "url": "https://issues.org/toward-a-responsible-solar-geoengineering-research-program/",
+      "node": "node_4_contested",
+      "metadata": {
+        "author": "David W. Keith",
+        "category": "solar_geoengineering",
+        "date": "2017-05",
+        "domain": "climate_policy",
+        "type": "analysis",
+        "stance": "pro",
+        "topic": "solar_geoengineering"
+      },
+      "chunks": [
+        {
+          "chunk_id": "n4_doc_011_c000",
+          "position": "0",
+          "text": "The potential benefits of solar geoengineering warrant a large-scale international research effort."
+        },
+        {
+          "chunk_id": "n4_doc_011_c001",
+          "position": "1",
+          "text": "Uncertainty is real, but it speaks louder as an argument for rather than against research."
+        },
+        {
+          "chunk_id": "n4_doc_011_c002",
+          "position": "2",
+          "text": "Each of these concerns has merit, but they do not, individually or collectively, amount to a strong argument against research."
+        },
+        {
+          "chunk_id": "n4_doc_011_c003",
+          "position": "3",
+          "text": "A project large enough to cut the economic damage in half could be implemented at a cost of a few billion dollars per year, several hundred times less than the damage it would prevent."
+        }
+      ]
+    },
+    {
+      "doc_id": "n4_doc_012",
+      "global_id": "gid_87c225e78bb1cdaf",
+      "source": "We Call for an International Non-Use Agreement on Solar Geoengineering",
+      "url": "https://www.solargeoeng.org/non-use-agreement/open-letter/",
+      "node": "node_4_contested",
+      "metadata": {
+        "author": "Frank Biermann et al. (Solar Geoengineering Non-Use Agreement Initiative)",
+        "category": "solar_geoengineering",
+        "date": "2021-12",
+        "domain": "climate_policy",
+        "type": "advocacy",
+        "stance": "con",
+        "topic": "solar_geoengineering"
+      },
+      "chunks": [
+        {
+          "chunk_id": "n4_doc_012_c000",
+          "position": "0",
+          "text": "Solar geoengineering is not necessary, desirable, ethical, or politically governable in the current context."
+        },
+        {
+          "chunk_id": "n4_doc_012_c001",
+          "position": "1",
+          "text": "The risks of solar geoengineering are poorly understood and can never be fully known."
+        },
+        {
+          "chunk_id": "n4_doc_012_c002",
+          "position": "2",
+          "text": "Speculative hopes about the future availability of solar geoengineering technologies threaten commitments to mitigation and can disincentivize governments."
+        },
+        {
+          "chunk_id": "n4_doc_012_c003",
+          "position": "3",
+          "text": "Without effective global and democratic controls, the geopolitics of possible unilateral deployment of solar geoengineering would be frightening and inequitable."
+        }
+      ]
+    },
+    {
+      "doc_id": "n4_doc_013",
+      "global_id": "gid_dd3d9cfbac355d5e",
+      "source": "A Plan to Power 100 Percent of the Planet with Renewables",
+      "url": "https://www.scientificamerican.com/article/a-path-to-sustainable-energy-by-2030/",
+      "node": "node_4_contested",
+      "metadata": {
+        "author": "Mark Z. Jacobson and Mark A. Delucchi",
+        "category": "renewables_grid",
+        "date": "2009-11",
+        "domain": "energy_policy",
+        "type": "analysis",
+        "stance": "pro",
+        "topic": "renewables_grid"
+      },
+      "chunks": [
+        {
+          "chunk_id": "n4_doc_013_c000",
+          "position": "0",
+          "text": "A large-scale wind, water and solar energy system can reliably supply the world's needs, significantly benefiting climate, air quality, water quality, ecology and energy security."
+        },
+        {
+          "chunk_id": "n4_doc_013_c001",
+          "position": "1",
+          "text": "The mix of WWS sources in our plan can reliably supply the residential, commercial, industrial and transportation sectors."
+        },
+        {
+          "chunk_id": "n4_doc_013_c002",
+          "position": "2",
+          "text": "Interconnecting wind farms that are only 100 to 200 miles apart can compensate for hours of zero power at any one farm should the wind not be blowing there."
+        },
+        {
+          "chunk_id": "n4_doc_013_c003",
+          "position": "3",
+          "text": "Because the wind often blows during stormy conditions when the sun does not shine, combining wind and solar can go a long way toward meeting demand."
+        }
+      ]
+    },
+    {
+      "doc_id": "n4_doc_014",
+      "global_id": "gid_ed6197112510653e",
+      "source": "Any Green New Deal Is Dead Without Nuclear Power",
+      "url": "https://www.forbes.com/sites/jamesconca/2019/03/21/green-new-deal-is-dead-without-nuclear-power/",
+      "node": "node_4_contested",
+      "metadata": {
+        "author": "James Conca",
+        "category": "renewables_grid",
+        "date": "2019-03",
+        "domain": "energy_policy",
+        "type": "opinion",
+        "stance": "con",
+        "topic": "renewables_grid"
+      },
+      "chunks": [
+        {
+          "chunk_id": "n4_doc_014_c000",
+          "position": "0",
+          "text": "Renewables alone cannot meet the goal of decarbonizing the world economy."
+        },
+        {
+          "chunk_id": "n4_doc_014_c001",
+          "position": "1",
+          "text": "The nuclear and hydro are needed, in place of natural gas, for baseload power and to load-follow the enormous amount of renewables."
+        },
+        {
+          "chunk_id": "n4_doc_014_c002",
+          "position": "2",
+          "text": "We don't have a century, and if so many new gas plants are built to load-follow wind and solar, then we lock ourselves into gas for a long, long time."
+        },
+        {
+          "chunk_id": "n4_doc_014_c003",
+          "position": "3",
+          "text": "No one is going to decommission or destroy a relatively new gas plant."
+        }
+      ]
+    },
+    {
+      "doc_id": "n4_doc_015",
+      "global_id": "gid_c9e249e9a5d98b48",
+      "source": "Natural Gas: A Bridge Fuel for the 21st Century",
+      "url": "https://www.americanprogress.org/article/natural-gas-a-bridge-fuel-for-the-21st-century/",
+      "node": "node_4_contested",
+      "metadata": {
+        "author": "John Podesta and Timothy E. Wirth, Center for American Progress",
+        "category": "gas_bridge_fuel",
+        "date": "2009-08",
+        "domain": "energy_policy",
+        "type": "advocacy",
+        "stance": "pro",
+        "topic": "gas_bridge_fuel"
+      },
+      "chunks": [
+        {
+          "chunk_id": "n4_doc_015_c000",
+          "position": "0",
+          "text": "Natural gas can serve as a bridge fuel to a 21st-century energy economy that relies on efficiency, renewable sources, and low-carbon fossil fuels."
+        },
+        {
+          "chunk_id": "n4_doc_015_c001",
+          "position": "1",
+          "text": "Natural gas is the cleanest fossil fuel - it produces less than half as much carbon pollution as coal."
+        },
+        {
+          "chunk_id": "n4_doc_015_c002",
+          "position": "2",
+          "text": "Recent technology advancements make affordable the development of unconventional natural gas resources."
+        },
+        {
+          "chunk_id": "n4_doc_015_c003",
+          "position": "3",
+          "text": "This creates an unprecedented opportunity to use gas as a bridge fuel to a 21st-century energy economy."
+        }
+      ]
+    },
+    {
+      "doc_id": "n4_doc_016",
+      "global_id": "gid_74e35d0ce33c6be8",
+      "source": "Burning the Gas 'Bridge Fuel' Myth: Why Gas Is Not Clean, Cheap, or Necessary",
+      "url": "https://oilchange.org/publications/gas-is-not-a-bridge-fuel/",
+      "node": "node_4_contested",
+      "metadata": {
+        "author": "Oil Change International",
+        "category": "gas_bridge_fuel",
+        "date": "2019-05",
+        "domain": "energy_policy",
+        "type": "advocacy",
+        "stance": "con",
+        "topic": "gas_bridge_fuel"
+      },
+      "chunks": [
+        {
+          "chunk_id": "n4_doc_016_c000",
+          "position": "0",
+          "text": "The myth of gas as a 'bridge' to a stable climate does not stand up to scrutiny."
+        },
+        {
+          "chunk_id": "n4_doc_016_c001",
+          "position": "1",
+          "text": "Multibillion-dollar gas infrastructure built today is designed to operate for decades to come, locking in emissions."
+        },
+        {
+          "chunk_id": "n4_doc_016_c002",
+          "position": "2",
+          "text": "Further development of untapped gas reserves is inconsistent with the climate goals in the Paris Agreement."
+        },
+        {
+          "chunk_id": "n4_doc_016_c003",
+          "position": "3",
+          "text": "Given the barriers to closing down infrastructure ahead of its expected economic lifespan, it is critical to stop building new infrastructure."
+        }
+      ]
+    },
+    {
+      "doc_id": "n4_doc_017",
+      "global_id": "gid_66d3411d2cb4baea",
+      "source": "Can We Afford a Green New Deal?",
+      "url": "https://jwmason.org/slackwire/can-we-afford-a-green-new-deal/",
+      "node": "node_4_contested",
+      "metadata": {
+        "author": "J. W. Mason",
+        "category": "climate_spending",
+        "date": "2019-09",
+        "domain": "fiscal_policy",
+        "type": "opinion",
+        "stance": "pro",
+        "topic": "climate_spending"
+      },
+      "chunks": [
+        {
+          "chunk_id": "n4_doc_017_c000",
+          "position": "0",
+          "text": "The problem is austerity bias; for whatever reason governments refuse to spend even when the economic case for it is overwhelming."
+        },
+        {
+          "chunk_id": "n4_doc_017_c001",
+          "position": "1",
+          "text": "When interest rates are below GDP growth rates, the debt-to-GDP ratio stabilizes on its own, even if you run deficits forever."
+        },
+        {
+          "chunk_id": "n4_doc_017_c002",
+          "position": "2",
+          "text": "By any measure, the US economy has operated below potential for the large majority of the time in recent decades."
+        },
+        {
+          "chunk_id": "n4_doc_017_c003",
+          "position": "3",
+          "text": "Climate change may be a crisis urgent enough to overcome the entrenched austerity bias of governments."
+        }
+      ]
+    },
+    {
+      "doc_id": "n4_doc_018",
+      "global_id": "gid_dec453d483048684",
+      "source": "Why the U.S. Can't Afford a Green New Deal",
+      "url": "https://www.cato.org/publications/commentary/why-us-cant-afford-green-new-deal",
+      "node": "node_4_contested",
+      "metadata": {
+        "author": "Jeffrey Miron and Laura Nicolae, Cato Institute",
+        "category": "climate_spending",
+        "date": "2019-02",
+        "domain": "fiscal_policy",
+        "type": "opinion",
+        "stance": "con",
+        "topic": "climate_spending"
+      },
+      "chunks": [
+        {
+          "chunk_id": "n4_doc_018_c000",
+          "position": "0",
+          "text": "Given that the US cannot afford its existing entitlement programs, adopting the massively expensive policies proposed by Democratic candidates would be foolish."
+        },
+        {
+          "chunk_id": "n4_doc_018_c001",
+          "position": "1",
+          "text": "Federal debt held by the public, currently at 78 percent of GDP, will approach 100 percent in the next decade and reach 152 percent by 2048."
+        },
+        {
+          "chunk_id": "n4_doc_018_c002",
+          "position": "2",
+          "text": "The Green New Deal would likely cost upwards of $6.6 trillion per year."
+        },
+        {
+          "chunk_id": "n4_doc_018_c003",
+          "position": "3",
+          "text": "Even if the US adopted all three of these new taxes, annual federal revenue would increase by at most $280 billion."
+        }
+      ]
+    },
+    {
+      "doc_id": "n4_doc_019",
+      "global_id": "gid_7cca6fe99f8fe133",
+      "source": "Putting progress over protectionism in climate policy",
+      "url": "https://www.piie.com/blogs/realtime-economics/2023/putting-progress-over-protectionism-climate-policy",
+      "node": "node_4_contested",
+      "metadata": {
+        "author": "Kimberly Clausing and Catherine Wolfram",
+        "category": "border_carbon_adjustment",
+        "date": "2023-12",
+        "domain": "fiscal_policy",
+        "type": "analysis",
+        "stance": "pro",
+        "topic": "border_carbon_adjustment"
+      },
+      "chunks": [
+        {
+          "chunk_id": "n4_doc_019_c000",
+          "position": "0",
+          "text": "Such reciprocity serves as a useful enforcement mechanism for global emissions reductions rather than mere protectionism."
+        },
+        {
+          "chunk_id": "n4_doc_019_c001",
+          "position": "1",
+          "text": "The CBAM counteracts the competitive disadvantage to local firms from carbon pricing, avoiding the possibility that European consumers would choose lower cost dirty imports over cleaner domestic alternatives."
+        },
+        {
+          "chunk_id": "n4_doc_019_c002",
+          "position": "2",
+          "text": "The European approach is nondiscriminatory, asking trading partners to bear the same costs that domestic companies face when serving the European market."
+        },
+        {
+          "chunk_id": "n4_doc_019_c003",
+          "position": "3",
+          "text": "As more countries join such efforts, the rest of the world has an incentive to adopt carbon pricing to avoid tariffs on their exports."
+        }
+      ]
+    },
+    {
+      "doc_id": "n4_doc_020",
+      "global_id": "gid_83540baecab2e817",
+      "source": "Are Carbon Border Adjustments a Dream Climate Policy or Protectionist Nightmare?",
+      "url": "https://www.cato.org/policy-analysis/are-carbon-border-adjustments-dream-climate-policy-or-protectionist-nightmare",
+      "node": "node_4_contested",
+      "metadata": {
+        "author": "Gabriella Beaumont-Smith, Cato Institute",
+        "category": "border_carbon_adjustment",
+        "date": "2024-07",
+        "domain": "fiscal_policy",
+        "type": "analysis",
+        "stance": "con",
+        "topic": "border_carbon_adjustment"
+      },
+      "chunks": [
+        {
+          "chunk_id": "n4_doc_020_c000",
+          "position": "0",
+          "text": "At worst, they are disguised economic protectionism providing avenues for rent seeking and cronyism."
+        },
+        {
+          "chunk_id": "n4_doc_020_c001",
+          "position": "1",
+          "text": "A carbon tariff system or CBAM could serve as a vehicle for protecting special interests - not the environment - at the expense of American businesses, consumers, and the economy."
+        },
+        {
+          "chunk_id": "n4_doc_020_c002",
+          "position": "2",
+          "text": "These policies are likely to create uneven distributional effects on consumers as well as multiple pathways for rent seeking, cronyism, and protectionism."
+        },
+        {
+          "chunk_id": "n4_doc_020_c003",
+          "position": "3",
+          "text": "It makes little sense to base a potentially damaging and far-reaching policy on an idea that lacks clear empirical support and scholarly consensus."
+        }
+      ]
+    }
+  ]
+}

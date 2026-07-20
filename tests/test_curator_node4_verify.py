@@ -24,6 +24,7 @@ def _proposer(cos_map):
     return CombinedRelationProposer(
         embed_cos=lambda a, b: cos_map.get(frozenset({a, b}), 0.0),
         same_story=lambda a, b: False,
+        nli_scores=lambda p, h: (0.0, 0.0, 1.0),  # neutral => model-free ranking
     )
 
 
