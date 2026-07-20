@@ -1,0 +1,203 @@
+# Node4 corpus source list (contested policy citations)
+# Generated for branch issue-frame-corpus-node4. Extraction (chunks) happens in a later task.
+# Each entry verified via WebFetch to confirm the URL resolves and the source argues the assigned stance.
+
+- topic: carbon_tax
+  stance: pro
+  source: "The Tax Favored By Most Economists"
+  author: "William G. Gale"
+  date: "2013-03"
+  url: "https://www.brookings.edu/articles/the-tax-favored-by-most-economists/"
+  domain: fiscal_policy
+  type: opinion
+  chunks: []
+
+- topic: carbon_tax
+  stance: con
+  source: "The Case Against a Carbon Tax"
+  author: "Jordan McGillis, Institute for Energy Research"
+  date: "2019-04"
+  url: "https://www.instituteforenergyresearch.org/regulation/the-case-against-a-carbon-tax/"
+  domain: fiscal_policy
+  type: advocacy
+  chunks: []
+
+- topic: nuclear_power
+  stance: pro
+  source: "How can nuclear combat climate change?"
+  author: "World Nuclear Association"
+  date: "2024-05"
+  url: "https://world-nuclear.org/nuclear-essentials/how-can-nuclear-combat-climate-change"
+  domain: energy_policy
+  type: advocacy
+  chunks: []
+
+- topic: nuclear_power
+  stance: con
+  source: "Does Nuclear Power Slow Or Speed Climate Change?"
+  author: "Amory B. Lovins"
+  date: "2019-11"
+  url: "https://www.forbes.com/sites/amorylovins/2019/11/18/does-nuclear-power-slow-or-speed-climate-change/"
+  domain: energy_policy
+  type: opinion
+  chunks: []
+
+- topic: carbon_offsets
+  stance: pro
+  source: "Why We Can't Afford to Dismiss Carbon Offsetting"
+  author: "Bronson Griscom, Conservation International (via The Nature Conservancy)"
+  date: "2021-05"
+  url: "https://www.nature.org/en-us/what-we-do/our-insights/perspectives/carbon-offsetting-moral-imperative/"
+  domain: climate_policy
+  type: opinion
+  chunks: []
+
+- topic: carbon_offsets
+  stance: con
+  source: "Revealed: more than 90% of rainforest carbon offsets by biggest provider are worthless, analysis shows"
+  author: "Patrick Greenfield, The Guardian"
+  date: "2023-01"
+  url: "https://www.theguardian.com/environment/2023/jan/18/revealed-forest-carbon-offsets-biggest-provider-worthless-verra-aoe"
+  domain: climate_policy
+  type: analysis
+  chunks: []
+
+- topic: degrowth_vs_growth
+  stance: pro
+  source: "Outgrowing growth: why quality of life, not GDP, should be our measure of success"
+  author: "Jason Hickel"
+  date: "2020-03"
+  url: "https://thecorrespondent.com/357/outgrowing-growth-why-quality-of-life-not-gdp-should-be-our-measure-of-success/413218170519-b4d036a5"
+  domain: climate_policy
+  type: opinion
+  chunks: []
+
+- topic: degrowth_vs_growth
+  stance: con
+  source: "People are realizing that degrowth is bad"
+  author: "Noah Smith"
+  date: "2021-09"
+  url: "https://www.noahpinion.blog/p/people-are-realizing-that-degrowth"
+  domain: climate_policy
+  type: opinion
+  chunks: []
+
+- topic: fossil_divestment
+  stance: pro
+  source: "\"Global Divestment Day\" Challenges Fossil Fuel Industry on February 13-14"
+  author: "350.org"
+  date: "2015-02"
+  url: "https://350.org/press-release/global-divestment-day/"
+  domain: fiscal_policy
+  type: advocacy
+  chunks: []
+
+- topic: fossil_divestment
+  stance: con
+  source: "Fossil fuel divestment could prove counterproductive to curbing carbon emissions"
+  author: "Andrew Fawthrop (quoting Stefan Andreasson), NS Energy Business"
+  date: "2019-11"
+  url: "https://www.nsenergybusiness.com/analysis/fossil-fuel-divestment/"
+  domain: fiscal_policy
+  type: analysis
+  chunks: []
+
+- topic: solar_geoengineering
+  stance: pro
+  source: "Toward a Responsible Solar Geoengineering Research Program"
+  author: "David W. Keith"
+  date: "2017-05"
+  url: "https://issues.org/toward-a-responsible-solar-geoengineering-research-program/"
+  domain: climate_policy
+  type: analysis
+  chunks: []
+
+- topic: solar_geoengineering
+  stance: con
+  source: "We Call for an International Non-Use Agreement on Solar Geoengineering"
+  author: "Frank Biermann et al. (Solar Geoengineering Non-Use Agreement Initiative)"
+  date: "2021-12"
+  url: "https://www.solargeoeng.org/non-use-agreement/open-letter/"
+  domain: climate_policy
+  type: advocacy
+  chunks: []
+
+- topic: renewables_grid
+  stance: pro
+  source: "A Plan to Power 100 Percent of the Planet with Renewables"
+  author: "Mark Z. Jacobson and Mark A. Delucchi"
+  date: "2009-11"
+  url: "https://www.scientificamerican.com/article/a-path-to-sustainable-energy-by-2030/"
+  domain: energy_policy
+  type: analysis
+  chunks: []
+
+- topic: renewables_grid
+  stance: con
+  source: "Any Green New Deal Is Dead Without Nuclear Power"
+  author: "James Conca"
+  date: "2019-03"
+  url: "https://www.forbes.com/sites/jamesconca/2019/03/21/green-new-deal-is-dead-without-nuclear-power/"
+  domain: energy_policy
+  type: opinion
+  chunks: []
+
+- topic: gas_bridge_fuel
+  stance: pro
+  source: "Natural Gas: A Bridge Fuel for the 21st Century"
+  author: "John Podesta and Timothy E. Wirth, Center for American Progress"
+  date: "2009-08"
+  url: "https://www.americanprogress.org/article/natural-gas-a-bridge-fuel-for-the-21st-century/"
+  domain: energy_policy
+  type: advocacy
+  chunks: []
+
+- topic: gas_bridge_fuel
+  stance: con
+  source: "Burning the Gas 'Bridge Fuel' Myth: Why Gas Is Not Clean, Cheap, or Necessary"
+  author: "Oil Change International"
+  date: "2019-05"
+  url: "https://oilchange.org/publications/gas-is-not-a-bridge-fuel/"
+  domain: energy_policy
+  type: advocacy
+  chunks: []
+
+- topic: climate_spending
+  stance: pro
+  source: "Can We Afford a Green New Deal?"
+  author: "J. W. Mason"
+  date: "2019-09"
+  url: "https://jwmason.org/slackwire/can-we-afford-a-green-new-deal/"
+  domain: fiscal_policy
+  type: opinion
+  chunks: []
+
+- topic: climate_spending
+  stance: con
+  source: "Why the U.S. Can't Afford a Green New Deal"
+  author: "Jeffrey Miron and Laura Nicolae, Cato Institute"
+  date: "2019-02"
+  url: "https://www.cato.org/publications/commentary/why-us-cant-afford-green-new-deal"
+  domain: fiscal_policy
+  type: opinion
+  chunks: []
+
+- topic: border_carbon_adjustment
+  stance: pro
+  source: "Putting progress over protectionism in climate policy"
+  author: "Kimberly Clausing and Catherine Wolfram"
+  date: "2023-12"
+  url: "https://www.piie.com/blogs/realtime-economics/2023/putting-progress-over-protectionism-climate-policy"
+  domain: fiscal_policy
+  type: analysis
+  chunks: []
+
+- topic: border_carbon_adjustment
+  stance: con
+  source: "Are Carbon Border Adjustments a Dream Climate Policy or Protectionist Nightmare?"
+  author: "Gabriella Beaumont-Smith, Cato Institute"
+  date: "2024-07"
+  url: "https://www.cato.org/policy-analysis/are-carbon-border-adjustments-dream-climate-policy-or-protectionist-nightmare"
+  domain: fiscal_policy
+  type: analysis
+  chunks: []
