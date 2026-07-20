@@ -17,6 +17,12 @@ from gin.cartographer.combined import CombinedRelationProposer
 from gin.curator.corpus_json import load_corpus_chunks
 from gin.curator.node4_verify import verify_surfacing
 
+# A PASS this deep into the residue is reachable in principle (the gate is
+# presence-based, deliberately) but not in practice — a human curator paging
+# 20 pairs at a time is very unlikely to ever page this far. Flagged, not
+# failed: the pass/fail rule stays presence-based by design.
+DEEP_RANK_THRESHOLD = 500
+
 
 def main() -> None:
     ap = argparse.ArgumentParser(description="Verify node4 issue_frame pairs surface")
@@ -32,10 +38,18 @@ def main() -> None:
 
     results = verify_surfacing(chunks, node4_docs, proposer)
     sinks = [r for r in results if not r.passed]
+    shallow = [r for r in results if r.passed and r.rank < DEEP_RANK_THRESHOLD]
+    deep = [r for r in results if r.passed and r.rank >= DEEP_RANK_THRESHOLD]
     for r in sorted(results, key=lambda r: (r.passed, r.topic)):
-        mark = f"PASS rank={r.rank}" if r.passed else "SINK"
-        print(f"{'✓' if r.passed else '✗'} {r.topic:<24} {mark}")
-    print(f"\n{len(results) - len(sinks)}/{len(results)} thesis pairs surfaced")
+        if not r.passed:
+            mark = "SINK"
+        elif r.rank >= DEEP_RANK_THRESHOLD:
+            mark = f"PASS rank={r.rank} DEEP"
+        else:
+            mark = f"PASS rank={r.rank}"
+        print(f"{mark:<24} {r.topic}")
+    print(f"\n{len(results) - len(sinks)}/{len(results)} thesis pairs surfaced"
+          f" ({len(shallow)} within first {DEEP_RANK_THRESHOLD}, {len(deep)} deeper)")
     if sinks:
         print("HARD GATE FAILED — sharpen sources for: " + ", ".join(r.topic for r in sinks))
         sys.exit(1)

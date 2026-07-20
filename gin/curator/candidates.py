@@ -21,12 +21,20 @@ CONTRA_THRESHOLD = 0.5
 
 
 class CandidateSource(Protocol):
+    # True iff pairs() is already returned in the order it wants shown to a
+    # curator (e.g. an evidence-based ranking) — callers must not re-sort it
+    # through order_backlog. Default False for any source that doesn't
+    # declare it; check via getattr(source, "pre_ranked", False).
+    pre_ranked: bool = False
+
     def chunks(self) -> list[LabeledChunk]: ...
     def pairs(self) -> list[tuple[LabeledChunk, LabeledChunk]]: ...
 
 
 class OfflineCandidateSource:
     """DB-free source over an in-memory chunk set (the default)."""
+
+    pre_ranked = False
 
     def __init__(self, chunks: list[LabeledChunk]) -> None:
         self._chunks = list(chunks)
@@ -47,6 +55,21 @@ def informativeness(sig: dict) -> float:
     if GATE_FLOOR <= cos < CORROBORATE_CEILING:
         return 1.0  # ambiguous mid-band (includes the not-same-story residue)
     return 0.0
+
+
+def pre_ranked_unlabeled_pairs(
+    source: CandidateSource,
+    already_labeled: set[tuple[str, str]],
+) -> list[tuple[LabeledChunk, LabeledChunk]]:
+    """The next-pairs decision for a pre_ranked source: walk source.pairs() in
+    its own order, dropping already-labeled pairs — no re-sort. Kept separate
+    from order_backlog (and from any HTTP/signals concerns) so the ordering
+    decision is testable without a running app or a model."""
+    return [
+        (a, b)
+        for a, b in source.pairs()
+        if pair_key(a.chunk_id, b.chunk_id) not in already_labeled
+    ]
 
 
 def order_backlog(

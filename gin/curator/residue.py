@@ -59,6 +59,10 @@ DEFAULT_NLI_RANK_LIMIT = 400
 class EscalationResidueCandidateSource:
     """A.CandidateSource over the escalation residue of a corpus."""
 
+    # pairs() already returns the evidence-based ranking (NLI contradictions
+    # first, then cosine-descending) — app.next_pairs must not re-sort it.
+    pre_ranked = True
+
     def __init__(
         self,
         chunks: list[LabeledChunk],

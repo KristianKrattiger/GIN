@@ -39,6 +39,12 @@ DEFAULT_CORROBORATE_CEILING = 0.45
 DEFAULT_CONTRA_THRESHOLD = 0.5
 DEFAULT_EMBED_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
 DEFAULT_NLI_MODEL = "cross-encoder/nli-deberta-v3-xsmall"
+# _p_contra_cache grows O(pairs typed) and a scan/curator run shares one
+# proposer across its whole run — bound it so a very large scan doesn't grow
+# it unboundedly. Simple reset-on-overflow, not an LRU: memoization is a
+# per-run cost optimization, not correctness-load-bearing, so an occasional
+# cache miss after a clear is fine.
+DEFAULT_MAX_P_CONTRA_CACHE = 5000
 
 _THRESHOLDS_PATH = Path(__file__).resolve().parents[2] / "data" / "cartographer_thresholds.json"
 
@@ -110,6 +116,7 @@ class CombinedRelationProposer:
         thresholds: Optional[Thresholds] = None,
         embed_model: str = DEFAULT_EMBED_MODEL,
         nli_model: str = DEFAULT_NLI_MODEL,
+        max_p_contra_cache: int = DEFAULT_MAX_P_CONTRA_CACHE,
     ) -> None:
         t = thresholds or load_thresholds()
         self.thresholds = t
@@ -128,6 +135,7 @@ class CombinedRelationProposer:
         self._nli = None
         self._nli_label_index: dict[str, int] = {}
         self._p_contra_cache: dict[frozenset, float] = {}
+        self._max_p_contra_cache = max_p_contra_cache
 
     # -- backends -----------------------------------------------------------
 
@@ -188,6 +196,8 @@ class CombinedRelationProposer:
             return self._p_contra_cache[key]
         scorer = self._nli_scores or self._nli_model_scores
         value = max(scorer(a_text, b_text)[0], scorer(b_text, a_text)[0])
+        if len(self._p_contra_cache) >= self._max_p_contra_cache:
+            self._p_contra_cache.clear()
         self._p_contra_cache[key] = value
         return value
 

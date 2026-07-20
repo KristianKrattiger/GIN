@@ -41,11 +41,14 @@ def test_builds_node_id_and_doc_ids_pro_then_con():
     assert docs[0]["node"] == "node_4_contested"
 
 
-def test_chunk_ids_and_string_positions():
+def test_chunk_ids_and_int_positions():
+    # position is an int everywhere else (corpus_node1/2/3.json) — a string
+    # here would make corpus_node4.json the only divergent corpus (F4).
     out = build_node4(_pair("carbon_tax"))
     chunks = out["documents"][0]["chunks"]
     assert [c["chunk_id"] for c in chunks] == ["n4_doc_001_c000", "n4_doc_001_c001"]
-    assert [c["position"] for c in chunks] == ["0", "1"]
+    assert [c["position"] for c in chunks] == [0, 1]
+    assert all(isinstance(c["position"], int) for c in chunks)
     assert chunks[0]["text"] == "carbon_tax pro claim 0"
 
 
@@ -86,3 +89,35 @@ def test_global_id_collision_raises():
     dup[1]["date"] = dup[0]["date"]
     with pytest.raises(ValueError, match="global_id"):
         build_node4(dup)
+
+
+def test_bad_domain_raises():
+    bad = _pair("carbon_tax")
+    bad[0]["domain"] = "made_up_domain"
+    with pytest.raises(ValueError, match="domain"):
+        build_node4(bad)
+
+
+def test_bad_type_raises():
+    bad = _pair("carbon_tax")
+    bad[0]["type"] = "made_up_type"
+    with pytest.raises(ValueError, match="type"):
+        build_node4(bad)
+
+
+@pytest.mark.parametrize("domain", ["climate_policy", "energy_policy", "fiscal_policy"])
+def test_valid_domains_accepted(domain):
+    pair = _pair("carbon_tax")
+    pair[0]["domain"] = domain
+    pair[1]["domain"] = domain
+    out = build_node4(pair)
+    assert out["documents"][0]["metadata"]["domain"] == domain
+
+
+@pytest.mark.parametrize("type_", ["opinion", "advocacy", "analysis"])
+def test_valid_types_accepted(type_):
+    pair = _pair("carbon_tax")
+    pair[0]["type"] = type_
+    pair[1]["type"] = type_
+    out = build_node4(pair)
+    assert out["documents"][0]["metadata"]["type"] == type_

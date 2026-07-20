@@ -18,7 +18,7 @@ from pydantic import BaseModel
 from gin.cartographer.models import Relation
 from gin.cartographer.scan import sentence_anchor
 
-from .candidates import CandidateSource, order_backlog
+from .candidates import CandidateSource, order_backlog, pre_ranked_unlabeled_pairs
 from .models import LabelRecord, pair_key
 from .readiness import ReadinessTarget, readiness
 from .store import Store
@@ -57,6 +57,23 @@ def create_curator_app(
     @app.get("/curator/next")
     def next_pairs(n: int = 20) -> dict:
         labeled = set(store.fold_current().keys())
+
+        if getattr(source, "pre_ranked", False):
+            # Source already returns its own evidence-based ranking (e.g. the
+            # residue's NLI-first, cosine-descending order) — re-sorting it
+            # through order_backlog would invert that ranking, so just walk
+            # it in order and only pay for signals_fn on the pairs shown.
+            unlabeled_pairs = pre_ranked_unlabeled_pairs(source, labeled)
+            pairs = [
+                {
+                    "src": a.chunk_id, "dst": b.chunk_id,
+                    "src_text": a.text, "dst_text": b.text,
+                    "signals": signals_fn(a.text, b.text),
+                }
+                for a, b in unlabeled_pairs[:n]
+            ]
+            return {"pairs": pairs, "labeled": len(labeled), "remaining": len(unlabeled_pairs)}
+
         scored = []
         for a, b in source.pairs():
             if pair_key(a.chunk_id, b.chunk_id) in labeled:

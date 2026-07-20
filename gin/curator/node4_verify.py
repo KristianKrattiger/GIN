@@ -30,7 +30,9 @@ def intended_thesis_pairs(documents: list[dict]) -> dict[str, tuple[str, str]]:
     for doc in documents:
         topic = doc["metadata"]["topic"]
         stance = doc["metadata"]["stance"]
-        zero = next(c for c in doc["chunks"] if str(c["position"]) == "0")
+        zero = next((c for c in doc["chunks"] if str(c["position"]) == "0"), None)
+        if zero is None:
+            raise ValueError(f"doc {doc['doc_id']!r} has no position-0 (thesis) chunk")
         cid = f"{doc['doc_id']}:{zero['position']}"
         thesis_by_topic.setdefault(topic, {})[stance] = cid
     out: dict[str, tuple[str, str]] = {}

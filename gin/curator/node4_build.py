@@ -10,6 +10,8 @@ import hashlib
 
 NODE_ID = "node_4_contested"
 _REQUIRED = ("topic", "stance", "source", "author", "date", "url", "domain", "type", "chunks")
+_VALID_DOMAINS = {"climate_policy", "energy_policy", "fiscal_policy"}
+_VALID_TYPES = {"opinion", "advocacy", "analysis"}
 
 
 def compute_global_id(source: str, author: str, date: str) -> str:
@@ -24,6 +26,16 @@ def _validate(manifest: list[dict]) -> None:
                 raise ValueError(f"manifest entry {i} missing required key {key!r}")
         if e["stance"] not in {"pro", "con"}:
             raise ValueError(f"manifest entry {i} bad stance {e['stance']!r} (pro|con)")
+        if e["domain"] not in _VALID_DOMAINS:
+            raise ValueError(
+                f"manifest entry {i} ({e['topic']}) bad domain {e['domain']!r} "
+                f"(expected one of {sorted(_VALID_DOMAINS)})"
+            )
+        if e["type"] not in _VALID_TYPES:
+            raise ValueError(
+                f"manifest entry {i} ({e['topic']}) bad type {e['type']!r} "
+                f"(expected one of {sorted(_VALID_TYPES)})"
+            )
         if not e["chunks"]:
             raise ValueError(f"manifest entry {i} ({e['topic']}) has no chunks")
     # Each topic appears exactly twice: one pro, one con.
@@ -58,7 +70,7 @@ def build_node4(manifest: list[dict]) -> dict:
             )
         seen_gids[gid] = doc_id
         chunks = [
-            {"chunk_id": f"{doc_id}_c{j:03d}", "position": str(j), "text": text}
+            {"chunk_id": f"{doc_id}_c{j:03d}", "position": j, "text": text}
             for j, text in enumerate(e["chunks"])
         ]
         documents.append({

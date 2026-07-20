@@ -1,5 +1,7 @@
 """node4 surfacing verifier: thesis-pair identification + PASS/SINK over a
 model-free proposer (same injection pattern as test_curator_residue)."""
+import pytest
+
 from gin.cartographer.combined import CombinedRelationProposer
 from gin.cartographer.models import LabeledChunk
 from gin.curator.models import pair_key
@@ -18,6 +20,16 @@ DOCS = [
 def test_intended_thesis_pairs_uses_position_zero():
     got = intended_thesis_pairs(DOCS)
     assert got == {"carbon_tax": pair_key("n4_doc_001:0", "n4_doc_002:0")}
+
+
+def test_missing_position_zero_raises_named_value_error():
+    malformed = [{
+        "doc_id": "n4_doc_099",
+        "metadata": {"topic": "carbon_tax", "stance": "pro"},
+        "chunks": [{"position": 1, "text": "no thesis chunk here"}],
+    }]
+    with pytest.raises(ValueError, match="n4_doc_099"):
+        intended_thesis_pairs(malformed)
 
 
 def _proposer(cos_map):
