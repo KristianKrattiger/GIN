@@ -443,8 +443,10 @@ Ranked by what would most change confidence in this result:
 Per [GIN_Session_Synthesis_v1.md](GIN_Session_Synthesis_v1.md), the two-node
 divergence demo was "the empirical keystone… until that number exists, this is
 architecture; after it, a record." That number now exists (§5), so the gate to
-Phase 2 (Bookkeeper separation) / automated Cartographer discovery is
-genuinely open. But the sequencing matters:
+Phase 2 (Bookkeeper separation) / automated Cartographer discovery opened.
+**Update (2026-07):** that sequencing landed — Cartographer → Bookkeeper →
+Phase 3 federation are measured (see [architecture.md](../architecture.md)).
+The notes below remain the rationale that ordered the work:
 
 - **Reasoning-layer robustness gates both.** This whole result runs on
   hand-curated, fully-trusted edges. The moment a Cartographer proposes edges
@@ -454,7 +456,7 @@ genuinely open. But the sequencing matters:
   are the foundational cracks; close them before adding a layer whose value is
   feeding the reasoning layer *more and noisier* edges. The architecture's
   falsifiability-by-layer only holds if each layer is independently sound
-  first.
+  first. *(Later measured: `docs/nc_reasoning_robustness_noisy_edges.plan.md`.)*
 - **Cartographer before Bookkeeper.** The Bookkeeper adjudicates Cartographer
   proposals; there is nothing to gate until proposals exist. A minimal
   Cartographer (the cheap relatedness gate + a `contradicts` proposer over the
@@ -462,7 +464,7 @@ genuinely open. But the sequencing matters:
   (more pairs / domains) tractable without hand-curation. Plan the Cartographer
   first, with the Bookkeeper's admission interface (anchor verification, DAG
   invariants, provenance stamp) sketched alongside.
-- **Recommended order:** (a) close #2 real-corpus validation + #4 root cause;
+- **Recommended order (executed):** (a) close #2 real-corpus validation + #4 root cause;
   (b) minimal Cartographer to generate edges at a larger corpus scale;
   (c) Bookkeeper as the admission gate once proposals exist to gate;
   (d) Phase 3 federation. Corpus expansion and the Cartographer are coupled —
@@ -497,8 +499,11 @@ genuinely open. But the sequencing matters:
   anchoring. If/when the Cartographer is built, it should be tested for edge
   precision/recall on the new framing styles (§6 #3) *independently*, so a
   shared-IDF blind spot can't hide behind "just noisy data" once corpus size
-  grows. No shared code path exists yet (Cartographer unbuilt); this is a
-  constraint to carry into its design, not a current bug.
+  grows. **Update (2026-07):** Cartographer + Bookkeeper are now built and
+  measured (`gin/cartographer/`, `gin/bookkeeper/`); keep testing edge
+  precision/recall on new framing styles independently of the decode path so
+  a shared-IDF blind spot still cannot hide. This was a design constraint
+  carried in; it remains a test discipline, not a current bug.
 
 ## 8. Out of scope (this doc)
 

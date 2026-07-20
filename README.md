@@ -10,18 +10,24 @@ For system design, data flow, and module-level detail, see **[architecture.md](a
 
 ## What this repository contains
 
-This repo is the **Phase 1 engineering scaffold**: a working corpus tier, hybrid retrieval, and SEAR constrained decoding on stock Mistral via `llama-cpp-python`. It proves extractive synthesis with span-level attribution before federation, graph admission, or attention surgery.
+This repo implements **Phases 1–3** of the GIN build: corpus tier + SEAR constrained decoding, Cartographer/Bookkeeper graph admission, and measured federation (sovereign delegation, Merkle anchor sync, N=3 peer selection, trust gating, mTLS, NDJSON streaming). Phase 4 (SEAR training loop) remains open. Module-level diagrams: **[architecture.md](architecture.md)**.
 
 | Package | Role |
 |---------|------|
 | [`sear/`](sear/) | SEAR inference core — token-indexed `Corpus`, `ExtractiveCopyConstraint` logits processor, stratified connective inventory, `BiasedGINLogitsProcessor` |
 | [`gin/corpus/`](gin/corpus/) | Corpus tier — cold/warm/hot storage, ingest, hybrid retrieval, synthesis bundling, layered provenance records |
+| [`gin/cartographer/`](gin/cartographer/) | Relation proposers, relatedness gate, scan pipeline, escalation / frame-judge eval |
+| [`gin/bookkeeper/`](gin/bookkeeper/) | Canonical graph admission gate, `GraphState`, Postgres edge persist |
+| [`gin/federation/`](gin/federation/) | Wire schema, router, mTLS peer client, Merkle anchors, peer selection, trust gate |
+| [`gin/curator/`](gin/curator/) | Append-only label store, labeling UI, residue source, node4 corpus build/verify |
 | [`gin/eval/`](gin/eval/) | Eval harness — RAG vs SEAR arms, overlap/NLI verifiers, metrics, `data/eval_runs/` reports |
-| [`scripts/`](scripts/) | CLI entry points for ingest, query, materialization, and live generation |
-| [`tests/`](tests/) | Unit tests for processor, retrieval, prompts, materialization, provenance |
+| [`scripts/`](scripts/) | CLI entry points for ingest, query, node serve, curator, and live evals |
+| [`config/`](config/) | Per-node YAML (`node_a`/`b`/`c`, trust-gated variants) |
+| [`tests/`](tests/) | Unit tests for processor, retrieval, federation, curator, bookkeeper |
 | [`data/synthetic/`](data/synthetic/) | YAML eval corpus (controlled divergence, counterfactual probes) |
 | [`data/eval/`](data/eval/) | Shared query set (`queryset.yaml`) for the designed experiment |
 | [`data/eval_runs/`](data/eval_runs/) | Timestamped eval reports, per-query JSON, retrieval recall artifacts |
+| [`data/curator/`](data/curator/) | Label JSONL, node4 source manifest |
 | [`docker/`](docker/) | Postgres + pgvector for local development |
 
 ---
@@ -33,7 +39,7 @@ SEAR is the inference discipline that makes GIN honest by architecture rather th
 - **Sparse** — the model may only emit token spans that occur verbatim in the retrieved corpus.
 - **Anchored** — each emitted span carries a pointer `(doc_id, start_pos, end_pos)` back to source positions.
 - **Cursor tracking** — live cursors `(doc_id, position)` track which source spans remain consistent with what has been emitted; the legal next token is the union of tokens at `position + 1` across all live cursors.
-- **Zero cursors** — a first-class grounding-failure signal: the corpus cannot support the current continuation. This triggers graceful termination or (in the full design) federation routing to a peer node.
+- **Zero cursors** — a first-class grounding-failure signal: the corpus cannot support the current continuation. On a federated node this routes via `answer_or_delegate` to a ranked peer over mTLS.
 
 In **divergent** synthesis mode, when sources disagree, the constraint can auto-close spans when cursors diverge across documents and require citation of both sides of a `contradicts` edge.
 
@@ -398,6 +404,17 @@ venv/Scripts/python.exe scripts/curator_readiness.py
 The same summary shows live in the labeling page's progress line
 (`GET /curator/readiness`). B unblocks when the gauge reads READY.
 
+**node4 issue_frame corpus.** Contested-policy polar pairs for residue
+labeling live in `corpus_node4.json` (10 topics). Rebuild and hard-gate:
+
+```bash
+venv/Scripts/python.exe scripts/build_node4.py
+venv/Scripts/python.exe scripts/verify_node4_surfacing.py
+```
+
+Sources: `data/curator/node4_sources.yaml`. Spec:
+`docs/superpowers/specs/2026-07-20-issue-frame-corpus-node4-design.md`.
+
 ### Federation v1 — sovereign delegation (two nodes, one machine)
 
 ```bash
@@ -454,7 +471,8 @@ python scripts/node_serve.py --config config/node_a.yaml
 python scripts/eval_peer_selection.py
 ```
 
-Selection is content-similarity only; trust weights remain a later mechanism.
+Selection ranks by content similarity (dense+sparse RRF over routing summaries);
+trust weights then gate the ranked list before contact (see next section).
 Bar and scope: docs/superpowers/specs/2026-07-15-peer-selection-n3-design.md.
 
 ### Trust weights (per-domain peer gating)
@@ -694,7 +712,9 @@ NLI confirms NC fabrication 0 on the 9-query structural baseline (`194024Z`); ex
 | Labeled set expanded + threshold calibration (33 pairs, LOO ≥ 0.85) | ✅ (`data/cartographer_thresholds.json`) |
 | NLI verifier on expanded 20-query set | ✅ (`20260712T035228Z`, `models/Mistral-7B-Instruct-v0.3-Q6_K.gguf`, WSL+GPU; NC realism fabrication 0.0, overall NLI fabrication 0.056 on counterfactual entailment miss) |
 | Bookkeeper + reasoning layer separation (Phase 2) | ✅ (admission gate wired; synthesis reads warm `edges`) |
-| Federation routing with sync metadata (Phase 3) | ✅ v1 sovereign delegation loop measured (run `20260714T175645Z`: routing FP 0, recall 1.0, routed fabrication 0.0, honest refusal 1.0); ✅ Merkle anchor sync measured (run `20260715T073932Z`: 0 diff vs. ground truth, no-op O(1) bytes, single-change cycle « full corpus); ✅ peer selection at N=3 measured (run `20260715T192750Z`: selection precision@1 1.0, avg peers tried 1.0, routing FP 0, fabrication 0.0, honest refusal 1.0); ✅ trust weights measured (gated run `20260716T004321Z`: gated_peer_contacted 0; ungated regression `20260716T004515Z` reproduces N=3 bar exactly); ✅ mTLS (self-signed pinned certs, replacing shared-secret bearer auth) measured on live 3-node deployment (ungated run `20260716T095519Z` reproduces N=3 bar exactly; gated run `20260716T095704Z` reproduces trust-weights bar exactly); gRPC/QUIC deferred |
+| Federation routing with sync metadata (Phase 3) | ✅ v1 sovereign delegation loop measured (run `20260714T175645Z`: routing FP 0, recall 1.0, routed fabrication 0.0, honest refusal 1.0); ✅ Merkle anchor sync measured (run `20260715T073932Z`: 0 diff vs. ground truth, no-op O(1) bytes, single-change cycle « full corpus); ✅ peer selection at N=3 measured (run `20260715T192750Z`: selection precision@1 1.0, avg peers tried 1.0, routing FP 0, fabrication 0.0, honest refusal 1.0); ✅ trust weights measured (gated run `20260716T004321Z`: gated_peer_contacted 0; ungated regression `20260716T004515Z` reproduces N=3 bar exactly); ✅ mTLS (self-signed pinned certs, replacing shared-secret bearer auth) measured on live 3-node deployment (ungated run `20260716T095519Z` reproduces N=3 bar exactly; gated run `20260716T095704Z` reproduces trust-weights bar exactly); ✅ streaming reasoning trace NDJSON (`POST /v1/federated/query/stream`); gRPC/QUIC deferred |
+| Curator UI + label store + B0 residue readiness | ✅ (`scripts/curator_serve.py`, `data/curator/labels.jsonl`, `GET /curator/readiness`) |
+| node4 issue_frame corpus (contested-policy polar pairs) | ✅ (`corpus_node4.json`, `scripts/build_node4.py`, `scripts/verify_node4_surfacing.py`) |
 
 ---
 
@@ -713,7 +733,7 @@ NLI confirms NC fabrication 0 on the 9-query structural baseline (`194024Z`); ex
 
 | Document | Contents |
 |----------|----------|
-| [architecture.md](architecture.md) | Technical architecture — corpus tier, SEAR, layered provenance record, module map |
+| [architecture.md](architecture.md) | Technical architecture — per-layer graphs, corpus/SEAR, Cartographer/Bookkeeper, federation, curator |}
 | [docs/GIN_ENG_01_SEAR_PoC_Spec.md](docs/GIN_ENG_01_SEAR_PoC_Spec.md) | SEAR proof-of-concept engineering spec and staged roadmap |
 | [docs/GIN_ENG_02_Eval_Baseline_v1.md](docs/GIN_ENG_02_Eval_Baseline_v1.md) | RAG vs No-Continuation baseline, epistemic promotion runs, deeper implications |
 | [docs/nc_mode_gating_retrieval_ordering.plan.md](docs/nc_mode_gating_retrieval_ordering.plan.md) | Phase 2: query-aware divergent gating + seed re-rank |

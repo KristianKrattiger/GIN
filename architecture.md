@@ -2,7 +2,7 @@
 
 Technical architecture for the Grounded Information Network — what is implemented in this repository, how the pieces connect, and where the design is headed.
 
-For node-tier deployment specs and federation protocol detail, see [docs/GIN_Node_Architecture_v1.md](docs/GIN_Node_Architecture_v1.md).
+For node-tier deployment specs and federation protocol detail, see [docs/GIN_Node_Architecture_v1.md](docs/GIN_Node_Architecture_v1.md). Operational commands live in [README.md](README.md).
 
 ---
 
@@ -20,42 +20,144 @@ These constraints govern every component decision:
 
 ## System overview
 
-GIN separates **what can be said** (corpus + graph), **what is admitted** (Bookkeeper), and **how answers are produced** (SEAR reasoning). This repository implements the corpus tier, the SEAR reasoning layer, an automated Cartographer relation detector, and the Bookkeeper admission gate; federation is designed but not yet built.
+GIN separates **what can be said** (corpus + graph), **what is admitted** (Bookkeeper), and **how answers are produced** (SEAR reasoning). This repository implements the corpus tier, SEAR constrained decoding, an automated Cartographer relation detector, the Bookkeeper admission gate, measured federation through mTLS (`gin/federation/`), and a curator labeling substrate for the `issue_frame` residue (`gin/curator/`).
+
+The diagrams below are one concern each. Start with the overview, then open the layer you care about.
+
+### Overview — how packages connect
+
+Entrypoints reach federation, eval, cartographer, or curator. Answers flow eval → corpus → SEAR. Graph writes go cartographer → bookkeeper → Postgres. Curator consumes cartographer signals only; nothing imports it.
 
 ```mermaid
 flowchart TB
-    subgraph ingest["Ingest pipeline"]
-        YAML["YAML corpus"]
-        COLD["Cold tier\nSHA-256 blobs"]
-        WARM["Warm tier\nPostgres metadata + edges"]
-        HOT["Hot tier\npgvector embeddings"]
-        YAML --> COLD
-        YAML --> WARM
-        YAML --> HOT
-    end
+    CLI["scripts/* entrypoints"]
+    FED["gin.federation\nwire + router + mTLS"]
+    EVAL["gin.eval\nNoContinuationArm"]
+    CORP["gin.corpus\nretrieve + materialize"]
+    SEAR["sear\nExtractiveCopyConstraint"]
+    CART["gin.cartographer\npropose edges"]
+    BK["gin.bookkeeper\nadmit + persist"]
+    CUR["gin.curator\nlabel store"]
+    PG[("Postgres warm/hot")]
 
-    subgraph query["Query path"]
-        Q["User query"]
-        RET["Hybrid retrieval\nRRF dense + sparse"]
-        SYN["Synthesis bundle\nconvergent | divergent"]
-        MAT["Materialize SEAR Corpus"]
-        Q --> RET --> SYN --> MAT
-    end
-
-    subgraph sear["SEAR decode"]
-        PROMPT["Synthesis prompt"]
-        LLM["llama.cpp / Mistral"]
-        PROC["ExtractiveCopyConstraint"]
-        OUT["Attributed spans"]
-        MAT --> PROMPT --> LLM
-        LLM <-->|"mask illegal tokens"| PROC
-        PROC --> OUT
-    end
-
-    WARM --> RET
-    HOT --> RET
-    WARM --> SYN
+    CLI --> FED
+    CLI --> EVAL
+    CLI --> CART
+    CLI --> CUR
+    FED -->|"answer_fn"| EVAL
+    EVAL --> CORP
+    CORP --> SEAR
+    CORP --> PG
+    CART -->|"EdgeProposal"| BK
+    BK -->|"edges"| PG
+    CUR -.->|"signals only"| CART
 ```
+
+### Corpus ingest
+
+YAML or local files land in three storage tiers. Bookkeeper-admitted edges later sit in the warm tier.
+
+```mermaid
+flowchart LR
+    SRC["YAML / local corpus"] --> COLD["Cold tier\nSHA-256 blobs"]
+    SRC --> WARM["Warm tier\nPostgres metadata"]
+    SRC --> HOT["Hot tier\npgvector embeddings"]
+    BK["Bookkeeper persist"] --> EDGES["Warm edges table"]
+    EDGES --> WARM
+```
+
+### Retrieval + SEAR
+
+Local query path from hybrid retrieve through extractive decode and post-decode gates.
+
+```mermaid
+flowchart LR
+    Q[query] --> RFS["retrieve_for_synthesis"]
+    RFS --> RET["retrieve RRF"]
+    RFS --> EDGES["warm.fetch_edges_among"]
+    RFS --> BUN["SynthesisBundle\nconvergent or divergent"]
+    BUN --> MAT["materialize_from_synthesis"]
+    MAT --> DEC["decode_bundle"]
+    DEC --> ECC["ExtractiveCopyConstraint"]
+    ECC --> SEG[segments]
+    SEG --> ARM["NoContinuationArm\nrelevance gates"]
+    ARM --> OUT[ArmOutput]
+```
+
+### Cartographer + Bookkeeper
+
+Cartographer proposes; Bookkeeper alone admits and persists canonical edges.
+
+```mermaid
+flowchart TB
+    CH[chunks] --> PRUNE["relatedness prune"]
+    PRUNE --> PROP["CombinedRelationProposer"]
+    PROP --> ESC["optional frame escalation"]
+    ESC --> EP[EdgeProposal]
+    PROP --> EP
+    EP --> ADMIT["Bookkeeper.admit"]
+    ADMIT -->|ADMITTED| GS[GraphState]
+    ADMIT -->|DENIED| D[AdmissionCode]
+    GS --> SYNC["persist.sync_admissions"]
+    SYNC --> PG[("edges table")]
+```
+
+### Federation query
+
+Hop-0 callers may delegate on local refusal; hop≥1 answers locally only. Peer contact is mTLS with pinned certs.
+
+```mermaid
+flowchart TB
+    IN["POST /v1/federated/query"] --> GUARD["version + hop_limit"]
+    GUARD --> HOP{"hop_count ge 1\nor no peers?"}
+    HOP -->|yes| LOCAL["answer_fn local"]
+    HOP -->|no| RTR["answer_or_delegate"]
+    RTR --> LOCAL2["answer_fn local"]
+    LOCAL2 -->|ok| OK[FederatedAnswer]
+    LOCAL2 -->|refuse| RANK["rank_peers + filter_trusted"]
+    RANK --> PC["HttpPeerClient.query\nhop=1 mTLS"]
+    PC --> PEER[peer local answer]
+    PEER --> OK
+    PC -->|all fail| REF[NodeRefusal]
+```
+
+`POST /v1/federated/query/stream` uses the same path and emits NDJSON trace events (`retrieval_settled`, `claim_admitted`, `synthesis_complete`) before the terminal response.
+
+### Federation control plane
+
+Background lifespan syncs Merkle anchors and routing summaries; selection ranks peers then applies the trust gate.
+
+```mermaid
+flowchart LR
+    LIFE[lifespan tasks] --> SYNC["anchor_sync.run_forever"]
+    SYNC --> ROOT["GET anchors/root"]
+    ROOT -->|mismatch| BUCK["GET buckets + leaves"]
+    BUCK --> STORE[PeerAnchorStore]
+    SYNC --> SUM["GET summary"]
+    SUM --> PSS[PeerSummaryStore]
+    Q[query] --> EMB["embed_query"]
+    EMB --> RANK["rank_peers RRF"]
+    PSS --> RANK
+    RANK --> TRUST["filter_trusted"]
+    TRUST --> ORDER[ordered PeerConfig]
+```
+
+### Curator labeling
+
+Offline FastAPI UI over an append-only JSONL store. Labels do not write Bookkeeper edges.
+
+```mermaid
+flowchart TB
+    SRC["CandidateSource\nlabeled-set or residue"] --> NEXT["GET /curator/next"]
+    PROP["CombinedRelationProposer"] --> SIG["pair_signals"]
+    SIG --> NEXT
+    NEXT --> UI[curator HTML]
+    UI --> LAB["POST /curator/label"]
+    LAB --> ST["Store.append JSONL"]
+    ST --> READY["GET /curator/readiness"]
+```
+
+The **node4** issue_frame corpus (`corpus_node4.json`, built via `scripts/build_node4.py`, gated by `scripts/verify_node4_surfacing.py`) is the contested-policy polar substrate for residue labeling. Spec: [docs/superpowers/specs/2026-07-20-issue-frame-corpus-node4-design.md](docs/superpowers/specs/2026-07-20-issue-frame-corpus-node4-design.md).
 
 ---
 
@@ -77,7 +179,7 @@ The Reasoning layer may feed **proposals** back to discovery, but never writes c
 
 ## Corpus tier
 
-Each GIN node holds a **four-tier corpus stack**. This repo implements three tiers locally; the graph layer is represented as relational edge rows pending Bookkeeper admission.
+Each GIN node holds a **four-tier corpus stack**. This repo implements three storage tiers locally; canonical edges live in Postgres after Bookkeeper admission.
 
 ### Cold tier — immutable archive
 
@@ -86,16 +188,16 @@ Each GIN node holds a **four-tier corpus stack**. This repo implements three tie
 
 - Documents and chunks are stored as SHA-256-addressed blobs.
 - `content_hash` on warm-tier records points back to cold storage.
-- Enables tamper-evident provenance and Merkle manifest sync in the federation design.
+- Enables tamper-evident provenance; federation syncs **anchor metadata** via a 16-bucket Merkle tree (`gin/federation/anchor_tree.py`, `anchor_sync.py`) — not full corpus transfer.
 
 ### Warm tier — structured records + full-text
 
 **Module:** `gin/corpus/warm.py`  
 **Storage:** Postgres tables `documents`, `chunks`, `edges`, `ingest_runs`
 
-- Document metadata: outlet, title, source URI, ingest timestamp.
+- Document metadata: outlet, title, source URI, optional `domain`, ingest timestamp.
 - Chunk records: text, `head_sentence`, `eval_layer`, `eval_tag`, `content_hash`.
-- Epistemic edges between chunks with typed relationships.
+- Epistemic edges between chunks with typed relationships (Bookkeeper is the sole writer of admitted edges).
 - Generated `tsvector` column on `chunks.text` for BM25-style sparse retrieval.
 
 ### Hot tier — dense embeddings
@@ -107,9 +209,9 @@ Each GIN node holds a **four-tier corpus stack**. This repo implements three tie
 - Embeddings computed at ingest time; query embedding at retrieval time.
 - Cosine distance search via pgvector.
 
-### Graph layer (planned)
+### Graph layer
 
-Target: Neo4j or Oxigraph for cross-corpus divergence queries. Currently, `edges` in Postgres serves the PoC; Bookkeeper admission will gate promotion to canonical graph state.
+Canonical graph state is `GraphState` in `gin/bookkeeper/`, persisted to Postgres `edges` via `persist.sync_admissions`. A dedicated graph DB (Neo4j or Oxigraph) remains a future option for cross-corpus divergence queries; the PoC uses relational edge rows.
 
 ---
 
@@ -249,15 +351,19 @@ YAML / ingest
     → warm.upsert_document/chunk  # metadata + tsv
     → hot.embed_and_store         # vector(384)
 
-Query
+Query (local)
     → retrieve_for_synthesis
     → materialize_from_synthesis  # Corpus + SynthesisContext
     → build_synthesis_prompt      # manifest + task
     → ExtractiveCopyConstraint    # LogitsProcessor on llama.cpp
     → finalize() + render()       # attribution record
+
+Query (federated)
+    → POST /v1/federated/query[/stream]
+    → answer_or_delegate → NoContinuationArm (local or peer via mTLS)
 ```
 
-**Entry point:** `scripts/corpus_generate.py`
+**Entry points:** `scripts/corpus_generate.py` (local), `scripts/node_serve.py` (federated).
 
 ---
 
@@ -269,7 +375,7 @@ Defined in `docker/init-db.sql`:
 documents
   doc_id UUID PK
   content_hash TEXT UNIQUE
-  outlet, title, source_uri, source_type, ingested_at
+  outlet, title, source_uri, source_type, domain, ingested_at
 
 chunks
   chunk_id TEXT PK
@@ -285,9 +391,18 @@ edges
 
 ingest_runs
   run_id, status, stats_json, timestamps
+
+peer_anchors
+  peer_node_id, chunk_id, content_hash, outlet, title, bucket_index
+  (cached peer Merkle leaves — never peer chunk text)
+
+peer_summaries
+  peer_node_id PK
+  centroid vector, top_terms JSONB, domains JSONB, updated_at
+  (routing summaries for N>2 peer selection)
 ```
 
-Indexes: GIN on `tsv`, HNSW on `embedding`, B-tree on `eval_layer` and `doc_id`.
+Indexes: GIN on `tsv`, HNSW on `embedding`, B-tree on `eval_layer` and `doc_id`; peer-anchor index on `(peer_node_id, bucket_index)`.
 
 ---
 
@@ -296,53 +411,65 @@ Indexes: GIN on `tsv`, HNSW on `embedding`, B-tree on `eval_layer` and `doc_id`.
 ```
 GIN/
 ├── gin/
-│   └── corpus/
-│       ├── cold.py                # SHA-256 blob store
-│       ├── warm.py                # Postgres CRUD, edges, ingest runs
-│       ├── hot.py                 # SentenceTransformer embeddings
-│       ├── db.py                  # Connection helpers, env config
-│       ├── models.py              # ChunkHit, SynthesisBundle, SynthesisContext, …
-│       ├── ingest.py              # YAML → tiered ingest pipeline
-│       ├── corpus_manager.py      # Local JSONL/txt ingest + immutable store
-│       ├── manifest.py            # Versioned snapshot manifests
-│       ├── retrieve.py            # Hybrid search + synthesis bundling + RetrievalConfidenceError
-│       ├── materialize.py         # ChunkHit[] → sear.Corpus + SynthesisContext
-│       ├── divergence.py          # Divergence zone + forbidden-start computation; IDF-anchored fallback zone for structurally-dissimilar pairs
-│       ├── relevance.py           # Query-sentence + IDF-weighted match scoring (divergence gate, span steering)
-│       ├── prompts.py             # Synthesis prompt templates
-│       ├── retrieval_manifest.py  # Content-addressed retrieval event record
-│       └── synthesis_manifest.py  # Human-readable layered provenance render
+│   ├── corpus/
+│   │   ├── cold.py                # SHA-256 blob store
+│   │   ├── warm.py                # Postgres CRUD, edges, ingest runs, domain
+│   │   ├── hot.py                 # SentenceTransformer embeddings
+│   │   ├── db.py                  # Connection helpers, env config
+│   │   ├── models.py              # ChunkHit, SynthesisBundle, SynthesisContext, …
+│   │   ├── ingest.py              # YAML → tiered ingest pipeline
+│   │   ├── corpus_manager.py      # Local JSONL/txt ingest + immutable store
+│   │   ├── manifest.py            # Versioned snapshot manifests
+│   │   ├── retrieve.py            # Hybrid search + synthesis bundling
+│   │   ├── materialize.py         # ChunkHit[] → sear.Corpus + SynthesisContext
+│   │   ├── generate.py            # decode_bundle / generate_no_continuation
+│   │   ├── divergence.py          # Divergence zone + forbidden-start computation
+│   │   ├── relevance.py           # Query-sentence + IDF-weighted match scoring
+│   │   ├── prompts.py             # Synthesis prompt templates
+│   │   ├── retrieval_manifest.py  # Content-addressed retrieval event record
+│   │   ├── synthesis_manifest.py  # Human-readable layered provenance render
+│   │   └── trace_events.py        # Corpus-tier stream event primitives
+│   ├── cartographer/              # Relatedness gate + relation proposers + scan
+│   ├── bookkeeper/                # Admission gate, GraphState, persist to edges
+│   ├── federation/                # Wire schema, router, mTLS client, anchors, trust
+│   ├── curator/                   # Label store, residue source, node4 build/verify
+│   └── eval/                      # RAG vs NoContinuation arms, metrics, runners
 ├── sear/
-│   ├── corpus.py            # Token-indexed document store
-│   ├── processor.py         # ExtractiveCopyConstraint FSM + Segment.guidance
-│   ├── connectives.py       # Stratified connective inventory (contrastive/additive/concessive)
-│   └── bias.py              # BiasedGINLogitsProcessor (logit nudge layer)
-├── scripts/                 # CLI entry points
-├── tests/                   # pytest suite
+│   ├── corpus.py                  # Token-indexed document store
+│   ├── processor.py               # ExtractiveCopyConstraint FSM + Segment.guidance
+│   ├── connectives.py             # Stratified connective inventory
+│   └── bias.py                    # BiasedGINLogitsProcessor
+├── scripts/                       # CLI: ingest, generate, node_serve, curator_*, eval_*
+├── config/                        # Per-node YAML (node_a/b/c, trust-gated variants)
+├── tests/
 ├── data/
-│   ├── synthetic/           # YAML eval corpus
-│   ├── cold/                # Content-addressed blobs (gitignored content)
-│   └── retrieval_manifests/ # Content-addressed retrieval event records
+│   ├── synthetic/                 # YAML eval corpus
+│   ├── cold/                      # Content-addressed blobs (gitignored content)
+│   ├── curator/                   # labels.jsonl, node4_sources.yaml
+│   ├── retrieval_manifests/
+│   └── eval_runs/
 └── docker/
-    ├── docker-compose.yml   # pgvector Postgres
-    └── init-db.sql          # Schema bootstrap
+    ├── docker-compose.yml         # pgvector Postgres
+    └── init-db.sql                # Schema bootstrap
 ```
 
 ---
 
-## Node topology (target deployment)
+## Target deployment topology
+
+Aspirational Tier 1/2/3 layout. gRPC/QUIC remains deferred; the measured PoC uses HTTP+JSON over mTLS on localhost.
 
 ```mermaid
 flowchart TB
-    T3A["Tier 3\nPhone / laptop\n1B–8B quantized"]
+    T3A["Tier 3\nPhone / laptop\n1B-8B quantized"]
     T3B["Tier 3\nChromebook"]
-    T2["Tier 2 relay\nfairlady\n7B–14B + anchor cache"]
-    T1A["Tier 1\nUniversity / archive\n14B–70B + full corpus"]
+    T2["Tier 2 relay\nfairlady\n7B-14B + anchor cache"]
+    T1A["Tier 1\nUniversity / archive\n14B-70B + full corpus"]
     T1B["Tier 1\nResearch consortium"]
 
     T3A --> T2
     T3B --> T2
-    T2 -->|"gRPC / QUIC\nMerkle diff sync"| T1A
+    T2 -->|"gRPC / QUIC deferred\nMerkle diff sync"| T1A
     T2 --> T1B
     T1A <-->|"divergence exchange"| T1B
 ```
@@ -353,13 +480,23 @@ flowchart TB
 | **2** | Partial cache | Medium model on always-on relay | Cache-first routing; upstream delegation |
 | **3** | Personal cache + annotations | Small quantized model | Offline-first client; queues on disconnect |
 
-Federation syncs **anchor metadata** (topic fingerprints, cursor density, staleness) via Merkle-tree diffing — not full corpus transfer. Each node retains sovereignty over its own cold archive.
+### Measured localhost topology (Phase 3)
+
+Three sovereign processes (`config/node_a.yaml`, `node_b.yaml`, `node_c.yaml`), each with its own Postgres DB, cold store, GGUF model, and self-signed cert. Peers pin each other's `cert.pem`. Background tasks sync Merkle anchors and routing summaries; queries use `POST /v1/federated/query` over mTLS.
+
+| Node | Corpus role | Typical peer use |
+|------|-------------|------------------|
+| A | Split / primary eval corpus | Delegates when local grounding fails |
+| B | Complementary split | Answers hop=1 relays |
+| C | Monetary-policy corpus | N=3 selection target |
+
+Federation syncs **anchor metadata** via Merkle-tree diffing — not full corpus transfer. Each node retains sovereignty over its own cold archive.
 
 ---
 
 ## Build phases
 
-### Phase 1 — Dense baseline (current)
+### Phase 1 — Dense baseline
 
 Prove SEAR behavior on stock Mistral with grammar-constrained extractive synthesis:
 
@@ -377,13 +514,14 @@ Prove SEAR behavior on stock Mistral with grammar-constrained extractive synthes
 
 ### Phase 2 — Bookkeeper separation
 
-- Canonical graph admission gate
-- Cartographer proposals vs verified edges
-- Reasoning layer strictly read-only on graph state
+- ✅ Canonical graph admission gate (`gin/bookkeeper/`) — confidence, endpoint/anchor integrity, dedup, DAG acyclicity, provenance stamp
+- ✅ Cartographer proposals vs verified edges (`gin/cartographer/` → `Bookkeeper.admit` → `persist.sync_admissions`)
+- ✅ Reasoning layer strictly read-only on graph state (SEAR / retrieval consume edges; never write them)
+- ✅ Scan production validation + escalation frame-judge closure (issue_frame class is curation-only; see curator tier)
 
 ### Phase 3 — Federation
 
-- ✅ Two-node divergence demo (inter-corpus, same machinery) — measured on **real fetched text** (`20260705T043114Z`, `divergence_fidelity` 1.0), generalized across three framing registers and confirmed model-independent on Qwen2.5-7B. See [docs/nc_real_text_divergence_generalization.plan.md](docs/nc_real_text_divergence_generalization.plan.md). This is the divergence *signal* across two corpora; the transport below is still unbuilt.
+- ✅ Two-node divergence demo (inter-corpus, same machinery) — measured on **real fetched text** (`20260705T043114Z`, `divergence_fidelity` 1.0), generalized across three framing registers and confirmed model-independent on Qwen2.5-7B. See [docs/nc_real_text_divergence_generalization.plan.md](docs/nc_real_text_divergence_generalization.plan.md). This established the divergence *signal* across two corpora; the transport that followed is measured below.
 - ✅ Sovereign delegation loop (zero-cursor routing v1) — two node processes,
   HTTP+JSON schema-first transport behind the `PeerClient` seam
   (`gin/federation/`); pre-commitment grounding failures delegate to the
@@ -462,7 +600,8 @@ Four-stage training per [docs/GIN_Node_Architecture_v1.md](docs/GIN_Node_Archite
 | Retrieval confidence floor | `gin/corpus/retrieve.py` `RETRIEVAL_CONFIDENCE_FLOOR` | Minimum absolute RRF score before synthesis is declined |
 | `min_span_len` | `ExtractiveCopyConstraint` constructor | Minimum tokens before span close |
 | Eval layers | `gin/corpus/models.py` `EvalLayer` | Filter retrieval / ingest by corpus slice |
-| Zero-cursor fallback | `sear/processor.py` | Federation routing (planned) |
+| Zero-cursor / grounding failure | `sear/processor.py` → `gin/federation/router.py` | Federation routing via `answer_or_delegate` (implemented) |
+| Trust gate threshold | `gin/federation/config.py` `trust_gate_threshold` | Drop peers whose known domain weight is below threshold |
 | Retrieval manifest storage | `gin/corpus/retrieval_manifest.py` `retrieval_manifests_dir()` | Override manifest storage root |
 
 ---
@@ -471,7 +610,9 @@ Four-stage training per [docs/GIN_Node_Architecture_v1.md](docs/GIN_Node_Archite
 
 | Document | Focus |
 |----------|-------|
+| [README.md](README.md) | Ops commands, eval status table, curator / federation how-to |
 | [docs/GIN_Node_Architecture_v1.md](docs/GIN_Node_Architecture_v1.md) | Tier 1/2/3 specs, SEAR training loop, federation protocol |
+| [docs/GIN_ENG_00_Engineering_Register.md](docs/GIN_ENG_00_Engineering_Register.md) | Measured vs quarantined engineering ledger |
 | [docs/GIN_ENG_01_SEAR_PoC_Spec.md](docs/GIN_ENG_01_SEAR_PoC_Spec.md) | SEAR proof-of-concept engineering spec |
 | [docs/GIN_The_Whole_Frame.md](docs/GIN_The_Whole_Frame.md) | Program-level synthesis and roadmap honesty |
 | [docs/GIN_02_Productive_Divergence.md](docs/GIN_02_Productive_Divergence.md) | Divergence-as-feature thesis |

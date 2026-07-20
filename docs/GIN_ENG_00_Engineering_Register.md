@@ -1,14 +1,14 @@
 ---
 tags: [GIN, research, engineering, specs, quarantine]
-updated: 2026-07-11
-version: 0.4-preliminary
+updated: 2026-07-20
+version: 0.5-preliminary
 status: working draft
 register: engineering
 ---
 
 # GIN ENG 00 — Engineering Register
 
-> Index and quarantine. Every reality-grounded specification lives here and nowhere else, so that nothing in the conceptual register (GIN 00–10) can be mistaken for a shipped design. Every entry below is **unmeasured** until the promotion rule is satisfied.
+> Index and quarantine. Every reality-grounded specification lives here and nowhere else, so that nothing in the conceptual register (GIN 00–10) can be mistaken for a shipped design. Entries below are **unmeasured** until the promotion rule is satisfied — except where a bullet explicitly records a measured promotion with an artifact path.
 
 ---
 
@@ -18,7 +18,7 @@ The conceptual papers argue. This register measures. Keeping them apart prevents
 
 ---
 
-## Spec categories (all unmeasured)
+## Spec categories (quarantine + promotions)
 
 **Transport — MOCAP** ([[GIN_05_MOCAP]])
 - Reticulum frame layout actually assumed; real link-frame overhead.
@@ -52,9 +52,17 @@ The conceptual papers argue. This register measures. Keeping them apart prevents
 - First node pair / dataset — not identified. Status: many phases out, not sequenced.
 
 **Federation** ([[GIN_03_Node_Identity]])
-- Adapter-switching cost and concurrency limits.
-- Federation breadth-control: how many nodes constitute a "full picture," selected how.
-- Two-node divergence demo (inter-corpus, same machinery) — **the empirical keystone is measured** (`20260705T043114Z`, real two-node corpus). This is the divergence *signal* across two corpora, not yet the transport: Merkle-diff anchor sync, zero-cursor peer routing, and adapter-switching remain unbuilt and unmeasured. See `docs/nc_real_text_divergence_generalization.plan.md` §7 for the Cartographer/Bookkeeper sequencing this unlocks.
+- Adapter-switching cost and concurrency limits — still unmeasured.
+- Federation breadth-control: how many nodes constitute a "full picture," selected how — open beyond N=3 content+trust ranking.
+- Two-node divergence demo (inter-corpus, same machinery) — **measured** (`20260705T043114Z`, real two-node corpus). This established the divergence *signal* across two corpora.
+- **Phase 3 transport — measured promotions** (see [architecture.md](../architecture.md) Phase 3; ops in [README.md](../README.md)):
+  - Sovereign delegation loop — `data/eval_runs/20260714T175645Z/federation_metrics.json` (routing FP 0, recall 1.0, routed fabrication 0.0, honest refusal 1.0).
+  - Merkle anchor sync — `data/eval_runs/20260715T073932Z/anchor_sync_metrics.json` (0 diff vs peer ground truth; no-op O(1) bytes).
+  - Peer selection at N=3 — `data/eval_runs/20260715T192750Z/peer_selection_metrics.json` (precision@1 1.0).
+  - Trust weights (per-domain gating) — gated `20260716T004321Z` (gated_peer_contacted 0); ungated regression `20260716T004515Z`.
+  - mTLS (pinned self-signed certs; bearer `shared_secret` removed) — ungated `20260716T095519Z`, gated `20260716T095704Z` reproduce prior bars over real TLS.
+  - Streaming reasoning trace — `POST /v1/federated/query/stream` NDJSON events (spec `2026-07-16-streaming-reasoning-trace-design.md`).
+  - Still deferred: gRPC/QUIC transport, geographic multi-host deployment, adapter-switching.
 
 **(v0.4) Agentic / MCP server** ([[GIN_09_Agentic_Layer]])
 - MCP server protocol surface and the published behavioural-control specification.
@@ -98,7 +106,9 @@ Until all three hold, the item remains an *engineering issue* (nameable in mecha
 
 **Cartographer → Bookkeeper → Postgres**: `scripts/cartographer_scan.py` + [`gin/bookkeeper/persist.py`](../gin/bookkeeper/persist.py) persist admitted edges with provenance; labeled set expanded to 33 pairs with LOO ≥ 0.85 on baked calibration samples.
 
-**Cartographer scan production validation** (2026-07-12): scan-first workflow (`corpus_ingest.py --no-edges` → `cartographer_scan.py --cross-outlet-only` → `cartographer_eval_scan.py`) measured on mixed 136-chunk DB. **Baseline** (`20260712T053645Z`): gold contradicts recall **0.50**, **135** false-positive admitted edges, `class_c_discrimination` **1.0**. **After scan pruning + Bookkeeper relation re-check** (`20260712T074956Z`): hybrid IDF+embedding candidate prune (6222 → 2157 pairs), doc-pair dedup (NLI preferred), `FRAMING_BAND_FLOOR` **0.35**, default `out_of_scope_stub` exclusion — recall still **0.50**, false positives **120** (122 admitted), `class_c_discrimination` **1.0**; `hf_alderflats_staff:0` ↔ `hf_alderflats_tenants:0` recovered. Remaining gaps: meridian/wf_multi mis-typed as corroborates, twonode band pairs below gate or wrong chunk. Divergence eval battery on prior scan-only edges: framing2 **passes** (`20260712T060050Z`); twonode/housing/multipara **do not yet match** YAML baselines. See `nc_cartographer_design.plan.md` §6c.
+**Cartographer scan production validation** (2026-07-12): scan-first workflow (`corpus_ingest.py --no-edges` → `cartographer_scan.py --cross-outlet-only` → `cartographer_eval_scan.py`) measured on mixed 136-chunk DB. **Baseline** (`20260712T053645Z`): gold contradicts recall **0.50**, **135** false-positive admitted edges, `class_c_discrimination` **1.0**. **After scan pruning + Bookkeeper relation re-check** (`20260712T074956Z`): hybrid IDF+embedding candidate prune (6222 → 2157 pairs), doc-pair dedup (NLI preferred), `FRAMING_BAND_FLOOR` **0.35**, default `out_of_scope_stub` exclusion — recall still **0.50**, false positives **120** (122 admitted), `class_c_discrimination` **1.0**; `hf_alderflats_staff:0` ↔ `hf_alderflats_tenants:0` recovered. Remaining gaps closed later the same day: story-gate + label decisions (`20260712T220456Z` machine recall 1.0 on 9/9 story-class gold); issue_frame class closed as curation-only after frontier judges stayed below bar (`20260713T223653Z`). See README Cartographer section and `nc_cartographer_design.plan.md`.
+
+**Curator + node4** (2026-07-17…20): framing-corpus spine (`gin/curator/`, `data/curator/labels.jsonl`); B0 residue source + readiness gauge; node4 contested-policy polar corpus (`corpus_node4.json`, `scripts/build_node4.py`, `scripts/verify_node4_surfacing.py`). Bi-encoder frame detector remains gated on labels.
 
 ## Related
 

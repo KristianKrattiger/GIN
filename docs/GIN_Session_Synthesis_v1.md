@@ -272,13 +272,13 @@ These are not gaps in thinking. They are the identified frontier.
 3. ✅ Live Mistral integration via llama-cpp-python (runs via WSL Ubuntu; Windows-python crashes at model load)  
 4. ✅ SEAR grounding rate measured against RAG baseline — NC fabrication 0.0 vs RAG 0.238–0.286 ([[GIN_ENG_02_Eval_Baseline_v1]], `20260702T012203Z`)  
 5. ✅ Two-node divergence demo — same machinery, scope dialed to inter-corpus; **real fetched text**, `divergence_fidelity` 1.0 (`20260705T043114Z`), generalized across three framing registers and confirmed model-independent on Qwen2.5-7B ([Real-text divergence generalization](nc_real_text_divergence_generalization.plan.md))  
-6. 🔲 Bookkeeper + reasoning layer separation (Phase 2)  
-7. 🔲 Federation routing with sync metadata (Phase 3)  
+6. ✅ Bookkeeper + reasoning layer separation (Phase 2) — Cartographer proposes, Bookkeeper admits/persists; synthesis reads warm `edges` only
+7. ✅ Federation routing with sync metadata (Phase 3) — sovereign delegation, Merkle anchor sync, N=3 peer selection, trust gating, mTLS, NDJSON streaming — all measured (see [architecture.md](../architecture.md) / [README.md](../README.md))
 
-*The two-node divergence demo was the empirical keystone. That number now exists (item 5) — so this document and its companions have crossed from architecture into record for the reasoning/divergence layer. What remains architecture is the federation transport (Bookkeeper admission, Cartographer discovery, Merkle-diff sync, zero-cursor peer routing): items 6–7. The real-text plan §7 argues the sequencing — reasoning-layer robustness gates the whole chain, then Cartographer before Bookkeeper.*
+*Historical note (this file): items 6–7 were open when the session closed; they shipped Jul 11–16 2026. Treat the build sequence above as a record, not a roadmap. Still open: Phase 4 SEAR training, bi-encoder frame detector (gated on curator labels), gRPC/QUIC.*
 
 ---
 
 *Monolith / GIN — session synthesis*  
 *Companions: GIN_The_Whole_Frame.md · GIN_Node_Architecture_v1.md · sear_phase1.py*  
-*Next real artifact: synthetic corpus + zero-cursor fallback specification*
+*Next real artifact (superseded by later work): see architecture.md / README.md for current standing*

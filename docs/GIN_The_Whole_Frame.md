@@ -12,19 +12,29 @@ Everything below is that sentence expanded in five directions.
 
 ## 1. Current state — honest map
 
-This is where it actually is, sorted by what exists versus what is designed versus what is hoped. The discipline of the project demands this sorting; a frame that blurs it would be the first betrayal of SEAR's own principle.
+This is where it actually is, sorted by what exists versus what is designed versus what is hoped. The discipline of the project demands this sorting; a frame that blurs it would be the first betrayal of SEAR's own principle. For the measured system map, see [architecture.md](../architecture.md) and [README.md](../README.md).
 
-**What exists.**
-The substrate. `fairlady` (Beelink, EndeavourOS) is running Docker Compose — Pi-hole, Jellyfin, Gitea — on a Tailscale mesh. That is a functioning Tier 2 relay topology in everything but name: phones and laptops as thin clients routing through a household anchor before reaching anything wider. The architecture documents exist (SEAR engineering specs, the Node Tier Specification v1, the five design principles). The conceptual apparatus is mature.
+**What exists (measured in this repo, as of 2026-07-20).**
+- **SEAR** — extractive constrained decode with span attribution; NC vs RAG baseline and epistemic metrics measured ([GIN_ENG_02](GIN_ENG_02_Eval_Baseline_v1.md)).
+- **Corpus tier** — cold SHA-256 blobs, warm Postgres + full-text, hot pgvector (MiniLM).
+- **Two-node / multi-register divergence** — real fetched text, `divergence_fidelity` 1.0; model-independent on Qwen2.5-7B.
+- **Cartographer + Bookkeeper** — propose / admit / persist typed edges; story-class scan validated; `issue_frame` closed as curation-only.
+- **Federation Phase 3** — sovereign delegation, Merkle anchor sync, N=3 peer selection, trust gating, pinned mTLS, NDJSON streaming trace — all measured on live localhost nodes.
+- **Curator + node4** — labeling UI, append-only JSONL store, residue readiness gauge, contested-policy polar corpus for issue_frame growth.
+- Substrate: `fairlady` (Beelink, EndeavourOS) still runs Docker Compose on Tailscale as a household Tier 2–shaped relay.
 
-**What is designed but unbuilt.**
-SEAR (Sparse Epistemically Anchored Reasoning) — the inference discipline where the model reasons only from what it can point to, and marks the seam where it cannot. The Tier 1 stack: hot vector tier (Qdrant/Weaviate), warm document + lexical tier (Postgres/pgvector + full-text), cold content-addressed archival (Merkle manifests over object storage), and the graph layer (Neo4j/Oxigraph) where the *relational* half lives as explicit edges — cites, contradicts, supersedes, translated-from. The four-stage training loop. Peer transmission over gRPC/QUIC with Merkle-tree diffing and mutual-TLS federation. The Tier 3 thin client: quantized 1–8B model, SQLite vector cache, distilled SEAR adapters pushed down from upstream, offline-first sync.
+**What remains unbuilt / deferred.**
+- SEAR four-stage **training loop** (Phase 4) and distilled adapters.
+- Dedicated graph DB (Neo4j/Oxigraph); PoC uses Postgres `edges` after Bookkeeper admission.
+- gRPC/QUIC transport (HTTP+JSON over mTLS is the measured wire).
+- Bi-encoder frame detector (gated on curator labels).
+- Geographic multi-host federation, Epistemic Council runtime, Tier 3 thin-client product, MOCAP/mule physical transport.
 
 **What is aspirational.**
 Everything in sections 2 through 6 below — the scaled network, institutional Tier 1 adoption, the copyleft/corporate-buy-in deployment pipeline, and collapse resilience. None of it is real yet. It is the horizon the architecture is pointed at.
 
 **The next real artifact.**
-You corrected the sequence yourself: not the two-node divergence demo first, but **SEAR measured** — a working anchored convergent model with a grounding rate you can put a number on, against a vanilla RAG baseline. Grounding before divergence. The divergence demo is the second move, and it's the one that proves the thesis is more than distributed RAG. But it can't come first.
+SEAR-vs-RAG grounding and the two-node divergence keystone are already measured. The open engineering gates are now: grow the curator issue_frame set until the B0 readiness gauge is green (unblocks the bi-encoder), and Phase 4 SEAR training when a Tier 1 training path is ready. Ops and status: [README.md](../README.md).
 
 **The five principles that govern every future addition.** Complexity earns its place. Plurality is the mechanism, not the goal. Honest by architecture — failure stays visible. Minimalism is discipline. Provenance is first-class and non-negotiable.
 
@@ -101,9 +111,9 @@ You asked for it deliberately, so I'll take it seriously rather than ornamentall
 
 One last move, because the project's own thesis demands it.
 
-GIN's discipline is: *ground first, mark the seam between what you've established and what you haven't, and don't manufacture convergence you haven't earned.* Applied to **this document**: the architecture and the philosophy and the theology are grounded — they're real, mature, and internally coherent. The scaled network, the institutional adoption, the collapse resilience, the deployment pipeline are the *divergence horizon* — the productive tension the project is pointed at, not yet a thing that exists. The seam between section 1 and sections 2–5 is the same seam SEAR is built to keep legible.
+GIN's discipline is: *ground first, mark the seam between what you've established and what you haven't, and don't manufacture convergence you haven't earned.* Applied to **this document**: the architecture, the philosophy, the theology, *and* the measured Phase 1–3 engineering record are grounded. The scaled network, institutional adoption, collapse resilience, and deployment pipeline remain the *divergence horizon*. The seam between section 1 and sections 2–5 is the same seam SEAR is built to keep legible.
 
-The risk this exact document carries is the one you've already named: writing the horizon in the present tense until the vision and the vault start to feel like the same object. The protection against it is the thing you already corrected toward — **SEAR measured.** A grounding rate. A number. The moment GIN stops being the most beautiful architecture in a vault and becomes a thing with a measurement is the moment the whole frame above stops being a brain-child and starts being a body.
+SEAR measured, divergence measured, federation transport measured — the vault is no longer only architecture. What stays unearned is the horizon below, not the PoC above.
 
 Grounding first. Then divergence. Then, maybe, convergence.
 
@@ -111,4 +121,4 @@ Grounding first. Then divergence. Then, maybe, convergence.
 
 *Monolith / GIN — synthesis frame*
 *Companions: SEAR Engineering Specifications · GIN Node Architecture v1 · Chaparral Frequency*
-*Next real artifact: SEAR measured against RAG baseline — grounding rate*
+*Next real artifact: curator B0 readiness green (bi-encoder gate) · Phase 4 SEAR training when sequenced*

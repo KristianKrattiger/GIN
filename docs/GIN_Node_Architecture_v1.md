@@ -1,6 +1,6 @@
 # GIN Node Architecture
 ### Grounded Intelligence Network — Node Tier Specification v1.0
-*Status: Active Design | June 2026*
+*Status: Active Design | updated July 2026 — v1 HTTP+JSON/mTLS PoC measured; Tier targets below remain the deployment horizon*
 
 ---
 
@@ -169,14 +169,13 @@ The RLHF pass is where "honest by architecture" gets stress-tested. The training
 > (CRL/OCSP) all remain future work.
 
 > **v1 peer selection (2026-07):** when a node routes a query it ranks peers
-> by content similarity only — dense (query embedding vs. each peer's synced
+> by content similarity — dense (query embedding vs. each peer's synced
 > centroid) and sparse (query keywords vs. each peer's distinctive IDF terms),
-> RRF-fused with the same constant as hybrid retrieval. Trust weights (the
-> per-domain asymmetric weighting described above) remain a separate, later
-> mechanism layered on top of this similarity signal.
+> RRF-fused with the same constant as hybrid retrieval — then applies trust
+> gating (next note) before contact.
 
-> **v1 trust weights (2026-07):** gating only, not yet blended into the
-> ranking score — a peer is excluded entirely if any domain it's known to
+> **v1 trust weights (2026-07):** **shipped as gating only**, not blended into
+> the ranking score — a peer is excluded entirely if any domain it's known to
 > serve (synced automatically, never query-classified) falls below a
 > configured `(peer, domain)` weight. Configured statically by a human in
 > each node's own YAML, standing in for the not-yet-built Epistemic
@@ -317,14 +316,16 @@ These are the constraints the architecture should never violate. Every future co
 
 ## First Build Target
 
-**Two-node divergence demo.**
+**Two-node divergence demo — measured.**
 
-Two Tier 1 nodes with distinct corpora on a shared topic. One query. Both nodes return SEAR-traced responses. The synthesis layer holds the divergence rather than resolving it. Output shows both anchor sets, marks the conflict explicitly, and does not produce a false consensus.
+Two Tier 1–shaped nodes with distinct corpora on a shared topic. One query. Both nodes return SEAR-traced responses. The synthesis layer holds the divergence rather than resolving it. Output shows both anchor sets, marks the conflict explicitly, and does not produce a false consensus.
 
-This is the thing that demonstrates GIN's actual thesis — not "distributed RAG" but productive epistemic tension made legible. Everything else in this document is context for why this demo matters.
+**Status (2026-07):** the divergence signal is measured on real fetched text (`20260705T043114Z`, `divergence_fidelity` 1.0). The federation transport that followed — sovereign delegation, Merkle sync, N=3 selection, trust gating, mTLS, streaming — is also measured on localhost (see [architecture.md](../architecture.md) Phase 3). Remaining horizon in this document: geographic Tier 1/2/3 deployment, gRPC/QUIC, SEAR training loop, federation-wide PKI.
+
+This demo demonstrated GIN's actual thesis — not "distributed RAG" but productive epistemic tension made legible. Everything else in this document is context for why that demo mattered and what the deployment target still looks like.
 
 ---
 
 *Document lives in: Monolith / GIN / Architecture*
 *Prior document: SEAR Engineering Specifications (June 2026)*
-*Next: Two-Node Divergence Demo — Build Spec*
+*Measured system map: architecture.md · README.md*

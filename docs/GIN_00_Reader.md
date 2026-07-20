@@ -1,6 +1,6 @@
 ---
 tags: [GIN, research, index, architecture, caliche]
-updated: 2026-07-11
+updated: 2026-07-20
 version: 0.4-preliminary
 status: working draft
 register: conceptual
@@ -9,6 +9,8 @@ register: conceptual
 # GIN v0.4 — Reader
 
 > The v0.4 rework is not a single document. It is a set of preliminary mechanism papers, each developing one part of the architecture in depth, bound together by a single principle, a single philosophical ground, and — new in this revision — a single governing institution. This file is the map.
+
+**Measured system (code + ops):** start with [`architecture.md`](../architecture.md) (per-layer graphs) and [`README.md`](../README.md) (commands + status table). The engineering register ([[GIN_ENG_00_Engineering_Register]]) tracks what has been promoted from quarantine with artifact paths.
 
 ---
 
@@ -57,7 +59,7 @@ A claim only crosses from conceptual to engineering register when it has been me
 | [[GIN_11_Comparative_Case]] | Why multi-institutional governed epistemic power beats the corporate baseline | conceptual |
 | [[GIN_12_Ecosystem_Licensing]] | Scaling gradients; who buys in; corporate adoption; the licensing fork | conceptual |
 | [[GIN_13_Temporal_Sensor_Grounding]] | Extending SEAR from editorial text to sensor ground truth; domain applications; calibration-as-governance | conceptual |
-| [[GIN_ENG_00_Engineering_Register]] | Index and quarantine notice for reality-grounded specs | engineering |
+| [[GIN_ENG_00_Engineering_Register]] | Index and quarantine for reality-grounded specs; Phase 2/3 federation promotions recorded | engineering |
 | [[GIN_ENG_01_SEAR_PoC_Spec]] | SEAR proof-of-concept specification; staged roadmap; all figures TBM | engineering |
 | [[GIN_ENG_02_Eval_Baseline_v1]] | Measured RAG vs No-Continuation baseline; NC epistemic promotion; two-node + real-text divergence generalization | engineering |
 | [[GIN_STRAT_00_Strategy_Register]] | Index and quarantine notice for go-to-market and consulting bets | strategy |
