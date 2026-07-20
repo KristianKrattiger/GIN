@@ -64,6 +64,28 @@ def test_pairs_surfaces_high_cosine_contradiction():
     assert kept == [pair_key(A.chunk_id, B.chunk_id)]  # the high-cos contradiction
 
 
+def test_cross_topic_nli_artifact_does_not_float_above_real_issue_frame():
+    # Regression for the cross-topic numeric-claim artifact: NLI scores some
+    # topically-unrelated pairs as near-certain contradictions. Measured in the
+    # real corpus_node1-4 residue: a monetary-policy x climate pair at cos 0.357
+    # scored p_contra 0.932 — higher than any genuine issue_frame pair. Without
+    # a cosine floor on the contradiction float it would head the curator queue.
+    # A-B is that artifact; A-C is a real issue_frame pair (high cosine).
+    cos = {frozenset({A.text, B.text}): 0.357,   # cross-topic, below the ceiling
+           frozenset({A.text, C.text}): 0.60,    # topically close: contradiction plausible
+           frozenset({B.text, C.text}): 0.31}
+    contra = {frozenset({A.text, B.text}): 0.932,  # artifact: very high p_contra
+              frozenset({A.text, C.text}): 0.80}   # genuine, lower p_contra
+    src = EscalationResidueCandidateSource(
+        [A, B, C], proposer=_proposer({}, cos, contra), cos_floor=0.20,
+    )
+    kept = [pair_key(a.chunk_id, b.chunk_id) for a, b in src.pairs()]
+    # The genuine high-cosine contradiction leads despite its LOWER p_contra;
+    # the artifact is demoted to the cosine-ranked remainder.
+    assert kept[0] == pair_key(A.chunk_id, C.chunk_id)
+    assert kept.index(pair_key(A.chunk_id, B.chunk_id)) > 0
+
+
 def test_chunks_returns_input():
     src = EscalationResidueCandidateSource([A, B, C], proposer=_proposer({}, {}))
     assert src.chunks() == [A, B, C]

@@ -117,9 +117,23 @@ class EscalationResidueCandidateSource:
         tail = residue_by_cos[self._nli_rank_limit :]
 
         contra_threshold = self._proposer.thresholds.contra_threshold
+        # A high p_contra only counts as issue_frame evidence when the pair is
+        # topically close enough for a shared proposition to be plausible.
+        # Cross-topic pairs that merely share numeric/economic vocabulary score
+        # very high p_contra — the artifact classify_relation story-gates NLI
+        # off for, and every residue pair is by construction in that
+        # story-gated population. Measured in this corpus: monetary-policy x
+        # climate pairs at cos 0.32-0.36 scoring p_contra 0.87-0.93, which
+        # without this floor would rank ABOVE every genuine issue_frame pair.
+        # Reuses the calibrated corroborate_ceiling — the same "these are
+        # topically close" boundary classify_relation uses.
+        contra_cos_floor = self._proposer.thresholds.corroborate_ceiling
         contras: list[tuple[float, tuple[LabeledChunk, LabeledChunk]]] = []
         rest_head: list[tuple[LabeledChunk, LabeledChunk]] = []
         for pair in head:
+            if _cos(pair) < contra_cos_floor:
+                rest_head.append(pair)  # too far apart to trust an NLI contradiction
+                continue
             p_contra = self._proposer.nli_p_contra(pair[0].text, pair[1].text)
             if p_contra >= contra_threshold:
                 contras.append((p_contra, pair))
