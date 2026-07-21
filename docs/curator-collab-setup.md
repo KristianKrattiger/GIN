@@ -35,9 +35,21 @@ Assignment:
 - **Friend**: `corpus_node1.json` + `corpus_node2.json` + `corpus_node3.json`.
 - **Overlap set**: friend additionally runs a throwaway pass over
   `corpus_node1.json` alone (already substantially labeled by you) into a
-  *separate* log, `--log data/curator/labels.alex.overlap.jsonl`, without
-  looking at your existing `n1_*` labels first. This is what
-  `curator_merge_check.py` measures agreement over.
+  *separate* log, without looking at your existing `n1_*` labels first.
+  Use `--no-seed` to exclude auto-seeded fixture records (measures only real
+  inter-rater agreement, not trivial matches on seed records):
+
+  ```
+  venv/Scripts/python.exe scripts/curator_serve.py \
+    --curator alex \
+    --source escalation-residue \
+    --corpus corpus_node1.json \
+    --log data/curator/labels.alex.overlap.jsonl \
+    --no-seed \
+    --port 8602
+  ```
+
+  This is what `curator_merge_check.py` measures agreement over.
 
 Each `--corpus` file is a full topic/node boundary already — no new
 filtering code was needed to split by topic (`scripts/curator_serve.py`
