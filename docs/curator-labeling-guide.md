@@ -15,13 +15,15 @@ it. Split into two `relation_class` flavors:
     demands"
   - "wildfire: acreage / suppression metrics vs air quality in low-income
     zones"
-  - "rezoning: parcel/FAR/density technical framing vs displacement/
-    right-to-return organizing framing"
 
 - **story** — same breaking story, sharing a lede/anchor fact, but the two
   chunks diverge on a specific reported number:
   - "hospital treatment count and arrest count diverge after shared lede"
   - "turnout percentage diverges after shared margin"
+  - "rezoning: parcel/FAR/density technical framing vs displacement/
+    right-to-return organizing framing"
+  - "habitability: violation-count enforcement framing vs lived-conditions
+    organizing framing"
 
 If it's same-topic-divergent-numbers *without* a shared lede/anchor, it's
 probably `issue_frame` or `related_untyped`, not `story` — `story` requires
