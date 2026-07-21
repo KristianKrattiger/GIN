@@ -27,7 +27,7 @@ from gin.curator.store import Store
 DEFAULT_LOG = Path("data/curator/labels.jsonl")
 
 
-def main() -> None:
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     ap = argparse.ArgumentParser(description="GIN curator labeling app")
     ap.add_argument("--host", default="127.0.0.1")
     ap.add_argument("--port", type=int, default=8600)
@@ -39,7 +39,13 @@ def main() -> None:
                     default=[Path("corpus_node1.json"), Path("corpus_node2.json"),
                              Path("corpus_node3.json"), Path("corpus_node4.json")],
                     help="corpus_node*.json exports for the escalation-residue source")
-    args = ap.parse_args()
+    ap.add_argument("--curator", default="kristian",
+                    help="name stamped on every LabelRecord this instance writes")
+    return ap.parse_args(argv)
+
+
+def main() -> None:
+    args = parse_args()
 
     store = Store(args.log)
     if not args.no_seed:
@@ -67,7 +73,7 @@ def main() -> None:
         store=store,
         source=source,
         signals_fn=lambda a, b: pair_signals(a, b, proposer),
-        curator="kristian",
+        curator=args.curator,
     )
     print(f"curator UI: http://{args.host}:{args.port}/curator/")
     uvicorn.run(app, host=args.host, port=args.port)
