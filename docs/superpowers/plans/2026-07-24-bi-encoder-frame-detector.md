@@ -250,13 +250,17 @@ if __name__ == "__main__":
 Run: `python scripts/frames_backfill.py`
 Expected: `appended 7 superseding record(s) to data/curator/labels.jsonl`
 
-Verify the fold now reports 27 issue_frame:
+Verify the fold now reports 31 issue_frame and no untyped contradicts left:
 
 Run:
 ```bash
-python -c "from pathlib import Path; from gin.curator.store import Store; from gin.cartographer.models import Relation; g=Store(Path('data/curator/labels.jsonl')).gold(); print(sum(1 for _,_,r,c in g if r is Relation.CONTRADICTS and c=='issue_frame'))"
+python -c "from pathlib import Path; from gin.curator.store import Store; from gin.cartographer.models import Relation; g=Store(Path('data/curator/labels.jsonl')).gold(); print('issue_frame', sum(1 for _,_,r,c in g if r is Relation.CONTRADICTS and c=='issue_frame')); print('untyped', sum(1 for _,_,r,c in g if r is Relation.CONTRADICTS and c is None))"
 ```
-Expected: `27`
+Expected: `issue_frame 31` and `untyped 0`.
+
+Note the two different counts in play: **31** is the raw fold with no bar
+exclusion; **27** is DIVERGENT after all three dataset filters (Task 3). Both
+are correct — do not "fix" one to match the other.
 
 - [ ] **Step 8: Commit**
 
