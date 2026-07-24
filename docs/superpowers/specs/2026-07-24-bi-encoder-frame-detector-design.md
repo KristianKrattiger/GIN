@@ -62,9 +62,17 @@ pairs. Counting lines double-counts relabeled pairs and silently trains on stale
 labels. The cross-check that the fold is the correct view: folded DIVERGENT is
 22, matching `readiness.py`'s independently computed `new_issue_frame = 22`.
 
-**Text resolution:** union of `labeled_set.chunks()` and
-`load_corpus_chunks(corpus_node1..4)` → 215 chunks. Verified to resolve every row
-that survives the other filters.
+**Text resolution:** union of `labeled_set.chunks()`,
+`load_corpus_chunks(corpus_node1..4)`, and `data/synthetic/news_corpus.yaml` →
+236 chunks. Verified to resolve every row that survives the other filters, and —
+importantly — **all 21 escalation-bar chunks**.
+
+That last point makes the whole of B runnable **without Postgres**. The existing
+`scripts/cartographer_eval_escalation.py` calls `ensure_postgres()` and sources
+bar text via `chunks_from_db`; 10 bar chunks (`inflation_*`, `labor_*`, `wage_*`,
+`export_*`, `school_*`, `transit_*`) live only in the DB or in
+`news_corpus.yaml`. Reading the YAML directly keeps B aligned with the
+DB-free precedent sub-project A set, and means the bar can be scored in CI.
 
 **Filter chain**, applied in order, each drop counted by reason and reported —
 never silent:
@@ -166,17 +174,29 @@ property test rather than measured and hoped for.
 
 ### Artifacts
 
-Training writes `data/frames/head.pt` plus a `manifest.json` recording encoder
-id, embedding dim, label map, training row count and per-class counts, git SHA,
-and UTC timestamp. Loading a head whose manifest disagrees with the current
-encoder or label map is a hard error, never a silent fallback.
+Training writes `data/frames/head.joblib` plus a `manifest.json` recording
+encoder id, feature dim, class list, head kind, seed, training row count and
+per-class counts, git SHA, and UTC timestamp. Loading a head whose manifest
+disagrees with the current encoder or feature dim is a hard error, never a
+silent fallback.
+
+The head is a scikit-learn estimator (`LogisticRegression`, or
+`MLPClassifier(hidden_layer_sizes=(32,))` if linear proves insufficient), not a
+hand-written torch module. At 80 rows a training loop is pure surface area for
+bugs; sklearn gives deterministic fits, built-in `LeaveOneOut`, and
+`class_weight="balanced"` for free. Model artifacts are gitignored; the manifest
+is committed.
 
 ## Training protocol
 
-- **Leave-one-out** over the 80 rows for the headline generalization number
-  (cheap at this size; precedent `calibration.py:leave_one_out`).
-- **Stratified 5-fold** for training curves and early stopping.
-- **Class weighting** — the distribution (27/17/15/21) is mildly imbalanced.
+- **Leave-one-out** over the 80 rows — the sole cross-validation scheme
+  (cheap at this size; precedent `calibration.py:leave_one_out`). An earlier
+  draft also called for stratified 5-fold for training curves and early
+  stopping; that was dropped as YAGNI once the head became a scikit-learn
+  estimator, since `LogisticRegression` needs no early stopping and LOO is
+  strictly more informative than 5-fold at n=80.
+- **Class weighting** via `class_weight="balanced"` — the distribution
+  (27/17/15/21) is mildly imbalanced.
 - **Seed variance reported.** At 80 rows a single-seed result is not
   trustworthy; the writeup reports mean and spread across 5 seeds (0–4). A result
   quoted from one seed is treated as unreported.
