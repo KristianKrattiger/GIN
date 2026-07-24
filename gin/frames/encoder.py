@@ -38,7 +38,7 @@ class ChunkEncoder:
     def encode(self, text: str) -> np.ndarray:
         cached = self._cache.get(text)
         if cached is not None:
-            return cached
+            return cached.copy()
         if self._encode_fn is not None:
             vec = np.asarray(self._encode_fn(text), dtype=np.float64)
         else:
@@ -51,7 +51,7 @@ class ChunkEncoder:
                 dtype=np.float64,
             )
         self._cache[text] = vec
-        return vec
+        return vec.copy()
 
 
 def pair_features(a: np.ndarray, b: np.ndarray) -> np.ndarray:

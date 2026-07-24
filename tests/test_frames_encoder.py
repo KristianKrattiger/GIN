@@ -71,3 +71,23 @@ def test_feature_matrix_is_row_order_invariant_per_example():
     Xf, _ = feature_matrix([forward], enc)
     Xr, _ = feature_matrix([reversed_], enc)
     assert np.allclose(Xf, Xr)
+
+
+def test_encoder_returns_defensive_copy_not_cached_reference():
+    """Regression test: mutating returned array must not corrupt cache."""
+    enc = ChunkEncoder(encode_fn=_stub(4))
+
+    # Encode text and get the first result
+    first = enc.encode("test_text")
+    first_copy = first.copy()
+
+    # Mutate the returned array in place (this should NOT affect cache)
+    first += 100.0
+
+    # Encode the same text again
+    second = enc.encode("test_text")
+
+    # The second result should be identical to the first (before mutation)
+    assert np.allclose(second, first_copy), (
+        "Cached embedding was corrupted by in-place mutation of returned array"
+    )
