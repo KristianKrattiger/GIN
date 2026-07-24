@@ -477,6 +477,29 @@ def _text(*ids):
     return {i: f"text of {i}" for i in ids}
 
 
+# build_dataset hard-errors on an empty class, so filter tests need a base of
+# all four classes; the pair under test is added on top and its drop asserted.
+_BASE = [
+    ("base_a:0", "base_b:0", Relation.CONTRADICTS, "issue_frame"),
+    ("base_c:0", "base_d:0", Relation.CORROBORATES, None),
+    ("base_e:0", "base_f:0", Relation.RELATED_UNTYPED, None),
+    ("base_g:0", "base_h:0", Relation.UNRELATED, None),
+]
+
+
+def _store_with_base(tmp_path, *extra):
+    """Store holding one pair of every class, plus any extra rows."""
+    store = Store(tmp_path / "l.jsonl")
+    for i, (s, d, rel, cls) in enumerate(list(_BASE) + list(extra)):
+        store.append(_rec(s, d, rel, f"2026-01-01T00:00:{i:02d}Z", relation_class=cls))
+    return store
+
+
+def _base_text():
+    ids = [x for row in _BASE for x in row[:2]]
+    return _text(*ids)
+
+
 def test_news_corpus_supplies_21_chunks():
     assert len(news_corpus_chunks()) == 21
 
@@ -500,18 +523,30 @@ def test_real_label_log_yields_expected_counts():
     assert report.drops == {"schema": 11, "bar_chunk": 11}
 
 
-def test_bar_chunk_pair_is_dropped(tmp_path):
-    store = Store(tmp_path / "l.jsonl")
-    store.append(_rec("n1_doc_005:1", "free_chunk:0", Relation.CORROBORATES, "2026-01-01T00:00:00Z"))
-    with pytest.raises(ValueError, match="no trainable examples"):
-        build_dataset(store, text_index=_text("n1_doc_005:1", "free_chunk:0"))
+def test_bar_chunk_pair_is_dropped_and_counted(tmp_path):
+    # n1_doc_005:1 is a real escalation-bar chunk reached via residue labeling.
+    store = _store_with_base(
+        tmp_path, ("n1_doc_005:1", "free_chunk:0", Relation.CORROBORATES, None)
+    )
+    text = _base_text() | _text("n1_doc_005:1", "free_chunk:0")
+    report = build_dataset(store, text_index=text)
+    assert report.drops["bar_chunk"] == 1
+    assert len(report.examples) == 4
+    assert all("n1_doc_005:1" not in (e.src_chunk_id, e.dst_chunk_id) for e in report.examples)
 
 
 def test_unresolvable_text_is_dropped_and_counted(tmp_path):
-    store = Store(tmp_path / "l.jsonl")
-    store.append(_rec("a:0", "ghost:0", Relation.UNRELATED, "2026-01-01T00:00:00Z"))
-    with pytest.raises(ValueError, match="no trainable examples"):
-        build_dataset(store, text_index=_text("a:0"))
+    store = _store_with_base(tmp_path, ("solo:0", "ghost:0", Relation.UNRELATED, None))
+    report = build_dataset(store, text_index=_base_text() | _text("solo:0"))
+    assert report.drops["text_unresolved"] == 1
+    assert len(report.examples) == 4
+
+
+def test_story_contradicts_dropped_on_schema(tmp_path):
+    store = _store_with_base(tmp_path, ("s1:0", "s2:0", Relation.CONTRADICTS, "story"))
+    report = build_dataset(store, text_index=_base_text() | _text("s1:0", "s2:0"))
+    assert report.drops["schema"] == 1
+    assert report.counts["DIVERGENT"] == 1  # only the base issue_frame pair
 
 
 def test_empty_class_is_a_hard_error(tmp_path):
@@ -673,7 +708,7 @@ def build_dataset(store: Store, text_index: Optional[dict[str, str]] = None) -> 
 - [ ] **Step 4: Run tests to verify they pass**
 
 Run: `python -m pytest tests/test_frames_dataset.py -v`
-Expected: PASS — 8 passed
+Expected: PASS — 9 passed
 
 - [ ] **Step 5: Commit**
 
