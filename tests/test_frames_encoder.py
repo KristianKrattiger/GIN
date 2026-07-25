@@ -1,4 +1,6 @@
 """Frozen embeddings + order-invariant pair features."""
+import zlib
+
 import numpy as np
 
 from gin.frames.dataset import FrameExample
@@ -9,7 +11,7 @@ from gin.frames.labels import FrameClass
 def _stub(dim=4):
     """Deterministic pseudo-embedding, no model download."""
     def encode(text: str):
-        rng = np.random.default_rng(abs(hash(text)) % (2**32))
+        rng = np.random.default_rng(zlib.crc32(text.encode()))
         vec = rng.normal(size=dim)
         return vec / np.linalg.norm(vec)
     return encode

@@ -14,6 +14,7 @@ from __future__ import annotations
 
 from collections import Counter
 from dataclasses import dataclass
+from functools import lru_cache
 from pathlib import Path
 from typing import Optional
 
@@ -78,10 +79,29 @@ def default_text_index() -> dict[str, str]:
     return index
 
 
+@lru_cache(maxsize=1)
+def bar_text_set() -> frozenset[str]:
+    """Canonical TEXT of every escalation-bar chunk.
+
+    Chunk-id exclusion alone is not sufficient. The fixture corpus aliases bar
+    chunks under different ids with byte-identical text — `inst_em:0` IS
+    `n1_doc_005:2`, `grass_wf:0` IS `n2_doc_005:1`, and six more. Guarding only
+    on ids let 3 of the bar's 4 issue_frame pairs into training verbatim, which
+    would let a future retrain report a green bar built on memorization. The
+    encoder sees text, so the guard must too.
+    """
+    index = default_text_index()
+    return frozenset(index[chunk_id] for chunk_id in bar_chunk_ids() if chunk_id in index)
+
+
 def build_dataset(store: Store, text_index: Optional[dict[str, str]] = None) -> DatasetReport:
     """Fold the label log into trainable examples, counting every drop."""
     text = default_text_index() if text_index is None else text_index
     bar = bar_chunk_ids()
+    # Derived from the DEFAULT index, not the caller's: the bar is fixed and its
+    # text is canonical, so a caller passing a partial index must not be able to
+    # silently disable the leakage guard.
+    bar_texts = bar_text_set()
     drops: Counter[str] = Counter()
     examples: list[FrameExample] = []
 
@@ -98,6 +118,9 @@ def build_dataset(store: Store, text_index: Optional[dict[str, str]] = None) -> 
             continue
         if src not in text or dst not in text:
             drops["text_unresolved"] += 1
+            continue
+        if text[src] in bar_texts or text[dst] in bar_texts:
+            drops["bar_text_alias"] += 1
             continue
         examples.append(FrameExample(src, dst, text[src], text[dst], label))
 

@@ -62,7 +62,7 @@ def test_loo_report_shape():
     report = loo_report(X, labels, kind="linear", seeds=(0, 1))
     assert set(report) == {"balanced_accuracy_mean", "balanced_accuracy_spread",
                            "seed_variance_meaningful", "per_seed",
-                           "per_class_recall", "n"}
+                           "per_class_recall_last_seed", "n"}
     assert report["n"] == 40
     assert len(report["per_seed"]) == 2
     assert report["balanced_accuracy_mean"] > 0.9  # separable by construction

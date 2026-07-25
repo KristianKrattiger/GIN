@@ -1,4 +1,6 @@
 """BiEncoderFrameJudge: FrameJudge contract + structural order invariance."""
+import zlib
+
 import numpy as np
 
 from gin.frames.encoder import ChunkEncoder
@@ -17,7 +19,7 @@ class _StubModel:
 
 def _stub_encoder(dim=4):
     def encode(text):
-        rng = np.random.default_rng(abs(hash(text)) % (2**32))
+        rng = np.random.default_rng(zlib.crc32(text.encode()))
         vec = rng.normal(size=dim)
         return vec / np.linalg.norm(vec)
     return ChunkEncoder(encode_fn=encode)

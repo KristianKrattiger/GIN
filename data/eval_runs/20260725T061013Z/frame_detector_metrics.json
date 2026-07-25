@@ -7,22 +7,22 @@
   },
   "bar_all_green": false,
   "loo": {
-    "n": 80,
+    "n": 49,
     "per_seed": [
-      0.67583255524432,
-      0.67583255524432,
-      0.67583255524432,
-      0.67583255524432,
-      0.67583255524432
+      0.7152777777777778,
+      0.7152777777777778,
+      0.7152777777777778,
+      0.7152777777777778,
+      0.7152777777777778
     ],
-    "balanced_accuracy_mean": 0.67583255524432,
+    "balanced_accuracy_mean": 0.7152777777777778,
     "balanced_accuracy_spread": 0.0,
     "seed_variance_meaningful": false,
     "per_class_recall": {
-      "DIVERGENT": 0.8148148148148148,
-      "AGREE": 0.7647058823529411,
-      "RELATED_UNTYPED": 0.26666666666666666,
-      "UNRELATED": 0.8571428571428571
+      "DIVERGENT": 0.9166666666666666,
+      "AGREE": 0.7777777777777778,
+      "RELATED_UNTYPED": 0.5,
+      "UNRELATED": 0.6666666666666666
     }
   },
   "baselines": [
@@ -57,12 +57,13 @@
   ],
   "verdict": "bar_failed",
   "dataset_counts": {
-    "AGREE": 17,
-    "RELATED_UNTYPED": 15,
-    "UNRELATED": 21,
-    "DIVERGENT": 27
+    "AGREE": 9,
+    "UNRELATED": 6,
+    "DIVERGENT": 24,
+    "RELATED_UNTYPED": 10
   },
   "dataset_drops": {
+    "bar_text_alias": 31,
     "schema": 11,
     "bar_chunk": 11
   }

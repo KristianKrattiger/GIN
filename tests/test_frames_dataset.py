@@ -63,11 +63,11 @@ def test_real_label_log_yields_expected_counts():
     # Regression guard: if the label log drifts, this names the drift rather
     # than silently retraining on different data.
     report = build_dataset(Store(DEFAULT_LABELS))
-    assert len(report.examples) == 80
+    assert len(report.examples) == 49
     assert report.counts == {
-        "DIVERGENT": 27, "AGREE": 17, "RELATED_UNTYPED": 15, "UNRELATED": 21,
+        "DIVERGENT": 24, "AGREE": 9, "RELATED_UNTYPED": 10, "UNRELATED": 6,
     }
-    assert report.drops == {"schema": 11, "bar_chunk": 11}
+    assert report.drops == {"schema": 11, "bar_chunk": 11, "bar_text_alias": 31}
 
 
 def test_bar_chunk_pair_is_dropped_and_counted(tmp_path):
@@ -128,3 +128,18 @@ def test_label_and_text_are_carried_through(tmp_path):
     assert first.src_text == "text of a:0"
     assert first.label is FrameClass.DIVERGENT
     assert report.counts["AGREE"] == 1
+
+
+def test_bar_text_alias_is_dropped_even_when_chunk_id_differs(tmp_path):
+    # The fixture corpus aliases bar chunks under different ids with
+    # byte-identical text: inst_em:0 IS n1_doc_005:2. Excluding by chunk id
+    # alone let 3 of the bar's 4 issue_frame pairs into training verbatim.
+    from gin.frames.labels import bar_chunk_ids
+
+    bar_chunk = sorted(bar_chunk_ids())[0]
+    bar_text = default_text_index()[bar_chunk]
+    store = _store_with_base(tmp_path, ("alias:0", "other:0", Relation.CORROBORATES, None))
+    text = _base_text() | {"alias:0": bar_text, "other:0": "unrelated text"}
+    report = build_dataset(store, text_index=text)
+    assert report.drops["bar_text_alias"] == 1
+    assert all(e.src_chunk_id != "alias:0" for e in report.examples)

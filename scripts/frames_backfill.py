@@ -11,8 +11,7 @@ from pathlib import Path
 
 from gin.curator.store import Store
 from gin.frames.backfill import backfill_seed_classes
-
-DEFAULT_LOG = Path("data/curator/labels.jsonl")
+from gin.frames.dataset import DEFAULT_LABELS as DEFAULT_LOG
 
 
 def main() -> None:

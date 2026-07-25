@@ -120,7 +120,7 @@ def loo_report(
         "balanced_accuracy_mean": float(np.mean(per_seed)),
         "balanced_accuracy_spread": float(np.max(per_seed) - np.min(per_seed)),
         "seed_variance_meaningful": kind != "linear",
-        "per_class_recall": {n: float(r) for n, r in zip(class_names, recalls)},
+        "per_class_recall_last_seed": {n: float(r) for n, r in zip(class_names, recalls)},
     }
 
 

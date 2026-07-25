@@ -1,7 +1,10 @@
 # Design: Bi-Encoder Frame Detector (sub-project B)
 
 **Date:** 2026-07-24
-**Status:** Approved (design), pending implementation plan
+**Status:** Implemented and measured 2026-07-25 — see **Results** below.
+> The Data/Decisions sections record the design as approved. The chunk-level
+> leakage guard they specify proved **insufficient** (text-aliased bar chunks);
+> the Results section is authoritative for final counts and numbers.
 **Sub-project:** B (bi-encoder frame detector) — consumes A/B0 (curator UI + label store), feeds C (recalibration)
 
 ## Problem
@@ -45,7 +48,7 @@ model.
 
 | Decision | Choice | Rationale |
 |----------|--------|-----------|
-| Train/test split | Chunk-level bar exclusion | Drop any pair where *either* chunk appears anywhere in the bar. Labeling the residue drew from n1/n2 — the same corpus the bar was built from — so 9 chunks now overlap. `readiness.py` filters exact bar *pairs* only, so this leaked invisibly. Costs 11 rows; buys an honestly held-out bar score. |
+| Train/test split | Chunk-level bar exclusion **(insufficient — superseded, see Results)** | Drop any pair where *either* chunk appears anywhere in the bar. Labeling the residue drew from n1/n2 — the same corpus the bar was built from — so 9 chunks now overlap. `readiness.py` filters exact bar *pairs* only, so this leaked invisibly. Costs 11 rows; buys an honestly held-out bar score. |
 | Label schema | 4-way, DIVERGENT = `issue_frame` only | `related_untyped` is retained as its own class because "topically related, no typed relation" is exactly the hard negative every LLM judge collapsed on. `story`-contradicts excluded: NLI already owns propositional conflict upstream (`combined.py`, p_contra 0.899 legal register), so escalation never meets those pairs in production, and mixing them dilutes the stance axis. |
 | Null-class seeds | Backfill by register | The 7 seed `contradicts` rows predate `relation_class`. inst↔grass (3) and housing (2) are canonical issue_frame → include; the 2 `disc_*` securities pairs are propositional → tag `story`, stay excluded. |
 | Architecture | Frozen embeddings + symmetric pair-head, behind a probe gate | Order-invariance is structural, so `direction_flip_count = 0` comes free rather than being trained for. Embeddings stay precomputable, preserving the cheap-pipeline economics that motivated choosing a bi-encoder over a generative judge. |
@@ -89,6 +92,10 @@ never silent:
 | UNRELATED | `unrelated` | 21 | **21** |
 | **Total** | | 75 | **80** |
 
+> Superseded: the text-alias guard added after the final review drops 31 more
+> rows. **The honest training set is 49** (DIVERGENT 24, AGREE 9,
+> RELATED_UNTYPED 10, UNRELATED 6). See Results.
+
 Dropped from 102 folded pairs: 11 on bar-chunk leak, 11 on schema (9
 `story`-contradicts plus the 2 `disc_*` pairs the backfill reclassifies to
 `story`). Text resolution drops nothing — every unresolvable chunk id sits in a
@@ -109,7 +116,7 @@ data.
 data/curator/labels.jsonl
         │  Store.gold()
         ▼
-   dataset.py ── schema map → bar exclusion → text resolution → 80 rows
+   dataset.py ── schema → bar-chunk → text → bar-text-alias → 49 rows
         │
         ▼
    encoder.py ── frozen all-MiniLM-L6-v2, cached per chunk_id (384-dim)
@@ -263,79 +270,107 @@ re-verified in the whole-branch review.
 
 ## Results — measured 2026-07-25
 
-Implemented over 8 TDD tasks. All numbers below were reproduced independently by
-the controller, not taken from an implementer's report.
+Implemented over 8 TDD tasks. All numbers reproduced independently by the
+controller, not taken from an implementer's report.
 
-**Stage-0 probe: PASS.** LOO balanced accuracy **0.870** on DIVERGENT-vs-rest
-against a stratified-random baseline of 0.502 (gate was ≥0.65). The frozen
-all-MiniLM-L6-v2 geometry *does* carry a linearly recoverable stance axis, so
-the premise of the whole approach survived its own falsification test.
+### A leakage defect found by the final review — read this first
 
-**Escalation bar: FAILED.** Verdict `bar_failed` under the pre-registered rule.
+The chunk-level bar guard this spec specifies was **insufficient**. The fixture
+corpus aliases escalation-bar chunks under different ids with byte-identical
+text: `inst_em:0` *is* `n1_doc_005:2`, `grass_wf:0` *is* `n2_doc_005:1`, and six
+more. Excluding by chunk id let **3 of the bar's 4 issue_frame pairs into
+training verbatim**, labeled DIVERGENT.
 
-| metric | bi-encoder | Qwen2.5-14B | Opus 4.8 |
-|---|:--:|:--:|:--:|
-| issue_frame_recall | **0.00** | 0.50 | 0.00 |
-| class_c_discrimination | 0.67 | 0.33 | 0.67 |
-| unrelated_discrimination | **1.00** | 1.00 | 1.00 |
-| direction_flip_count | **0** | 3 | 3 |
+`build_dataset` now also guards on text (`bar_text_alias` drop reason, derived
+from the canonical index so a caller passing a partial index cannot silently
+disable it). That removed **31 further rows: the honest training set is 49, not
+80.** All numbers below are from the clean 49-row set. The earlier 80-row run is
+superseded and its eval artifacts deleted.
 
-**Leave-one-out over the 80 training rows: 0.676** balanced accuracy (4-way
-chance 0.25). Per-class recall: DIVERGENT 0.815, AGREE 0.765, UNRELATED 0.857,
-**RELATED_UNTYPED 0.267**.
+Note for sub-project C: `readiness.py` counts at the chunk-id level, so **the
+readiness gauge overstates readiness** by the same aliasing. It read 20/class
+green on data that is 49 rows once cleaned.
+
+### Measured
+
+| | value |
+|---|---|
+| Stage-0 probe (DIVERGENT-vs-rest, LOO) | **0.898** vs 0.498 random → **PASS** |
+| Bar `issue_frame_recall` | **0.00** |
+| Bar `class_c_discrimination` | 0.667 |
+| Bar `unrelated_discrimination` | 1.00 |
+| Bar `direction_flip_count` | **0** |
+| Verdict | **`bar_failed`** |
+| LOO over 49 rows (4-way, chance 0.25) | **0.715** |
+
+Per-class LOO recall: DIVERGENT 0.917, AGREE 0.778, UNRELATED 0.667,
+RELATED_UNTYPED 0.500.
 
 ### What this means
 
-The honest reading is that **the detector learned the curator's stance and
-still failed the bar** — and those are not in tension, because they measure
-different distributions.
+**The frozen geometry separates proposition-level policy opposition and does not
+represent framing divergence at all.** That is the finding, and it is sharper
+than "the model failed to generalize."
 
-- In-distribution the model is genuinely good: 0.676 4-way against 0.25 chance,
-  with DIVERGENT recall 0.815. It reproduces the curatorial frame on the data it
-  was trained on.
-- On the bar it scores 0.00 issue_frame recall — **Opus 4.8's exact failure
-  mode**. Direct diagnosis (loading the trained head and calling it on the four
-  gold pairs) returns `UNRELATED, AGREE, UNRELATED, UNRELATED`. This is real
-  model behavior, not a harness fault.
-- The cause is the chunk-level bar exclusion working as designed. The bar's
-  issue_frame pairs are an institutional-vs-independent register
-  (`*_bureau_report` vs `*_independent_survey`), and every chunk of that
-  register was held out of training. Node4 taught proposition-level pro/con
-  policy opposition. The model learned the frame it was shown and did not
-  transfer to a register it never saw.
+The evidence comes from the superseded contaminated run, where the framing rows
+were still in training. Splitting DIVERGENT by origin there:
 
-**`direction_flip_count = 0` is a real, unambiguous win.** Every LLM judge
-flipped on 3–7 of 14 pairs; the symmetric pair features make order invariance a
-mathematical identity. That metric is now solved by construction rather than
-hoped for.
+| DIVERGENT rows | LOO recall | in-sample |
+|---|---|---|
+| node4 (proposition-level pro/con policy) | **22/22** | — |
+| `inst_*`/`grass_*` + housing (framing divergence) | **0/5** | **0/5** |
 
-**`RELATED_UNTYPED` recall 0.267 is the weakest result** and is diagnostic: the
-hard-negative class — topically related but untyped — remains the hardest
-discrimination, which is the same boundary every LLM judge collapsed on. It has
-only 15 training rows.
+The five framing rows were missed **even with themselves in the training set** —
+a linear head over these features cannot memorize them, let alone generalize.
+Meanwhile node4 was fit perfectly. The probe's 0.870/0.898 is carried entirely
+by node4.
+
+The escalation bar is made of exactly the class the geometry cannot represent:
+its issue_frame pairs are climate institutional-statistics versus
+frontline-justice framing (`n1_doc_*` ↔ `n2_doc_*`). So `issue_frame_recall
+0.00` is not distribution shift — it is the same failure the 0/5 in-sample
+result already showed, now measured cleanly on genuinely held-out pairs.
+
+**`direction_flip_count = 0` is a real and unambiguous win**, solved by
+construction via the symmetric pair features, against 3–7 flips for every LLM
+judge including the frontier one.
+
+**`unrelated_discrimination 1.00` should not be read as parity with the LLM
+judges.** The detector answers UNRELATED on 3 of the 4 issue_frame pairs; a
+constant-UNRELATED predictor also scores 1.00 on the unrelated set. The metric
+is uninformative for a predictor biased this way.
+
+### Correction to an earlier draft of this section
+
+An earlier version of this writeup attributed the bar failure to the bar's
+issue_frame pairs being an institutional-vs-independent register
+(`*_bureau_report` vs `*_independent_survey`) held out by the leakage guard.
+**That was wrong twice over**: those are the bar's *corroboration* pairs, not its
+issue_frame pairs, and the actual issue_frame pairs were in training rather than
+held out. It was a comfortable explanation that the data falsifies, and it is
+recorded here rather than quietly replaced.
 
 ### What this does not license
 
-This is not evidence that the bi-encoder path is closed. It is evidence that
-**4 held-out pairs in an unseen register cannot be reached by 80 training rows
-that do not cover that register.** The distinguishing fact versus the judge
-sweep is that recall there did not rise with capability, whereas here the model
-demonstrably learns the target concept in-distribution. Do not report the
-`bar_failed` verdict as "the bi-encoder failed" without that qualifier.
+This is not "the bi-encoder path failed." It is: **framing divergence and
+policy-position opposition are different targets, and only the latter lives in
+this frozen geometry.** Node4 was built to supply issue_frame examples and in
+fact supplies a different, easier class.
 
-The obvious next move is more labels in the bar's register — but the bar must
-stay held out, so that means labeling *new* institutional-vs-independent pairs,
-not the bar's own. That is a sub-project C question.
+The next move is therefore *not* simply more labels. Sub-project C should first
+establish whether framing divergence is recoverable from a frozen encoder at all
+— e.g. probe the 5 framing rows directly against alternative encoders — before
+spending curation effort. If it is not, encoder fine-tuning becomes the live
+question rather than a fallback.
 
 ### Methodological caveat
 
 Seed-variance reporting is **vacuous for the linear head**: lbfgs is a
 deterministic convex solver and never consumes `random_state`, so spread is
-structurally 0.000 across all seeds. That zero is evidence of solver
-determinism, not model stability. `loo_report` now returns
-`seed_variance_meaningful` and the CLI labels the number, so it cannot be
-misread. The spec's original "report seed variance" honesty measure did not
-survive contact with the estimator choice.
+structurally 0.000. That zero is evidence of solver determinism, not model
+stability. `loo_report` returns `seed_variance_meaningful` and the CLI labels
+the number so it cannot be misread. `per_class_recall_last_seed` is named for
+what it is — last-seed, not seed-averaged.
 
 ## Open questions
 
