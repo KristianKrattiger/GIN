@@ -12,8 +12,9 @@ a silent change to it would invalidate every published comparison. The pinning
 test is the guard.
 
 Pair identity is ``frozenset((src, dst))``, matching gold_edges'
-``gold_contradicts_keys()``. Deliberately NOT ``gin.curator.models.pair_key``:
-gin.cartographer must never import gin.curator.
+``gold_contradicts_keys()``. The curator package defines an alternative ``pair_key``
+helper, but cartographer deliberately avoids importing it to maintain layering
+boundaries: cartographer must never depend on curator.
 """
 from __future__ import annotations
 

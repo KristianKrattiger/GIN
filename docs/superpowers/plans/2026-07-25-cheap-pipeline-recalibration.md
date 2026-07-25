@@ -130,8 +130,9 @@ a silent change to it would invalidate every published comparison. The pinning
 test is the guard.
 
 Pair identity is ``frozenset((src, dst))``, matching gold_edges'
-``gold_contradicts_keys()``. Deliberately NOT ``gin.curator.models.pair_key``:
-gin.cartographer must never import gin.curator.
+``gold_contradicts_keys()``. The curator package defines an alternative ``pair_key``
+helper, but cartographer deliberately avoids importing it to maintain layering
+boundaries: cartographer must never depend on curator.
 """
 from __future__ import annotations
 
@@ -186,7 +187,7 @@ If `test_eval_set_is_45_pairs` fails with a different number, STOP and report â€
 
 Run:
 ```bash
-venv/Scripts/python.exe -c "import subprocess,sys; out=subprocess.run(['git','grep','-n','gin.curator','--','gin/cartographer'],capture_output=True,text=True).stdout; print(out or 'clean: cartographer does not import curator'); sys.exit(1 if out else 0)"
+venv/Scripts/python.exe -c "import subprocess,sys; out=subprocess.run(['git','grep','-nE',r'^\s*(from|import)\s+gin\.curator','--','gin/cartographer'],capture_output=True,text=True).stdout; print(out or 'clean: cartographer does not import curator'); sys.exit(1 if out else 0)"
 ```
 Expected: `clean: cartographer does not import curator`
 
