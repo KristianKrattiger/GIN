@@ -58,9 +58,8 @@ def export_calibration_rows(
         if relation not in _CLASSIFIER_RELATIONS:
             drops["not_a_classifier_output"] += 1
             continue
-        is_eval_pair = frozenset((src, dst)) in eval_keys
         if src not in text or dst not in text:
-            drops["text_unresolved" if not is_eval_pair else "eval_pair"] += 1
+            drops["text_unresolved"] += 1
             continue
         cos, p_contra, same_story = signals_fn(text[src], text[dst])
         measured = {
@@ -69,7 +68,7 @@ def export_calibration_rows(
             "same_story": bool(same_story),
             "relation": relation.value,
         }
-        if is_eval_pair:
+        if frozenset((src, dst)) in eval_keys:
             # Measured for the held-out score, then kept out of calibration.
             drops["eval_pair"] += 1
             eval_rows.append({"src": src, "dst": dst, **measured})
