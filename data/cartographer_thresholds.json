@@ -2,6 +2,8 @@
   "gate_floor": 0.14,
   "corroborate_ceiling": 0.486,
   "contra_threshold": 0.686,
-  "calibrated_on_pairs": 39,
-  "leave_one_out_accuracy": 0.923
+  "leave_one_out_accuracy": 0.897,
+  "calibrated_on": "baked-39 fixture (tests/fixtures/calibration_samples_fixture.json)",
+  "n_samples": 39,
+  "note": "A 131-sample recalibration from the curated label store (scripts/recalibrate_cheap_pipeline.py) was measured on 2026-07-25 but rejected and not shipped: classify_relation story-gates the contradicts channels, all 22 contradicts samples in that set are same_story=False so CONTRADICTS is unreachable for them, and the 11 same-story rows are forced to CONTRADICTS while none are gold contradicts — 33 of 131 rows unfixable at any threshold. See commit c30f910. These thresholds remain the ones calibrated on the baked-39 fixture."
 }

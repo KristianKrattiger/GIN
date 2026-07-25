@@ -9,6 +9,28 @@ is detectable next time.
 Pre-registered: report the number whichever way it moves. More calibration data
 reducing accuracy is a real outcome, not a failure — it would mean the previous
 39 baked samples were flattering.
+
+STATUS 2026-07-25: this script has been run once, on the 131 curated samples in
+data/calibration/samples.json. Its output was REJECTED and NOT shipped —
+data/cartographer_thresholds.json deliberately retains the earlier
+(baked-39-fixture) threshold values.
+
+Reason: classify_relation() story-gates the contradicts channels on
+same_story. All 22 contradicts samples in the 131-sample set are
+same_story=False, which makes CONTRADICTS unreachable for them at any
+threshold; the 11 rows that ARE same_story get forced to CONTRADICTS
+regardless of threshold, and none of those 11 are gold contradicts. That is
+33 of 131 rows that cannot be classified correctly no matter where the
+thresholds are set.
+
+Direct evidence: on the 40 held-out eval pairs, the retained (baked-39)
+thresholds score 0.700; the thresholds this script recalibrated from the
+131-sample set score 0.550. See commit c30f910 for the measurement.
+
+Consequence: --write should not be used again until the calibration corpus
+contains same-story contradicts pairs (i.e. gold contradicts pairs where
+same_story=True actually occur). Until then, running with --write would
+silently regress the shipped thresholds.
 """
 from __future__ import annotations
 

@@ -30,7 +30,11 @@ from gin.cartographer.combined import (
     CombinedRelationProposer,
 )
 from gin.cartographer.models import Relation
-from gin.cartographer.relatedness import make_same_story
+from gin.cartographer.relatedness import (
+    DEFAULT_STORY_FLOOR,
+    _rare_df_ceiling,
+    make_same_story,
+)
 from gin.curator.calibration_export import export_calibration_rows
 from gin.curator.store import Store
 from gin.curator.text_index import default_text_index
@@ -56,8 +60,17 @@ def main() -> None:
     args = ap.parse_args()
 
     text = default_text_index()
+    corpus_texts = list(text.values())
+    story_floor = DEFAULT_STORY_FLOOR
+    df_ceiling = _rare_df_ceiling(len(corpus_texts))
+    require_anchor = True
     proposer = CombinedRelationProposer()
-    same_story = make_same_story(list(text.values()))
+    same_story = make_same_story(
+        corpus_texts,
+        story_floor=story_floor,
+        df_ceiling=df_ceiling,
+        require_anchor=require_anchor,
+    )
 
     def signals(a_text: str, b_text: str) -> tuple[float, float, bool]:
         return (
@@ -89,6 +102,10 @@ def main() -> None:
         excluded_eval_pairs=report.drops.get("eval_pair", 0),
         git_sha=git_sha(),
         created_utc=datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        same_story_corpus_size=len(corpus_texts),
+        story_floor=story_floor,
+        df_ceiling=df_ceiling,
+        require_anchor=require_anchor,
     )
     write_samples(args.out, manifest, samples, eval_samples)
     print(f"measured {len(samples)} calibration samples {report.class_counts}")

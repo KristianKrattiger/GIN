@@ -10,8 +10,12 @@
       "contradicts": 22
     },
     "excluded_eval_pairs": 40,
-    "git_sha": "58d7ced",
-    "created_utc": "2026-07-25T10:50:11Z"
+    "git_sha": "c30f910",
+    "created_utc": "2026-07-25T20:36:34Z",
+    "same_story_corpus_size": 236,
+    "story_floor": 2,
+    "df_ceiling": 7,
+    "require_anchor": true
   },
   "samples": [
     {

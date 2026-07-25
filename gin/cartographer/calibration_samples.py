@@ -13,7 +13,7 @@ accuracy the code no longer reproduced, and nothing detected it.
 from __future__ import annotations
 
 import json
-from dataclasses import asdict, dataclass
+from dataclasses import MISSING, asdict, dataclass, fields
 from pathlib import Path
 from typing import Optional
 
@@ -59,12 +59,35 @@ class SampleManifest:
     excluded_eval_pairs: int
     git_sha: str
     created_utc: str
+    # Stage-1 same-story parameters actually used to build make_same_story()
+    # for this run. same_story determined the entire recalibration outcome
+    # (11 same-story rows under the generator's settings, 3 under scan-like
+    # settings) and is both corpus- and parameter-dependent, so it belongs in
+    # the manifest gate alongside the model ids. Defaulted so the committed
+    # 39-sample fixture, whose manifest predates these fields, keeps loading.
+    same_story_corpus_size: int = 0
+    story_floor: int = 0
+    df_ceiling: int | None = None
+    require_anchor: bool = True
 
     def to_json(self) -> dict:
         return asdict(self)
 
     @classmethod
     def from_json(cls, data: dict) -> "SampleManifest":
+        valid_fields = {f.name for f in fields(cls)}
+        unexpected = set(data) - valid_fields
+        missing = {f.name for f in fields(cls) if f.default is MISSING} - set(data)
+        if unexpected or missing:
+            problems = []
+            if unexpected:
+                problems.append(f"unexpected key(s) {sorted(unexpected)}")
+            if missing:
+                problems.append(f"missing required key(s) {sorted(missing)}")
+            raise ValueError(
+                f"calibration samples manifest schema mismatch: {'; '.join(problems)}; "
+                f"regenerate with: {REGEN_COMMAND}"
+            )
         return cls(**data)
 
 
