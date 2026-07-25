@@ -97,3 +97,27 @@ def test_missing_file_names_the_regen_command(tmp_path):
 def test_manifest_json_round_trip():
     m = _manifest()
     assert SampleManifest.from_json(json.loads(json.dumps(m.to_json()))) == m
+
+
+def test_empty_samples_array_raises_valueerror(tmp_path):
+    # A valid manifest with an empty samples array is a silent-degradation trap.
+    path = tmp_path / "samples.json"
+    manifest = _manifest()
+    write_samples(path, manifest, [], _eval_samples())  # Empty samples
+    with pytest.raises(ValueError, match="calibration samples array is empty"):
+        load_samples(path)
+
+
+def test_mismatched_sample_count_raises_valueerror(tmp_path):
+    # Manifest says n_samples=5 but file only has 2: file is truncated or corrupted.
+    path = tmp_path / "samples.json"
+    manifest = SampleManifest(
+        embed_model="embed-x", nli_model="nli-y", n_samples=5,
+        class_counts={"contradicts": 3, "unrelated": 2},
+        excluded_eval_pairs=45, git_sha="abc1234",
+        created_utc="2026-07-25T00:00:00Z",
+    )
+    samples = _samples()  # Only 2 samples
+    write_samples(path, manifest, samples, _eval_samples())
+    with pytest.raises(ValueError, match="samples count.*does not match"):
+        load_samples(path)

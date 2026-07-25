@@ -141,6 +141,15 @@ def load_samples(
         )
         for row in payload["samples"]
     ]
+    if not samples:
+        raise ValueError(
+            f"calibration samples array is empty; regenerate with: {REGEN_COMMAND}"
+        )
+    if len(samples) != manifest.n_samples:
+        raise ValueError(
+            f"samples count ({len(samples)}) does not match manifest "
+            f"({manifest.n_samples}); file may be truncated or corrupted"
+        )
     return samples, manifest
 
 
