@@ -46,3 +46,14 @@ def test_none_class_contradicts_not_counted_as_issue_frame(tmp_path):
     store = Store(tmp_path / "labels.jsonl")
     store.append(_rec("x:0", "y:0", Relation.CONTRADICTS, "2026-07-17T00:00:00Z", None))
     assert readiness(store).new_issue_frame == 0
+
+
+def test_text_aliased_bar_pair_does_not_count_as_new(tmp_path):
+    # The fixture corpus stores bar chunks under different ids with byte-identical
+    # text: inst_em:0 IS n1_doc_005:2 and grass_em:0 IS n2_doc_001:4, so this pair
+    # IS the bar's first issue_frame pair. Counting it as progress overstates
+    # readiness toward a detector the bar will measure.
+    store = Store(tmp_path / "labels.jsonl")
+    store.append(_rec("inst_em:0", "grass_em:0", Relation.CONTRADICTS,
+                      "2026-07-25T00:00:00Z", relation_class="issue_frame"))
+    assert readiness(store).new_issue_frame == 0

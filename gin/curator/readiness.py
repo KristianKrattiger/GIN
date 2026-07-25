@@ -14,6 +14,7 @@ from gin.cartographer.models import Relation
 
 from .models import pair_key
 from .store import Store
+from .text_index import default_text_index, touches_bar_text
 
 
 @dataclass(frozen=True)
@@ -48,9 +49,16 @@ def bar_pair_keys() -> frozenset[tuple[str, str]]:
 
 def readiness(store: Store, target: ReadinessTarget = ReadinessTarget()) -> ReadinessReport:
     bar = bar_pair_keys()
+    index = default_text_index()
     n_if = n_ag = n_un = 0
     for src, dst, relation, relation_class in store.gold():
         if pair_key(src, dst) in bar:
+            continue
+        # Chunk-id exclusion alone overstates readiness: the fixture corpus
+        # files bar chunks under alias ids with identical text, and the
+        # consumer (gin.frames) drops any pair touching bar TEXT. Count what
+        # that consumer can actually train on, not what the ids suggest.
+        if touches_bar_text(src, dst, index):
             continue
         if relation is Relation.CONTRADICTS and relation_class == "issue_frame":
             n_if += 1

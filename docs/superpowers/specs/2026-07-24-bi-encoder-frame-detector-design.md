@@ -287,9 +287,13 @@ disable it). That removed **31 further rows: the honest training set is 49, not
 80.** All numbers below are from the clean 49-row set. The earlier 80-row run is
 superseded and its eval artifacts deleted.
 
-Note for sub-project C: `readiness.py` counts at the chunk-id level, so **the
-readiness gauge overstates readiness** by the same aliasing. It read 20/class
-green on data that is 49 rows once cleaned.
+`readiness.py` had the same defect and is **now fixed**: the text guard lives in
+`gin/curator/text_index.py` and both the gauge and the training filter use it.
+Corrected, the gauge reads **issue_frame 24 / agree 9 / unrelated 6** against a
+20/class target — **NOT ready**. B was therefore built on a corpus that had not
+actually met its own gate: issue_frame is over target, but AGREE and UNRELATED
+are under half. That reframes the negative result below — see "What this does
+not license".
 
 ### Measured
 
