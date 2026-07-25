@@ -14,3 +14,4 @@ models/
 .claude/
 .worktrees/
 certs/
+data/frames/*.joblib

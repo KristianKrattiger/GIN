@@ -1,0 +1,21 @@
+{
+  "encoder_model": "sentence-transformers/all-MiniLM-L6-v2",
+  "feature_dim": 1152,
+  "classes": [
+    "AGREE",
+    "DIVERGENT",
+    "RELATED_UNTYPED",
+    "UNRELATED"
+  ],
+  "kind": "linear",
+  "seed": 0,
+  "n_train": 80,
+  "class_counts": {
+    "AGREE": 17,
+    "RELATED_UNTYPED": 15,
+    "UNRELATED": 21,
+    "DIVERGENT": 27
+  },
+  "git_sha": "7b1a7d6",
+  "created_utc": "2026-07-25T05:28:16Z"
+}
