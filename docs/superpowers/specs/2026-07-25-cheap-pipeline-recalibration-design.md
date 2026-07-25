@@ -50,7 +50,7 @@ spec. Also out of scope: any change to `gin/frames/`, and any new relation type.
 | Loader unification | **Split** — eval surfaces frozen, calibration reads the store | The bar is pre-registered and must not move; calibration should track new labels. Full unification would put a pre-registered eval one bad label away from drifting across a 15-file blast radius. |
 | Train/eval split | Calibrate on store **minus** the 45 eval pairs | `labeled_set` + `gold_edges` pairs are what `scan_eval`/`evaluation` measure against. Excluding them makes the reported number held-out rather than a restatement. Leaves 133 calibration pairs. |
 | Sample persistence | Generated JSON data file + manifest | Keeps the deliberate "calibration reproduces without models" property while making regeneration a command. A generated Python literal invites accidental hand-edits; on-the-fly computation would force models into calibration tests. |
-| Disputed pair | Curator adjudicates; run reports sensitivity | `inst_em:0 ↔ clim_pledges:0` is a curatorial call, not the implementer's. Calibration reads whatever the store says and reports the delta both ways so the cost of the decision is visible. |
+| Disputed pair | Curator adjudicates; run reports sensitivity on the **held-out score** | `inst_em:0 ↔ clim_pledges:0` is a curatorial call, not the implementer's. It is a `labeled_set` member, hence an eval pair excluded from calibration, so flipping it moves the held-out number rather than the thresholds. The run reports it both ways so the cost of the decision is visible. |
 
 ## Current state (measured 2026-07-25)
 
@@ -159,10 +159,13 @@ current baseline. Writes `data/cartographer_thresholds.json` including the
 provenance fields the current file lacks (`n_samples`, model ids, git sha,
 UTC) so a stale artifact is detectable next time.
 
-**Sensitivity line.** Reruns calibration with `inst_em:0 ↔ clim_pledges:0`
-flipped to `contradicts` and reports the threshold and LOO delta. This does not
-change any label — it prices the open curatorial decision so the curator can
-adjudicate on evidence.
+**Sensitivity line.** `inst_em:0 ↔ clim_pledges:0` is a member of
+`labeled_set` gold, so it is one of the 45 **eval** pairs and is excluded from
+calibration — flipping it cannot move the thresholds. What it moves is the
+**held-out score**. The CLI therefore reports held-out accuracy computed twice:
+once with the pair as `corroborates` (its current store label) and once as
+`contradicts`. This changes no label; it prices the open curatorial decision so
+the curator can adjudicate on evidence.
 
 ## Success criteria
 
