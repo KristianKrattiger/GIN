@@ -285,7 +285,7 @@ def test_round_trip_goes_through_real_json(tmp_path):
     path = tmp_path / "samples.json"
     write_samples(path, _manifest(), _samples(), _eval_samples())
     raw = json.loads(path.read_text(encoding="utf-8"))
-    assert set(raw) == {"manifest", "samples"}
+    assert set(raw) == {"manifest", "samples", "eval_samples"}
     assert raw["samples"][0]["relation"] == "contradicts"
 
 
