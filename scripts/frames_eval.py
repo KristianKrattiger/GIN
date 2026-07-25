@@ -56,7 +56,8 @@ def main() -> None:
     print("\n=== leave-one-out (honest generalization) ===")
     print(f"  n                      {loo['n']}")
     print(f"  balanced acc (mean)    {loo['balanced_accuracy_mean']:.3f}")
-    print(f"  spread across seeds    {loo['balanced_accuracy_spread']:.3f}")
+    spread_note = "" if loo["seed_variance_meaningful"] else "  (vacuous: lbfgs is seed-invariant)"
+    print(f"  spread across seeds    {loo['balanced_accuracy_spread']:.3f}{spread_note}")
     for name, value in loo["per_class_recall"].items():
         print(f"  recall {name:18s} {value:.3f}")
 

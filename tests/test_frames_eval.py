@@ -61,7 +61,8 @@ def test_loo_report_shape():
         X[labels == name] += offset * 5.0
     report = loo_report(X, labels, kind="linear", seeds=(0, 1))
     assert set(report) == {"balanced_accuracy_mean", "balanced_accuracy_spread",
-                           "per_seed", "per_class_recall", "n"}
+                           "seed_variance_meaningful", "per_seed",
+                           "per_class_recall", "n"}
     assert report["n"] == 40
     assert len(report["per_seed"]) == 2
     assert report["balanced_accuracy_mean"] > 0.9  # separable by construction
@@ -73,3 +74,18 @@ def test_bar_metrics_runs_db_free_with_a_stub_judge():
     assert metrics["issue_frame_recall"] == 1.0        # constant judge catches all gold
     assert metrics["class_c_discrimination"] == 0.0    # and fails every control
     assert metrics["issue_frame_scorable_count"] == 4
+
+
+def test_seed_variance_flag_marks_linear_spread_as_vacuous():
+    # lbfgs is a deterministic convex solver and ignores random_state, so the
+    # spread is structurally 0.000 for kind="linear". That zero is evidence of
+    # solver determinism, not model stability, and the flag must say so.
+    rng = np.random.default_rng(0)
+    X = rng.normal(size=(40, 6))
+    labels = np.array(["DIVERGENT", "AGREE", "RELATED_UNTYPED", "UNRELATED"] * 10)
+    for offset, name in enumerate(["DIVERGENT", "AGREE", "RELATED_UNTYPED", "UNRELATED"]):
+        X[labels == name] += offset * 5.0
+    report = loo_report(X, labels, kind="linear", seeds=(0, 1, 2))
+    assert report["seed_variance_meaningful"] is False
+    assert report["balanced_accuracy_spread"] == 0.0
+    assert len(set(report["per_seed"])) == 1

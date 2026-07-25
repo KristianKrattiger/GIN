@@ -261,6 +261,82 @@ eval harness). Neither may import `gin.frames`. The invariant that
 `gin.cartographer` never imports `gin.curator` is preserved and should be
 re-verified in the whole-branch review.
 
+## Results — measured 2026-07-25
+
+Implemented over 8 TDD tasks. All numbers below were reproduced independently by
+the controller, not taken from an implementer's report.
+
+**Stage-0 probe: PASS.** LOO balanced accuracy **0.870** on DIVERGENT-vs-rest
+against a stratified-random baseline of 0.502 (gate was ≥0.65). The frozen
+all-MiniLM-L6-v2 geometry *does* carry a linearly recoverable stance axis, so
+the premise of the whole approach survived its own falsification test.
+
+**Escalation bar: FAILED.** Verdict `bar_failed` under the pre-registered rule.
+
+| metric | bi-encoder | Qwen2.5-14B | Opus 4.8 |
+|---|:--:|:--:|:--:|
+| issue_frame_recall | **0.00** | 0.50 | 0.00 |
+| class_c_discrimination | 0.67 | 0.33 | 0.67 |
+| unrelated_discrimination | **1.00** | 1.00 | 1.00 |
+| direction_flip_count | **0** | 3 | 3 |
+
+**Leave-one-out over the 80 training rows: 0.676** balanced accuracy (4-way
+chance 0.25). Per-class recall: DIVERGENT 0.815, AGREE 0.765, UNRELATED 0.857,
+**RELATED_UNTYPED 0.267**.
+
+### What this means
+
+The honest reading is that **the detector learned the curator's stance and
+still failed the bar** — and those are not in tension, because they measure
+different distributions.
+
+- In-distribution the model is genuinely good: 0.676 4-way against 0.25 chance,
+  with DIVERGENT recall 0.815. It reproduces the curatorial frame on the data it
+  was trained on.
+- On the bar it scores 0.00 issue_frame recall — **Opus 4.8's exact failure
+  mode**. Direct diagnosis (loading the trained head and calling it on the four
+  gold pairs) returns `UNRELATED, AGREE, UNRELATED, UNRELATED`. This is real
+  model behavior, not a harness fault.
+- The cause is the chunk-level bar exclusion working as designed. The bar's
+  issue_frame pairs are an institutional-vs-independent register
+  (`*_bureau_report` vs `*_independent_survey`), and every chunk of that
+  register was held out of training. Node4 taught proposition-level pro/con
+  policy opposition. The model learned the frame it was shown and did not
+  transfer to a register it never saw.
+
+**`direction_flip_count = 0` is a real, unambiguous win.** Every LLM judge
+flipped on 3–7 of 14 pairs; the symmetric pair features make order invariance a
+mathematical identity. That metric is now solved by construction rather than
+hoped for.
+
+**`RELATED_UNTYPED` recall 0.267 is the weakest result** and is diagnostic: the
+hard-negative class — topically related but untyped — remains the hardest
+discrimination, which is the same boundary every LLM judge collapsed on. It has
+only 15 training rows.
+
+### What this does not license
+
+This is not evidence that the bi-encoder path is closed. It is evidence that
+**4 held-out pairs in an unseen register cannot be reached by 80 training rows
+that do not cover that register.** The distinguishing fact versus the judge
+sweep is that recall there did not rise with capability, whereas here the model
+demonstrably learns the target concept in-distribution. Do not report the
+`bar_failed` verdict as "the bi-encoder failed" without that qualifier.
+
+The obvious next move is more labels in the bar's register — but the bar must
+stay held out, so that means labeling *new* institutional-vs-independent pairs,
+not the bar's own. That is a sub-project C question.
+
+### Methodological caveat
+
+Seed-variance reporting is **vacuous for the linear head**: lbfgs is a
+deterministic convex solver and never consumes `random_state`, so spread is
+structurally 0.000 across all seeds. That zero is evidence of solver
+determinism, not model stability. `loo_report` now returns
+`seed_variance_meaningful` and the CLI labels the number, so it cannot be
+misread. The spec's original "report seed variance" honesty measure did not
+survive contact with the estimator choice.
+
 ## Open questions
 
 None blocking. Deferred by design: encoder fine-tuning (only on probe failure),

@@ -88,6 +88,13 @@ def loo_report(
 
     A single-seed number at this sample size is not trustworthy, so spread is
     reported and a result quoted from one seed is treated as unreported.
+
+    CAVEAT — the spread is vacuous for ``kind="linear"``. LogisticRegression's
+    lbfgs solver is a deterministic convex optimizer and never consumes
+    ``random_state``, so all seeds produce bit-identical coefficients and the
+    spread is structurally 0.000. That zero is evidence of solver determinism,
+    NOT of model stability, and must not be read as the latter. The returned
+    ``seed_variance_meaningful`` flag says which reading applies.
     """
     per_seed: list[float] = []
     last_predictions = None
@@ -112,6 +119,7 @@ def loo_report(
         "per_seed": per_seed,
         "balanced_accuracy_mean": float(np.mean(per_seed)),
         "balanced_accuracy_spread": float(np.max(per_seed) - np.min(per_seed)),
+        "seed_variance_meaningful": kind != "linear",
         "per_class_recall": {n: float(r) for n, r in zip(class_names, recalls)},
     }
 
