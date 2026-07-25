@@ -62,8 +62,19 @@ spec. Also out of scope: any change to `gin/frames/`, and any new relation type.
 | LOO class_c_discrimination | 1.000 |
 | Persisted `thresholds.json` claim | 0.923 — **stale, does not reproduce** |
 | Store folded pairs | 178 |
-| Eval pairs (`labeled_set` ∪ `gold_edges`) | 45 — all present in store, **zero drift** |
+| Eval pairs (`labeled_set` ∪ `gold_edges`) | 45 id-keys, **40 distinct offline-measurable** — see note |
 | Available calibration pairs | **133** |
+
+**Note on 45 vs 40.** `gold_edges` and `labeled_set` name the same 5 pairs under
+two chunk-id schemes (`disc_northwind_complaint:0` *is* `disc_nw_complaint:0`;
+likewise `disc_meridian_*`, `hf_alderflats_*`, `hf_kestrel_*`, `wf_multi_*`). The
+store was seeded from both and holds both copies, but only the short-form ones
+resolve to offline text. So `eval_pair_keys()` is 45 id-keys while the held-out
+set is **40 distinct pairs**. The leakage guarantee is unaffected: long-form
+copies drop as `text_unresolved` and their short-form twins as `eval_pair`, so
+neither can become a calibration sample. This is the same id-aliasing hazard
+sub-project B hit from the other direction, and it is why guards in this codebase
+should compare text rather than chunk ids wherever that is possible.
 
 Calibration-pair class mix: `related_untyped` 62, `corroborates` 26,
 `contradicts` 22, `unrelated` 21, `supersedes` 2 (the last excluded — not a

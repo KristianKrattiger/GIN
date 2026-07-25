@@ -14,7 +14,8 @@
 - **Frozen eval surfaces:** `gold_edges.py`, `escalation_eval.py`, `scan_eval.py`, `evaluation.py`, and `labeled_set.py` keep their current behavior. No task may change which pairs they yield.
 - **The escalation bar is 14 pairs** (4 issue_frame + 6 corroboration + 4 unrelated) and must be byte-identical before and after this work.
 - **Model-free by default:** only `scripts/regen_calibration_samples.py` may load embed/NLI models. Every test must pass without a model download.
-- **Exact expected counts:** store folds to **178** pairs; eval set is **45** pairs (`labeled_set` ∪ `gold_edges`); calibration set is **133** pairs. Class mix of the 133: `related_untyped` 62, `corroborates` 26, `contradicts` 22, `unrelated` 21, plus 2 `supersedes` rows that are excluded (not a classifier output), so **131 usable samples**.
+- **Exact expected counts:** store folds to **178** pairs; `eval_pair_keys()` holds **45 id-keys** but only **40 are offline-measurable** (see below); calibration set is **133** pairs. Class mix of the 133: `related_untyped` 62, `corroborates` 26, `contradicts` 22, `unrelated` 21, plus 2 `supersedes` rows that are excluded (not a classifier output), so **131 usable samples**.
+- **The 45-vs-40 eval discrepancy is expected, not a bug.** `gold_edges` and `labeled_set` name the same 5 pairs under different chunk-id schemes (`disc_northwind_complaint:0` is `disc_nw_complaint:0`, and similarly for `disc_meridian_*`, `hf_alderflats_*`, `hf_kestrel_*`, `wf_multi_*`). The store holds both copies; only the short-form ones have offline text. Long-form copies drop as `text_unresolved`, short-form twins as `eval_pair` — neither reaches calibration, so the leakage guarantee holds and the held-out set is **40 distinct pairs**.
 - **Current baseline to beat or report against:** 39 baked samples, thresholds gate 0.140 / ceiling 0.486 / contra 0.686, LOO accuracy **0.897**, LOO `class_c_discrimination` **1.000**.
 - **Model ids:** embed `sentence-transformers/all-MiniLM-L6-v2`, NLI `cross-encoder/nli-deberta-v3-xsmall` (read from `combined.DEFAULT_EMBED_MODEL` / `DEFAULT_NLI_MODEL`, never hardcoded in new code).
 - **Pair identity in `gin/cartographer/`** uses `frozenset((src, dst))`, matching the existing `gold_edges.gold_contradicts_keys()` convention. Do **not** import `gin.curator.models.pair_key` into cartographer — that would break layering.
@@ -614,10 +615,11 @@ def test_real_store_yields_expected_counts():
     from gin.frames.dataset import DEFAULT_LABELS
 
     report = export_calibration_rows(Store(Path(DEFAULT_LABELS)), _signals)
-    assert report.drops["eval_pair"] == 45
-    assert report.drops["not_a_classifier_output"] == 2
+    assert report.drops == {
+        "eval_pair": 40, "text_unresolved": 5, "not_a_classifier_output": 2,
+    }
     assert len(report.rows) == 131
-    assert len(report.eval_rows) == 45
+    assert len(report.eval_rows) == 40
 ```
 
 - [ ] **Step 2: Run test to verify it fails**
