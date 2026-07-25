@@ -1,9 +1,14 @@
 """Head training, persistence, and the manifest compatibility gate."""
+import json
+from dataclasses import replace
+
 import numpy as np
 import pytest
 
 from gin.frames.head import (
+    HEAD_FILENAME,
     HEAD_KINDS,
+    MANIFEST_FILENAME,
     Manifest,
     build_estimator,
     load_head,
@@ -52,15 +57,23 @@ def test_round_trip_reproduces_identical_predictions(tmp_path):
     X, y = _data()
     model = train_head(X, y, kind="linear", seed=0)
     before = model.predict(X)
-    save_head(tmp_path, model, _manifest())
-    loaded, manifest = load_head(tmp_path)
+    manifest = _manifest()
+    save_head(tmp_path, model, manifest)
+    loaded, loaded_manifest = load_head(tmp_path)
     assert list(loaded.predict(X)) == list(before)
-    assert manifest.encoder_model == "stub-encoder"
+    # Full equality, not just one field: the only field save_head is allowed to
+    # change from what the caller passed in is head_sha256 (computed on write).
+    assert loaded_manifest.head_sha256 != ""
+    assert loaded_manifest == replace(manifest, head_sha256=loaded_manifest.head_sha256)
 
 
 def test_manifest_json_round_trip():
     m = _manifest()
-    assert Manifest.from_json(m.to_json()) == m
+    # Go through real json.dumps/json.loads, not just asdict(), so a field that
+    # survives dataclass round-tripping but breaks under real JSON encoding
+    # (e.g. tuple vs list, non-string dict keys) would be caught.
+    reloaded = Manifest.from_json(json.loads(json.dumps(m.to_json())))
+    assert reloaded == m
 
 
 def test_encoder_mismatch_is_a_hard_error(tmp_path):
@@ -79,4 +92,26 @@ def test_feature_dim_mismatch_is_a_hard_error(tmp_path):
 
 def test_missing_artifact_raises(tmp_path):
     with pytest.raises(FileNotFoundError):
+        load_head(tmp_path)
+
+
+def test_stale_pairing_is_a_hard_error_when_joblib_is_tampered(tmp_path):
+    # Simulates a crash between the joblib write and the manifest write during
+    # a retrain: the bytes on disk no longer match what the manifest attests to.
+    X, y = _data()
+    save_head(tmp_path, train_head(X, y, seed=0), _manifest())
+    head_path = tmp_path / HEAD_FILENAME
+    head_path.write_bytes(head_path.read_bytes() + b"\x00")
+    with pytest.raises(ValueError, match="does not match its manifest"):
+        load_head(tmp_path)
+
+
+def test_stale_pairing_is_a_hard_error_when_manifest_digest_is_wrong(tmp_path):
+    X, y = _data()
+    save_head(tmp_path, train_head(X, y, seed=0), _manifest())
+    manifest_path = tmp_path / MANIFEST_FILENAME
+    data = json.loads(manifest_path.read_text(encoding="utf-8"))
+    data["head_sha256"] = "0" * 64
+    manifest_path.write_text(json.dumps(data), encoding="utf-8")
+    with pytest.raises(ValueError, match="does not match its manifest"):
         load_head(tmp_path)
