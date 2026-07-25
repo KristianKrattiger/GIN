@@ -111,15 +111,7 @@ def test_every_bar_pair_is_in_the_eval_set_or_is_a_control():
 Run: `venv/Scripts/python.exe -m pytest tests/test_cartographer_eval_pairs.py -v`
 Expected: FAIL — `ModuleNotFoundError: No module named 'gin.cartographer.eval_pairs'`
 
-- [ ] **Step 3: Capture the live bar pair ids**
-
-Run:
-```bash
-venv/Scripts/python.exe -c "from gin.cartographer.escalation_eval import default_calibration_sets as d; s=d(); print(tuple((a,b,r) for g in ('issue_frame','corroboration','unrelated') for a,b,r in s[g]))"
-```
-Copy the printed tuple verbatim into `BAR_PAIR_IDS` in the next step. Do not retype it by hand.
-
-- [ ] **Step 4: Write the implementation**
+- [ ] **Step 3: Write the implementation**
 
 Create `gin/cartographer/eval_pairs.py`:
 
@@ -152,7 +144,23 @@ from .labeled_set import gold as labeled_set_gold
 # then unrelated, in list order. Regenerate ONLY when deliberately changing the
 # bar, which invalidates prior published comparisons.
 BAR_PAIR_IDS: tuple[tuple[str, str, str], ...] = (
-    # PASTE the tuple printed in Step 3 here, one entry per line.
+    # issue_frame (4)
+    ('n1_doc_005:2', 'n2_doc_001:4', 'twonode'),
+    ('n1_doc_005:1', 'n2_doc_001:1', 'twonode'),
+    ('n1_doc_008:0', 'n2_doc_005:1', 'twonode'),
+    ('n1_doc_009:0', 'n2_doc_008:2', 'twonode'),
+    # corroboration (6)
+    ('n1_doc_008:0', 'n1_doc_008:2', 'twonode'),
+    ('labor_bureau_report:0', 'labor_independent_survey:0', 'news'),
+    ('wage_bureau_report:0', 'wage_independent_survey:0', 'news'),
+    ('inflation_bureau_report:0', 'inflation_independent_survey:0', 'news'),
+    ('export_trade_report:0', 'export_independent_review:0', 'news'),
+    ('n1_doc_002:0', 'n1_doc_006:2', 'twonode'),
+    # unrelated (4)
+    ('n1_doc_008:0', 'n2_doc_008:2', 'twonode'),
+    ('n1_doc_009:0', 'n2_doc_005:1', 'twonode'),
+    ('n1_doc_008:0', 'n1_doc_009:0', 'twonode'),
+    ('transit_authority_update:0', 'school_district_report:0', 'news'),
 )
 
 
@@ -167,14 +175,14 @@ def eval_pair_keys() -> frozenset[frozenset[str]]:
     return frozenset(keys)
 ```
 
-- [ ] **Step 5: Run tests to verify they pass**
+- [ ] **Step 4: Run tests to verify they pass**
 
 Run: `venv/Scripts/python.exe -m pytest tests/test_cartographer_eval_pairs.py -v`
 Expected: PASS — 7 passed
 
 If `test_eval_set_is_45_pairs` fails with a different number, STOP and report — the store or the loaders changed and the plan's counts need revisiting.
 
-- [ ] **Step 6: Verify layering**
+- [ ] **Step 5: Verify layering**
 
 Run:
 ```bash
@@ -182,7 +190,7 @@ venv/Scripts/python.exe -c "import subprocess,sys; out=subprocess.run(['git','gr
 ```
 Expected: `clean: cartographer does not import curator`
 
-- [ ] **Step 7: Commit**
+- [ ] **Step 6: Commit**
 
 ```bash
 git add gin/cartographer/eval_pairs.py tests/test_cartographer_eval_pairs.py
