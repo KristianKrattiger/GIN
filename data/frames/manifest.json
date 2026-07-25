@@ -9,14 +9,14 @@
   ],
   "kind": "linear",
   "seed": 0,
-  "n_train": 49,
+  "n_train": 63,
   "class_counts": {
     "AGREE": 9,
-    "UNRELATED": 6,
+    "UNRELATED": 20,
     "DIVERGENT": 24,
     "RELATED_UNTYPED": 10
   },
-  "git_sha": "ba185d0",
-  "created_utc": "2026-07-25T06:09:59Z",
-  "head_sha256": "db32c140dae23eff98fb16364ef71f6056d5a891872bc8904d87e35719a04233"
+  "git_sha": "cccf228",
+  "created_utc": "2026-07-25T06:39:03Z",
+  "head_sha256": "1a1a9822f1ddf9d377253d066cf907d11b54f2938f2e89c246b4d5277f778c25"
 }

@@ -310,6 +310,34 @@ not license".
 Per-class LOO recall: DIVERGENT 0.917, AGREE 0.778, UNRELATED 0.667,
 RELATED_UNTYPED 0.500.
 
+**Update 2026-07-25b — UNRELATED class closed to target (63 rows).** 14
+UNRELATED labels were added to close the gauge's UNRELATED shortfall, attributed
+`curator: "claude"` (the AGREE shortfall is deliberately left to the human
+curator, since corroboration is the more contested of the two — Opus agreed with
+the gold 1.00 on UNRELATED but only 0.67 on corroboration).
+
+| | 49-row | 63-row |
+|---|:--:|:--:|
+| LOO balanced accuracy | 0.715 | **0.799** |
+| recall UNRELATED | 0.667 | **1.000** |
+| recall DIVERGENT | 0.917 | 0.917 |
+| recall AGREE | 0.778 | 0.778 |
+| recall RELATED_UNTYPED | 0.500 | 0.500 |
+| Bar (all four metrics) | 0.00 / 0.667 / 1.00 / 0 | **unchanged** |
+
+**Read the 0.799 with care — it is partly an artifact of label selection.** The
+14 added pairs are unambiguous cross-domain negatives (monetary policy × climate
+science, anything × a Mars mission timeline), not hard negatives near the
+decision boundary. UNRELATED recall 1.000 substantially reflects that choice,
+and it lifts the 4-way mean with it. The classes that actually discriminate —
+DIVERGENT and RELATED_UNTYPED — are **unchanged at 0.917 and 0.500**, and the
+bar is unchanged in every metric. Nothing about the central negative result
+moved. A corpus with genuinely hard UNRELATED negatives would score lower here
+and be worth more.
+
+**The corpus still has not met its own gate:** readiness reads issue_frame 24 /
+agree 9 / unrelated 20 against 20/class. AGREE remains open.
+
 ### What this means
 
 **The frozen geometry separates proposition-level policy opposition and does not

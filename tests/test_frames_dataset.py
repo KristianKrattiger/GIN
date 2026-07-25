@@ -63,9 +63,9 @@ def test_real_label_log_yields_expected_counts():
     # Regression guard: if the label log drifts, this names the drift rather
     # than silently retraining on different data.
     report = build_dataset(Store(DEFAULT_LABELS))
-    assert len(report.examples) == 49
+    assert len(report.examples) == 63
     assert report.counts == {
-        "DIVERGENT": 24, "AGREE": 9, "RELATED_UNTYPED": 10, "UNRELATED": 6,
+        "DIVERGENT": 24, "AGREE": 9, "RELATED_UNTYPED": 10, "UNRELATED": 20,
     }
     assert report.drops == {"schema": 11, "bar_chunk": 11, "bar_text_alias": 31}
 
