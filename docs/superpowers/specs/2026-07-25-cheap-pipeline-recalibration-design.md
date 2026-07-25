@@ -1,7 +1,10 @@
 # Design: Cheap-Pipeline Recalibration (sub-project C)
 
 **Date:** 2026-07-25
-**Status:** Approved (design), pending implementation plan
+**Status:** Implemented and measured 2026-07-25 — see **Results** below.
+> The recalibration ran and its output was **rejected, not shipped**. The design
+> was sound; the premise was not. Results are authoritative over the sections
+> above.
 **Sub-project:** C — consumes A/B0's label store; independent of B's detector
 
 ## Problem
@@ -221,6 +224,102 @@ reaching for the older number.
 - **Existing calibration tests** — repointed at a small committed fixture sample
   file rather than the live one, so they stay model-free and stable.
 - Everything except `regen_calibration_samples.py` runs without models.
+
+## Results — measured 2026-07-25
+
+Implemented over 5 TDD tasks. All numbers below were reproduced independently by
+the controller, not taken from an implementer's report.
+
+### The recalibration was measured and rejected
+
+`data/cartographer_thresholds.json` deliberately retains its previous values.
+
+| | baseline (39 baked) | recalibrated (131 curated) |
+|---|:--:|:--:|
+| `gate_floor` | 0.140 | 0.279 |
+| `corroborate_ceiling` | 0.486 | 0.733 |
+| `contra_threshold` | 0.686 | 0.552 |
+| LOO accuracy | 0.897 | **0.534** |
+| LOO `class_c_discrimination` | 1.000 | 0.731 |
+| contradicts precision / recall | — | **0.0 / 0.0** |
+| held-out (40 frozen eval pairs) | **0.700** | **0.550** |
+
+The held-out row is the decisive one: the thresholds we kept beat the ones we
+computed, on pairs neither was fitted to.
+
+### Why — the calibration set does not exercise the mechanism
+
+`classify_relation` gates both contradicts channels on `same_story`, and that
+gate cuts both ways:
+
+- `same_story=False` **blocks** CONTRADICTS entirely. All **22** contradicts
+  samples in the new set are `same_story=False`, so no threshold choice can type
+  one correctly. That is why recall is 0.0.
+- `same_story=True` **forces** CONTRADICTS regardless of thresholds. **11** rows
+  are same-story and **none** are gold contradicts, so all 11 are wrong. That is
+  why precision is 0.0 rather than undefined (0 TP / 11 FP), and why `class_c`
+  lands at exactly 19/26 = 0.731.
+
+**33 of 131 rows are unfixable at any threshold**, capping achievable accuracy at
+0.748. The grid's actual maximum is 0.588, against a majority-class baseline of
+0.473 — the classifier is barely beating "guess `related_untyped`".
+
+Two further findings from the final review:
+
+- **`contra_threshold` is provably inert on this data.** No value in [0, 1]
+  changes any of the 131 predictions; 0.552 is pure max-margin tie-break output.
+  One third of the calibrated triple had zero evidential support.
+- **Class imbalance is a genuine co-contributor, not an alternative
+  explanation.** Even restricted to the 98 non-blocked rows, the best achievable
+  is 0.786 — cosine alone does not separate these classes.
+
+### What this means
+
+The spec's premise — *calibrate the cheap pipeline on the full curated corpus* —
+is **wrong**, and the reason is structural rather than statistical.
+
+The cheap pipeline's contradicts channel targets **same-story propositional
+conflict**: two reports of one event disagreeing on a number. The curated corpus
+has grown in the opposite direction, toward **cross-document framing
+divergence** (`issue_frame`, node4 policy pro/con). Only **11 of 131** samples
+are same-story at all, and **zero** of the contradicts ones are. The corpus and
+the detector are aimed at different phenomena, so one cannot calibrate the other.
+
+This rhymes with sub-project B's finding rather than contradicting it. B found
+the frozen geometry separates *topical* distinctions and fails on *epistemic*
+ones. C finds the automated pipeline is built for *same-story propositional*
+conflict while curation has moved to *cross-story framing* conflict. Both say the
+same thing from different directions: **the curation effort and the automated
+machinery have drifted apart in what they are about.** That drift, not any
+threshold, is the thing to fix.
+
+### What ships anyway
+
+The infrastructure is sound and independently valuable:
+
+- Calibration samples are a **generated file with a manifest gate**, not a hand-
+  transcribed literal. Regeneration is one command.
+- The **eval/calibration split is airtight** — 131 + 40 + 5 + 2 = 178, and
+  `load_samples()` structurally cannot read the held-out array.
+- The **escalation bar is pinned** by chunk id, so a pre-registered eval can no
+  longer move silently.
+- Spec defect 2 is fixed: `cartographer_thresholds.json` recorded a
+  non-reproducing 0.923; it now records the verified **0.897** with provenance.
+- The manifest records the `same_story` parameters, so the signal that decided
+  this outcome is no longer invisible.
+
+### Known limitation — the method does not scale
+
+`calibrate()` is O(n⁴) and `leave_one_out()` is O(n⁵). Measured: 0.20 s / 1.40 s
+/ 5.05 s at n = 30 / 50 / 70, ~62 s at n = 131. This LOO run took **~2.25
+hours**; at 200 samples it would be ~19 h and at 300 ~35 h. The method is
+impractical beyond roughly 150 samples, which the curator corpus will pass.
+
+`_score()` is a pure-Python loop over every sample for each of O(n³) threshold
+combinations. Vectorizing it preserves the grid and tie-breaking exactly,
+provided grid iteration order is kept (the `>` comparison makes ties first-wins)
+and `same_story` is encoded three-valued as −1/0/1 rather than as a bool, since
+`classify_relation` distinguishes `None` from `False`. Expected ~20–50×.
 
 ## Open questions
 
