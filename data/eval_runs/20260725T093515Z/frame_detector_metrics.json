@@ -1,0 +1,70 @@
+{
+  "bar": {
+    "issue_frame_recall": 0.0,
+    "class_c_discrimination": 1.0,
+    "unrelated_discrimination": 1.0,
+    "direction_flip_count": 0
+  },
+  "bar_all_green": false,
+  "loo": {
+    "n": 102,
+    "per_seed": [
+      0.7054824561403509,
+      0.7054824561403509,
+      0.7054824561403509,
+      0.7054824561403509,
+      0.7054824561403509
+    ],
+    "balanced_accuracy_mean": 0.7054824561403509,
+    "balanced_accuracy_spread": 0.0,
+    "seed_variance_meaningful": false,
+    "per_class_recall_last_seed": {
+      "DIVERGENT": 0.9166666666666666,
+      "AGREE": 0.3,
+      "RELATED_UNTYPED": 0.6052631578947368,
+      "UNRELATED": 1.0
+    }
+  },
+  "baselines": [
+    {
+      "model": "Mistral-7B dense",
+      "issue_frame_recall": 0.5,
+      "class_c_discrimination": 0.67,
+      "unrelated_discrimination": 0.25,
+      "direction_flip_count": 7
+    },
+    {
+      "model": "Qwen3.6-14B-A3B MoE",
+      "issue_frame_recall": 0.25,
+      "class_c_discrimination": 0.5,
+      "unrelated_discrimination": 0.5,
+      "direction_flip_count": 7
+    },
+    {
+      "model": "Qwen2.5-14B dense",
+      "issue_frame_recall": 0.5,
+      "class_c_discrimination": 0.33,
+      "unrelated_discrimination": 1.0,
+      "direction_flip_count": 3
+    },
+    {
+      "model": "Opus 4.8",
+      "issue_frame_recall": 0.0,
+      "class_c_discrimination": 0.67,
+      "unrelated_discrimination": 1.0,
+      "direction_flip_count": 3
+    }
+  ],
+  "verdict": "bar_failed",
+  "dataset_counts": {
+    "AGREE": 20,
+    "UNRELATED": 20,
+    "DIVERGENT": 24,
+    "RELATED_UNTYPED": 38
+  },
+  "dataset_drops": {
+    "bar_text_alias": 31,
+    "schema": 13,
+    "bar_chunk": 32
+  }
+}

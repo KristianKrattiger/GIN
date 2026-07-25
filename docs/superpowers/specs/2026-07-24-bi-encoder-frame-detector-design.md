@@ -338,6 +338,60 @@ and be worth more.
 **The corpus still has not met its own gate:** readiness reads issue_frame 24 /
 agree 9 / unrelated 20 against 20/class. AGREE remains open.
 
+**Update 2026-07-25c — gate CLOSED, 102 rows.** The human curator labeled the
+AGREE gap (16 corroborates) and, in passing, **44 more `related_untyped`**.
+Readiness is green (issue_frame 24 / agree 20 / unrelated 20); the training set
+is 102 rows: DIVERGENT 24, AGREE 20, RELATED_UNTYPED 38, UNRELATED 20.
+
+| | 63-row | 102-row |
+|---|:--:|:--:|
+| Stage-0 probe | 0.898 | **0.939** vs 0.497 → PASS |
+| Bar `issue_frame_recall` | 0.00 | **0.00** |
+| Bar `class_c_discrimination` | 0.667 | **1.00** |
+| Bar `unrelated_discrimination` | 1.00 | 1.00 |
+| Bar `direction_flip_count` | 0 | 0 |
+| LOO balanced accuracy | 0.799 | **0.705** |
+| recall DIVERGENT | 0.917 | 0.917 |
+| recall AGREE | 0.778 | **0.300** |
+| recall RELATED_UNTYPED | 0.500 | **0.605** |
+| recall UNRELATED | 1.000 | 1.000 |
+
+**Three of four bar metrics are now green.** Only `issue_frame_recall` fails,
+and it fails at 0.00 exactly as before — the framing register remains
+unreachable. Note `class_c_discrimination` reaching 1.00 is partly degenerate:
+the detector became *less* willing to emit DIVERGENT off-distribution, and a
+model that never says DIVERGENT scores 1.00 on both control sets by default.
+
+**The LOO drop from 0.799 to 0.705 is not a regression — it is a more honest
+number on a harder corpus.** The confusion matrix locates it precisely:
+
+| true | predicted |
+|---|---|
+| DIVERGENT (24) | **DIVERGENT 22**, UNRELATED 2 |
+| UNRELATED (20) | **UNRELATED 20** |
+| AGREE (20) | RELATED_UNTYPED 12, **AGREE 6**, UNRELATED 1, DIVERGENT 1 |
+| RELATED_UNTYPED (38) | **RELATED_UNTYPED 23**, AGREE 13, DIVERGENT 2 |
+
+**AGREE and RELATED_UNTYPED are symmetrically confused** — 12 one way, 13 the
+other, near chance between those two — while DIVERGENT and UNRELATED are
+near-perfect. AGREE's earlier 0.778 was propped up by the absence of nearby
+RELATED_UNTYPED examples; adding 44 of them revealed the boundary was never
+learned. This is a second negative result of the same shape as the headline one:
+
+> The frozen geometry separates **topical** distinctions (same issue vs
+> different issue, opposed policy positions vs not) and fails on **epistemic**
+> ones (does B corroborate A's claim, or merely share its topic?). Both
+> `issue_frame` and the AGREE/RELATED_UNTYPED boundary are epistemic, and both
+> are unlearnable here. `direction_flip_count = 0` and `UNRELATED` 1.000 are the
+> topical successes; they are real but they are the easy half.
+
+For sub-project C this narrows the question considerably: the missing signal is
+not quantity of labels — the gate is closed and the boundary still is not
+learned — so it is representational. Either a different encoder carries
+epistemic relation structure, or the frozen-embedding approach is the wrong
+instrument for this class and fine-tuning (or a cross-encoder, at the cost of
+precomputability) becomes the live option.
+
 ### What this means
 
 **The frozen geometry separates proposition-level policy opposition and does not
