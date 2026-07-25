@@ -9,15 +9,30 @@ precision 1.0 (the disputed inst_em/clim_pledges NLI artifact is story-blocked),
 recall 5/7 — the two entity-free register pairs are the measured cost of ending
 the scan-scale mid-band false-positive flood (run 20260712T074956Z).
 """
+from pathlib import Path
+
 import pytest
 
 from gin.cartographer import default_chunks, default_gold_pairs, evaluate
-from gin.cartographer.calibration import default_samples
 from gin.cartographer.combined import CombinedRelationProposer, Thresholds
 from gin.cartographer.evaluation import _key
 from gin.cartographer.labeled_set import gold
 from gin.cartographer.models import LabeledChunk, Relation
 from gin.cartographer.relatedness import make_same_story
+
+# Pinned to the frozen fixture (the baked-39 literal as it existed before
+# default_samples() switched to reading the generated file), not the live
+# default_samples(): this module zips its samples against gold() assuming the
+# old literal's fixed order, which the generated file (sorted by pair) does
+# not preserve.
+_FIXTURE = Path(__file__).parent / "fixtures" / "calibration_samples_fixture.json"
+
+
+def _default_samples():
+    from gin.cartographer.calibration_samples import load_samples
+
+    samples, _ = load_samples(_FIXTURE)
+    return samples
 
 # Measured all-MiniLM-L6-v2 cosine per original gold pair (keyed by local id).
 _COS_BASE = {
@@ -43,7 +58,7 @@ def _local_key(src_chunk_id: str, dst_chunk_id: str) -> frozenset:
 
 def _cos_table() -> dict[frozenset, float]:
     table = dict(_COS_BASE)
-    for (src, dst, _rel, _reg), sample in zip(gold(), default_samples()):
+    for (src, dst, _rel, _reg), sample in zip(gold(), _default_samples()):
         table.setdefault(_local_key(src, dst), sample.cos)
     return table
 
@@ -51,7 +66,7 @@ def _cos_table() -> dict[frozenset, float]:
 _COS = _cos_table()
 _NLI_BY_KEY = {
     _local_key(src, dst): sample.p_contra
-    for (src, dst, _rel, _reg), sample in zip(gold(), default_samples())
+    for (src, dst, _rel, _reg), sample in zip(gold(), _default_samples())
 }
 _NLI_HIGH = {
     k for k, p in _NLI_BY_KEY.items() if p >= 0.5

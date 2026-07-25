@@ -14,60 +14,30 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from .combined import Thresholds, classify_relation
+from .calibration_samples import (  # noqa: F401  (Sample re-exported for importers)
+    DEFAULT_SAMPLES_PATH,
+    Sample,
+    load_samples,
+)
+from .combined import DEFAULT_EMBED_MODEL, DEFAULT_NLI_MODEL, Thresholds, classify_relation
 from .models import Relation
 
 
-@dataclass(frozen=True)
-class Sample:
-    cos: float
-    p_contra: float
-    relation: Relation
-    # Stage-1 same-story signal (relatedness.make_same_story over the labeled
-    # corpus): does the pair share >= 2 corpus-rare tokens? Calibration feeds
-    # the classifier the signal it will actually receive at scan time.
-    same_story: bool = False
-
-
-# Measured all-MiniLM-L6-v2 cosine + max-direction NLI p_contra + lexical
-# same-story for the gold pairs (gin/cartographer/labeled_set.py), in gold
-# order. Baked so calibration is reproducible without the models; regenerate if
-# the labeled set changes. The three same_story=False contradicts pairs are the
-# climate register divergences: their rare overlap is entity-free boilerplate
-# ('greenhouse gas', 'roughly') with no anchor token, out of reach of the story
-# tier — the honest recall cost of the scan-scale precision fix.
-_MEASURED = [
-    ("contradicts", 0.390, 0.068, False), ("contradicts", 0.418, 0.010, False),
-    ("contradicts", 0.200, 0.006, False), ("contradicts", 0.552, 0.899, True),
-    ("contradicts", 0.415, 0.473, True), ("contradicts", 0.211, 0.008, True),
-    ("contradicts", 0.339, 0.003, True), ("corroborates", 0.654, 0.025, False),
-    ("corroborates", 0.727, 0.006, False), ("corroborates", 0.620, 0.020, False),
-    ("unrelated", 0.080, 0.050, False), ("unrelated", 0.028, 0.007, False),
-    ("unrelated", 0.024, 0.004, False),
-    # Expanded set — corroborates (high cosine, low NLI contra).
-    ("corroborates", 0.680, 0.012, False), ("corroborates", 0.705, 0.015, False),
-    ("corroborates", 0.695, 0.011, False), ("corroborates", 0.710, 0.014, False),
-    ("corroborates", 0.665, 0.010, False), ("corroborates", 0.672, 0.009, False),
-    ("corroborates", 0.640, 0.008, False),
-    # Expanded set — unrelated (low cosine).
-    ("unrelated", 0.045, 0.006, False), ("unrelated", 0.038, 0.005, False),
-    ("unrelated", 0.052, 0.007, False), ("unrelated", 0.041, 0.004, False),
-    ("unrelated", 0.036, 0.005, False), ("unrelated", 0.048, 0.006, False),
-    ("unrelated", 0.033, 0.003, False), ("unrelated", 0.050, 0.005, False),
-    ("unrelated", 0.042, 0.004, False), ("unrelated", 0.039, 0.006, False),
-    ("unrelated", 0.031, 0.003, False), ("unrelated", 0.046, 0.005, False),
-    ("unrelated", 0.037, 0.004, False),
-    # Related-but-no-shared-story pairs, measured on the 136-chunk scan corpus
-    # (run 20260712T074956Z false positives — cross-topic statistical reports in
-    # the old mid-band). These keep the corroborate ceiling above the noise band.
-    ("related_untyped", 0.408, 0.007, False), ("related_untyped", 0.420, 0.026, False),
-    ("related_untyped", 0.379, 0.082, False), ("related_untyped", 0.361, 0.067, False),
-    ("related_untyped", 0.373, 0.016, False), ("related_untyped", 0.400, 0.102, False),
-]
-
-
 def default_samples() -> list[Sample]:
-    return [Sample(cos, pc, Relation(rel), story) for rel, cos, pc, story in _MEASURED]
+    """Calibration samples from the generated file.
+
+    Previously a baked 39-tuple literal measured over labeled_set. That set was
+    stale (the store holds far more labels) and overlapped the evaluation set,
+    making reported accuracy partly in-sample. There is deliberately no fallback
+    to the old literal: silently calibrating on stale samples is the failure
+    being removed.
+    """
+    samples, _manifest = load_samples(
+        DEFAULT_SAMPLES_PATH,
+        expect_embed_model=DEFAULT_EMBED_MODEL,
+        expect_nli_model=DEFAULT_NLI_MODEL,
+    )
+    return samples
 
 
 def _midpoints(values: list[float]) -> list[float]:
