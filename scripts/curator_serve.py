@@ -72,10 +72,21 @@ def main() -> None:
             chunks = load_corpus_chunks(args.corpus)
         except (FileNotFoundError, ValueError) as exc:
             sys.exit(f"error: {exc}")
-        from gin.cartographer.scan import wire_same_story
+        from gin.cartographer.relatedness import make_same_story
         from gin.curator.same_story import SameStoryCandidateSource
+        from gin.curator.text_index import default_text_index
 
-        wire_same_story(proposer, chunks)
+        # Each event's shared lede appears in that event's 3-4 reports, giving
+        # its tokens document frequency 3-4 within this corpus's chunks alone --
+        # not rare enough to anchor the very event it repeats across. Build the
+        # predicate over a realistic corpus (these chunks plus the standard
+        # offline text index) so the shared lede is rare relative to the whole
+        # corpus, the way it will be in production. Only set it when unset, same
+        # guard as wire_same_story, so an injected provider is left untouched.
+        if proposer.same_story is None:
+            proposer.same_story = make_same_story(
+                [ch.text for ch in chunks] + list(default_text_index().values())
+            )
         source = SameStoryCandidateSource(chunks, proposer=proposer)
         print(f"same-story source over {len(source.chunks())} corpus chunks")
     else:

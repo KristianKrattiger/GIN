@@ -12,15 +12,15 @@
     - outlet: CentralWire
       published: "2026-03-04T21:10Z"
       chunks:
-        - "RIVERPORT — Fire crews responded to a warehouse blaze on the east waterfront Tuesday evening. Officials confirmed 34 people were evacuated from nearby buildings as crews worked to contain the flames. No injuries were reported among residents or firefighters. The cause of the fire remains under investigation. (Wire ref 10001/10002.) (Wire ref 10003/10004.)"
+        - "RIVERPORT — Fire crews responded to a warehouse blaze on the east waterfront Tuesday evening. Officials confirmed 34 people were evacuated from nearby buildings as crews worked to contain the flames. No injuries were reported among residents or firefighters. The cause of the fire remains under investigation."
     - outlet: MetroDaily
       published: "2026-03-04T21:40Z"
       chunks:
-        - "RIVERPORT — Fire crews responded to a warehouse blaze on the east waterfront Tuesday evening. Officials confirmed 19 people were evacuated from the surrounding block as smoke spread through the area. Firefighters battled the blaze for several hours before bringing it under control. Investigators have not yet determined a cause. (Wire ref 10001/10002.) (Wire ref 10005/10006.)"
+        - "RIVERPORT — Fire crews responded to a warehouse blaze on the east waterfront Tuesday evening. Officials confirmed 19 people were evacuated from the surrounding block as smoke spread through the area. Firefighters battled the blaze for several hours before bringing it under control. Investigators have not yet determined a cause."
     - outlet: RegionalPost
       published: "2026-03-04T22:05Z"
       chunks:
-        - "RIVERPORT — Fire crews responded to a warehouse blaze on the east waterfront Tuesday evening. Evacuations totaled 34 residents as the fire department cleared the immediate area for safety. Crews spent much of the night containing the blaze before declaring it under control. Fire investigators are examining the warehouse for the point of origin. (Wire ref 10003/10004.) (Wire ref 10005/10006.)"
+        - "RIVERPORT — Fire crews responded to a warehouse blaze on the east waterfront Tuesday evening. Evacuations totaled 34 residents as the fire department cleared the immediate area for safety. Crews spent much of the night containing the blaze before declaring it under control. Fire investigators are examining the warehouse for the point of origin."
   intent:
     - pair: [CentralWire, MetroDaily]
       kind: conflict
@@ -39,15 +39,15 @@
     - outlet: RegionalPost
       published: "2026-03-18T23:00Z"
       chunks:
-        - "HARBOR DISTRICT — Voters narrowly decided the harbor district referendum on port expansion Tuesday. Officials estimated turnout at 52 percent of registered voters. The referendum passed by a margin of 6 percentage points, according to initial returns. Final certification is expected within two weeks. (Wire ref 10009/10010.) (Wire ref 10011/10012.)"
+        - "HARBOR DISTRICT — Voters narrowly decided the harbor district referendum on port expansion Tuesday. Officials estimated turnout at 52 percent of registered voters. The referendum passed by a margin of 6 percentage points, according to initial returns. Final certification is expected within two weeks."
     - outlet: MetroDaily
       published: "2026-03-18T23:20Z"
       chunks:
-        - "HARBOR DISTRICT — Voters narrowly decided the harbor district referendum on port expansion Tuesday. Turnout was recorded at 47 percent of registered voters, election officials said. The referendum on port expansion passed by a narrow margin, according to unofficial results. City officials said the vote clears the way for planning to begin. (Wire ref 10007/10008.) (Wire ref 10011/10012.)"
+        - "HARBOR DISTRICT — Voters narrowly decided the harbor district referendum on port expansion Tuesday. Turnout was recorded at 47 percent of registered voters, election officials said. The referendum on port expansion passed by a narrow margin, according to unofficial results. City officials said the vote clears the way for planning to begin."
     - outlet: CentralWire
       published: "2026-03-19T01:15Z"
       chunks:
-        - "HARBOR DISTRICT — Voters narrowly decided the harbor district referendum on port expansion Tuesday. Election officials put turnout at 41 percent of registered voters. The margin of victory, initially reported at 6 percentage points, was revised to 9 points after final ballots were tallied overnight. The referendum authorizes the port authority to proceed with expansion planning. (Wire ref 10007/10008.) (Wire ref 10009/10010.)"
+        - "HARBOR DISTRICT — Voters narrowly decided the harbor district referendum on port expansion Tuesday. Election officials put turnout at 41 percent of registered voters. The margin of victory, initially reported at 6 percentage points, was revised to 9 points after final ballots were tallied overnight. The referendum authorizes the port authority to proceed with expansion planning."
   intent:
     - pair: [CentralWire, MetroDaily]
       kind: conflict
@@ -66,19 +66,19 @@
     - outlet: CentralWire
       published: "2026-04-02T14:00Z"
       chunks:
-        - "NORTHGATE — Health officials confirmed a gastrointestinal illness outbreak at Northgate General Hospital this week. Hospital administrators said 34 cases have been confirmed hospital-wide since Monday. Officials have restricted visitor access to affected units as a precaution. The source of the illness has not yet been identified. (Wire ref 10013/10014.) (Wire ref 10015/10016.) (Wire ref 10021/10022.)"
+        - "NORTHGATE — Health officials confirmed a gastrointestinal illness outbreak at Northgate General Hospital this week. Hospital administrators said 34 cases have been confirmed hospital-wide since Monday. Officials have restricted visitor access to affected units as a precaution. The source of the illness has not yet been identified."
     - outlet: MetroDaily
       published: "2026-04-02T15:10Z"
       chunks:
-        - "NORTHGATE — Health officials confirmed a gastrointestinal illness outbreak at Northgate General Hospital this week. The hospital reported 58 confirmed cases hospital-wide as of Thursday, according to administrators. Administrators have implemented enhanced sanitation protocols across all units. Health officials said the outbreak appears to stem from a common food source. (Wire ref 10013/10014.) (Wire ref 10017/10018.) (Wire ref 10023/10024.)"
+        - "NORTHGATE — Health officials confirmed a gastrointestinal illness outbreak at Northgate General Hospital this week. The hospital reported 58 confirmed cases hospital-wide as of Thursday, according to administrators. Administrators have implemented enhanced sanitation protocols across all units. Health officials said the outbreak appears to stem from a common food source."
     - outlet: RegionalPost
       published: "2026-04-02T16:00Z"
       chunks:
-        - "NORTHGATE — Health officials confirmed a gastrointestinal illness outbreak at Northgate General Hospital this week. Ward 3 alone has recorded 21 confirmed cases as of Thursday, according to hospital records. The hospital has expanded sanitation protocols across every unit in response to the outbreak. Administrators say the ward has been placed under additional monitoring. (Wire ref 10015/10016.) (Wire ref 10019/10020.) (Wire ref 10023/10024.)"
+        - "NORTHGATE — Health officials confirmed a gastrointestinal illness outbreak at Northgate General Hospital this week. Ward 3 alone has recorded 21 confirmed cases as of Thursday, according to hospital records. The hospital has expanded sanitation protocols across every unit in response to the outbreak. Administrators say the ward has been placed under additional monitoring."
     - outlet: CivicLedger
       published: "2026-04-02T18:30Z"
       chunks:
-        - "NORTHGATE — Health officials confirmed a gastrointestinal illness outbreak at Northgate General Hospital this week. A hospital spokesperson said the hospital-wide count had reached 58 cases by Thursday. Staff have expanded cleaning procedures throughout the facility in response. Investigators are still working to trace the source of the illness. (Wire ref 10017/10018.) (Wire ref 10019/10020.) (Wire ref 10021/10022.)"
+        - "NORTHGATE — Health officials confirmed a gastrointestinal illness outbreak at Northgate General Hospital this week. A hospital spokesperson said the hospital-wide count had reached 58 cases by Thursday. Staff have expanded cleaning procedures throughout the facility in response. Investigators are still working to trace the source of the illness."
   intent:
     - pair: [CentralWire, MetroDaily]
       kind: conflict
@@ -106,15 +106,15 @@
     - outlet: CentralWire
       published: "2026-04-15T09:00Z"
       chunks:
-        - "SABLE CROSSING — Engineers closed the Sable Bridge indefinitely after inspectors found structural cracking Monday. Transportation officials said the bridge will remain closed until at least September 3 while repairs are completed. Traffic is being rerouted through Harrow Street in the meantime. Engineers are still assessing the extent of the structural damage. (Wire ref 10025/10026.) (Wire ref 10027/10028.)"
+        - "SABLE CROSSING — Engineers closed the Sable Bridge indefinitely after inspectors found structural cracking Monday. Transportation officials said the bridge will remain closed until at least September 3 while repairs are completed. Traffic is being rerouted through Harrow Street in the meantime. Engineers are still assessing the extent of the structural damage."
     - outlet: MetroDaily
       published: "2026-04-15T10:30Z"
       chunks:
-        - "SABLE CROSSING — Engineers closed the Sable Bridge indefinitely after inspectors found structural cracking Monday. City engineers said repairs are not expected to be finished before October 1. Commuters have been rerouted to Harrow Street. Officials have not ruled out a longer closure if further damage is found. (Wire ref 10025/10026.) (Wire ref 10029/10030.)"
+        - "SABLE CROSSING — Engineers closed the Sable Bridge indefinitely after inspectors found structural cracking Monday. City engineers said repairs are not expected to be finished before October 1. Commuters have been rerouted to Harrow Street. Officials have not ruled out a longer closure if further damage is found."
     - outlet: RegionalPost
       published: "2026-04-15T12:00Z"
       chunks:
-        - "SABLE CROSSING — Engineers closed the Sable Bridge indefinitely after inspectors found structural cracking Monday. The department of transportation does not expect the span to reopen before September 3. Drivers are being directed to Harrow Street during the closure. A full structural assessment is underway. (Wire ref 10027/10028.) (Wire ref 10029/10030.)"
+        - "SABLE CROSSING — Engineers closed the Sable Bridge indefinitely after inspectors found structural cracking Monday. The department of transportation does not expect the span to reopen before September 3. Drivers are being directed to Harrow Street during the closure. A full structural assessment is underway."
   intent:
     - pair: [CentralWire, MetroDaily]
       kind: conflict
@@ -133,15 +133,15 @@
     - outlet: CentralWire
       published: "2026-04-29T17:00Z"
       chunks:
-        - "MERIDIAN COUNTY — A civil jury delivered its verdict in the Meridian County negligence trial Thursday afternoon. Jurors awarded $2.4 million in total damages to the plaintiff. The panel ruled in the plaintiff's favor on six of the complaint's nine negligence counts, none of them naming the site supervisor. The two-week trial centered on a workplace injury claim. (Wire ref 10031/10032.) (Wire ref 10033/10034.)"
+        - "MERIDIAN COUNTY — A civil jury delivered its verdict in the Meridian County negligence trial Thursday afternoon. Jurors awarded $2.4 million in total damages to the plaintiff. The panel ruled in the plaintiff's favor on six of the complaint's nine negligence counts, none of them naming the site supervisor. The two-week trial centered on a workplace injury claim."
     - outlet: MetroDaily
       published: "2026-04-29T17:45Z"
       chunks:
-        - "MERIDIAN COUNTY — A civil jury delivered its verdict in the Meridian County negligence trial Thursday afternoon. The panel returned a total damages award of $3.1 million to the plaintiff. The trial, which spanned nearly two weeks, centered on a workplace injury claim. Plaintiff's attorneys called the verdict a significant win for their client. (Wire ref 10031/10032.) (Wire ref 10035/10036.)"
+        - "MERIDIAN COUNTY — A civil jury delivered its verdict in the Meridian County negligence trial Thursday afternoon. The panel returned a total damages award of $3.1 million to the plaintiff. The trial, which spanned nearly two weeks, centered on a workplace injury claim. Plaintiff's attorneys called the verdict a significant win for their client."
     - outlet: RegionalPost
       published: "2026-04-29T19:20Z"
       chunks:
-        - "MERIDIAN COUNTY — A civil jury delivered its verdict in the Meridian County negligence trial Thursday afternoon. Jurors awarded the plaintiff $2.4 million in total damages. On the counts specific to the site supervisor, the panel found for the plaintiff on two of three. The case stemmed from a workplace injury claim brought two years ago. (Wire ref 10033/10034.) (Wire ref 10035/10036.)"
+        - "MERIDIAN COUNTY — A civil jury delivered its verdict in the Meridian County negligence trial Thursday afternoon. Jurors awarded the plaintiff $2.4 million in total damages. On the counts specific to the site supervisor, the panel found for the plaintiff on two of three. The case stemmed from a workplace injury claim brought two years ago."
   intent:
     - pair: [CentralWire, MetroDaily]
       kind: conflict
@@ -160,19 +160,19 @@
     - outlet: RegionalPost
       published: "2026-05-06T06:00Z"
       chunks:
-        - "CAPE ARDEN — Tropical Storm Elva made landfall near Cape Arden early Wednesday, knocking out power along the coast. Utility officials said roughly 210,000 customers lost power as the storm came ashore. Downed trees and flooding blocked several coastal roads overnight. Crews were dispatched at first light to begin restoration work. (Wire ref 10039/10040.) (Wire ref 10043/10044.) (Wire ref 10047/10048.)"
+        - "CAPE ARDEN — Tropical Storm Elva made landfall near Cape Arden early Wednesday, knocking out power along the coast. Utility officials said roughly 210,000 customers lost power as the storm came ashore. Downed trees and flooding blocked several coastal roads overnight. Crews were dispatched at first light to begin restoration work."
     - outlet: MetroDaily
       published: "2026-05-06T07:15Z"
       chunks:
-        - "CAPE ARDEN — Tropical Storm Elva made landfall near Cape Arden early Wednesday, knocking out power along the coast. The National Weather Service clocked sustained winds at 90 mph at landfall. Power crews reported about 210,000 customers without electricity along the coastline. Emergency shelters opened in three coastal towns overnight. (Wire ref 10037/10038.) (Wire ref 10041/10042.) (Wire ref 10047/10048.)"
+        - "CAPE ARDEN — Tropical Storm Elva made landfall near Cape Arden early Wednesday, knocking out power along the coast. The National Weather Service clocked sustained winds at 90 mph at landfall. Power crews reported about 210,000 customers without electricity along the coastline. Emergency shelters opened in three coastal towns overnight."
     - outlet: CivicLedger
       published: "2026-05-06T08:00Z"
       chunks:
-        - "CAPE ARDEN — Tropical Storm Elva made landfall near Cape Arden early Wednesday, knocking out power along the coast. Forecasters measured the storm's sustained winds at 90 mph as it came ashore. The regional utility reported 175,000 customers without power as of Wednesday morning. Officials said full restoration could take several days. (Wire ref 10041/10042.) (Wire ref 10043/10044.) (Wire ref 10045/10046.)"
+        - "CAPE ARDEN — Tropical Storm Elva made landfall near Cape Arden early Wednesday, knocking out power along the coast. Forecasters measured the storm's sustained winds at 90 mph as it came ashore. The regional utility reported 175,000 customers without power as of Wednesday morning. Officials said full restoration could take several days."
     - outlet: CentralWire
       published: "2026-05-06T11:30Z"
       chunks:
-        - "CAPE ARDEN — Tropical Storm Elva made landfall near Cape Arden early Wednesday, knocking out power along the coast. Sustained winds at landfall, initially reported at 90 mph, were revised to 105 mph after a full review of storm data Wednesday afternoon. The utility said 340,000 customers were without power. Officials said restoration crews from neighboring states have been called in to assist. (Wire ref 10037/10038.) (Wire ref 10039/10040.) (Wire ref 10045/10046.)"
+        - "CAPE ARDEN — Tropical Storm Elva made landfall near Cape Arden early Wednesday, knocking out power along the coast. Sustained winds at landfall, initially reported at 90 mph, were revised to 105 mph after a full review of storm data Wednesday afternoon. The utility said 340,000 customers were without power. Officials said restoration crews from neighboring states have been called in to assist."
   intent:
     - pair: [CentralWire, MetroDaily]
       kind: update
@@ -200,15 +200,15 @@
     - outlet: CentralWire
       published: "2026-05-20T08:00Z"
       chunks:
-        - "PORT OF DELACROIX — Dockworkers walked off the job at the Port of Delacroix Monday morning, halting cargo operations. Union officials said roughly 420 workers joined the walkout at the port. Cargo terminals reported a halt to all container handling for the day. Talks between the union and port management are expected to resume this week. (Wire ref 10049/10050.) (Wire ref 10051/10052.)"
+        - "PORT OF DELACROIX — Dockworkers walked off the job at the Port of Delacroix Monday morning, halting cargo operations. Union officials said roughly 420 workers joined the walkout at the port. Cargo terminals reported a halt to all container handling for the day. Talks between the union and port management are expected to resume this week."
     - outlet: MetroDaily
       published: "2026-05-20T09:15Z"
       chunks:
-        - "PORT OF DELACROIX — Dockworkers walked off the job at the Port of Delacroix Monday morning, halting cargo operations. The union local said about 650 workers walked off the job Monday. Shipping lines reported delays as container operations came to a standstill. Port management said it was assessing the scope of the disruption. (Wire ref 10049/10050.) (Wire ref 10053/10054.)"
+        - "PORT OF DELACROIX — Dockworkers walked off the job at the Port of Delacroix Monday morning, halting cargo operations. The union local said about 650 workers walked off the job Monday. Shipping lines reported delays as container operations came to a standstill. Port management said it was assessing the scope of the disruption."
     - outlet: RegionalPost
       published: "2026-05-20T10:45Z"
       chunks:
-        - "PORT OF DELACROIX — Dockworkers walked off the job at the Port of Delacroix Monday morning, halting cargo operations. About 420 dockworkers walked out at the port itself, union officials said. Organizers said the action is part of a coordinated national walkout involving roughly 3,200 dockworkers at ports across the country. The union has not said when normal operations might resume. (Wire ref 10051/10052.) (Wire ref 10053/10054.)"
+        - "PORT OF DELACROIX — Dockworkers walked off the job at the Port of Delacroix Monday morning, halting cargo operations. About 420 dockworkers walked out at the port itself, union officials said. Organizers said the action is part of a coordinated national walkout involving roughly 3,200 dockworkers at ports across the country. The union has not said when normal operations might resume."
   intent:
     - pair: [CentralWire, MetroDaily]
       kind: conflict
@@ -227,15 +227,15 @@
     - outlet: CentralWire
       published: "2026-06-03T07:00Z"
       chunks:
-        - "CROSSTOWN — Transit officials suspended Crosstown Line service after a signal failure near Union Yard Friday morning. Officials said the disruption delayed commuters by roughly 45 minutes during the morning rush. Shuttle buses were deployed to cover the affected stretch of track. Transit officials said normal service is expected to resume by 6 p.m. (Wire ref 10055/10056.) (Wire ref 10057/10058.)"
+        - "CROSSTOWN — Transit officials suspended Crosstown Line service after a signal failure near Union Yard Friday morning. Officials said the disruption delayed commuters by roughly 45 minutes during the morning rush. Shuttle buses were deployed to cover the affected stretch of track. Transit officials said normal service is expected to resume by 6 p.m."
     - outlet: MetroDaily
       published: "2026-06-03T07:40Z"
       chunks:
-        - "CROSSTOWN — Transit officials suspended Crosstown Line service after a signal failure near Union Yard Friday morning. Riders reported delays of up to 70 minutes during the morning commute. The agency arranged bus shuttles to bridge the gap in service. The transit authority said it expects to restore normal service by 6 p.m. (Wire ref 10055/10056.) (Wire ref 10059/10060.)"
+        - "CROSSTOWN — Transit officials suspended Crosstown Line service after a signal failure near Union Yard Friday morning. Riders reported delays of up to 70 minutes during the morning commute. The agency arranged bus shuttles to bridge the gap in service. The transit authority said it expects to restore normal service by 6 p.m."
     - outlet: RegionalPost
       published: "2026-06-03T08:30Z"
       chunks:
-        - "CROSSTOWN — Transit officials suspended Crosstown Line service after a signal failure near Union Yard Friday morning. Crews worked through the morning to repair the signal equipment near Union Yard. The transit authority said riders should expect normal service to resume by 6 p.m. Shuttle buses were made available to affected commuters in the meantime. (Wire ref 10057/10058.) (Wire ref 10059/10060.)"
+        - "CROSSTOWN — Transit officials suspended Crosstown Line service after a signal failure near Union Yard Friday morning. Crews worked through the morning to repair the signal equipment near Union Yard. The transit authority said riders should expect normal service to resume by 6 p.m. Shuttle buses were made available to affected commuters in the meantime."
   intent:
     - pair: [CentralWire, MetroDaily]
       kind: conflict
@@ -254,15 +254,15 @@
     - outlet: CentralWire
       published: "2026-06-10T13:00Z"
       chunks:
-        - "OAKMONT — The Oakmont school district released its annual enrollment report Wednesday, showing a decline for the third year running. District-wide enrollment now stands at 14,200 students, according to the report. Officials cited declining birth rates and out-migration as the primary drivers. The school board is expected to discuss possible school consolidations at its next meeting. (Wire ref 10061/10062.) (Wire ref 10063/10064.)"
+        - "OAKMONT — The Oakmont school district released its annual enrollment report Wednesday, showing a decline for the third year running. District-wide enrollment now stands at 14,200 students, according to the report. Officials cited declining birth rates and out-migration as the primary drivers. The school board is expected to discuss possible school consolidations at its next meeting."
     - outlet: MetroDaily
       published: "2026-06-10T14:00Z"
       chunks:
-        - "OAKMONT — The Oakmont school district released its annual enrollment report Wednesday, showing a decline for the third year running. The district reported total enrollment of 14,200 students this year. At Oakmont High School alone, enrollment fell to 612 students, the steepest drop of any school in the district. Administrators said the high school's decline is driving talk of a possible boundary redraw. (Wire ref 10061/10062.) (Wire ref 10065/10066.)"
+        - "OAKMONT — The Oakmont school district released its annual enrollment report Wednesday, showing a decline for the third year running. The district reported total enrollment of 14,200 students this year. At Oakmont High School alone, enrollment fell to 612 students, the steepest drop of any school in the district. Administrators said the high school's decline is driving talk of a possible boundary redraw."
     - outlet: RegionalPost
       published: "2026-06-10T15:30Z"
       chunks:
-        - "OAKMONT — The Oakmont school district released its annual enrollment report Wednesday, showing a decline for the third year running. The report put district-wide enrollment at 13,800 students for the current year. Officials pointed to falling birth rates as the main factor behind the decline. The school board plans to review consolidation options at an upcoming meeting. (Wire ref 10063/10064.) (Wire ref 10065/10066.)"
+        - "OAKMONT — The Oakmont school district released its annual enrollment report Wednesday, showing a decline for the third year running. The report put district-wide enrollment at 13,800 students for the current year. Officials pointed to falling birth rates as the main factor behind the decline. The school board plans to review consolidation options at an upcoming meeting."
   intent:
     - pair: [CentralWire, MetroDaily]
       kind: compatible_partial
@@ -281,15 +281,15 @@
     - outlet: MetroDaily
       published: "2026-06-17T10:00Z"
       chunks:
-        - "LAKESHORE — A toxic algae bloom spread across the northern basin of Lakeshore Reservoir this week, prompting a water advisory. Environmental officials estimated the bloom covered about 5.2 square kilometers of the northern basin. Health officials said the water advisory is expected to remain in effect for at least a week. Residents were advised to avoid contact with the affected shoreline. (Wire ref 10067/10068.) (Wire ref 10071/10072.)"
+        - "LAKESHORE — A toxic algae bloom spread across the northern basin of Lakeshore Reservoir this week, prompting a water advisory. Environmental officials estimated the bloom covered about 5.2 square kilometers of the northern basin. Health officials said the water advisory is expected to remain in effect for at least a week. Residents were advised to avoid contact with the affected shoreline."
     - outlet: RegionalPost
       published: "2026-06-17T12:00Z"
       chunks:
-        - "LAKESHORE — A toxic algae bloom spread across the northern basin of Lakeshore Reservoir this week, prompting a water advisory. The reservoir authority initially estimated the bloom's extent at 8.5 square kilometers. Officials said the advisory would likely stay in place for at least a week while testing continues. Boaters and anglers were urged to steer clear of the northern basin. (Wire ref 10069/10070.) (Wire ref 10071/10072.)"
+        - "LAKESHORE — A toxic algae bloom spread across the northern basin of Lakeshore Reservoir this week, prompting a water advisory. The reservoir authority initially estimated the bloom's extent at 8.5 square kilometers. Officials said the advisory would likely stay in place for at least a week while testing continues. Boaters and anglers were urged to steer clear of the northern basin."
     - outlet: CentralWire
       published: "2026-06-18T09:00Z"
       chunks:
-        - "LAKESHORE — A toxic algae bloom spread across the northern basin of Lakeshore Reservoir this week, prompting a water advisory. The bloom's extent, initially reported at 8.5 square kilometers, was revised to 12 square kilometers Thursday following an aerial survey. Reservoir officials said the water advisory remains in place indefinitely. Additional testing sites have been added around the northern basin. (Wire ref 10067/10068.) (Wire ref 10069/10070.)"
+        - "LAKESHORE — A toxic algae bloom spread across the northern basin of Lakeshore Reservoir this week, prompting a water advisory. The bloom's extent, initially reported at 8.5 square kilometers, was revised to 12 square kilometers Thursday following an aerial survey. Reservoir officials said the water advisory remains in place indefinitely. Additional testing sites have been added around the northern basin."
   intent:
     - pair: [CentralWire, MetroDaily]
       kind: conflict
@@ -308,15 +308,15 @@
     - outlet: CentralWire
       published: "2026-07-01T12:00Z"
       chunks:
-        - "REDMOOR — An independent audit of Redmoor's infrastructure bond fund uncovered a budget shortfall, officials said Tuesday. Auditors identified an $18 million shortfall in the bond fund's reserves. The city comptroller said the gap stems from cost overruns on multiple road projects. Officials pledged a full accounting at next month's council meeting. (Wire ref 10073/10074.) (Wire ref 10075/10076.)"
+        - "REDMOOR — An independent audit of Redmoor's infrastructure bond fund uncovered a budget shortfall, officials said Tuesday. Auditors identified an $18 million shortfall in the bond fund's reserves. The city comptroller said the gap stems from cost overruns on multiple road projects. Officials pledged a full accounting at next month's council meeting."
     - outlet: MetroDaily
       published: "2026-07-01T13:15Z"
       chunks:
-        - "REDMOOR — An independent audit of Redmoor's infrastructure bond fund uncovered a budget shortfall, officials said Tuesday. The audit found a $26 million gap in the bond fund. City officials attributed the shortfall to delays and rising construction costs. Council members called for an emergency budget session to address the gap. (Wire ref 10073/10074.) (Wire ref 10077/10078.)"
+        - "REDMOOR — An independent audit of Redmoor's infrastructure bond fund uncovered a budget shortfall, officials said Tuesday. The audit found a $26 million gap in the bond fund. City officials attributed the shortfall to delays and rising construction costs. Council members called for an emergency budget session to address the gap."
     - outlet: RegionalPost
       published: "2026-07-01T14:45Z"
       chunks:
-        - "REDMOOR — An independent audit of Redmoor's infrastructure bond fund uncovered a budget shortfall, officials said Tuesday. City auditors put the bond fund's reserve gap at $18 million. City officials pointed to cost overruns on several road projects as the cause. A full accounting is expected at next month's city council meeting. (Wire ref 10075/10076.) (Wire ref 10077/10078.)"
+        - "REDMOOR — An independent audit of Redmoor's infrastructure bond fund uncovered a budget shortfall, officials said Tuesday. City auditors put the bond fund's reserve gap at $18 million. City officials pointed to cost overruns on several road projects as the cause. A full accounting is expected at next month's city council meeting."
   intent:
     - pair: [CentralWire, MetroDaily]
       kind: conflict
@@ -335,15 +335,15 @@
     - outlet: CentralWire
       published: "2026-07-08T16:00Z"
       chunks:
-        - "MIDTOWN — City zoning officials issued a ruling on Midtown Stadium's seating capacity ahead of the fall season Thursday. The ruling sets the stadium's total capacity, including temporary standing-room sections, at 42,000 for the coming season. Officials said the figure reflects new safety guidelines adopted this year. Stadium management said ticket sales would proceed under the new limit. (Wire ref 10079/10080.) (Wire ref 10081/10082.)"
+        - "MIDTOWN — City zoning officials issued a ruling on Midtown Stadium's seating capacity ahead of the fall season Thursday. The ruling sets the stadium's total capacity, including temporary standing-room sections, at 42,000 for the coming season. Officials said the figure reflects new safety guidelines adopted this year. Stadium management said ticket sales would proceed under the new limit."
     - outlet: MetroDaily
       published: "2026-07-08T17:00Z"
       chunks:
-        - "MIDTOWN — City zoning officials issued a ruling on Midtown Stadium's seating capacity ahead of the fall season Thursday. The ruling caps the number of fixed seats within the stadium bowl at 36,500. City officials said the figure does not include standing-room areas. Stadium officials said the ruling would not affect planned renovations. (Wire ref 10079/10080.) (Wire ref 10083/10084.)"
+        - "MIDTOWN — City zoning officials issued a ruling on Midtown Stadium's seating capacity ahead of the fall season Thursday. The ruling caps the number of fixed seats within the stadium bowl at 36,500. City officials said the figure does not include standing-room areas. Stadium officials said the ruling would not affect planned renovations."
     - outlet: RegionalPost
       published: "2026-07-08T18:20Z"
       chunks:
-        - "MIDTOWN — City zoning officials issued a ruling on Midtown Stadium's seating capacity ahead of the fall season Thursday. The city set the stadium's total capacity at 39,000 for the coming season. Officials said permanent seating is limited to 36,500 under the new rule. Stadium management said it would begin selling tickets under the new limits immediately. (Wire ref 10081/10082.) (Wire ref 10083/10084.)"
+        - "MIDTOWN — City zoning officials issued a ruling on Midtown Stadium's seating capacity ahead of the fall season Thursday. The city set the stadium's total capacity at 39,000 for the coming season. Officials said permanent seating is limited to 36,500 under the new rule. Stadium management said it would begin selling tickets under the new limits immediately."
   intent:
     - pair: [CentralWire, MetroDaily]
       kind: compatible_partial

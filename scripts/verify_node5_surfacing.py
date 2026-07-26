@@ -21,6 +21,7 @@ from gin.cartographer.relatedness import make_same_story
 from gin.curator.corpus_json import load_corpus_chunks
 from gin.curator.node5_verify import verify_surfacing
 from gin.curator.same_story import SameStoryCandidateSource
+from gin.curator.text_index import default_text_index
 
 
 def main() -> int:
@@ -32,7 +33,13 @@ def main() -> int:
     manifest = yaml.safe_load(args.manifest.read_text(encoding="utf-8"))
     chunks = load_corpus_chunks([args.corpus])
     proposer = CombinedRelationProposer()
-    same_story = make_same_story([c.text for c in chunks])
+    # Each event's shared lede appears in that event's 3-4 reports, giving its
+    # tokens df 3-4 within the 38 node5 chunks alone -- above _rare_df_ceiling(38)
+    # == 2, so the lede cannot anchor its own event. Build the predicate over a
+    # realistic corpus (node5 plus the standard offline text index, 274 docs,
+    # ceiling 9) so df 3-4 is comfortably rare, matching production where the
+    # curator is launched over multiple corpora.
+    same_story = make_same_story([c.text for c in chunks] + list(default_text_index().values()))
     source = SameStoryCandidateSource(chunks, same_story=same_story, proposer=proposer)
 
     offered = {frozenset((a.chunk_id, b.chunk_id)) for a, b in source.pairs()}
