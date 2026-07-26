@@ -1,0 +1,318 @@
+# Node5 same-story corpus: approved event list + intent matrix (chunks pending).
+# Review gate for sub-project D (see docs/superpowers/plans/2026-07-25-same-story-corpus-node5.md
+# and docs/superpowers/specs/2026-07-25-same-story-corpus-node5-design.md).
+# Chunk text is deliberately left empty ([]) -- a later task fills it in. The
+# build is EXPECTED to fail at this stage (node5_build._validate rejects empty
+# chunks); do not add text here.
+
+- event: riverport_warehouse_fire
+  domain: incident
+  shared_lede: "RIVERPORT — Fire crews responded to a warehouse blaze on the east waterfront Tuesday evening."
+  reports:
+    - outlet: CentralWire
+      published: "2026-03-04T21:10Z"
+      chunks: []
+    - outlet: MetroDaily
+      published: "2026-03-04T21:40Z"
+      chunks: []
+    - outlet: RegionalPost
+      published: "2026-03-04T22:05Z"
+      chunks: []
+  intent:
+    - pair: [CentralWire, MetroDaily]
+      kind: conflict
+      varied_fact: evacuee_count
+    - pair: [CentralWire, RegionalPost]
+      kind: corroboration
+      varied_fact: null
+    - pair: [MetroDaily, RegionalPost]
+      kind: conflict
+      varied_fact: evacuee_count
+
+- event: harbor_district_referendum
+  domain: election
+  shared_lede: "HARBOR DISTRICT — Voters narrowly decided the harbor district referendum on port expansion Tuesday."
+  reports:
+    - outlet: RegionalPost
+      published: "2026-03-18T23:00Z"
+      chunks: []
+    - outlet: MetroDaily
+      published: "2026-03-18T23:20Z"
+      chunks: []
+    - outlet: CentralWire
+      published: "2026-03-19T01:15Z"
+      chunks: []
+  intent:
+    - pair: [CentralWire, MetroDaily]
+      kind: conflict
+      varied_fact: turnout_pct
+    - pair: [CentralWire, RegionalPost]
+      kind: update
+      varied_fact: margin
+    - pair: [MetroDaily, RegionalPost]
+      kind: conflict
+      varied_fact: turnout_pct
+
+- event: northgate_hospital_outbreak
+  domain: public_health
+  shared_lede: "NORTHGATE — Health officials confirmed a gastrointestinal illness outbreak at Northgate General Hospital this week."
+  reports:
+    - outlet: CentralWire
+      published: "2026-04-02T14:00Z"
+      chunks: []
+    - outlet: MetroDaily
+      published: "2026-04-02T15:10Z"
+      chunks: []
+    - outlet: RegionalPost
+      published: "2026-04-02T16:00Z"
+      chunks: []
+    - outlet: CivicLedger
+      published: "2026-04-02T18:30Z"
+      chunks: []
+  intent:
+    - pair: [CentralWire, MetroDaily]
+      kind: conflict
+      varied_fact: case_count
+    - pair: [CentralWire, RegionalPost]
+      kind: compatible_partial
+      varied_fact: ward_vs_hospital
+    - pair: [MetroDaily, CivicLedger]
+      kind: corroboration
+      varied_fact: null
+    - pair: [RegionalPost, CivicLedger]
+      kind: compatible_partial
+      varied_fact: ward_vs_hospital
+    - pair: [CentralWire, CivicLedger]
+      kind: conflict
+      varied_fact: case_count
+    - pair: [MetroDaily, RegionalPost]
+      kind: corroboration
+      varied_fact: null
+
+- event: sable_bridge_closure
+  domain: infrastructure
+  shared_lede: "SABLE CROSSING — Engineers closed the Sable Bridge indefinitely after inspectors found structural cracking Monday."
+  reports:
+    - outlet: CentralWire
+      published: "2026-04-15T09:00Z"
+      chunks: []
+    - outlet: MetroDaily
+      published: "2026-04-15T10:30Z"
+      chunks: []
+    - outlet: RegionalPost
+      published: "2026-04-15T12:00Z"
+      chunks: []
+  intent:
+    - pair: [CentralWire, MetroDaily]
+      kind: conflict
+      varied_fact: reopening_date
+    - pair: [CentralWire, RegionalPost]
+      kind: corroboration
+      varied_fact: null
+    - pair: [MetroDaily, RegionalPost]
+      kind: conflict
+      varied_fact: reopening_date
+
+- event: meridian_civil_verdict
+  domain: courts
+  shared_lede: "MERIDIAN COUNTY — A civil jury delivered its verdict in the Meridian County negligence trial Thursday afternoon."
+  reports:
+    - outlet: CentralWire
+      published: "2026-04-29T17:00Z"
+      chunks: []
+    - outlet: MetroDaily
+      published: "2026-04-29T17:45Z"
+      chunks: []
+    - outlet: RegionalPost
+      published: "2026-04-29T19:20Z"
+      chunks: []
+  intent:
+    - pair: [CentralWire, MetroDaily]
+      kind: conflict
+      varied_fact: damages_awarded
+    - pair: [CentralWire, RegionalPost]
+      kind: compatible_partial
+      varied_fact: counts_vs_charges
+    - pair: [MetroDaily, RegionalPost]
+      kind: conflict
+      varied_fact: damages_awarded
+
+- event: coastal_storm_landfall
+  domain: weather
+  shared_lede: "CAPE ARDEN — Tropical Storm Elva made landfall near Cape Arden early Wednesday, knocking out power along the coast."
+  reports:
+    - outlet: RegionalPost
+      published: "2026-05-06T06:00Z"
+      chunks: []
+    - outlet: MetroDaily
+      published: "2026-05-06T07:15Z"
+      chunks: []
+    - outlet: CivicLedger
+      published: "2026-05-06T08:00Z"
+      chunks: []
+    - outlet: CentralWire
+      published: "2026-05-06T11:30Z"
+      chunks: []
+  intent:
+    - pair: [CentralWire, MetroDaily]
+      kind: update
+      varied_fact: wind_speed
+    - pair: [CentralWire, RegionalPost]
+      kind: conflict
+      varied_fact: outage_count
+    - pair: [MetroDaily, CivicLedger]
+      kind: corroboration
+      varied_fact: null
+    - pair: [RegionalPost, CivicLedger]
+      kind: conflict
+      varied_fact: outage_count
+    - pair: [CentralWire, CivicLedger]
+      kind: update
+      varied_fact: wind_speed
+    - pair: [MetroDaily, RegionalPost]
+      kind: corroboration
+      varied_fact: null
+
+- event: dockworkers_walkout
+  domain: labor
+  shared_lede: "PORT OF DELACROIX — Dockworkers walked off the job at the Port of Delacroix Monday morning, halting cargo operations."
+  reports:
+    - outlet: CentralWire
+      published: "2026-05-20T08:00Z"
+      chunks: []
+    - outlet: MetroDaily
+      published: "2026-05-20T09:15Z"
+      chunks: []
+    - outlet: RegionalPost
+      published: "2026-05-20T10:45Z"
+      chunks: []
+  intent:
+    - pair: [CentralWire, MetroDaily]
+      kind: conflict
+      varied_fact: participant_count
+    - pair: [CentralWire, RegionalPost]
+      kind: compatible_partial
+      varied_fact: local_vs_national
+    - pair: [MetroDaily, RegionalPost]
+      kind: conflict
+      varied_fact: participant_count
+
+- event: crosstown_line_suspension
+  domain: transit
+  shared_lede: "CROSSTOWN — Transit officials suspended Crosstown Line service after a signal failure near Union Yard Friday morning."
+  reports:
+    - outlet: CentralWire
+      published: "2026-06-03T07:00Z"
+      chunks: []
+    - outlet: MetroDaily
+      published: "2026-06-03T07:40Z"
+      chunks: []
+    - outlet: RegionalPost
+      published: "2026-06-03T08:30Z"
+      chunks: []
+  intent:
+    - pair: [CentralWire, MetroDaily]
+      kind: conflict
+      varied_fact: delay_minutes
+    - pair: [CentralWire, RegionalPost]
+      kind: corroboration
+      varied_fact: null
+    - pair: [MetroDaily, RegionalPost]
+      kind: corroboration
+      varied_fact: null
+
+- event: district_enrollment_report
+  domain: education
+  shared_lede: "OAKMONT — The Oakmont school district released its annual enrollment report Wednesday, showing a decline for the third year running."
+  reports:
+    - outlet: CentralWire
+      published: "2026-06-10T13:00Z"
+      chunks: []
+    - outlet: MetroDaily
+      published: "2026-06-10T14:00Z"
+      chunks: []
+    - outlet: RegionalPost
+      published: "2026-06-10T15:30Z"
+      chunks: []
+  intent:
+    - pair: [CentralWire, MetroDaily]
+      kind: compatible_partial
+      varied_fact: district_vs_school
+    - pair: [CentralWire, RegionalPost]
+      kind: conflict
+      varied_fact: enrollment_figure
+    - pair: [MetroDaily, RegionalPost]
+      kind: conflict
+      varied_fact: enrollment_figure
+
+- event: lakeshore_algae_bloom
+  domain: environment
+  shared_lede: "LAKESHORE — A toxic algae bloom spread across the northern basin of Lakeshore Reservoir this week, prompting a water advisory."
+  reports:
+    - outlet: MetroDaily
+      published: "2026-06-17T10:00Z"
+      chunks: []
+    - outlet: RegionalPost
+      published: "2026-06-17T12:00Z"
+      chunks: []
+    - outlet: CentralWire
+      published: "2026-06-18T09:00Z"
+      chunks: []
+  intent:
+    - pair: [CentralWire, MetroDaily]
+      kind: conflict
+      varied_fact: affected_area_km2
+    - pair: [CentralWire, RegionalPost]
+      kind: update
+      varied_fact: affected_area_km2
+    - pair: [MetroDaily, RegionalPost]
+      kind: corroboration
+      varied_fact: null
+
+- event: civic_bond_audit
+  domain: finance
+  shared_lede: "CIVIC CENTER — An independent audit of the city's infrastructure bond fund uncovered a budget shortfall, officials said Tuesday."
+  reports:
+    - outlet: CentralWire
+      published: "2026-07-01T12:00Z"
+      chunks: []
+    - outlet: MetroDaily
+      published: "2026-07-01T13:15Z"
+      chunks: []
+    - outlet: RegionalPost
+      published: "2026-07-01T14:45Z"
+      chunks: []
+  intent:
+    - pair: [CentralWire, MetroDaily]
+      kind: conflict
+      varied_fact: shortfall_amount
+    - pair: [CentralWire, RegionalPost]
+      kind: corroboration
+      varied_fact: null
+    - pair: [MetroDaily, RegionalPost]
+      kind: conflict
+      varied_fact: shortfall_amount
+
+- event: stadium_capacity_ruling
+  domain: municipal
+  shared_lede: "MIDTOWN — City zoning officials issued a ruling on Midtown Stadium's seating capacity ahead of the fall season Thursday."
+  reports:
+    - outlet: CentralWire
+      published: "2026-07-08T16:00Z"
+      chunks: []
+    - outlet: MetroDaily
+      published: "2026-07-08T17:00Z"
+      chunks: []
+    - outlet: RegionalPost
+      published: "2026-07-08T18:20Z"
+      chunks: []
+  intent:
+    - pair: [CentralWire, MetroDaily]
+      kind: compatible_partial
+      varied_fact: seated_vs_total
+    - pair: [CentralWire, RegionalPost]
+      kind: conflict
+      varied_fact: capacity_figure
+    - pair: [MetroDaily, RegionalPost]
+      kind: corroboration
+      varied_fact: null
