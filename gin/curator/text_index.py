@@ -25,7 +25,7 @@ from .corpus_json import load_corpus_chunks
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 NEWS_CORPUS = REPO_ROOT / "data" / "synthetic" / "news_corpus.yaml"
-CORPUS_NODES = tuple(REPO_ROOT / f"corpus_node{i}.json" for i in (1, 2, 3, 4))
+CORPUS_NODES = tuple(REPO_ROOT / f"corpus_node{i}.json" for i in (1, 2, 3, 4, 5))
 
 
 def news_corpus_chunks(path: Path = NEWS_CORPUS) -> dict[str, str]:

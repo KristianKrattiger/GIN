@@ -2,19 +2,19 @@
   "manifest": {
     "embed_model": "sentence-transformers/all-MiniLM-L6-v2",
     "nli_model": "cross-encoder/nli-deberta-v3-xsmall",
-    "n_samples": 131,
+    "n_samples": 150,
     "class_counts": {
       "related_untyped": 62,
-      "unrelated": 21,
-      "corroborates": 26,
-      "contradicts": 22
+      "unrelated": 26,
+      "corroborates": 28,
+      "contradicts": 34
     },
     "excluded_eval_pairs": 40,
-    "git_sha": "c30f910",
-    "created_utc": "2026-07-25T20:36:34Z",
-    "same_story_corpus_size": 236,
+    "git_sha": "0350c18",
+    "created_utc": "2026-07-26T11:21:45Z",
+    "same_story_corpus_size": 274,
     "story_floor": 2,
-    "df_ceiling": 7,
+    "df_ceiling": 9,
     "require_anchor": true
   },
   "samples": [
@@ -633,7 +633,7 @@
     {
       "cos": 0.6537128686904907,
       "p_contra": 0.001426113536581397,
-      "same_story": true,
+      "same_story": false,
       "relation": "corroborates"
     },
     {
@@ -802,6 +802,120 @@
       "cos": 0.4921431541442871,
       "p_contra": 0.9654465913772583,
       "same_story": false,
+      "relation": "contradicts"
+    },
+    {
+      "cos": 0.9646749496459961,
+      "p_contra": 0.572275698184967,
+      "same_story": true,
+      "relation": "contradicts"
+    },
+    {
+      "cos": 0.9478694200515747,
+      "p_contra": 0.33190447092056274,
+      "same_story": true,
+      "relation": "contradicts"
+    },
+    {
+      "cos": 0.9682399034500122,
+      "p_contra": 0.26925715804100037,
+      "same_story": true,
+      "relation": "contradicts"
+    },
+    {
+      "cos": 0.9785502552986145,
+      "p_contra": 0.9602228999137878,
+      "same_story": true,
+      "relation": "contradicts"
+    },
+    {
+      "cos": 0.8828489184379578,
+      "p_contra": 0.49426427483558655,
+      "same_story": true,
+      "relation": "corroborates"
+    },
+    {
+      "cos": 0.11426464468240738,
+      "p_contra": 0.016116037964820862,
+      "same_story": true,
+      "relation": "unrelated"
+    },
+    {
+      "cos": 0.9872802495956421,
+      "p_contra": 0.04255133867263794,
+      "same_story": true,
+      "relation": "contradicts"
+    },
+    {
+      "cos": 0.33039531111717224,
+      "p_contra": 0.02565012313425541,
+      "same_story": true,
+      "relation": "unrelated"
+    },
+    {
+      "cos": 0.9610235691070557,
+      "p_contra": 0.008935127407312393,
+      "same_story": true,
+      "relation": "contradicts"
+    },
+    {
+      "cos": 0.9834398031234741,
+      "p_contra": 0.3214092552661896,
+      "same_story": true,
+      "relation": "contradicts"
+    },
+    {
+      "cos": 0.9782382249832153,
+      "p_contra": 0.9281650185585022,
+      "same_story": true,
+      "relation": "contradicts"
+    },
+    {
+      "cos": 0.949001133441925,
+      "p_contra": 0.008445320650935173,
+      "same_story": true,
+      "relation": "contradicts"
+    },
+    {
+      "cos": 0.25884491205215454,
+      "p_contra": 0.6145302653312683,
+      "same_story": true,
+      "relation": "unrelated"
+    },
+    {
+      "cos": 0.2410680055618286,
+      "p_contra": 0.08193745464086533,
+      "same_story": true,
+      "relation": "unrelated"
+    },
+    {
+      "cos": 0.26073890924453735,
+      "p_contra": 0.6922063231468201,
+      "same_story": true,
+      "relation": "unrelated"
+    },
+    {
+      "cos": 0.9512008428573608,
+      "p_contra": 0.1474834680557251,
+      "same_story": true,
+      "relation": "contradicts"
+    },
+    {
+      "cos": 0.9631568193435669,
+      "p_contra": 0.05927146226167679,
+      "same_story": true,
+      "relation": "contradicts"
+    },
+    {
+      "cos": 0.920754611492157,
+      "p_contra": 0.9827646613121033,
+      "same_story": true,
+      "relation": "corroborates"
+    },
+    {
+      "cos": 0.9611096978187561,
+      "p_contra": 0.008380032144486904,
+      "same_story": true,
       "relation": "contradicts"
     }
   ],
@@ -1099,7 +1213,7 @@
       "dst": "n2_doc_001:1",
       "cos": 0.3108978271484375,
       "p_contra": 0.9117265343666077,
-      "same_story": false,
+      "same_story": true,
       "relation": "contradicts"
     },
     {

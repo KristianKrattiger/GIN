@@ -65,19 +65,20 @@ def test_real_label_log_yields_expected_counts():
     report = build_dataset(Store(DEFAULT_LABELS))
     # 100 not 102: hf_af_*/hf_kc_* were relabeled issue_frame -> story
     # (scripts/relabel_hf_story.py), which removes them from DIVERGENT.
-    # schema drops 15 not 13: the 2 story pairs are now excluded by schema.
-    assert len(report.examples) == 100
+    #
+    # 2026-07-26 (node5 registered): 107 not 100. The 5 unrelated + 2
+    # corroborates node5 labels now resolve and become trainable, so
+    # text_unresolved 7 -> 0, AGREE 20 -> 22, UNRELATED 20 -> 25.
+    # The 12 contradicts/story labels still drop as schema, and that is
+    # CORRECT, not a gap: _LABEL_MAP has no (CONTRADICTS, "story") entry
+    # because DIVERGENT is issue_frame-only by design. Their consumer is the
+    # same-story stance channel, not this framing encoder.
+    assert len(report.examples) == 107
     assert report.counts == {
-        "DIVERGENT": 22, "AGREE": 20, "RELATED_UNTYPED": 38, "UNRELATED": 20,
+        "DIVERGENT": 22, "AGREE": 22, "RELATED_UNTYPED": 38, "UNRELATED": 25,
     }
-    # 2026-07-26: 24 node5 labels added, and the training set is unchanged at 100.
-    # schema 15 -> 32 (+17: 12 contradicts/story + 5 supersedes, none of which is
-    # a frame class) and a new text_unresolved 7 (the 5 unrelated + 2 corroborates
-    # have frame classes but CORPUS_NODES stops at node4, so default_text_index()
-    # cannot resolve an n5_doc_* id). The story labels being excluded here is
-    # correct — their consumer is the same-story gate, not this framing encoder.
     assert report.drops == {
-        "schema": 32, "bar_chunk": 32, "bar_text_alias": 31, "text_unresolved": 7,
+        "schema": 32, "bar_chunk": 32, "bar_text_alias": 31,
     }
 
 
