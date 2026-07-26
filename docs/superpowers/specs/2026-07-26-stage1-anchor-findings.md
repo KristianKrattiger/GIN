@@ -71,6 +71,40 @@ anchor heuristic now needing a third patch to keep two eval pairs alive wants a
 redesign, not another special case. `scripts/sweep_same_story.py` (Task 6) is the
 committed artifact carrying this design space so the redesign starts from data.
 
+## What the full sweep added: robustness, not just optimality
+
+Running the committed sweep over the whole grid (4 anchor modes × `story_floor`
+{2,3,4} × `df_ceiling` {4,6,7,9,12}) turned up a result neither the spec nor the
+withdrawal anticipated. Nine cells reach a perfect 19/0/4/0:
+
+| mode | floor | ceilings reaching 19 / 0 / 4 / 0 |
+|---|---|---|
+| `union` (shipped anchor rule) | 2 | **6 only** |
+| `inter_cap` | 2 | 6, 7, 9, 12 |
+| `mixed` | 2 | 6, 7, 9, 12 |
+
+**A threshold-only fix exists.** `union / floor 2 / ceiling 6` — no anchor change
+whatsoever, just a tighter rare-token ceiling — scores 19/19 within-event, 0/5
+cross-event, 4/4 gold contradicts, 0 gold false positives. It is the cheapest
+possible route to what the withdrawn anchor fix was chasing.
+
+**And it is a knife edge.** One step to `ceiling 7` and cross-event false
+positives jump 0 → 4. The natural ceiling at 274 documents is
+`_rare_df_ceiling(274) = 9`, so reaching that cell means overriding the formula
+and pinning a value that the corpus growing by ~30 documents would move off.
+That is precisely the "tuning a global predicate on n=24" trap the parent spec
+declined to walk into.
+
+The two anchor refinements are **flat across ceilings 6–12**. They achieve the
+same outcome without depending on a threshold sitting in a narrow window, which
+is a structural property rather than a fitted one.
+
+So the sweep does not merely rank the options — it separates them by kind. The
+threshold route is fitted and fragile; the anchor route is robust but needs the
+`anchor_tokens` redesign this document leaves open. That distinction is the most
+useful thing to carry into the redesign, and it is the reason the artifact scores
+every cell rather than reporting a single winner.
+
 ## The finding that makes withdrawal cheap: stage 2 absorbs stage 1's residue
 
 Measured with the stance channel over the **unfixed** stage 1 (union anchors,
