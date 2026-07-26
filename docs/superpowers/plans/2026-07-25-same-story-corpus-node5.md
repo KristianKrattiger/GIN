@@ -629,7 +629,7 @@ Create `data/curator/node5_events.yaml` with all 12 events, every report's `outl
 
 Outlet shorthand: CW = CentralWire, MD = MetroDaily, RP = RegionalPost, CL = CivicLedger.
 
-Totals: **20 conflict**, **10 corroboration**, **4 update**, **6 compatible_partial** — 20 conflicts and 20 negatives across 40 pairs, meeting the spec's ≥20/≥20 floor exactly. The builder's default floor rejects anything thinner, so a transcription slip here fails the build rather than shipping a thin corpus.
+Totals: **21 conflict**, **11 corroboration**, **4 update**, **6 compatible_partial** — 21 conflicts and 21 negatives across **42 pairs** over **38 reports** (ten 3-outlet events give C(3,2)=3 pairs each, two 4-outlet events give C(4,2)=6 each). Clears the spec's ≥20/≥20 floor with margin. Verify by counting the table rather than trusting this line: an earlier draft of it asserted 20/10/4/6 over 40 pairs/40 reports, which the table never supported.
 
 Each event also needs a one-sentence `shared_lede` that every report in that event will open with verbatim. Write those now; they are structure, not divergent content. Example for event 1:
 
@@ -665,7 +665,7 @@ Run:
 ```bash
 venv/Scripts/python.exe -c "import sys; sys.path.insert(0,'.'); import yaml; from pathlib import Path; from gin.curator.node5_build import pair_inventory; m=yaml.safe_load(Path('data/curator/node5_events.yaml').read_text(encoding='utf-8')); inv=pair_inventory(m); print(inv); print('conflicts', inv.get('conflict',0), 'negatives', sum(v for k,v in inv.items() if k!='conflict')); print('events', len(m), 'reports', sum(len(e['reports']) for e in m))"
 ```
-Expected: `{'conflict': 20, 'corroboration': 10, 'update': 4, 'compatible_partial': 6}`, `conflicts 20 negatives 20`, `events 12 reports 40`.
+Expected: `{'conflict': 21, 'corroboration': 11, 'update': 4, 'compatible_partial': 6}`, `conflicts 21 negatives 21`, `events 12 reports 38`.
 
 If the totals differ, the matrix was transcribed wrong — fix the manifest, not the expectation.
 
@@ -736,7 +736,7 @@ pairings simultaneously. Write each event's reports together, not one at a time.
 - [ ] **Step 2: Build the corpus**
 
 Run: `venv/Scripts/python.exe scripts/build_node5.py`
-Expected: `pair inventory: {'conflict': 20, 'corroboration': 10, 'update': 4, 'compatible_partial': 6}` and `wrote 40 docs to ...corpus_node5.json`
+Expected: `pair inventory: {'conflict': 21, 'corroboration': 11, 'update': 4, 'compatible_partial': 6}` and `wrote 38 docs to ...corpus_node5.json`
 
 - [ ] **Step 3: Write the corpus regression guard**
 
@@ -762,20 +762,22 @@ def _manifest():
 
 def test_corpus_loads_through_the_standard_loader():
     chunks = load_corpus_chunks([CORPUS])
-    assert len(chunks) == 40
+    assert len(chunks) == 38
     assert all(c.chunk_id.startswith("n5_doc_") for c in chunks)
 
 
 def test_intent_matrix_totals():
     assert pair_inventory(_manifest()) == {
-        "conflict": 20, "corroboration": 10, "update": 4, "compatible_partial": 6,
+        "conflict": 21, "corroboration": 11, "update": 4, "compatible_partial": 6,
     }
 
 
-def test_twelve_events_forty_reports():
+def test_twelve_events_thirty_eight_reports():
+    # Ten 3-outlet events and two 4-outlet events.
     m = _manifest()
     assert len(m) == 12
-    assert sum(len(e["reports"]) for e in m) == 40
+    assert sum(len(e["reports"]) for e in m) == 38
+    assert sum(len(e["intent"]) for e in m) == 42
 
 
 def test_every_report_opens_with_its_events_shared_lede():
@@ -846,7 +848,7 @@ for ev in m:
 print(f'{ok}/{ok+bad} authored pairs pass make_same_story')
 "
 ```
-Expected: `40/40 authored pairs pass make_same_story`.
+Expected: `42/42 authored pairs pass make_same_story`.
 
 If any pair fails, the shared lede is too thin for that event — **strengthen the lede** (add a place name or a distinctive event noun). Do NOT loosen `make_same_story`; its entity-anchor requirement is what separates same-story from same-topic, and weakening it reinstates the cross-topic false positives that scan run `20260712T074956Z` documented.
 
@@ -854,7 +856,7 @@ If any pair fails, the shared lede is too thin for that event — **strengthen t
 
 ```bash
 git add data/curator/node5_events.yaml corpus_node5.json tests/test_curator_node5_corpus.py
-git commit -m "Curator: node5 same-story corpus built (12 events, 40 reports, 40 pairs)"
+git commit -m "Curator: node5 same-story corpus built (12 events, 38 reports, 42 pairs)"
 ```
 
 ---
@@ -1404,7 +1406,7 @@ if __name__ == "__main__":
 - [ ] **Step 6: Run the gate for real**
 
 Run: `venv/Scripts/python.exe scripts/verify_node5_surfacing.py`
-Expected: `authored 40 | surfaced 40` and `PASS: every authored pair reaches the curator backlog`.
+Expected: `authored 42 | surfaced 42` and `PASS: every authored pair reaches the curator backlog`.
 
 If pairs are missing, the fix is in the corpus (strengthen that event's shared lede) or the cap, never in loosening `make_same_story`.
 
