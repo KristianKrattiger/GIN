@@ -11,6 +11,7 @@ from gin.cartographer.models import Relation
 from gin.curator.node5_labels import (
     BASELINE_P,
     BASELINE_P_ALL,
+    BASELINE_R,
     HELD_OUT_EVENTS,
     MetricScore,
     Node5Pair,
@@ -58,6 +59,9 @@ def test_baselines_are_the_measured_degenerate_branch():
     # combined.py's unconditional `if same_story: return CONTRADICTS`, measured
     # on these 24 labels at ebceb46.
     assert BASELINE_P == pytest.approx(12 / 19)
+    # The degenerate branch typed EVERY same-story pair CONTRADICTS, so it never
+    # missed a true one -- recall was perfect and precision was the whole defect.
+    assert BASELINE_R == 1.0
     assert BASELINE_P_ALL == pytest.approx(12 / 24)
 
 
@@ -103,6 +107,15 @@ def test_node5_texts_resolves_every_labeled_endpoint():
     for pair in node5_pairs():
         assert pair.src in texts
         assert pair.dst in texts
+
+
+def test_cross_event_pairs_are_never_marked_held_out():
+    # held_out names membership in the pre-registered held-out EVENT split, and
+    # that split only applies to within-event pairs. A cross-event pair spans
+    # two events, so the field must not depend on which endpoint is src.
+    for pair in node5_pairs():
+        if not pair.within_event:
+            assert pair.held_out is False, f"{pair.src} <-> {pair.dst}"
 
 
 def test_baseline_p_is_reproduced_by_the_degenerate_rule():

@@ -114,7 +114,10 @@ def node5_pairs(
             relation=relation,
             event=src_event,
             within_event=src_event == dst_event,
-            held_out=src_event in HELD_OUT_EVENTS,
+            # Only meaningful for within-event pairs: the held-out split is a
+            # split over EVENTS, and a cross-event pair spans two of them. Left
+            # asymmetric it would depend on which endpoint happened to be src.
+            held_out=src_event == dst_event and src_event in HELD_OUT_EVENTS,
         ))
     return sorted(pairs, key=lambda p: (p.event, p.src, p.dst))
 
