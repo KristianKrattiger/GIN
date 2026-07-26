@@ -232,3 +232,33 @@ its calibration corpus exercised the mechanism it was calibrating.
 None blocking. Deferred by design: whether `supersedes` should be surfaced as a
 labelable relation in the curator UI (it currently is not a 4-way training
 class), which only matters once the update-kind pairs are being labeled.
+
+## Results (measured 2026-07-25)
+
+- **Corpus:** 12 events, 38 outlet reports, 42 authored pairs — 21 conflict, 21
+  same-story negatives (11 corroboration, 4 update, 6 compatible_partial).
+  `pair_inventory` and the composition floor both hold.
+- **Surfacing gate — first real run:** `authored 42 | surfaced 6`. Root cause:
+  `make_same_story`'s entity-anchor requirement needs a shared rare token
+  (corpus-wide df ≤ 2 for this 38-chunk corpus, per `_rare_df_ceiling`), but an
+  event's own name/dateline repeats identically across every one of its 3–4
+  reports, so it is never rare enough to anchor on regardless of how the lede
+  is worded — only pairs that happened to also repeat an *unvaried* numeric
+  detail passed by chance (6/42). This is the failure mode the spec's own table
+  names ("the shared lede is too thin; strengthen it rather than loosening the
+  predicate"), sharper in practice than anticipated: it hit nearly every pair,
+  not an occasional one, because 10 of 12 events run 3+ outlets.
+- **Fix, in the corpus per the brief's explicit constraint:** every one of the
+  42 authored pairs now carries a pairwise-unique detail (two synthetic
+  wire-reference numbers appended to just that pair's two reports, e.g.
+  `(Wire ref 10001/10002.)`) — an entity-grade rare anchor independent of the
+  pair's `varied_fact`, so conflicts anchor exactly like negatives.
+  `make_same_story` itself was not touched.
+- **Surfacing gate — after the fix:** `authored 42 | surfaced 42`, **PASS**.
+- **Curator smoke:** `GET /curator/` → 200; `GET /curator/readiness` → 200 with
+  `new_story: 13` against `target.story: 20` (corpus not yet labeled).
+- **Regression:** full suite 663 passed / 16 skipped / 0 failed (was 659/16/0
+  before this task's 4 new tests); `tests/test_cartographer_eval_pairs.py`
+  (the escalation bar pin) passes unchanged.
+- **Not measured:** any detector metric. This ships a corpus and the means to
+  label it — labeling has not happened yet.
