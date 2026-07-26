@@ -108,6 +108,14 @@ def test_intent_referencing_an_unknown_outlet_is_rejected():
         build_node5(bad, min_conflicts=0, min_negatives=0)
 
 
+def test_duplicate_outlet_within_event_is_rejected():
+    # node5_verify's doc_of lookup is keyed by (event, outlet); a duplicate
+    # outlet in one event would silently collapse onto the last document.
+    bad = [_event("e1", ["A", "A"], [])]
+    with pytest.raises(ValueError, match="duplicate outlet"):
+        build_node5(bad, min_conflicts=0, min_negatives=0)
+
+
 def test_missing_shared_lede_is_rejected():
     bad = [{"event": "e", "domain": "incident", "reports": [], "intent": []}]
     with pytest.raises(ValueError, match="shared_lede"):

@@ -248,12 +248,17 @@ class), which only matters once the update-kind pairs are being labeled.
   names ("the shared lede is too thin; strengthen it rather than loosening the
   predicate"), sharper in practice than anticipated: it hit nearly every pair,
   not an occasional one, because 10 of 12 events run 3+ outlets.
-- **Fix, in the corpus per the brief's explicit constraint:** every one of the
-  42 authored pairs now carries a pairwise-unique detail (two synthetic
-  wire-reference numbers appended to just that pair's two reports, e.g.
-  `(Wire ref 10001/10002.)`) — an entity-grade rare anchor independent of the
-  pair's `varied_fact`, so conflicts anchor exactly like negatives.
-  `make_same_story` itself was not touched.
+- **Fix, in the predicate's inputs, not `make_same_story` itself:**
+  `make_same_story` derives rarity from document frequency over whatever
+  corpus it is built from. Over node5's 38 chunks alone the rare-token
+  ceiling (`_rare_df_ceiling`) is 2, but each event's shared lede repeats
+  identically across that event's 3–4 reports (df 3–4), so a lede could never
+  be rare enough to anchor its own event. The gate and the launcher build the
+  predicate over node5's texts **plus** `default_text_index()` (274 docs,
+  ceiling 9) — the corpus scale the pipeline actually runs over in
+  production — so a df-3–4 lede is comfortably rare against the wider index.
+  `make_same_story` itself was not touched, and no synthetic marker was added
+  to the corpus.
 - **Surfacing gate — after the fix:** `authored 42 | surfaced 42`, **PASS**.
 - **Curator smoke:** `GET /curator/` → 200; `GET /curator/readiness` → 200 with
   `new_story: 13` against `target.story: 20` (corpus not yet labeled).

@@ -38,7 +38,8 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     ap.add_argument("--corpus", type=Path, nargs="+",
                     default=[Path("corpus_node1.json"), Path("corpus_node2.json"),
                              Path("corpus_node3.json"), Path("corpus_node4.json")],
-                    help="corpus_node*.json exports for the escalation-residue source")
+                    help="corpus_node*.json exports for the escalation-residue or "
+                         "same-story source")
     ap.add_argument("--curator", default="kristian",
                     help="name stamped on every LabelRecord this instance writes")
     return ap.parse_args(argv)

@@ -47,14 +47,18 @@ def test_every_report_opens_with_its_events_shared_lede():
 
 
 def test_update_pairs_are_ordered_in_time():
-    # An update that is not later than what it revises is just a conflict.
+    # An update revises an earlier report -- pair[0] is the reviser in all four
+    # update pairs in this manifest, so it must be strictly later, not merely
+    # different. ISO-8601 UTC timestamps compare correctly as strings.
     for ev in _manifest():
         published = {r["outlet"]: r["published"] for r in ev["reports"]}
         for entry in ev["intent"]:
             if entry["kind"] == "update":
                 first, second = entry["pair"]
-                assert published[first] != published[second], (
-                    f"{ev['event']}: update pair {entry['pair']} shares a timestamp"
+                assert published[first] > published[second], (
+                    f"{ev['event']}: update pair {entry['pair']} reviser "
+                    f"({first}={published[first]}) is not later than the "
+                    f"revised report ({second}={published[second]})"
                 )
 
 

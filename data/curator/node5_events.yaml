@@ -47,7 +47,7 @@
     - outlet: CentralWire
       published: "2026-03-19T01:15Z"
       chunks:
-        - "HARBOR DISTRICT — Voters narrowly decided the harbor district referendum on port expansion Tuesday. Election officials put turnout at 41 percent of registered voters. The margin of victory, initially reported at 6 percentage points, was revised to 9 points after final ballots were tallied overnight. The referendum authorizes the port authority to proceed with expansion planning."
+        - "HARBOR DISTRICT — Voters narrowly decided the harbor district referendum on port expansion Tuesday. Election officials put turnout at 52 percent of registered voters. The margin of victory, initially reported at 6 percentage points, was revised to 9 points after final ballots were tallied overnight. The referendum authorizes the port authority to proceed with expansion planning."
   intent:
     - pair: [CentralWire, MetroDaily]
       kind: conflict
@@ -133,7 +133,7 @@
     - outlet: CentralWire
       published: "2026-04-29T17:00Z"
       chunks:
-        - "MERIDIAN COUNTY — A civil jury delivered its verdict in the Meridian County negligence trial Thursday afternoon. Jurors awarded $2.4 million in total damages to the plaintiff. The panel ruled in the plaintiff's favor on six of the complaint's nine negligence counts, none of them naming the site supervisor. The two-week trial centered on a workplace injury claim."
+        - "MERIDIAN COUNTY — A civil jury delivered its verdict in the Meridian County negligence trial Thursday afternoon. Jurors awarded $2.4 million in total damages to the plaintiff. The panel ruled in the plaintiff's favor on six of the complaint's nine negligence counts. The two-week trial centered on a workplace injury claim."
     - outlet: MetroDaily
       published: "2026-04-29T17:45Z"
       chunks:
@@ -160,32 +160,32 @@
     - outlet: RegionalPost
       published: "2026-05-06T06:00Z"
       chunks:
-        - "CAPE ARDEN — Tropical Storm Elva made landfall near Cape Arden early Wednesday, knocking out power along the coast. Utility officials said roughly 210,000 customers lost power as the storm came ashore. Downed trees and flooding blocked several coastal roads overnight. Crews were dispatched at first light to begin restoration work."
+        - "CAPE ARDEN — Tropical Storm Elva made landfall near Cape Arden early Wednesday, knocking out power along the coast. Utility officials said roughly 210,000 customers lost power as the storm came ashore. Emergency officials said 65 shelters had opened along the coast overnight. Crews were dispatched at first light to begin restoration work."
     - outlet: MetroDaily
       published: "2026-05-06T07:15Z"
       chunks:
-        - "CAPE ARDEN — Tropical Storm Elva made landfall near Cape Arden early Wednesday, knocking out power along the coast. The National Weather Service clocked sustained winds at 90 mph at landfall. Power crews reported about 210,000 customers without electricity along the coastline. Emergency shelters opened in three coastal towns overnight."
+        - "CAPE ARDEN — Tropical Storm Elva made landfall near Cape Arden early Wednesday, knocking out power along the coast. The National Weather Service clocked sustained winds at 90 mph at landfall. Power crews reported about 210,000 customers without electricity along the coastline. Crews began assessing damage to coastal infrastructure at first light."
     - outlet: CivicLedger
       published: "2026-05-06T08:00Z"
       chunks:
-        - "CAPE ARDEN — Tropical Storm Elva made landfall near Cape Arden early Wednesday, knocking out power along the coast. Forecasters measured the storm's sustained winds at 90 mph as it came ashore. The regional utility reported 175,000 customers without power as of Wednesday morning. Officials said full restoration could take several days."
+        - "CAPE ARDEN — Tropical Storm Elva made landfall near Cape Arden early Wednesday, knocking out power along the coast. Forecasters measured the storm's sustained winds at 90 mph as it came ashore. The regional utility reported 210,000 customers without power as of Wednesday morning. Emergency officials said 40 shelters had opened along the coast."
     - outlet: CentralWire
       published: "2026-05-06T11:30Z"
       chunks:
-        - "CAPE ARDEN — Tropical Storm Elva made landfall near Cape Arden early Wednesday, knocking out power along the coast. Sustained winds at landfall, initially reported at 90 mph, were revised to 105 mph after a full review of storm data Wednesday afternoon. The utility said 340,000 customers were without power. Officials said restoration crews from neighboring states have been called in to assist."
+        - "CAPE ARDEN — Tropical Storm Elva made landfall near Cape Arden early Wednesday, knocking out power along the coast. Sustained winds at landfall, initially reported at 90 mph, were revised to 105 mph after a full review of storm data Wednesday afternoon. The utility said 210,000 customers were without power. Emergency officials said 40 shelters had opened along the coast."
   intent:
     - pair: [CentralWire, MetroDaily]
       kind: update
       varied_fact: wind_speed
     - pair: [CentralWire, RegionalPost]
       kind: conflict
-      varied_fact: outage_count
+      varied_fact: shelter_count
     - pair: [MetroDaily, CivicLedger]
       kind: corroboration
       varied_fact: null
     - pair: [RegionalPost, CivicLedger]
       kind: conflict
-      varied_fact: outage_count
+      varied_fact: shelter_count
     - pair: [CentralWire, CivicLedger]
       kind: update
       varied_fact: wind_speed
@@ -281,7 +281,7 @@
     - outlet: MetroDaily
       published: "2026-06-17T10:00Z"
       chunks:
-        - "LAKESHORE — A toxic algae bloom spread across the northern basin of Lakeshore Reservoir this week, prompting a water advisory. Environmental officials estimated the bloom covered about 5.2 square kilometers of the northern basin. Health officials said the water advisory is expected to remain in effect for at least a week. Residents were advised to avoid contact with the affected shoreline."
+        - "LAKESHORE — A toxic algae bloom spread across the northern basin of Lakeshore Reservoir this week, prompting a water advisory. Environmental officials estimated the bloom covered about 8.5 square kilometers of the northern basin. Health officials said the water advisory is expected to remain in effect for at least a week. Residents were advised to avoid contact with the affected shoreline."
     - outlet: RegionalPost
       published: "2026-06-17T12:00Z"
       chunks:

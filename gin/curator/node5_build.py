@@ -48,6 +48,10 @@ def _validate(manifest: list[dict]) -> None:
                     )
             if not rep["chunks"]:
                 raise ValueError(f"event {ev['event']!r} report {j} has no chunks")
+            if rep["outlet"] in outlets:
+                raise ValueError(
+                    f"event {ev['event']!r} has duplicate outlet {rep['outlet']!r}"
+                )
             outlets.add(rep["outlet"])
         for entry in ev["intent"]:
             if entry["kind"] not in VALID_KINDS:
