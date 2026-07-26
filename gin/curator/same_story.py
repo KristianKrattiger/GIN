@@ -62,15 +62,50 @@ class SameStoryCandidateSource:
             )
         self._same_story = same_story
         self._p_contra = p_contra
+        self._cached_pairs: Optional[list[tuple[LabeledChunk, LabeledChunk]]] = None
 
     def chunks(self) -> list[LabeledChunk]:
-        return self._chunks
+        return list(self._chunks)
+
+    def _score(self, a_text: str, b_text: str) -> float:
+        # A pair with an unusable score must still reach the curator: retention
+        # matters more than ranking. Treat None or a raising scorer as 0.0
+        # (unranked, bottom of the descending sort) rather than losing the pair.
+        try:
+            score = self._p_contra(a_text, b_text)
+        except Exception:
+            return 0.0
+        return 0.0 if score is None else score
 
     def pairs(self) -> list[tuple[LabeledChunk, LabeledChunk]]:
+        # Memoized: a real model-backed proposer must not re-score every pair
+        # on every page request from the curator app.
+        if self._cached_pairs is not None:
+            return self._cached_pairs
+
         scored: list[tuple[float, tuple[LabeledChunk, LabeledChunk]]] = []
         for a, b in combinations(self._chunks, 2):
             if not self._same_story(a.text, b.text):
                 continue
-            scored.append((self._p_contra(a.text, b.text), (a, b)))
+            scored.append((self._score(a.text, b.text), (a, b)))
         scored.sort(key=lambda row: -row[0])
-        return [pair for _score, pair in scored[: self._max_candidates]]
+
+        total = len(scored)
+        cap = self._max_candidates
+        if total <= cap:
+            selected = scored
+        else:
+            # Band-aware truncation: a plain descending slice always cuts the
+            # tail, which is precisely where the same-story negatives (low
+            # p_contra) live. Split the cap between the top (conflicts) and
+            # bottom (negatives) bands so truncation can never eliminate the
+            # negatives outright, then re-sort descending so conflicts still
+            # reach the curator first.
+            top_n = cap // 2
+            bottom_n = cap - top_n
+            top = scored[:top_n]
+            bottom = scored[total - bottom_n :]
+            selected = sorted(top + bottom, key=lambda row: -row[0])
+
+        self._cached_pairs = [pair for _score, pair in selected]
+        return self._cached_pairs
