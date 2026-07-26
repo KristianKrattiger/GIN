@@ -295,6 +295,16 @@ ALIGN_FLOOR = 0.05
 # cannot swallow a real divergence (n5_doc_017 <-> 019 does exactly that).
 STANCE_PRECEDENCE = ("conflict", "revision", "partial", "agreement")
 
+# Returned when the channel DID have quantities on both sides and none of them
+# aligned. Distinct from None, which means the channel had no quantitative claim
+# to judge at all. classify_relation abstains on this but falls through to its
+# pre-stance branch on None -- three of the four gold contradicts pairs that pass
+# the story gate state no quantities (housing habitability, a securities PR vs
+# complaint), and they contradict qualitatively. Collapsing the two cases either
+# emits false CONTRADICTS edges on examined-and-empty pairs or discards those
+# three gold pairs.
+UNALIGNED = "unaligned"
+
 
 @dataclass(frozen=True)
 class StanceEvidence:
@@ -382,10 +392,21 @@ def evidence_for(
 def stance_for(
     a_text: str, b_text: str, *, floor: float = ALIGN_FLOOR
 ) -> Optional[str]:
-    """The pair's single stance verdict, or None when no mentions aligned.
+    """The pair's single stance verdict, or None when the channel cannot judge.
+
+    Returns one of STANCE_PRECEDENCE when aligned facts carry that evidence;
+    UNALIGNED when both texts state quantities but none align; and None when
+    EITHER text states no quantity at all -- the channel has nothing to compare,
+    so it declines to override the caller's default rather than asserting that
+    no conflict exists.
 
     This is what classify_relation consumes. Precedence is STANCE_PRECEDENCE.
     """
+    # Extracted here as well as inside evidence_for. The cost is a second pass
+    # over two short strings in a pure function, and it buys the bucketing logic
+    # living in exactly one place.
+    if not extract_mentions(a_text) or not extract_mentions(b_text):
+        return None
     ev = evidence_for(a_text, b_text, floor=floor)
     for kind, bucket in (
         ("conflict", ev.conflicts),
@@ -395,4 +416,4 @@ def stance_for(
     ):
         if bucket:
             return kind
-    return None
+    return UNALIGNED

@@ -100,13 +100,23 @@ def classify_relation(
     mid-band default flips from CONTRADICTS to RELATED_UNTYPED (no edge).
 
     ``stance`` is the per-fact quantity evidence from ``quantity.stance_for``:
-    "conflict" | "revision" | "partial" | "agreement", or None when no
-    quantities aligned. It refines the same-story arm ONLY.
+    "conflict" | "revision" | "partial" | "agreement" | quantity.UNALIGNED, or
+    None. It refines the same-story arm ONLY.
 
-    stance=None reproduces this function's pre-2026-07-26 behavior byte-for-
-    byte -- the same contract same_story=None carries -- which is what keeps the
-    committed 39-sample calibration fixture and the 14-pair bar pin valid
-    without edits.
+    None and UNALIGNED are deliberately different meanings, not the same "no
+    evidence" bucket: None means the channel had no quantitative claim to judge
+    at all (at least one side states no quantity), so classify_relation falls
+    through to its pre-stance branch and reproduces this function's
+    pre-2026-07-26 behavior byte-for-byte -- the same contract same_story=None
+    carries -- which is what keeps the committed 39-sample calibration fixture
+    and the 14-pair bar pin valid without edits. UNALIGNED means the channel DID
+    have quantities on both sides and none of them aligned, so it falls to the
+    final `return Relation.RELATED_UNTYPED, "abstain"` below (it is not None,
+    not "conflict", not "agreement"): a pair the channel actually examined and
+    found no shared fact in gets no edge, rather than the old unconditional
+    CONTRADICTS. Collapsing the two into one value either emits false
+    CONTRADICTS edges on examined-and-empty pairs or discards the three gold
+    same-story contradicts pairs that state no quantities at all.
 
     Why the arm needed evidence: measured on the 24 node5 labels, the
     unconditional "same_story -> CONTRADICTS" scored precision 12/24. The NLI

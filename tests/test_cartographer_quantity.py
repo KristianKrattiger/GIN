@@ -2,6 +2,7 @@
 from gin.cartographer.quantity import QuantityMention, extract_mentions, _stem
 from gin.cartographer.quantity import (
     STANCE_PRECEDENCE,
+    UNALIGNED,
     align,
     evidence_for,
     judge,
@@ -182,10 +183,21 @@ def test_agreement_when_the_aligned_values_match():
     assert stance_for(a, b) == "agreement"
 
 
-def test_none_when_nothing_aligns():
+def test_unaligned_when_both_state_quantities_that_do_not_align():
     a = "The bloom covered about 8.5 square kilometers of the northern basin."
     b = "Jurors awarded the plaintiff $2.4 million in total damages."
-    assert stance_for(a, b) is None
+    assert stance_for(a, b) == UNALIGNED
+
+
+def test_none_when_either_text_states_no_quantity():
+    # Outside the channel's competence: there is no quantitative claim to judge,
+    # so it declines rather than asserting no conflict. Three of the four gold
+    # contradicts pairs that pass the story gate look like this.
+    quantitative = "Officials confirmed 34 people were evacuated from nearby buildings."
+    qualitative = "Residents said management had ignored repeated complaints for months."
+    assert stance_for(qualitative, quantitative) is None
+    assert stance_for(quantitative, qualitative) is None
+    assert stance_for(qualitative, qualitative) is None
 
 
 def test_precedence_is_conflict_first():

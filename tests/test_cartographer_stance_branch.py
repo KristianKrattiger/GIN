@@ -98,3 +98,52 @@ def test_proposer_stance_provider_none_restores_the_old_branch():
     assert relation is Relation.CONTRADICTS
     assert ev["channel"] == "band"
     assert "stance" not in ev
+
+
+def test_unaligned_abstains_while_none_defers_to_the_pre_stance_branch():
+    # The two cases must not be collapsed. UNALIGNED means the channel looked
+    # and found no shared fact -> no edge. None means it had nothing to look at
+    # -> leave the caller's existing behaviour alone.
+    from gin.cartographer.quantity import UNALIGNED
+
+    assert classify_relation(0.95, 0.10, T, same_story=True, stance=UNALIGNED) == (
+        Relation.RELATED_UNTYPED, "abstain",
+    )
+    assert classify_relation(0.95, 0.10, T, same_story=True, stance=None) == (
+        Relation.CONTRADICTS, "band",
+    )
+
+
+def test_gold_same_story_contradicts_survive_the_stance_channel():
+    """The regression this rule exists to prevent.
+
+    Four gold contradicts pairs pass the story gate. Three state no quantities
+    at all -- housing habitability disputes and a securities PR versus a
+    complaint -- and contradict qualitatively. An unconditional abstain on "no
+    aligned quantity" would discard them.
+    """
+    from gin.cartographer.labeled_set import chunks as gold_chunks
+    from gin.cartographer.labeled_set import gold
+    from gin.cartographer.relatedness import make_same_story
+    from gin.curator.text_index import default_text_index
+
+    index = {c.chunk_id: c.text for c in gold_chunks()}
+    same_story = make_same_story(list(default_text_index().values()))
+    proposer = CombinedRelationProposer(
+        embed_cos=lambda a, b: 0.95,
+        nli_scores=lambda a, b: (0.05, 0.05, 0.90),
+        same_story=same_story,
+    )
+
+    checked = 0
+    for src, dst, relation, _register in gold():
+        if src not in index or dst not in index:
+            continue
+        if relation is not Relation.CONTRADICTS:
+            continue
+        if not same_story(index[src], index[dst]):
+            continue
+        checked += 1
+        typed, ev = proposer.type_relation(index[src], index[dst])
+        assert typed is Relation.CONTRADICTS, f"{src} <-> {dst} ev={ev}"
+    assert checked == 4, f"expected 4 gold same-story contradicts, found {checked}"
