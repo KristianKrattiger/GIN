@@ -160,6 +160,19 @@ def _unit_class(currency: Optional[str], scale: Optional[str], unit: Optional[st
     return "count"
 
 
+def _window_words(sentence: str, start: int, window: int) -> list[str]:
+    """Lowercased word tokens within +/-``window`` positions of offset ``start``.
+
+    Shared by the measure and scope extractors, which differ only in window size
+    and in what they do with the result.
+    """
+    lowered = sentence.lower()
+    spans = [m.span() for m in _WORD.finditer(lowered)]
+    words = [lowered[a:b] for a, b in spans]
+    idx = next((i for i, (a, _b) in enumerate(spans) if a >= start), len(words))
+    return words[max(0, idx - window): idx + window + 1]
+
+
 def _measure_tokens(sentence: str, start: int, end: int, window: int = 5) -> frozenset[str]:
     """Content tokens governing the numeral: its clause UNIONED with a +/-window
     token span that crosses clause boundaries.
@@ -181,22 +194,13 @@ def _measure_tokens(sentence: str, start: int, end: int, window: int = 5) -> fro
             clause = sentence[lo:hi]
             break
 
-    lowered = sentence.lower()
-    spans = [m.span() for m in _WORD.finditer(lowered)]
-    words = [lowered[a:b] for a, b in spans]
-    idx = next((i for i, (a, _b) in enumerate(spans) if a >= start), len(words))
-    near = words[max(0, idx - window): idx + window + 1]
+    near = _window_words(sentence, start, window)
 
     return frozenset(_content(_WORD.findall(clause.lower())) | _content(near))
 
 
 def _scope_tokens(sentence: str, start: int, window: int = 6) -> frozenset[str]:
-    lowered = sentence.lower()
-    spans = [m.span() for m in _WORD.finditer(lowered)]
-    words = [lowered[a:b] for a, b in spans]
-    idx = next((i for i, (a, _b) in enumerate(spans) if a >= start), len(words))
-    near = words[max(0, idx - window): idx + window + 1]
-    return frozenset(w for w in near if w in SCOPE_TOKENS)
+    return frozenset(w for w in _window_words(sentence, start, window) if w in SCOPE_TOKENS)
 
 
 def extract_mentions(text: str) -> tuple[QuantityMention, ...]:
@@ -206,11 +210,16 @@ def extract_mentions(text: str) -> tuple[QuantityMention, ...]:
     3" is a room label, not a measurement.
     """
     out: list[QuantityMention] = []
-    offset = 0
+    cursor = 0
     for sentence in _SENTENCE_SPLIT.split(text):
         if not sentence.strip():
-            offset += len(sentence) + 1
             continue
+        # Recover the sentence's TRUE offset instead of accumulating lengths:
+        # _SENTENCE_SPLIT consumes a whole whitespace run, which is one char for
+        # "a. b" but two for a double space and two for a "\n\n" paragraph break.
+        # Adding len(sentence) + 1 desynchronises every following span.
+        offset = text.index(sentence, cursor)
+        cursor = offset + len(sentence)
 
         as_of_match = _AS_OF.search(sentence)
         as_of = CALENDAR_ORDINALS[as_of_match.group("day").lower()] if as_of_match else None
@@ -246,6 +255,7 @@ def extract_mentions(text: str) -> tuple[QuantityMention, ...]:
             if len(digits.split(".")[0]) < 2 and not (currency or scale or unit):
                 continue          # "Ward 3"
             value = float(digits) * _SCALE.get((scale or "").lower(), 1.0)
+            start = m.start("currency") if m.group("currency") else m.start("num")
             out.append(QuantityMention(
                 value=value,
                 unit_class=_unit_class(currency, scale, unit),
@@ -253,7 +263,6 @@ def extract_mentions(text: str) -> tuple[QuantityMention, ...]:
                 scope=_scope_tokens(sentence, m.start()),
                 revised=cut is not None,
                 as_of=as_of,
-                span=(offset + m.start(), offset + m.end()),
+                span=(offset + start, offset + m.end()),
             ))
-        offset += len(sentence) + 1
     return tuple(out)

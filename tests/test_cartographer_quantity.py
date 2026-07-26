@@ -65,6 +65,8 @@ def test_scope_captures_narrowing_qualifiers():
     assert wide.scope != narrow.scope
     assert "wide" in wide.scope
     assert "ward" in narrow.scope
+    assert narrow.scope == frozenset({"ward", "alone"})
+    assert narrow.as_of == 3
 
 
 def test_scope_excludes_measure_describing_words():
@@ -102,3 +104,27 @@ def test_a_bare_initial_estimate_is_not_marked_revised():
     m = _only("The reservoir authority initially estimated the bloom's extent at 8.5 square kilometers.")
     assert m.value == 8.5
     assert m.revised is False
+
+
+def test_spans_point_at_the_real_text_across_sentences():
+    # _SENTENCE_SPLIT consumes a whole whitespace run, so accumulating
+    # len(sentence) + 1 desynchronises every span after the first irregular
+    # separator. span is documented as the field a rationale quotes from, so a
+    # drifted offset quotes the wrong characters entirely.
+    text = "Alpha reports 15 cases in the region.\n\nBeta reports 26 cases downtown."
+    mentions = extract_mentions(text)
+    assert [m.value for m in mentions] == [15.0, 26.0]
+    for mention in mentions:
+        assert text[mention.span[0]:mention.span[1]] == f"{int(mention.value)}"
+
+
+def test_span_starts_at_the_number_not_the_preceding_space():
+    m = _only("Officials confirmed 34 people were evacuated from nearby buildings.")
+    text = "Officials confirmed 34 people were evacuated from nearby buildings."
+    assert text[m.span[0]:m.span[1]] == "34"
+
+
+def test_span_of_a_currency_mention_includes_the_symbol():
+    text = "Auditors identified an $18 million shortfall in the bond fund's reserves."
+    m = _only(text)
+    assert text[m.span[0]:m.span[1]].startswith("$18")
