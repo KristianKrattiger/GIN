@@ -116,5 +116,6 @@ def test_readiness_endpoint_returns_report_shape(tmp_path):
     assert r.status_code == 200
     body = r.json()
     assert body["new_issue_frame"] == 1
-    assert body["target"] == {"issue_frame": 1, "agree": 1, "unrelated": 1}
+    assert body["new_story"] == 0
+    assert body["target"] == {"issue_frame": 1, "agree": 1, "unrelated": 1, "story": 20}
     assert body["ready"] is False  # agree/unrelated still 0

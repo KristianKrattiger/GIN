@@ -98,10 +98,12 @@ def create_curator_app(
             "new_issue_frame": rep.new_issue_frame,
             "new_agree": rep.new_agree,
             "new_unrelated": rep.new_unrelated,
+            "new_story": rep.new_story,
             "target": {
                 "issue_frame": rep.target.issue_frame,
                 "agree": rep.target.agree,
                 "unrelated": rep.target.unrelated,
+                "story": rep.target.story,
             },
             "ready": rep.ready,
         }

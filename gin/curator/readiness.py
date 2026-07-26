@@ -22,6 +22,7 @@ class ReadinessTarget:
     issue_frame: int = 20
     agree: int = 20
     unrelated: int = 20
+    story: int = 20
 
 
 @dataclass(frozen=True)
@@ -29,6 +30,7 @@ class ReadinessReport:
     new_issue_frame: int
     new_agree: int
     new_unrelated: int
+    new_story: int
     target: ReadinessTarget
     ready: bool
 
@@ -50,7 +52,7 @@ def bar_pair_keys() -> frozenset[tuple[str, str]]:
 def readiness(store: Store, target: ReadinessTarget = ReadinessTarget()) -> ReadinessReport:
     bar = bar_pair_keys()
     index = default_text_index()
-    n_if = n_ag = n_un = 0
+    n_if = n_ag = n_un = n_st = 0
     for src, dst, relation, relation_class in store.gold():
         if pair_key(src, dst) in bar:
             continue
@@ -62,6 +64,8 @@ def readiness(store: Store, target: ReadinessTarget = ReadinessTarget()) -> Read
             continue
         if relation is Relation.CONTRADICTS and relation_class == "issue_frame":
             n_if += 1
+        elif relation is Relation.CONTRADICTS and relation_class == "story":
+            n_st += 1
         elif relation is Relation.CORROBORATES:
             n_ag += 1
         elif relation is Relation.UNRELATED:
@@ -70,5 +74,6 @@ def readiness(store: Store, target: ReadinessTarget = ReadinessTarget()) -> Read
         n_if >= target.issue_frame
         and n_ag >= target.agree
         and n_un >= target.unrelated
+        and n_st >= target.story
     )
-    return ReadinessReport(n_if, n_ag, n_un, target, ready)
+    return ReadinessReport(n_if, n_ag, n_un, n_st, target, ready)

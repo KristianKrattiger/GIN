@@ -33,7 +33,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     ap.add_argument("--port", type=int, default=8600)
     ap.add_argument("--log", type=Path, default=DEFAULT_LOG)
     ap.add_argument("--no-seed", action="store_true", help="skip seeding existing gold")
-    ap.add_argument("--source", choices=["labeled-set", "escalation-residue"],
+    ap.add_argument("--source", choices=["labeled-set", "escalation-residue", "same-story"],
                     default="labeled-set", help="candidate source")
     ap.add_argument("--corpus", type=Path, nargs="+",
                     default=[Path("corpus_node1.json"), Path("corpus_node2.json"),
@@ -67,6 +67,17 @@ def main() -> None:
         cap = max(1, len(chunks) * (len(chunks) - 1) // 2)
         source = EscalationResidueCandidateSource(chunks, proposer=proposer, max_candidates=cap)
         print(f"escalation-residue source over {len(source.chunks())} corpus chunks")
+    elif args.source == "same-story":
+        try:
+            chunks = load_corpus_chunks(args.corpus)
+        except (FileNotFoundError, ValueError) as exc:
+            sys.exit(f"error: {exc}")
+        from gin.cartographer.scan import wire_same_story
+        from gin.curator.same_story import SameStoryCandidateSource
+
+        wire_same_story(proposer, chunks)
+        source = SameStoryCandidateSource(chunks, proposer=proposer)
+        print(f"same-story source over {len(source.chunks())} corpus chunks")
     else:
         source = OfflineCandidateSource(labeled_set.chunks())
     app = create_curator_app(

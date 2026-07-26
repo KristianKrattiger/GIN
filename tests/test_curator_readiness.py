@@ -29,17 +29,19 @@ def test_seeded_bar_issue_frame_counts_as_zero_new(tmp_path):
 
 def test_counts_new_labels_and_verdict_flips(tmp_path):
     store = Store(tmp_path / "labels.jsonl")
-    target = ReadinessTarget(issue_frame=2, agree=1, unrelated=1)
+    # story=0: this test predates the story class and exercises only the
+    # issue_frame/agree/unrelated counting, so require none of it here.
+    target = ReadinessTarget(issue_frame=2, agree=1, unrelated=1, story=0)
     # Two NEW issue_frame (non-bar), one agree, one unrelated.
     store.append(_rec("x:0", "y:0", Relation.CONTRADICTS, "2026-07-17T00:00:00Z", "issue_frame"))
     store.append(_rec("x:1", "y:1", Relation.CONTRADICTS, "2026-07-17T00:00:01Z", "issue_frame"))
     store.append(_rec("p:0", "q:0", Relation.CORROBORATES, "2026-07-17T00:00:02Z"))
     store.append(_rec("m:0", "n:0", Relation.UNRELATED, "2026-07-17T00:00:03Z"))
     rep = readiness(store, target)
-    assert (rep.new_issue_frame, rep.new_agree, rep.new_unrelated) == (2, 1, 1)
+    assert (rep.new_issue_frame, rep.new_agree, rep.new_unrelated, rep.new_story) == (2, 1, 1, 0)
     assert rep.ready is True
     # One short on issue_frame => not ready.
-    assert readiness(store, ReadinessTarget(issue_frame=3, agree=1, unrelated=1)).ready is False
+    assert readiness(store, ReadinessTarget(issue_frame=3, agree=1, unrelated=1, story=0)).ready is False
 
 
 def test_none_class_contradicts_not_counted_as_issue_frame(tmp_path):
@@ -57,3 +59,25 @@ def test_text_aliased_bar_pair_does_not_count_as_new(tmp_path):
     store.append(_rec("inst_em:0", "grass_em:0", Relation.CONTRADICTS,
                       "2026-07-25T00:00:00Z", relation_class="issue_frame"))
     assert readiness(store).new_issue_frame == 0
+
+
+def test_story_class_is_counted(tmp_path):
+    store = Store(tmp_path / "labels.jsonl")
+    store.append(_rec("s1:0", "s2:0", Relation.CONTRADICTS, "2026-07-25T00:00:00Z",
+                      relation_class="story"))
+    rep = readiness(store)
+    assert rep.new_story == 1
+    assert rep.new_issue_frame == 0
+
+
+def test_ready_requires_story_too(tmp_path):
+    store = Store(tmp_path / "labels.jsonl")
+    target = ReadinessTarget(issue_frame=1, agree=1, unrelated=1, story=1)
+    store.append(_rec("a:0", "b:0", Relation.CONTRADICTS, "2026-07-25T00:00:01Z",
+                      relation_class="issue_frame"))
+    store.append(_rec("c:0", "d:0", Relation.CORROBORATES, "2026-07-25T00:00:02Z"))
+    store.append(_rec("e:0", "f:0", Relation.UNRELATED, "2026-07-25T00:00:03Z"))
+    assert readiness(store, target).ready is False   # story still 0
+    store.append(_rec("g:0", "h:0", Relation.CONTRADICTS, "2026-07-25T00:00:04Z",
+                      relation_class="story"))
+    assert readiness(store, target).ready is True
