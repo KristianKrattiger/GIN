@@ -713,7 +713,41 @@ n5_doc_007 (hospital outbreak) to n5_doc_012 (bridge closure)."
 
 ---
 
-### Task 5: `make_same_story` union → intersection
+### Task 5: `make_same_story` union → intersection — WITHDRAWN, DO NOT IMPLEMENT
+
+> **WITHDRAWN 2026-07-26 by user decision. Do not implement this task.**
+>
+> The change below was implemented and it **regresses two pre-registered gold
+> `contradicts` pairs** — `disc_nw_pr:0 ↔ disc_nw_complaint:0` and
+> `disc_mer_pr:0 ↔ disc_mer_complaint:0`. Legal-register recall drops 4/7 → 2/7.
+>
+> Cause: `anchor_tokens` treats sentence-initial capitalization as carrying no
+> entity signal, so `Northwind Systems reported…` hides the entity that
+> `The complaint alleges Northwind…` exposes. The union was carrying those two
+> pairs for the **right** reason — the opposite of the `Sable Bridge` /
+> `bridge the gap` collision this fix targeted.
+>
+> Two refinements (`inter_cap`, `mixed`) reach 19/19 within-event, 0/5
+> cross-event **and** 4/4 gold contradicts. All three were withdrawn together:
+> an anchor heuristic needing a third patch to keep two eval pairs alive wants a
+> redesign, not another special case.
+>
+> Withdrawal is cheap because **stage 2 absorbs stage 1's residue**: measured over
+> the unfixed predicate, the stance channel scores `P` 1.000, `R` 1.000,
+> `P_all` 0.923 — clearing the pre-registered bar with no stage-1 change at all.
+>
+> Full write-up: `docs/superpowers/specs/2026-07-26-stage1-anchor-findings.md`.
+> The design space is reproducible via `scripts/sweep_same_story.py` (Task 6).
+>
+> **Consequences for later tasks:** Task 11 measures over the *unfixed* stage 1,
+> and its `P_all` will be ~0.923 rather than 1.0 — the single residual error is
+> `n5_doc_023:0 ↔ n5_doc_024:0`, which needs both the union anchor and the loose
+> alignment floor to occur. That pair is the concrete instance of the low-floor
+> hazard and should be named in the Results block.
+
+<details>
+<summary>Original task text, retained for the redesign (do not execute)</summary>
+
 
 **Files:**
 - Modify: `gin/cartographer/relatedness.py:110-119`
@@ -873,46 +907,71 @@ story_floor and df_ceiling untouched.
 Held-out 40-pair score, shipped thresholds: <RECORDED>."
 ```
 
+</details>
+
 ---
 
-### Task 6: `scripts/sweep_same_story.py` (threshold artifact)
+### Task 6: `scripts/sweep_same_story.py` — the stage-1 redesign evidence base
 
-The deferred `story_floor` / `df_ceiling` decision gets a reproducible artifact instead of a paragraph in a commit message. Writes nothing.
+**SCOPE CHANGED 2026-07-26.** Task 5 was withdrawn: the union → intersection anchor fix regresses two pre-registered gold `contradicts` pairs, and the user's decision is that the anchor heuristic wants a redesign rather than a third patch. See `docs/superpowers/specs/2026-07-26-stage1-anchor-findings.md`.
+
+This script is now the artifact that makes that design space reproducible instead of leaving it in a prose document. It sweeps the **anchor-mode** axis as well as the threshold axis, and scores each cell against **both** corpora that constrain the predicate — the 24 node5 labels and the 33 gold pairs. It writes nothing and ships no behaviour change.
 
 **Files:**
 - Create: `scripts/sweep_same_story.py`
-- Test: none — a reporting script with no importable logic. Its output is the deliverable.
+- Test: none — a reporting script whose logic is the sweep itself. Its inputs (`node5_pairs`, `node5_texts`) are tested in Task 3.
 
 **Interfaces:**
-- Consumes: `_doc_freq`, `_norm_tokens`, `anchor_tokens` from `gin.cartographer.relatedness`; `node5_pairs`, `node5_texts` from `gin.curator.node5_labels` (Task 3); `default_text_index` from `gin.curator.text_index`. The three underscore-prefixed names are deliberate: this script reproduces `make_same_story`'s internals at parameter settings the public function does not expose together, which is the whole point of a sweep. Note it in the module docstring so a reader does not take it as casual private-API use.
+- Consumes: `anchor_tokens`, `CALENDAR_WORDS`, `_doc_freq`, `_rare_df_ceiling` from `gin.cartographer.relatedness`; `_norm_tokens`, `_normalize_token` from `gin.corpus.relevance`; `node5_pairs`, `node5_texts` from `gin.curator.node5_labels`; `gold`, `chunks` from `gin.cartographer.labeled_set`; `default_text_index` from `gin.curator.text_index`.
 - Produces: nothing importable.
+
+**Two things this must get right, both learned the hard way:**
+
+1. **Build the df corpus from `default_text_index()` ALONE.** Since node5 was registered (`c039edd`) that index already contains node5. The surfacing gate and curator launcher still add node5 texts on top, which double-counts node5's document frequencies, pushes tokens above the rare ceiling, and *masks* cross-event false positives — during the Task 5 investigation it reported the union mode at 0/5 when the true figure is 4/5. That defect is deliberately left in place elsewhere (user's decision), but this script must not inherit it.
+2. **Score the gold pairs, not just node5.** Optimising cross-event false positives on node5 alone is exactly what produced the withdrawn fix.
 
 - [ ] **Step 1: Write the script**
 
 ```python
-"""Sweep the same-story predicate's parameters against the 24 node5 labels.
+"""Sweep the same-story predicate's design space. WRITES NOTHING.
 
     venv/Scripts/python.exe scripts/sweep_same_story.py
 
-WRITES NOTHING. This exists so the deferred story_floor / df_ceiling decision
-has a reproducible artifact rather than a paragraph in a commit message.
+This exists because the stage-1 anchor fix was WITHDRAWN (2026-07-26): requiring
+the anchor to be entity-grade in both texts fixes the cross-event false positives
+on node5 but regresses two pre-registered gold contradicts pairs, because
+anchor_tokens treats sentence-initial capitalisation as carrying no entity signal
+and "Northwind Systems reported..." puts the real entity first in its sentence.
+See docs/superpowers/specs/2026-07-26-stage1-anchor-findings.md.
 
-Why the decision is deferred: n=24 is too small to set a GLOBAL predicate's
-thresholds, and the 22-pair cross-story adjudication (74b252f) already
-constrains them from the other direction. The two anchor fixes shipped instead
-are semantic bug fixes with standalone justification, and they reach 0/5
-cross-event false positives without moving a threshold at all -- which is why
-no cell below needs to be adopted.
+Rather than leave that design space in prose, this reproduces it. Every cell is
+scored against BOTH corpora that constrain the predicate -- optimising node5's
+cross-event false positives alone is precisely what produced the withdrawn fix.
+
+Anchor modes:
+  union      (anchor(a) | anchor(b)) & rare   -- the shipped behaviour
+  inter      (anchor(a) & anchor(b)) & rare   -- WITHDRAWN: costs the legal pairs
+  inter_cap  as inter, but a sentence-initial capitalised word counts as
+             entity-grade when the NEXT word is also capitalised, so
+             "Northwind Systems" qualifies and "Combined reservoir" does not
+  mixed      entity-grade on one side, merely capitalised on the other
 
 Columns:
-  within  same-story pairs the curator labeled within one event, still firing
-          (19 is the maximum; anything less means a real story pair was lost)
-  crossFP cross-event pairs the curator labeled `unrelated` that still fire
-          (0 is the target)
+  n5_in    node5 within-event pairs still firing     (19 = no real story lost)
+  n5_fp    node5 cross-event pairs still firing      (0 = target)
+  gold_c   gold contradicts pairs firing             (4 = the shipped baseline;
+           the other 3 are cross-story climate framing and correctly never fire)
+  gold_fp  gold NON-contradicts pairs firing         (0 everywhere measured so
+           far -- no headroom to gain here, only to break)
+
+The df corpus is default_text_index() ALONE. It already contains node5 since
+c039edd; adding node5 texts on top -- as verify_node5_surfacing.py and
+curator_serve.py still do -- doubles node5's document frequencies and MASKS
+cross-event false positives. That reported union at 0/5 when the truth is 4/5.
 """
 from __future__ import annotations
 
-import json
+import re
 import sys
 from pathlib import Path
 
@@ -920,51 +979,140 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from gin.cartographer.relatedness import _doc_freq, _norm_tokens, anchor_tokens
+from gin.cartographer.labeled_set import chunks as gold_chunks
+from gin.cartographer.labeled_set import gold
+from gin.cartographer.models import Relation
+from gin.cartographer.relatedness import (
+    CALENDAR_WORDS,
+    _doc_freq,
+    _rare_df_ceiling,
+    anchor_tokens,
+)
+from gin.corpus.relevance import _norm_tokens, _normalize_token
 from gin.curator.node5_labels import node5_pairs, node5_texts
 from gin.curator.text_index import default_text_index
 
-FLOORS = (2, 3, 4, 5)
+FLOORS = (2, 3, 4)
 CEILINGS = (4, 6, 7, 9, 12)
+
+_WORD = re.compile(r"[A-Za-z0-9]+")
+_SENTENCE_END = re.compile(r"[.!?]\s*$")
+
+
+def _scan(text: str):
+    """(normalized_token, entity_grade, capitalized, sentence_initial_name).
+
+    Mirrors anchor_tokens' own tests so the sweep measures the real predicate,
+    and adds the two extra signals the alternative modes need.
+    ``sentence_initial_name`` is the inter_cap signal: a capitalised word that
+    OPENS its sentence and is followed by another capitalised word, i.e. the
+    first token of a multi-word proper name ("Northwind Systems"), not
+    boilerplate ("Combined reservoir").
+    """
+    matches = list(_WORD.finditer(text))
+    for i, m in enumerate(matches):
+        word = m.group(0)
+        before = text[: m.start()]
+        sentence_initial = (
+            not before.strip()
+            or bool(_SENTENCE_END.search(before))
+            or before.endswith("\n")
+        )
+        capitalized = word[0].isupper()
+        entity_grade = (
+            (word.isdigit() and len(word) >= 2)
+            or (len(word) > 2 and word.isupper())
+            or (capitalized and not word.isupper() and not sentence_initial)
+        )
+        nxt = matches[i + 1].group(0) if i + 1 < len(matches) else ""
+        next_capitalized = bool(nxt) and nxt[0].isupper() and not nxt.isupper()
+        yield (
+            _normalize_token(word.lower()),
+            entity_grade,
+            capitalized,
+            sentence_initial and capitalized and next_capitalized,
+        )
+
+
+def _anchors_with_initial_names(text: str) -> set[str]:
+    return {
+        tok for tok, eg, _cap, initial_name in _scan(text)
+        if (eg or initial_name) and tok not in CALENDAR_WORDS
+    }
+
+
+def _capitalized(text: str) -> set[str]:
+    return {
+        tok for tok, _eg, cap, _initial in _scan(text)
+        if cap and tok not in CALENDAR_WORDS
+    }
+
+
+MODES = {
+    "union": lambda a, b, rare: bool((anchor_tokens(a) | anchor_tokens(b)) & rare),
+    "inter": lambda a, b, rare: bool((anchor_tokens(a) & anchor_tokens(b)) & rare),
+    "inter_cap": lambda a, b, rare: bool(
+        (_anchors_with_initial_names(a) & _anchors_with_initial_names(b)) & rare
+    ),
+    "mixed": lambda a, b, rare: bool(
+        ((anchor_tokens(a) & _capitalized(b)) | (_capitalized(a) & anchor_tokens(b)))
+        & rare
+    ),
+}
 
 
 def main() -> int:
-    pairs = node5_pairs()
-    index = node5_texts()
-    texts = list(index.values()) + list(default_text_index().values())
-    df = _doc_freq(texts)
+    index = default_text_index()
+    df = _doc_freq(list(index.values()))
+    n5_text = node5_texts()
+    n5 = node5_pairs()
 
-    print(f"{len(pairs)} node5 labels over {len(texts)} documents")
-    print("anchor modes: union = pre-fix (anchor_tokens(a) | anchor_tokens(b));")
-    print("              inter = shipped (anchor_tokens(a) & anchor_tokens(b))")
-    print()
-    print(f"{'mode':>6} {'floor':>6} {'ceil':>5} {'within':>7} {'crossFP':>8}")
+    gold_text = {c.chunk_id: c.text for c in gold_chunks()}
+    gold_rows = [
+        (src, dst, relation)
+        for src, dst, relation, _register in gold()
+        if src in gold_text and dst in gold_text
+    ]
 
-    for mode in ("union", "inter"):
+    print(f"df corpus: default_text_index() alone, {len(index)} docs "
+          f"(natural ceiling {_rare_df_ceiling(len(index))})")
+    print(f"node5: {len(n5)} labels; gold: {len(gold_rows)} resolvable pairs\n")
+    print(f"{'mode':>10} {'floor':>6} {'ceil':>5} "
+          f"{'n5_in':>6} {'n5_fp':>6} {'gold_c':>7} {'gold_fp':>8}")
+
+    def fires(mode, a, b, floor, ceiling):
+        rare = {
+            t for t in (_norm_tokens(a) & _norm_tokens(b))
+            if df.get(t, 0) <= ceiling
+        }
+        return len(rare) >= floor and MODES[mode](a, b, rare)
+
+    for mode in MODES:
         for floor in FLOORS:
             for ceiling in CEILINGS:
-                within = 0
-                cross = 0
-                for pair in pairs:
-                    a, b = index[pair.src], index[pair.dst]
-                    shared = _norm_tokens(a) & _norm_tokens(b)
-                    rare = {t for t in shared if df.get(t, 0) <= ceiling}
-                    if len(rare) < floor:
-                        fires = False
-                    elif mode == "union":
-                        fires = bool((anchor_tokens(a) | anchor_tokens(b)) & rare)
+                n5_in = sum(
+                    fires(mode, n5_text[p.src], n5_text[p.dst], floor, ceiling)
+                    for p in n5 if p.within_event
+                )
+                n5_fp = sum(
+                    fires(mode, n5_text[p.src], n5_text[p.dst], floor, ceiling)
+                    for p in n5 if not p.within_event
+                )
+                gold_c = gold_fp = 0
+                for src, dst, relation in gold_rows:
+                    if not fires(mode, gold_text[src], gold_text[dst], floor, ceiling):
+                        continue
+                    if relation is Relation.CONTRADICTS:
+                        gold_c += 1
                     else:
-                        fires = bool((anchor_tokens(a) & anchor_tokens(b)) & rare)
-                    if pair.within_event:
-                        within += int(fires)
-                    else:
-                        cross += int(fires)
-                print(f"{mode:>6} {floor:>6} {ceiling:>5} {within:>7} {cross:>8}")
-    print()
-    print("NOTE: anchor_tokens already excludes CALENDAR_WORDS as of this branch,")
-    print("so the 'union' rows here are NOT the pre-fix baseline in full -- they")
-    print("isolate the union/intersection axis only. The pre-fix 5/5 cross-event")
-    print("figure required both defects.")
+                        gold_fp += 1
+                print(f"{mode:>10} {floor:>6} {ceiling:>5} "
+                      f"{n5_in:>6} {n5_fp:>6} {gold_c:>7} {gold_fp:>8}")
+
+    print("\nThe shipped cell is  union / floor 2 / ceil 9.")
+    print("Read every candidate against BOTH gold_c and n5_fp: the withdrawn fix")
+    print("reached n5_fp 0 by dropping gold_c from 4 to 2, which is why scoring")
+    print("node5 alone is not enough to justify an anchor change.")
     return 0
 
 
@@ -976,25 +1124,38 @@ if __name__ == "__main__":
 
 Run: `venv/Scripts/python.exe scripts/sweep_same_story.py`
 
-Expected: a 40-row table. Sanity checks on specific cells — if these disagree, the script is wrong, not the predicate:
-- `inter / floor 2 / ceil 9` → `within 19`, `crossFP 0` (the shipped configuration)
-- `union / floor 2 / ceil 9` → `within 19`, `crossFP 4` (intersection off, calendar fix still on)
-- `union / floor 4 / ceil 9` → `within 19`, `crossFP 2`
+Expected: a 60-row table. Sanity cells — if these disagree, the script is wrong, not the predicate:
 
-- [ ] **Step 3: Confirm nothing was written**
+| mode | floor | ceil | n5_in | n5_fp | gold_c |
+|---|---|---|---|---|---|
+| `union` | 2 | 9 | 19 | 4 | 4 |
+| `inter` | 2 | 9 | 19 | 0 | **2** |
+| `inter_cap` | 2 | 9 | 19 | 0 | 4 |
+| `mixed` | 2 | 9 | 19 | 0 | 4 |
+
+`gold_fp` should be 0 in every cell of all four modes at ceiling 9. `union / 2 / 9` is the currently shipped behaviour, and the header line should report 274 docs with natural ceiling 9.
+
+- [ ] **Step 3: Confirm it wrote nothing**
 
 Run: `git status --short`
-Expected: only `scripts/sweep_same_story.py` as untracked. In particular `data/cartographer_thresholds.json` must not appear.
+Expected: only `scripts/sweep_same_story.py` as untracked. In particular `data/cartographer_thresholds.json` and `data/calibration/samples.json` must not appear.
 
 - [ ] **Step 4: Commit**
 
 ```bash
 git add scripts/sweep_same_story.py
-git commit -m "Add scripts/sweep_same_story.py: threshold sweep artifact, writes nothing
+git commit -m "sweep_same_story: reproduce the withdrawn stage-1 design space
 
-The deferred story_floor / df_ceiling decision gets a reproducible table
-instead of a paragraph in a commit message. No cell is adopted: the two anchor
-fixes reach 0/5 cross-event FPs without moving a threshold."
+Sweeps anchor mode as well as story_floor x df_ceiling, and scores every cell
+against BOTH node5 and the gold pairs -- optimising node5's cross-event false
+positives alone is exactly what produced the withdrawn intersection fix, which
+reached 0/5 there by dropping gold contradicts from 4 to 2.
+
+Builds the df corpus from default_text_index() alone. The surfacing gate and
+curator launcher still add node5 on top, which double-counts it now that
+CORPUS_NODES registers node5, masking the very false positives this measures.
+
+Writes nothing. Ships no behaviour change."
 ```
 
 ---
