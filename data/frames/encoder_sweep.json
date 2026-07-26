@@ -1,0 +1,1016 @@
+{
+  "verdict": "framing_not_recoverable_frozen",
+  "dataset": {
+    "n": 102,
+    "counts": {
+      "AGREE": 20,
+      "UNRELATED": 20,
+      "DIVERGENT": 24,
+      "RELATED_UNTYPED": 38
+    }
+  },
+  "results": [
+    {
+      "model": "sentence-transformers/all-MiniLM-L6-v2",
+      "aggregate_balanced_accuracy": 0.9391025641025641,
+      "by_origin": [
+        {
+          "origin": "node4_policy",
+          "n": 22,
+          "n_recovered": 22,
+          "recall": 1.0,
+          "decisive": true,
+          "missed": []
+        },
+        {
+          "origin": "framing",
+          "n": 2,
+          "n_recovered": 0,
+          "recall": 0.0,
+          "decisive": false,
+          "missed": [
+            "hf_af_staff:0 <-> hf_af_tenants:0",
+            "hf_kc_inspection:0 <-> hf_kc_tenants:0"
+          ]
+        }
+      ],
+      "bar": {
+        "issue_frame_gold_count": 4,
+        "issue_frame_scorable_count": 4,
+        "issue_frame_divergent_count": 0,
+        "issue_frame_recall": 0.0,
+        "class_c_total": 6,
+        "class_c_scorable_count": 6,
+        "class_c_pass": 6,
+        "class_c_discrimination": 1.0,
+        "unrelated_total": 4,
+        "unrelated_scorable_count": 4,
+        "unrelated_pass": 4,
+        "unrelated_discrimination": 1.0,
+        "direction_flip_count": 0,
+        "label_distribution": {
+          "UNRELATED": 14
+        },
+        "gold_labels": [
+          {
+            "src": "n1_doc_005:2",
+            "dst": "n2_doc_001:4",
+            "register": "twonode",
+            "label": "UNRELATED",
+            "label_reverse": "UNRELATED",
+            "flip": false,
+            "reasoning": null,
+            "skipped": null
+          },
+          {
+            "src": "n1_doc_005:1",
+            "dst": "n2_doc_001:1",
+            "register": "twonode",
+            "label": "UNRELATED",
+            "label_reverse": "UNRELATED",
+            "flip": false,
+            "reasoning": null,
+            "skipped": null
+          },
+          {
+            "src": "n1_doc_008:0",
+            "dst": "n2_doc_005:1",
+            "register": "twonode",
+            "label": "UNRELATED",
+            "label_reverse": "UNRELATED",
+            "flip": false,
+            "reasoning": null,
+            "skipped": null
+          },
+          {
+            "src": "n1_doc_009:0",
+            "dst": "n2_doc_008:2",
+            "register": "twonode",
+            "label": "UNRELATED",
+            "label_reverse": "UNRELATED",
+            "flip": false,
+            "reasoning": null,
+            "skipped": null
+          }
+        ],
+        "class_c_labels": [
+          {
+            "src": "n1_doc_008:0",
+            "dst": "n1_doc_008:2",
+            "register": "twonode",
+            "label": "UNRELATED",
+            "label_reverse": "UNRELATED",
+            "flip": false,
+            "reasoning": null,
+            "skipped": null,
+            "pass": true
+          },
+          {
+            "src": "labor_bureau_report:0",
+            "dst": "labor_independent_survey:0",
+            "register": "news",
+            "label": "UNRELATED",
+            "label_reverse": "UNRELATED",
+            "flip": false,
+            "reasoning": null,
+            "skipped": null,
+            "pass": true
+          },
+          {
+            "src": "wage_bureau_report:0",
+            "dst": "wage_independent_survey:0",
+            "register": "news",
+            "label": "UNRELATED",
+            "label_reverse": "UNRELATED",
+            "flip": false,
+            "reasoning": null,
+            "skipped": null,
+            "pass": true
+          },
+          {
+            "src": "inflation_bureau_report:0",
+            "dst": "inflation_independent_survey:0",
+            "register": "news",
+            "label": "UNRELATED",
+            "label_reverse": "UNRELATED",
+            "flip": false,
+            "reasoning": null,
+            "skipped": null,
+            "pass": true
+          },
+          {
+            "src": "export_trade_report:0",
+            "dst": "export_independent_review:0",
+            "register": "news",
+            "label": "UNRELATED",
+            "label_reverse": "UNRELATED",
+            "flip": false,
+            "reasoning": null,
+            "skipped": null,
+            "pass": true
+          },
+          {
+            "src": "n1_doc_002:0",
+            "dst": "n1_doc_006:2",
+            "register": "twonode",
+            "label": "UNRELATED",
+            "label_reverse": "UNRELATED",
+            "flip": false,
+            "reasoning": null,
+            "skipped": null,
+            "pass": true
+          }
+        ],
+        "unrelated_labels": [
+          {
+            "src": "n1_doc_008:0",
+            "dst": "n2_doc_008:2",
+            "register": "twonode",
+            "label": "UNRELATED",
+            "label_reverse": "UNRELATED",
+            "flip": false,
+            "reasoning": null,
+            "skipped": null,
+            "pass": true
+          },
+          {
+            "src": "n1_doc_009:0",
+            "dst": "n2_doc_005:1",
+            "register": "twonode",
+            "label": "UNRELATED",
+            "label_reverse": "UNRELATED",
+            "flip": false,
+            "reasoning": null,
+            "skipped": null,
+            "pass": true
+          },
+          {
+            "src": "n1_doc_008:0",
+            "dst": "n1_doc_009:0",
+            "register": "twonode",
+            "label": "UNRELATED",
+            "label_reverse": "UNRELATED",
+            "flip": false,
+            "reasoning": null,
+            "skipped": null,
+            "pass": true
+          },
+          {
+            "src": "transit_authority_update:0",
+            "dst": "school_district_report:0",
+            "register": "news",
+            "label": "UNRELATED",
+            "label_reverse": "UNRELATED",
+            "flip": false,
+            "reasoning": null,
+            "skipped": null,
+            "pass": true
+          }
+        ]
+      },
+      "error": null
+    },
+    {
+      "model": "sentence-transformers/all-mpnet-base-v2",
+      "aggregate_balanced_accuracy": 0.9391025641025641,
+      "by_origin": [
+        {
+          "origin": "node4_policy",
+          "n": 22,
+          "n_recovered": 22,
+          "recall": 1.0,
+          "decisive": true,
+          "missed": []
+        },
+        {
+          "origin": "framing",
+          "n": 2,
+          "n_recovered": 0,
+          "recall": 0.0,
+          "decisive": false,
+          "missed": [
+            "hf_af_staff:0 <-> hf_af_tenants:0",
+            "hf_kc_inspection:0 <-> hf_kc_tenants:0"
+          ]
+        }
+      ],
+      "bar": {
+        "issue_frame_gold_count": 4,
+        "issue_frame_scorable_count": 4,
+        "issue_frame_divergent_count": 0,
+        "issue_frame_recall": 0.0,
+        "class_c_total": 6,
+        "class_c_scorable_count": 6,
+        "class_c_pass": 6,
+        "class_c_discrimination": 1.0,
+        "unrelated_total": 4,
+        "unrelated_scorable_count": 4,
+        "unrelated_pass": 4,
+        "unrelated_discrimination": 1.0,
+        "direction_flip_count": 0,
+        "label_distribution": {
+          "UNRELATED": 14
+        },
+        "gold_labels": [
+          {
+            "src": "n1_doc_005:2",
+            "dst": "n2_doc_001:4",
+            "register": "twonode",
+            "label": "UNRELATED",
+            "label_reverse": "UNRELATED",
+            "flip": false,
+            "reasoning": null,
+            "skipped": null
+          },
+          {
+            "src": "n1_doc_005:1",
+            "dst": "n2_doc_001:1",
+            "register": "twonode",
+            "label": "UNRELATED",
+            "label_reverse": "UNRELATED",
+            "flip": false,
+            "reasoning": null,
+            "skipped": null
+          },
+          {
+            "src": "n1_doc_008:0",
+            "dst": "n2_doc_005:1",
+            "register": "twonode",
+            "label": "UNRELATED",
+            "label_reverse": "UNRELATED",
+            "flip": false,
+            "reasoning": null,
+            "skipped": null
+          },
+          {
+            "src": "n1_doc_009:0",
+            "dst": "n2_doc_008:2",
+            "register": "twonode",
+            "label": "UNRELATED",
+            "label_reverse": "UNRELATED",
+            "flip": false,
+            "reasoning": null,
+            "skipped": null
+          }
+        ],
+        "class_c_labels": [
+          {
+            "src": "n1_doc_008:0",
+            "dst": "n1_doc_008:2",
+            "register": "twonode",
+            "label": "UNRELATED",
+            "label_reverse": "UNRELATED",
+            "flip": false,
+            "reasoning": null,
+            "skipped": null,
+            "pass": true
+          },
+          {
+            "src": "labor_bureau_report:0",
+            "dst": "labor_independent_survey:0",
+            "register": "news",
+            "label": "UNRELATED",
+            "label_reverse": "UNRELATED",
+            "flip": false,
+            "reasoning": null,
+            "skipped": null,
+            "pass": true
+          },
+          {
+            "src": "wage_bureau_report:0",
+            "dst": "wage_independent_survey:0",
+            "register": "news",
+            "label": "UNRELATED",
+            "label_reverse": "UNRELATED",
+            "flip": false,
+            "reasoning": null,
+            "skipped": null,
+            "pass": true
+          },
+          {
+            "src": "inflation_bureau_report:0",
+            "dst": "inflation_independent_survey:0",
+            "register": "news",
+            "label": "UNRELATED",
+            "label_reverse": "UNRELATED",
+            "flip": false,
+            "reasoning": null,
+            "skipped": null,
+            "pass": true
+          },
+          {
+            "src": "export_trade_report:0",
+            "dst": "export_independent_review:0",
+            "register": "news",
+            "label": "UNRELATED",
+            "label_reverse": "UNRELATED",
+            "flip": false,
+            "reasoning": null,
+            "skipped": null,
+            "pass": true
+          },
+          {
+            "src": "n1_doc_002:0",
+            "dst": "n1_doc_006:2",
+            "register": "twonode",
+            "label": "UNRELATED",
+            "label_reverse": "UNRELATED",
+            "flip": false,
+            "reasoning": null,
+            "skipped": null,
+            "pass": true
+          }
+        ],
+        "unrelated_labels": [
+          {
+            "src": "n1_doc_008:0",
+            "dst": "n2_doc_008:2",
+            "register": "twonode",
+            "label": "UNRELATED",
+            "label_reverse": "UNRELATED",
+            "flip": false,
+            "reasoning": null,
+            "skipped": null,
+            "pass": true
+          },
+          {
+            "src": "n1_doc_009:0",
+            "dst": "n2_doc_005:1",
+            "register": "twonode",
+            "label": "UNRELATED",
+            "label_reverse": "UNRELATED",
+            "flip": false,
+            "reasoning": null,
+            "skipped": null,
+            "pass": true
+          },
+          {
+            "src": "n1_doc_008:0",
+            "dst": "n1_doc_009:0",
+            "register": "twonode",
+            "label": "UNRELATED",
+            "label_reverse": "UNRELATED",
+            "flip": false,
+            "reasoning": null,
+            "skipped": null,
+            "pass": true
+          },
+          {
+            "src": "transit_authority_update:0",
+            "dst": "school_district_report:0",
+            "register": "news",
+            "label": "UNRELATED",
+            "label_reverse": "UNRELATED",
+            "flip": false,
+            "reasoning": null,
+            "skipped": null,
+            "pass": true
+          }
+        ]
+      },
+      "error": null
+    },
+    {
+      "model": "sentence-transformers/nli-mpnet-base-v2",
+      "aggregate_balanced_accuracy": 0.9326923076923077,
+      "by_origin": [
+        {
+          "origin": "node4_policy",
+          "n": 22,
+          "n_recovered": 22,
+          "recall": 1.0,
+          "decisive": true,
+          "missed": []
+        },
+        {
+          "origin": "framing",
+          "n": 2,
+          "n_recovered": 0,
+          "recall": 0.0,
+          "decisive": false,
+          "missed": [
+            "hf_af_staff:0 <-> hf_af_tenants:0",
+            "hf_kc_inspection:0 <-> hf_kc_tenants:0"
+          ]
+        }
+      ],
+      "bar": {
+        "issue_frame_gold_count": 4,
+        "issue_frame_scorable_count": 4,
+        "issue_frame_divergent_count": 0,
+        "issue_frame_recall": 0.0,
+        "class_c_total": 6,
+        "class_c_scorable_count": 6,
+        "class_c_pass": 6,
+        "class_c_discrimination": 1.0,
+        "unrelated_total": 4,
+        "unrelated_scorable_count": 4,
+        "unrelated_pass": 4,
+        "unrelated_discrimination": 1.0,
+        "direction_flip_count": 0,
+        "label_distribution": {
+          "UNRELATED": 13,
+          "AGREE": 1
+        },
+        "gold_labels": [
+          {
+            "src": "n1_doc_005:2",
+            "dst": "n2_doc_001:4",
+            "register": "twonode",
+            "label": "UNRELATED",
+            "label_reverse": "UNRELATED",
+            "flip": false,
+            "reasoning": null,
+            "skipped": null
+          },
+          {
+            "src": "n1_doc_005:1",
+            "dst": "n2_doc_001:1",
+            "register": "twonode",
+            "label": "UNRELATED",
+            "label_reverse": "UNRELATED",
+            "flip": false,
+            "reasoning": null,
+            "skipped": null
+          },
+          {
+            "src": "n1_doc_008:0",
+            "dst": "n2_doc_005:1",
+            "register": "twonode",
+            "label": "UNRELATED",
+            "label_reverse": "UNRELATED",
+            "flip": false,
+            "reasoning": null,
+            "skipped": null
+          },
+          {
+            "src": "n1_doc_009:0",
+            "dst": "n2_doc_008:2",
+            "register": "twonode",
+            "label": "UNRELATED",
+            "label_reverse": "UNRELATED",
+            "flip": false,
+            "reasoning": null,
+            "skipped": null
+          }
+        ],
+        "class_c_labels": [
+          {
+            "src": "n1_doc_008:0",
+            "dst": "n1_doc_008:2",
+            "register": "twonode",
+            "label": "UNRELATED",
+            "label_reverse": "UNRELATED",
+            "flip": false,
+            "reasoning": null,
+            "skipped": null,
+            "pass": true
+          },
+          {
+            "src": "labor_bureau_report:0",
+            "dst": "labor_independent_survey:0",
+            "register": "news",
+            "label": "UNRELATED",
+            "label_reverse": "UNRELATED",
+            "flip": false,
+            "reasoning": null,
+            "skipped": null,
+            "pass": true
+          },
+          {
+            "src": "wage_bureau_report:0",
+            "dst": "wage_independent_survey:0",
+            "register": "news",
+            "label": "UNRELATED",
+            "label_reverse": "UNRELATED",
+            "flip": false,
+            "reasoning": null,
+            "skipped": null,
+            "pass": true
+          },
+          {
+            "src": "inflation_bureau_report:0",
+            "dst": "inflation_independent_survey:0",
+            "register": "news",
+            "label": "UNRELATED",
+            "label_reverse": "UNRELATED",
+            "flip": false,
+            "reasoning": null,
+            "skipped": null,
+            "pass": true
+          },
+          {
+            "src": "export_trade_report:0",
+            "dst": "export_independent_review:0",
+            "register": "news",
+            "label": "UNRELATED",
+            "label_reverse": "UNRELATED",
+            "flip": false,
+            "reasoning": null,
+            "skipped": null,
+            "pass": true
+          },
+          {
+            "src": "n1_doc_002:0",
+            "dst": "n1_doc_006:2",
+            "register": "twonode",
+            "label": "UNRELATED",
+            "label_reverse": "UNRELATED",
+            "flip": false,
+            "reasoning": null,
+            "skipped": null,
+            "pass": true
+          }
+        ],
+        "unrelated_labels": [
+          {
+            "src": "n1_doc_008:0",
+            "dst": "n2_doc_008:2",
+            "register": "twonode",
+            "label": "AGREE",
+            "label_reverse": "AGREE",
+            "flip": false,
+            "reasoning": null,
+            "skipped": null,
+            "pass": true
+          },
+          {
+            "src": "n1_doc_009:0",
+            "dst": "n2_doc_005:1",
+            "register": "twonode",
+            "label": "UNRELATED",
+            "label_reverse": "UNRELATED",
+            "flip": false,
+            "reasoning": null,
+            "skipped": null,
+            "pass": true
+          },
+          {
+            "src": "n1_doc_008:0",
+            "dst": "n1_doc_009:0",
+            "register": "twonode",
+            "label": "UNRELATED",
+            "label_reverse": "UNRELATED",
+            "flip": false,
+            "reasoning": null,
+            "skipped": null,
+            "pass": true
+          },
+          {
+            "src": "transit_authority_update:0",
+            "dst": "school_district_report:0",
+            "register": "news",
+            "label": "UNRELATED",
+            "label_reverse": "UNRELATED",
+            "flip": false,
+            "reasoning": null,
+            "skipped": null,
+            "pass": true
+          }
+        ]
+      },
+      "error": null
+    },
+    {
+      "model": "intfloat/e5-large-v2",
+      "aggregate_balanced_accuracy": 0.9262820512820513,
+      "by_origin": [
+        {
+          "origin": "node4_policy",
+          "n": 22,
+          "n_recovered": 22,
+          "recall": 1.0,
+          "decisive": true,
+          "missed": []
+        },
+        {
+          "origin": "framing",
+          "n": 2,
+          "n_recovered": 0,
+          "recall": 0.0,
+          "decisive": false,
+          "missed": [
+            "hf_af_staff:0 <-> hf_af_tenants:0",
+            "hf_kc_inspection:0 <-> hf_kc_tenants:0"
+          ]
+        }
+      ],
+      "bar": {
+        "issue_frame_gold_count": 4,
+        "issue_frame_scorable_count": 4,
+        "issue_frame_divergent_count": 0,
+        "issue_frame_recall": 0.0,
+        "class_c_total": 6,
+        "class_c_scorable_count": 6,
+        "class_c_pass": 6,
+        "class_c_discrimination": 1.0,
+        "unrelated_total": 4,
+        "unrelated_scorable_count": 4,
+        "unrelated_pass": 4,
+        "unrelated_discrimination": 1.0,
+        "direction_flip_count": 0,
+        "label_distribution": {
+          "UNRELATED": 13,
+          "AGREE": 1
+        },
+        "gold_labels": [
+          {
+            "src": "n1_doc_005:2",
+            "dst": "n2_doc_001:4",
+            "register": "twonode",
+            "label": "UNRELATED",
+            "label_reverse": "UNRELATED",
+            "flip": false,
+            "reasoning": null,
+            "skipped": null
+          },
+          {
+            "src": "n1_doc_005:1",
+            "dst": "n2_doc_001:1",
+            "register": "twonode",
+            "label": "UNRELATED",
+            "label_reverse": "UNRELATED",
+            "flip": false,
+            "reasoning": null,
+            "skipped": null
+          },
+          {
+            "src": "n1_doc_008:0",
+            "dst": "n2_doc_005:1",
+            "register": "twonode",
+            "label": "UNRELATED",
+            "label_reverse": "UNRELATED",
+            "flip": false,
+            "reasoning": null,
+            "skipped": null
+          },
+          {
+            "src": "n1_doc_009:0",
+            "dst": "n2_doc_008:2",
+            "register": "twonode",
+            "label": "AGREE",
+            "label_reverse": "AGREE",
+            "flip": false,
+            "reasoning": null,
+            "skipped": null
+          }
+        ],
+        "class_c_labels": [
+          {
+            "src": "n1_doc_008:0",
+            "dst": "n1_doc_008:2",
+            "register": "twonode",
+            "label": "UNRELATED",
+            "label_reverse": "UNRELATED",
+            "flip": false,
+            "reasoning": null,
+            "skipped": null,
+            "pass": true
+          },
+          {
+            "src": "labor_bureau_report:0",
+            "dst": "labor_independent_survey:0",
+            "register": "news",
+            "label": "UNRELATED",
+            "label_reverse": "UNRELATED",
+            "flip": false,
+            "reasoning": null,
+            "skipped": null,
+            "pass": true
+          },
+          {
+            "src": "wage_bureau_report:0",
+            "dst": "wage_independent_survey:0",
+            "register": "news",
+            "label": "UNRELATED",
+            "label_reverse": "UNRELATED",
+            "flip": false,
+            "reasoning": null,
+            "skipped": null,
+            "pass": true
+          },
+          {
+            "src": "inflation_bureau_report:0",
+            "dst": "inflation_independent_survey:0",
+            "register": "news",
+            "label": "UNRELATED",
+            "label_reverse": "UNRELATED",
+            "flip": false,
+            "reasoning": null,
+            "skipped": null,
+            "pass": true
+          },
+          {
+            "src": "export_trade_report:0",
+            "dst": "export_independent_review:0",
+            "register": "news",
+            "label": "UNRELATED",
+            "label_reverse": "UNRELATED",
+            "flip": false,
+            "reasoning": null,
+            "skipped": null,
+            "pass": true
+          },
+          {
+            "src": "n1_doc_002:0",
+            "dst": "n1_doc_006:2",
+            "register": "twonode",
+            "label": "UNRELATED",
+            "label_reverse": "UNRELATED",
+            "flip": false,
+            "reasoning": null,
+            "skipped": null,
+            "pass": true
+          }
+        ],
+        "unrelated_labels": [
+          {
+            "src": "n1_doc_008:0",
+            "dst": "n2_doc_008:2",
+            "register": "twonode",
+            "label": "UNRELATED",
+            "label_reverse": "UNRELATED",
+            "flip": false,
+            "reasoning": null,
+            "skipped": null,
+            "pass": true
+          },
+          {
+            "src": "n1_doc_009:0",
+            "dst": "n2_doc_005:1",
+            "register": "twonode",
+            "label": "UNRELATED",
+            "label_reverse": "UNRELATED",
+            "flip": false,
+            "reasoning": null,
+            "skipped": null,
+            "pass": true
+          },
+          {
+            "src": "n1_doc_008:0",
+            "dst": "n1_doc_009:0",
+            "register": "twonode",
+            "label": "UNRELATED",
+            "label_reverse": "UNRELATED",
+            "flip": false,
+            "reasoning": null,
+            "skipped": null,
+            "pass": true
+          },
+          {
+            "src": "transit_authority_update:0",
+            "dst": "school_district_report:0",
+            "register": "news",
+            "label": "UNRELATED",
+            "label_reverse": "UNRELATED",
+            "flip": false,
+            "reasoning": null,
+            "skipped": null,
+            "pass": true
+          }
+        ]
+      },
+      "error": null
+    },
+    {
+      "model": "BAAI/bge-large-en-v1.5",
+      "aggregate_balanced_accuracy": 0.9262820512820513,
+      "by_origin": [
+        {
+          "origin": "node4_policy",
+          "n": 22,
+          "n_recovered": 22,
+          "recall": 1.0,
+          "decisive": true,
+          "missed": []
+        },
+        {
+          "origin": "framing",
+          "n": 2,
+          "n_recovered": 0,
+          "recall": 0.0,
+          "decisive": false,
+          "missed": [
+            "hf_af_staff:0 <-> hf_af_tenants:0",
+            "hf_kc_inspection:0 <-> hf_kc_tenants:0"
+          ]
+        }
+      ],
+      "bar": {
+        "issue_frame_gold_count": 4,
+        "issue_frame_scorable_count": 4,
+        "issue_frame_divergent_count": 0,
+        "issue_frame_recall": 0.0,
+        "class_c_total": 6,
+        "class_c_scorable_count": 6,
+        "class_c_pass": 6,
+        "class_c_discrimination": 1.0,
+        "unrelated_total": 4,
+        "unrelated_scorable_count": 4,
+        "unrelated_pass": 4,
+        "unrelated_discrimination": 1.0,
+        "direction_flip_count": 0,
+        "label_distribution": {
+          "UNRELATED": 14
+        },
+        "gold_labels": [
+          {
+            "src": "n1_doc_005:2",
+            "dst": "n2_doc_001:4",
+            "register": "twonode",
+            "label": "UNRELATED",
+            "label_reverse": "UNRELATED",
+            "flip": false,
+            "reasoning": null,
+            "skipped": null
+          },
+          {
+            "src": "n1_doc_005:1",
+            "dst": "n2_doc_001:1",
+            "register": "twonode",
+            "label": "UNRELATED",
+            "label_reverse": "UNRELATED",
+            "flip": false,
+            "reasoning": null,
+            "skipped": null
+          },
+          {
+            "src": "n1_doc_008:0",
+            "dst": "n2_doc_005:1",
+            "register": "twonode",
+            "label": "UNRELATED",
+            "label_reverse": "UNRELATED",
+            "flip": false,
+            "reasoning": null,
+            "skipped": null
+          },
+          {
+            "src": "n1_doc_009:0",
+            "dst": "n2_doc_008:2",
+            "register": "twonode",
+            "label": "UNRELATED",
+            "label_reverse": "UNRELATED",
+            "flip": false,
+            "reasoning": null,
+            "skipped": null
+          }
+        ],
+        "class_c_labels": [
+          {
+            "src": "n1_doc_008:0",
+            "dst": "n1_doc_008:2",
+            "register": "twonode",
+            "label": "UNRELATED",
+            "label_reverse": "UNRELATED",
+            "flip": false,
+            "reasoning": null,
+            "skipped": null,
+            "pass": true
+          },
+          {
+            "src": "labor_bureau_report:0",
+            "dst": "labor_independent_survey:0",
+            "register": "news",
+            "label": "UNRELATED",
+            "label_reverse": "UNRELATED",
+            "flip": false,
+            "reasoning": null,
+            "skipped": null,
+            "pass": true
+          },
+          {
+            "src": "wage_bureau_report:0",
+            "dst": "wage_independent_survey:0",
+            "register": "news",
+            "label": "UNRELATED",
+            "label_reverse": "UNRELATED",
+            "flip": false,
+            "reasoning": null,
+            "skipped": null,
+            "pass": true
+          },
+          {
+            "src": "inflation_bureau_report:0",
+            "dst": "inflation_independent_survey:0",
+            "register": "news",
+            "label": "UNRELATED",
+            "label_reverse": "UNRELATED",
+            "flip": false,
+            "reasoning": null,
+            "skipped": null,
+            "pass": true
+          },
+          {
+            "src": "export_trade_report:0",
+            "dst": "export_independent_review:0",
+            "register": "news",
+            "label": "UNRELATED",
+            "label_reverse": "UNRELATED",
+            "flip": false,
+            "reasoning": null,
+            "skipped": null,
+            "pass": true
+          },
+          {
+            "src": "n1_doc_002:0",
+            "dst": "n1_doc_006:2",
+            "register": "twonode",
+            "label": "UNRELATED",
+            "label_reverse": "UNRELATED",
+            "flip": false,
+            "reasoning": null,
+            "skipped": null,
+            "pass": true
+          }
+        ],
+        "unrelated_labels": [
+          {
+            "src": "n1_doc_008:0",
+            "dst": "n2_doc_008:2",
+            "register": "twonode",
+            "label": "UNRELATED",
+            "label_reverse": "UNRELATED",
+            "flip": false,
+            "reasoning": null,
+            "skipped": null,
+            "pass": true
+          },
+          {
+            "src": "n1_doc_009:0",
+            "dst": "n2_doc_005:1",
+            "register": "twonode",
+            "label": "UNRELATED",
+            "label_reverse": "UNRELATED",
+            "flip": false,
+            "reasoning": null,
+            "skipped": null,
+            "pass": true
+          },
+          {
+            "src": "n1_doc_008:0",
+            "dst": "n1_doc_009:0",
+            "register": "twonode",
+            "label": "UNRELATED",
+            "label_reverse": "UNRELATED",
+            "flip": false,
+            "reasoning": null,
+            "skipped": null,
+            "pass": true
+          },
+          {
+            "src": "transit_authority_update:0",
+            "dst": "school_district_report:0",
+            "register": "news",
+            "label": "UNRELATED",
+            "label_reverse": "UNRELATED",
+            "flip": false,
+            "reasoning": null,
+            "skipped": null,
+            "pass": true
+          }
+        ]
+      },
+      "error": null
+    }
+  ]
+}
