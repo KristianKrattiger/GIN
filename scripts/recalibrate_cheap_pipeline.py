@@ -59,6 +59,7 @@ from gin.cartographer.combined import (
     DEFAULT_NLI_MODEL,
     Thresholds,
     classify_relation,
+    load_thresholds,
 )
 from gin.cartographer.models import Relation
 
@@ -96,6 +97,10 @@ def main() -> None:
     ap.add_argument("--out", type=Path, default=THRESHOLDS_PATH)
     ap.add_argument("--write", action="store_true",
                     help="write the thresholds file (default: report only)")
+    ap.add_argument("--score-only", action="store_true",
+                    help="score the SHIPPED thresholds on the held-out pairs and exit; "
+                         "skips calibrate() and leave_one_out(), which are O(n^4)/O(n^5) "
+                         "and impractical past ~150 samples")
     args = ap.parse_args()
 
     samples, manifest = load_samples(
@@ -103,6 +108,23 @@ def main() -> None:
         expect_embed_model=DEFAULT_EMBED_MODEL,
         expect_nli_model=DEFAULT_NLI_MODEL,
     )
+
+    if args.score_only:
+        # The pre-registered comparison is "what does the SHIPPED pipeline score
+        # on the frozen held-out pairs", so this reads thresholds from
+        # data/cartographer_thresholds.json rather than recalibrating. Nothing
+        # is written and no grid search runs.
+        shipped = load_thresholds()
+        eval_samples = load_eval_samples(args.samples)
+        held_out = _score_held_out(eval_samples, shipped)
+        print(f"samples: {len(samples)} {manifest.class_counts}")
+        print(f"same_story corpus: {manifest.same_story_corpus_size} docs, "
+              f"df_ceiling {manifest.df_ceiling}")
+        print(f"shipped thresholds: {shipped}")
+        print(f"held-out ({len(eval_samples)} eval pairs, never calibrated on) "
+              f"accuracy   {held_out:.3f}")
+        return
+
     thresholds = calibrate(samples)
     loo = leave_one_out(samples)
 
