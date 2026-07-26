@@ -60,6 +60,26 @@ def shared_rare_token_count(
 _ANCHOR_WORD = re.compile(r"[A-Za-z0-9]+")
 _SENTENCE_END = re.compile(r"[.!?]\s*$")
 
+# Calendar words are never entity-grade. anchor_tokens' test for a proper noun
+# is mid-sentence capitalization, which every weekday and month in English
+# prose satisfies -- so a date was anchoring stories to each other. Measured on
+# the 24 node5 labels (2026-07-26): "Monday" was the sole anchor holding a
+# hospital outbreak to a bridge closure.
+#
+# Three of these are also ordinary English words: "may" (modal), "march"
+# (verb), "august" (adjective). Excluding them costs the anchor signal in a
+# story genuinely named for one -- a March on city hall. Accepted, on two
+# grounds: this removes only ANCHOR-grade status, not the token's
+# rare-shared-token contribution, so such a pair can still reach story_floor on
+# its other entities; and the lowercase homographs are common enough that their
+# document frequency puts them above the rare ceiling in any real corpus, so
+# they were rarely anchoring anything.
+CALENDAR_WORDS = frozenset(
+    "monday tuesday wednesday thursday friday saturday sunday "
+    "january february march april may june july august september october "
+    "november december".split()
+)
+
 
 def anchor_tokens(text: str) -> set[str]:
     """Normalized tokens with at least one entity-grade occurrence in ``text``.
@@ -86,7 +106,9 @@ def anchor_tokens(text: str) -> set[str]:
             or (word[0].isupper() and not word.isupper() and not sentence_initial)
         )
         if entity_grade:
-            out.add(_normalize_token(word.lower()))
+            token = _normalize_token(word.lower())
+            if token not in CALENDAR_WORDS:
+                out.add(token)
     return out
 
 
