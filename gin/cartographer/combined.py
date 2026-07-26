@@ -266,6 +266,11 @@ class CombinedRelationProposer:
             relation, channel = classify_relation(cos, 0.0, self.thresholds, same_story=False)
             return relation, {"cos": cos, "channel": channel, "same_story": False}
         p_contra = self._p_contra(a_text, b_text)
+        # Computed whenever `story` is true, even though classify_relation may
+        # have the NLI channel decide the pair first (p_contra >= contra_thresh
+        # takes priority over the stance arm below). In that case ev["stance"]
+        # still gets set on a channel: "nli" result -- the stance evidence was
+        # examined but discarded, not consulted for the decision.
         stance = (
             self.stance_provider(a_text, b_text)
             if self.stance_provider is not None and story

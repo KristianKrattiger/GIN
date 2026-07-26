@@ -374,12 +374,18 @@ def judge(pair: tuple[QuantityMention, QuantityMention]) -> str:
     return "conflict"
 
 
-def evidence_for(
-    a_text: str, b_text: str, *, floor: float = ALIGN_FLOOR
+def _evidence_from_mentions(
+    a_mentions: tuple[QuantityMention, ...],
+    b_mentions: tuple[QuantityMention, ...],
+    floor: float,
 ) -> StanceEvidence:
-    """All aligned-fact evidence for a pair, bucketed by kind."""
+    """Bucket already-extracted mentions by evidence kind.
+
+    Shared by evidence_for and stance_for so extraction happens exactly once
+    per call regardless of which public entry point is used.
+    """
     buckets: dict[str, list] = {kind: [] for kind in STANCE_PRECEDENCE}
-    for pair in align(extract_mentions(a_text), extract_mentions(b_text), floor=floor):
+    for pair in align(a_mentions, b_mentions, floor=floor):
         buckets[judge(pair)].append(pair)
     return StanceEvidence(
         conflicts=tuple(buckets["conflict"]),
@@ -387,6 +393,13 @@ def evidence_for(
         partials=tuple(buckets["partial"]),
         agreements=tuple(buckets["agreement"]),
     )
+
+
+def evidence_for(
+    a_text: str, b_text: str, *, floor: float = ALIGN_FLOOR
+) -> StanceEvidence:
+    """All aligned-fact evidence for a pair, bucketed by kind."""
+    return _evidence_from_mentions(extract_mentions(a_text), extract_mentions(b_text), floor)
 
 
 def stance_for(
@@ -402,12 +415,11 @@ def stance_for(
 
     This is what classify_relation consumes. Precedence is STANCE_PRECEDENCE.
     """
-    # Extracted here as well as inside evidence_for. The cost is a second pass
-    # over two short strings in a pure function, and it buys the bucketing logic
-    # living in exactly one place.
-    if not extract_mentions(a_text) or not extract_mentions(b_text):
+    a_mentions = extract_mentions(a_text)
+    b_mentions = extract_mentions(b_text)
+    if not a_mentions or not b_mentions:
         return None
-    ev = evidence_for(a_text, b_text, floor=floor)
+    ev = _evidence_from_mentions(a_mentions, b_mentions, floor)
     for kind, bucket in (
         ("conflict", ev.conflicts),
         ("revision", ev.revisions),

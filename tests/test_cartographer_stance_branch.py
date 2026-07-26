@@ -115,12 +115,17 @@ def test_unaligned_abstains_while_none_defers_to_the_pre_stance_branch():
 
 
 def test_gold_same_story_contradicts_survive_the_stance_channel():
-    """The regression this rule exists to prevent.
+    """Guards the REJECTED alternative: abstaining whenever nothing aligned.
 
-    Four gold contradicts pairs pass the story gate. Three state no quantities
-    at all -- housing habitability disputes and a securities PR versus a
-    complaint -- and contradict qualitatively. An unconditional abstain on "no
-    aligned quantity" would discard them.
+    Four gold contradicts pairs pass the story gate, and three state no
+    quantities at all -- housing habitability disputes and a securities PR
+    versus a complaint -- so they contradict qualitatively. A blanket "abstain
+    when nothing aligned" rule would discard them, which is why `None` defers to
+    the pre-stance branch instead.
+
+    Note this test does NOT exercise the None/UNALIGNED split: none of the four
+    pairs ever yields UNALIGNED. That is covered by
+    test_examined_but_unaligned_same_story_pairs_abstain_end_to_end.
     """
     from gin.cartographer.labeled_set import chunks as gold_chunks
     from gin.cartographer.labeled_set import gold
@@ -147,3 +152,51 @@ def test_gold_same_story_contradicts_survive_the_stance_channel():
         typed, ev = proposer.type_relation(index[src], index[dst])
         assert typed is Relation.CONTRADICTS, f"{src} <-> {dst} ev={ev}"
     assert checked == 4, f"expected 4 gold same-story contradicts, found {checked}"
+
+
+def test_examined_but_unaligned_same_story_pairs_abstain_end_to_end():
+    """The regression the None/UNALIGNED split exists to prevent.
+
+    Before the split, a same-story pair whose quantities did not align returned
+    None and fell through to the pre-stance branch, emitting a CONTRADICTS edge
+    on a pair the channel had examined and found nothing in. Three real corpus
+    pairs are in exactly that position -- two cross-event, and n5_doc_036 vs
+    n5_doc_037, a `corroborates` pair whose figures describe different measures
+    (total capacity including standing room vs fixed seats in the bowl).
+
+    Asserting stance is UNALIGNED rather than merely "not conflict" is what makes
+    this non-vacuous: under the collapsed behaviour these pairs return None and
+    the assertion on the channel fails.
+    """
+    from gin.cartographer.quantity import UNALIGNED
+    from gin.cartographer.relatedness import make_same_story
+    from gin.curator.node5_labels import node5_pairs, node5_texts
+    from gin.curator.text_index import default_text_index
+
+    texts = node5_texts()
+    same_story = make_same_story(list(default_text_index().values()))
+    proposer = CombinedRelationProposer(
+        embed_cos=lambda a, b: 0.95,
+        nli_scores=lambda a, b: (0.05, 0.05, 0.90),
+        same_story=same_story,
+    )
+
+    unaligned = []
+    for pair in node5_pairs():
+        if not same_story(texts[pair.src], texts[pair.dst]):
+            continue
+        typed, ev = proposer.type_relation(texts[pair.src], texts[pair.dst])
+        if ev.get("stance") != UNALIGNED:
+            continue
+        unaligned.append((pair.src, pair.dst))
+        assert typed is Relation.RELATED_UNTYPED, f"{pair.src} <-> {pair.dst} ev={ev}"
+        assert ev["channel"] == "abstain", f"{pair.src} <-> {pair.dst} ev={ev}"
+        assert pair.relation is not Relation.CONTRADICTS, (
+            f"{pair.src} <-> {pair.dst} is gold CONTRADICTS but the channel found "
+            "no aligned fact -- that would be a real miss, not a saved false positive"
+        )
+
+    # Pinned so the test fails loudly if the corpus, the alignment floor, or the
+    # extraction rules change which pairs land here, rather than passing on an
+    # empty set.
+    assert len(unaligned) == 3, f"expected 3 UNALIGNED same-story pairs, got {unaligned}"
