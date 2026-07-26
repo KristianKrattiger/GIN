@@ -70,7 +70,15 @@ def test_real_label_log_yields_expected_counts():
     assert report.counts == {
         "DIVERGENT": 22, "AGREE": 20, "RELATED_UNTYPED": 38, "UNRELATED": 20,
     }
-    assert report.drops == {"schema": 15, "bar_chunk": 32, "bar_text_alias": 31}
+    # 2026-07-26: 24 node5 labels added, and the training set is unchanged at 100.
+    # schema 15 -> 32 (+17: 12 contradicts/story + 5 supersedes, none of which is
+    # a frame class) and a new text_unresolved 7 (the 5 unrelated + 2 corroborates
+    # have frame classes but CORPUS_NODES stops at node4, so default_text_index()
+    # cannot resolve an n5_doc_* id). The story labels being excluded here is
+    # correct — their consumer is the same-story gate, not this framing encoder.
+    assert report.drops == {
+        "schema": 32, "bar_chunk": 32, "bar_text_alias": 31, "text_unresolved": 7,
+    }
 
 
 def test_bar_chunk_pair_is_dropped_and_counted(tmp_path):

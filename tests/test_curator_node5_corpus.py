@@ -22,8 +22,12 @@ def test_corpus_loads_through_the_standard_loader():
 
 
 def test_intent_matrix_totals():
+    # conflict 21 -> 20 and update 4 -> 5 on 2026-07-26: the lakeshore
+    # CentralWire/MetroDaily pair was authored `conflict` but CentralWire's own
+    # text revises the 8.5 figure to 12, and its sibling pair carrying the
+    # identical numeric relationship was already `update`.
     assert pair_inventory(_manifest()) == {
-        "conflict": 21, "corroboration": 11, "update": 4, "compatible_partial": 6,
+        "conflict": 20, "corroboration": 11, "update": 5, "compatible_partial": 6,
     }
 
 

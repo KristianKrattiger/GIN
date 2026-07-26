@@ -19,6 +19,7 @@ def format_report(rep: ReadinessReport) -> str:
         f"issue_frame {rep.new_issue_frame}/{t.issue_frame}\n"
         f"agree {rep.new_agree}/{t.agree}\n"
         f"unrelated {rep.new_unrelated}/{t.unrelated}\n"
+        f"story {rep.new_story}/{t.story}\n"
         f"READY: {rep.ready}"
     )
 
@@ -29,8 +30,14 @@ def main() -> None:
     ap.add_argument("--issue-frame-target", type=int, default=20)
     ap.add_argument("--agree-target", type=int, default=20)
     ap.add_argument("--unrelated-target", type=int, default=20)
+    ap.add_argument("--story-target", type=int, default=20)
     args = ap.parse_args()
-    target = ReadinessTarget(args.issue_frame_target, args.agree_target, args.unrelated_target)
+    target = ReadinessTarget(
+        args.issue_frame_target,
+        args.agree_target,
+        args.unrelated_target,
+        args.story_target,
+    )
     print(format_report(readiness(Store(args.log), target)))
 
 

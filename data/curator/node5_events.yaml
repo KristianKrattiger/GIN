@@ -80,6 +80,16 @@
       chunks:
         - "NORTHGATE — Health officials confirmed a gastrointestinal illness outbreak at Northgate General Hospital this week. A hospital spokesperson said the hospital-wide count had reached 58 cases by Thursday. Staff have expanded cleaning procedures throughout the facility in response. Investigators are still working to trace the source of the illness."
   intent:
+    # OPEN (2026-07-26): the curator labelled both CentralWire pairs `supersedes`,
+    # not contradicts. CentralWire publishes first and scopes its 34 to "since
+    # Monday" while MetroDaily/CivicLedger scope 58 to "as of Thursday", so a
+    # rising count read as an update is defensible. Left as `conflict` because
+    # this manifest's `update` convention requires pair[0] to be the later
+    # reviser (see test_update_pairs_are_ordered_in_time) and CentralWire is
+    # earlier — the prose under-determines the distinction. Resolving it is an
+    # authoring decision: either pin both reports to the same as-of time so the
+    # 34-vs-58 divergence is a real disagreement, or mark the revision
+    # explicitly and reorder the pair with MetroDaily as reviser.
     - pair: [CentralWire, MetroDaily]
       kind: conflict
       varied_fact: case_count
@@ -93,7 +103,7 @@
       kind: compatible_partial
       varied_fact: ward_vs_hospital
     - pair: [CentralWire, CivicLedger]
-      kind: conflict
+      kind: conflict  # same OPEN question as the CentralWire/MetroDaily pair above
       varied_fact: case_count
     - pair: [MetroDaily, RegionalPost]
       kind: corroboration
@@ -291,8 +301,14 @@
       chunks:
         - "LAKESHORE — A toxic algae bloom spread across the northern basin of Lakeshore Reservoir this week, prompting a water advisory. The bloom's extent, initially reported at 8.5 square kilometers, was revised to 12 square kilometers Thursday following an aerial survey. Reservoir officials said the water advisory remains in place indefinitely. Additional testing sites have been added around the northern basin."
   intent:
+    # Authored as conflict, corrected to update after curator labelling
+    # (2026-07-26): CentralWire's own text says the 8.5 figure "was revised to
+    # 12 ... following an aerial survey", so it supersedes MetroDaily's 8.5
+    # rather than disagreeing with it. The sibling pair below carries the
+    # identical numeric relationship and was already authored `update` — the
+    # same sibling-inconsistency defect as the six contaminated negatives.
     - pair: [CentralWire, MetroDaily]
-      kind: conflict
+      kind: update
       varied_fact: affected_area_km2
     - pair: [CentralWire, RegionalPost]
       kind: update

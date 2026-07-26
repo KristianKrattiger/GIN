@@ -85,8 +85,16 @@ def test_real_store_yields_expected_counts():
     from gin.frames.dataset import DEFAULT_LABELS
 
     report = export_calibration_rows(Store(Path(DEFAULT_LABELS)), _signals)
+    # 2026-07-26: the 24 node5 labels reach calibration NOT AT ALL. 5 drop as
+    # not_a_classifier_output (supersedes is not a classifier output, and that
+    # check runs before text resolution); the other 19 drop as text_unresolved
+    # because CORPUS_NODES stops at node4, so default_text_index() cannot
+    # resolve an n5_doc_* id. Registering node5 there is deliberately NOT done
+    # here: it would also shift make_same_story's df_ceiling (236 -> 274 docs,
+    # ceiling 7 -> 9) and grow sub-project B's training set, so it needs its own
+    # measured change rather than riding along on a labelling session.
     assert report.drops == {
-        "eval_pair": 40, "text_unresolved": 5, "not_a_classifier_output": 2,
+        "eval_pair": 40, "text_unresolved": 24, "not_a_classifier_output": 7,
     }
     assert len(report.rows) == 131
     assert len(report.eval_rows) == 40
