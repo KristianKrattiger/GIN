@@ -15,7 +15,7 @@
 - **Model-free by default:** only `scripts/verify_node5_surfacing.py` may load models. Every test passes without a model download.
 - **The manifest never carries relation labels.** It records divergence *intent* (`kind`, `varied_fact`) as build/verify metadata only. Encoding the intended answer would defeat the curation this corpus exists to enable. Node4 set this precedent with `stance`.
 - **Corpus schema** is identical to node1–4: top level `{"node_id", "documents"}`; each document `{"doc_id", "global_id", "source", "url", "node", "metadata", "chunks"}`; each chunk `{"chunk_id", "position", "text"}` with `position` a **string**.
-- **`node_id` is `"node_5_samestory"`.** Doc ids are `n5_doc_001`…; chunk ids are `n5_doc_00X_c000`…
+- **`node_id` is `"node_5_samestory"`.** Doc ids are `n5_doc_001`…; chunk ids **in the JSON** are `n5_doc_00X_c000`. Note `corpus_json.load_corpus_chunks` **normalises** these on load to `n5_doc_00X:0` — anything comparing against loaded chunks (the candidate source, the surfacing gate) must use the normalised form.
 - **`global_id = "gid_" + sha256(f"{source}|{outlet}|{published}").hexdigest()[:16]`** — same shape as `gin/curator/node4_build.py:compute_global_id`.
 - **Composition floor:** the built corpus must yield **≥20 conflict pairs and ≥20 same-story negative pairs**. The builder hard-errors otherwise.
 - Run all commands from the repo root with `venv/Scripts/python.exe`. Scripts importing through `gin.curator.store` need the repo-root `sys.path` prelude used by `scripts/frames_probe.py`.
@@ -835,7 +835,7 @@ i = 0
 for ev in m:
     for rep in ev['reports']:
         i += 1
-        docs[(ev['event'], rep['outlet'])] = f'n5_doc_{i:03d}_c000'
+        docs[(ev['event'], rep['outlet'])] = f'n5_doc_{i:03d}:0'  # loader-normalised
 ok = bad = 0
 for ev in m:
     for entry in ev['intent']:
@@ -1241,16 +1241,17 @@ def _manifest():
 
 def test_authored_pairs_map_to_chunk_ids_in_build_order():
     pairs = authored_pair_chunk_ids(_manifest())
+    # Loader-normalised ids ("n5_doc_001:0"), not the raw JSON "n5_doc_001_c000".
     assert pairs == [
-        ("n5_doc_001_c000", "n5_doc_002_c000", "conflict"),
-        ("n5_doc_003_c000", "n5_doc_004_c000", "corroboration"),
+        ("n5_doc_001:0", "n5_doc_002:0", "conflict"),
+        ("n5_doc_003:0", "n5_doc_004:0", "corroboration"),
     ]
 
 
 def test_all_surfaced_passes():
     offered = {
-        frozenset(("n5_doc_001_c000", "n5_doc_002_c000")),
-        frozenset(("n5_doc_003_c000", "n5_doc_004_c000")),
+        frozenset(("n5_doc_001:0", "n5_doc_002:0")),
+        frozenset(("n5_doc_003:0", "n5_doc_004:0")),
     }
     report = verify_surfacing(_manifest(), offered)
     report_ok = report["passed"]
@@ -1261,11 +1262,11 @@ def test_all_surfaced_passes():
 def test_a_missing_negative_fails_as_loudly_as_a_missing_conflict():
     # The negatives are why this corpus exists. If only conflicts surface, the
     # curator never labels a same-story non-contradiction.
-    offered = {frozenset(("n5_doc_001_c000", "n5_doc_002_c000"))}
+    offered = {frozenset(("n5_doc_001:0", "n5_doc_002:0"))}
     report = verify_surfacing(_manifest(), offered)
     assert report["passed"] is False
     assert report["missing"] == [
-        ("n5_doc_003_c000", "n5_doc_004_c000", "corroboration")
+        ("n5_doc_003:0", "n5_doc_004:0", "corroboration")
     ]
 
 
@@ -1303,12 +1304,16 @@ def authored_pair_chunk_ids(manifest: list[dict]) -> list[tuple[str, str, str]]:
     Mirrors node5_build's document numbering: events in order, reports within an
     event in order, one document each.
     """
+    # NOTE the id form. corpus_json.load_corpus_chunks NORMALISES the raw
+    # "n5_doc_001_c000" written into the JSON to "n5_doc_001:0", and the
+    # candidate source yields the normalised form. Emitting the raw form here
+    # would make every pair look missing.
     doc_of: dict[tuple[str, str], str] = {}
     index = 0
     for ev in manifest:
         for rep in ev["reports"]:
             index += 1
-            doc_of[(ev["event"], rep["outlet"])] = f"n5_doc_{index:03d}_c000"
+            doc_of[(ev["event"], rep["outlet"])] = f"n5_doc_{index:03d}:0"
 
     pairs: list[tuple[str, str, str]] = []
     for ev in manifest:
