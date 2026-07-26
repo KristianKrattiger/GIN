@@ -266,3 +266,133 @@ def extract_mentions(text: str) -> tuple[QuantityMention, ...]:
                 span=(offset + start, offset + m.end()),
             ))
     return tuple(out)
+
+
+# --- alignment and judgment -------------------------------------------------
+
+# Measure-overlap floor for two mentions to be about the same fact. Tuned on
+# the 7 DEVELOPMENT events only (see the plan's Step 5); the 3 held-out events
+# are not consulted. The measure representation is deliberately loose -- clause
+# UNION window -- so this floor is what stops unrelated facts pairing up.
+#
+# Measured on the 13 development pairs: precision is 1.000 at EVERY floor from
+# 0.02 to 0.25, so recall is the only axis and the rule reduces to "the highest
+# floor that loses no real conflict". That is 0.05 (9/9); 0.08-0.10 lose the
+# n5_doc_002 <-> 003 pair ("Evacuations totaled 34 residents" vs "34 people were
+# evacuated"), and 0.12+ additionally lose the dockworkers and sable-bridge
+# conflicts.
+#
+# HAZARD, stated because a low floor looks free and is not: at 0.05 measure
+# overlap is barely constraining, so alignment is close to "same unit_class plus
+# one shared token" -- and "numbers of the same kind differ -> conflict" is the
+# naive rule the spec measured at 12/19. What keeps it honest is that scope and
+# revision still veto, and that the cross-event pairs and the 3 held-out events
+# are the test of whether it generalizes (Task 11).
+ALIGN_FLOOR = 0.05
+
+# Fixed and explicit, because a pair routinely yields more than one kind of
+# evidence. Conflict first so an incidental agreement elsewhere in the text
+# cannot swallow a real divergence (n5_doc_017 <-> 019 does exactly that).
+STANCE_PRECEDENCE = ("conflict", "revision", "partial", "agreement")
+
+
+@dataclass(frozen=True)
+class StanceEvidence:
+    conflicts: tuple[tuple[QuantityMention, QuantityMention], ...] = ()
+    revisions: tuple[tuple[QuantityMention, QuantityMention], ...] = ()
+    partials: tuple[tuple[QuantityMention, QuantityMention], ...] = ()
+    agreements: tuple[tuple[QuantityMention, QuantityMention], ...] = ()
+
+
+def _jaccard(a: frozenset[str], b: frozenset[str]) -> float:
+    if not a or not b:
+        return 0.0
+    return len(a & b) / len(a | b)
+
+
+def align(
+    a: tuple[QuantityMention, ...],
+    b: tuple[QuantityMention, ...],
+    *,
+    floor: float = ALIGN_FLOOR,
+) -> tuple[tuple[QuantityMention, QuantityMention], ...]:
+    """Mention pairs plausibly about the same fact, best-overlap first.
+
+    Same ``unit_class`` and measure Jaccard >= ``floor``. Reduced greedily so no
+    mention is used twice: a text mentioning one figure must not align against
+    three figures in the other and manufacture three pieces of evidence.
+    """
+    scored = [
+        (_jaccard(x.measure, y.measure), i, j, x, y)
+        for i, x in enumerate(a)
+        for j, y in enumerate(b)
+        if x.unit_class == y.unit_class
+    ]
+    scored = [row for row in scored if row[0] >= floor]
+    # Sort by descending overlap, then by index so ties are deterministic.
+    scored.sort(key=lambda row: (-row[0], row[1], row[2]))
+    used_a: set[int] = set()
+    used_b: set[int] = set()
+    pairs: list[tuple[QuantityMention, QuantityMention]] = []
+    for _score, i, j, x, y in scored:
+        if i in used_a or j in used_b:
+            continue
+        used_a.add(i)
+        used_b.add(j)
+        pairs.append((x, y))
+    return tuple(pairs)
+
+
+def judge(pair: tuple[QuantityMention, QuantityMention]) -> str:
+    """Evidence kind for one aligned mention pair.
+
+    Order is fixed and total, so the result never depends on check sequence:
+      1. equal values                      -> agreement
+      2. scopes differ                     -> partial   (different denominators)
+      3. revised, or a strictly later as_of -> revision
+      4. otherwise                         -> conflict
+    """
+    x, y = pair
+    if x.value == y.value:
+        return "agreement"
+    if x.scope != y.scope:
+        return "partial"
+    if x.revised or y.revised:
+        return "revision"
+    if x.as_of is not None and y.as_of is not None and x.as_of != y.as_of:
+        return "revision"
+    return "conflict"
+
+
+def evidence_for(
+    a_text: str, b_text: str, *, floor: float = ALIGN_FLOOR
+) -> StanceEvidence:
+    """All aligned-fact evidence for a pair, bucketed by kind."""
+    buckets: dict[str, list] = {kind: [] for kind in STANCE_PRECEDENCE}
+    for pair in align(extract_mentions(a_text), extract_mentions(b_text), floor=floor):
+        buckets[judge(pair)].append(pair)
+    return StanceEvidence(
+        conflicts=tuple(buckets["conflict"]),
+        revisions=tuple(buckets["revision"]),
+        partials=tuple(buckets["partial"]),
+        agreements=tuple(buckets["agreement"]),
+    )
+
+
+def stance_for(
+    a_text: str, b_text: str, *, floor: float = ALIGN_FLOOR
+) -> Optional[str]:
+    """The pair's single stance verdict, or None when no mentions aligned.
+
+    This is what classify_relation consumes. Precedence is STANCE_PRECEDENCE.
+    """
+    ev = evidence_for(a_text, b_text, floor=floor)
+    for kind, bucket in (
+        ("conflict", ev.conflicts),
+        ("revision", ev.revisions),
+        ("partial", ev.partials),
+        ("agreement", ev.agreements),
+    ):
+        if bucket:
+            return kind
+    return None
