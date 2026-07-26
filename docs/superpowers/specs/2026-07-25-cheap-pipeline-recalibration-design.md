@@ -308,6 +308,51 @@ The infrastructure is sound and independently valuable:
 - The manifest records the `same_story` parameters, so the signal that decided
   this outcome is no longer invisible.
 
+### Adjudication of the 22 same-story-negative contradicts pairs
+
+The writeup above left one thing indistinguishable: are those 22 pairs *genuinely*
+cross-story, or same-story pairs that `make_same_story`'s lexical test simply
+misses? Those imply different projects, so they were adjudicated by hand.
+
+**Verdict: genuinely cross-story. The story predicate is correct, not broken.**
+
+All 22 are `n4_doc ↔ n4_doc` — node4's contested-policy pro/con pairs. Reading
+them settles it. `n4_doc_001:0` "carbon taxation can correct a market failure and
+make the economy more efficient" against `n4_doc_002:0` "Carbon taxes are
+nonobjective, they are coercive, and they are impediments to prosperity" is two
+*positions on a policy question*, not two *reports of one event*. Three of the 22
+(`n4_doc_014 ↔ n4_doc_015`) are not even the same topic — renewables-grid against
+gas-bridge-fuel, paired because the stances interact.
+
+The predicate's internals agree. Every one of the 22 fails at the **first**
+condition, fewer than 2 shared corpus-rare tokens; none even reaches the anchor
+check. Shared tokens run 1–5, of which rare ones run 0–1, and the rare ones that
+do appear are topic words — `taxe`, `divestment`, `geoengineering` — never
+entities.
+
+No parameterization rescues them:
+
+| `story_floor` | `require_anchor` | `df_ceiling` | pass |
+|:--:|:--:|:--:|:--:|
+| 2 | True | default (7) | **0/22** ← shipped setting |
+| 2 | True | 15 / 40 | 0/22 |
+| 1 | True | any | 0/22 |
+| 2 | False | 15 / 40 | 5 / 14 |
+| 1 | False | default / 15 / 40 | 8 / 17 / 20 |
+
+**`require_anchor=True` gives 0/22 at every other setting.** The entity-anchor
+requirement is exactly what separates "same event" from "same topic," and these
+pairs share no entity. Recovering any of them means dropping that requirement,
+which converts the predicate from a story detector into a topic detector and
+reinstates the cross-topic false positives that scan run `20260712T074956Z`
+documented as the reason the mid-band was changed in the first place.
+
+**So the branch is settled: the pipeline has no channel for what the corpus
+contains.** Not a bug to fix in `make_same_story`, and not a threshold to retune.
+Either curation re-aims at same-story propositional conflict, or a cross-story
+divergence channel is built. That is a product decision, and it is now the
+blocking one.
+
 ### Known limitation — the method does not scale
 
 `calibrate()` is O(n⁴) and `leave_one_out()` is O(n⁵). Measured: 0.20 s / 1.40 s
