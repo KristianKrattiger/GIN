@@ -32,6 +32,14 @@ class Sample:
     # Stage-1 same-story signal: does the pair share >= 2 corpus-rare tokens?
     # Calibration feeds the classifier the signal it receives at scan time.
     same_story: bool = False
+    # Per-fact quantity stance (quantity.stance_for): "conflict" | "revision" |
+    # "partial" | "agreement" | "unaligned", or None. None and "unaligned" are
+    # NOT interchangeable -- None means the channel had no quantitative claim to
+    # judge and classify_relation falls through to its pre-stance branch, while
+    # "unaligned" means it looked and found no shared fact and the branch
+    # abstains. Defaulted so the committed 39-sample fixture, whose rows predate
+    # this field, keeps loading.
+    stance: Optional[str] = None
 
 
 @dataclass(frozen=True)
@@ -48,6 +56,9 @@ class EvalSample:
     p_contra: float
     relation: Relation
     same_story: bool = False
+    # See Sample.stance. None vs "unaligned" is a real distinction, not a
+    # missing value -- preserve it through serialization.
+    stance: Optional[str] = None
 
 
 @dataclass(frozen=True)
@@ -69,6 +80,19 @@ class SampleManifest:
     story_floor: int = 0
     df_ceiling: int | None = None
     require_anchor: bool = True
+    # Identity of the stance provider these rows were measured with. stance now
+    # decides the same-story arm outright, so a sample file measured under a
+    # different provider must not silently calibrate the live pipeline -- the
+    # same reasoning as the model ids and the same_story parameters above.
+    # "none" means the rows predate the stance channel.
+    #
+    # NOT YET GATED: load_samples accepts expect_stance_provider but nothing
+    # currently passes it (the recalibration decision is the next spec's work,
+    # not this one's). Wiring it now against the committed 39-sample fixture
+    # (whose stance_provider is "none") would break loading that fixture. The
+    # parameter exists so the next spec can gate on it without another schema
+    # change.
+    stance_provider: str = "none"
 
     def to_json(self) -> dict:
         return asdict(self)
@@ -112,6 +136,7 @@ def write_samples(
                 "cos": s.cos,
                 "p_contra": s.p_contra,
                 "same_story": s.same_story,
+                "stance": s.stance,
                 "relation": s.relation.value,
             }
             for s in samples
@@ -123,6 +148,7 @@ def write_samples(
                 "cos": e.cos,
                 "p_contra": e.p_contra,
                 "same_story": e.same_story,
+                "stance": e.stance,
                 "relation": e.relation.value,
             }
             for e in eval_samples
@@ -136,8 +162,20 @@ def load_samples(
     *,
     expect_embed_model: Optional[str] = None,
     expect_nli_model: Optional[str] = None,
+    expect_stance_provider: Optional[str] = None,
 ) -> tuple[list[Sample], SampleManifest]:
-    """Load samples + manifest. Model mismatch is a hard error, never a fallback."""
+    """Load samples + manifest. Model mismatch is a hard error, never a fallback.
+
+    ``expect_stance_provider`` gates ``SampleManifest.stance_provider`` the same
+    way ``expect_embed_model``/``expect_nli_model`` gate their fields: pass the
+    identity the live pipeline expects and a mismatch is a hard error rather
+    than a silent recalibration against rows measured under a different stance
+    rule. NOT YET WIRED into any caller -- the committed 39-sample fixture's
+    manifest records `stance_provider="none"`, so a live gate against it here
+    would break loading that fixture today. This parameter exists for the next
+    spec (recalibration under the stance channel) to use without another
+    schema change; it is exercised only by tests until then.
+    """
     path = DEFAULT_SAMPLES_PATH if path is None else Path(path)
     if not path.is_file():
         raise FileNotFoundError(
@@ -155,12 +193,21 @@ def load_samples(
             f"NLI model mismatch: samples measured with {manifest.nli_model!r}, "
             f"pipeline uses {expect_nli_model!r}"
         )
+    if (
+        expect_stance_provider is not None
+        and manifest.stance_provider != expect_stance_provider
+    ):
+        raise ValueError(
+            f"stance provider mismatch: samples measured with "
+            f"{manifest.stance_provider!r}, pipeline uses {expect_stance_provider!r}"
+        )
     samples = [
         Sample(
             cos=row["cos"],
             p_contra=row["p_contra"],
             relation=Relation(row["relation"]),
             same_story=row["same_story"],
+            stance=row.get("stance"),
         )
         for row in payload["samples"]
     ]
@@ -192,6 +239,7 @@ def load_eval_samples(path: Optional[Path] = None) -> list[EvalSample]:
             p_contra=row["p_contra"],
             relation=Relation(row["relation"]),
             same_story=row["same_story"],
+            stance=row.get("stance"),
         )
         for row in payload.get("eval_samples", [])
     ]

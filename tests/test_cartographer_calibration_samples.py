@@ -89,6 +89,43 @@ def test_matching_models_load_cleanly(tmp_path):
     assert len(loaded) == 2
 
 
+def test_stance_provider_mismatch_is_a_hard_error(tmp_path):
+    path = tmp_path / "samples.json"
+    manifest = SampleManifest(
+        embed_model="embed-x", nli_model="nli-y", n_samples=2,
+        class_counts={"contradicts": 1, "unrelated": 1}, excluded_eval_pairs=45,
+        git_sha="abc1234", created_utc="2026-07-25T00:00:00Z",
+        stance_provider="quantity.stance_for",
+    )
+    write_samples(path, manifest, _samples(), _eval_samples())
+    with pytest.raises(ValueError, match="stance provider mismatch"):
+        load_samples(path, expect_stance_provider="something-else")
+
+
+def test_matching_stance_provider_loads_cleanly(tmp_path):
+    path = tmp_path / "samples.json"
+    manifest = SampleManifest(
+        embed_model="embed-x", nli_model="nli-y", n_samples=2,
+        class_counts={"contradicts": 1, "unrelated": 1}, excluded_eval_pairs=45,
+        git_sha="abc1234", created_utc="2026-07-25T00:00:00Z",
+        stance_provider="quantity.stance_for",
+    )
+    write_samples(path, manifest, _samples(), _eval_samples())
+    loaded, _ = load_samples(path, expect_stance_provider="quantity.stance_for")
+    assert len(loaded) == 2
+
+
+def test_stance_provider_check_is_skipped_when_not_requested(tmp_path):
+    # expect_stance_provider=None (the default) means "don't gate" -- the
+    # committed 39-sample fixture's manifest carries stance_provider="none"
+    # and must keep loading with no expectation passed.
+    path = tmp_path / "samples.json"
+    write_samples(path, _manifest(), _samples(), _eval_samples())
+    loaded, manifest = load_samples(path)
+    assert manifest.stance_provider == "none"
+    assert len(loaded) == 2
+
+
 def test_missing_file_names_the_regen_command(tmp_path):
     with pytest.raises(FileNotFoundError, match="regen_calibration_samples"):
         load_samples(tmp_path / "absent.json")
@@ -121,3 +158,54 @@ def test_mismatched_sample_count_raises_valueerror(tmp_path):
     write_samples(path, manifest, samples, _eval_samples())
     with pytest.raises(ValueError, match="samples count.*does not match"):
         load_samples(path)
+
+
+def test_stance_round_trips_including_the_none_versus_unaligned_distinction(tmp_path):
+    # None and "unaligned" are different answers, not one missing value: None
+    # means the stance channel had no quantitative claim to judge and
+    # classify_relation falls through to its pre-stance branch, while
+    # "unaligned" means it looked and found no shared fact and the branch
+    # abstains. Collapsing them in serialization would silently change what a
+    # regenerated sample file says the pipeline did.
+    path = tmp_path / "samples.json"
+    manifest = SampleManifest(
+        embed_model="embed-x", nli_model="nli-y", n_samples=2,
+        class_counts={"contradicts": 1, "corroborates": 1}, excluded_eval_pairs=0,
+        git_sha="abc1234", created_utc="2026-07-26T00:00:00Z",
+        stance_provider="quantity.stance_for",
+    )
+    write_samples(
+        path, manifest,
+        [
+            Sample(cos=0.9, p_contra=0.1, relation=Relation.CONTRADICTS,
+                   same_story=True, stance="conflict"),
+            Sample(cos=0.8, p_contra=0.1, relation=Relation.CORROBORATES,
+                   same_story=True, stance=None),
+        ],
+        [
+            EvalSample(src="a:0", dst="b:0", cos=0.9, p_contra=0.1,
+                       relation=Relation.CONTRADICTS, same_story=True,
+                       stance="unaligned"),
+        ],
+    )
+    raw = json.loads(path.read_text(encoding="utf-8"))
+    assert raw["samples"][1]["stance"] is None, "None must serialize as JSON null"
+    assert raw["eval_samples"][0]["stance"] == "unaligned"
+
+    samples, loaded = load_samples(path)
+    assert [s.stance for s in samples] == ["conflict", None]
+    assert loaded.stance_provider == "quantity.stance_for"
+    assert load_eval_samples(path)[0].stance == "unaligned"
+
+
+def test_the_committed_fixture_manifest_shape_still_loads_without_stance_fields():
+    # The 39-sample manifest predates same_story_corpus_size AND stance_provider.
+    # from_json hard-errors on missing non-defaulted keys, so defaulting is the
+    # only thing keeping that fixture loadable -- a required field would break it.
+    manifest = SampleManifest.from_json({
+        "embed_model": "e", "nli_model": "n", "n_samples": 39,
+        "class_counts": {}, "excluded_eval_pairs": 0,
+        "git_sha": "x", "created_utc": "2026-07-25T00:00:00Z",
+    })
+    assert manifest.stance_provider == "none"
+    assert manifest.same_story_corpus_size == 0

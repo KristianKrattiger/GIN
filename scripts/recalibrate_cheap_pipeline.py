@@ -31,6 +31,37 @@ Consequence: --write should not be used again until the calibration corpus
 contains same-story contradicts pairs (i.e. gold contradicts pairs where
 same_story=True actually occur). Until then, running with --write would
 silently regress the shipped thresholds.
+
+STATUS 2026-07-26: the precondition above is now SATISFIED, and --write is
+STILL not to be used from this session's work.
+
+What changed. Registering node5 in CORPUS_NODES took the calibration corpus to
+150 rows including 12 same-story contradicts, so the 33-unclassifiable-rows
+problem no longer holds. And combined.py's same-story arm no longer forces
+CONTRADICTS on story membership alone -- it now requires per-fact quantity
+stance evidence (gin/cartographer/quantity.py), so the "11 rows forced to
+CONTRADICTS regardless of threshold" mechanism is gone too. Both halves of the
+2026-07-25 reasoning are therefore obsolete as stated.
+
+Why --write is still wrong here. Recalibrating under a pipeline that changed in
+the same branch restates the change rather than evaluating it. The threshold
+decision was deliberately left to its own spec, to be made with this branch's
+numbers in hand rather than folded into them.
+
+Held-out movement under the SHIPPED thresholds, via --score-only (which skips
+calibrate()/leave_one_out(), both impractical at n=150): 0.700 at the 131-sample
+baseline -> 0.725 after node5 registration -> 0.725 after the stance channel.
+
+The score is unchanged, but not because stance rarely fires on these pairs --
+it is non-None on 5 of the 9 same-story held-out pairs, so it fires often. It
+is unchanged because all 9 same-story held-out pairs are gold contradicts, and
+stance reads "conflict" on 5 of them and None on the other 4 -- "conflict"
+types CONTRADICTS through the stance channel, and None types CONTRADICTS
+through the pre-stance band fallback, so both paths agree on every one of the
+9. See docs/superpowers/specs/2026-07-26-same-story-stance-channel-design.md's
+Results section for the full correction.
+
+See docs/superpowers/specs/2026-07-26-same-story-stance-channel-design.md.
 """
 from __future__ import annotations
 
@@ -59,6 +90,7 @@ from gin.cartographer.combined import (
     DEFAULT_NLI_MODEL,
     Thresholds,
     classify_relation,
+    load_thresholds,
 )
 from gin.cartographer.models import Relation
 
@@ -67,11 +99,22 @@ DISPUTED_PAIR = {"inst_em:0", "clim_pledges:0"}
 
 
 def _score_held_out(eval_samples: list[EvalSample], t: Thresholds) -> float:
-    """Fraction of held-out eval pairs the thresholds classify correctly."""
+    """Fraction of held-out eval pairs the thresholds classify correctly.
+
+    Passes each sample's ``stance`` through to classify_relation so this scores
+    the rule the pipeline actually runs, not the pre-stance branch. Verified
+    2026-07-26: the score is 0.725 either way on the current 40 held-out pairs
+    (9 are same-story; stance is non-None on 5 of those 9, and all 9 are gold
+    contradicts, so both the "conflict" and the "None -> band" paths already
+    gave the correct answer) -- so this change makes the reported number
+    honestly measured without moving it.
+    """
     if not eval_samples:
         return float("nan")
     correct = sum(
-        classify_relation(e.cos, e.p_contra, t, same_story=e.same_story)[0] == e.relation
+        classify_relation(
+            e.cos, e.p_contra, t, same_story=e.same_story, stance=e.stance
+        )[0] == e.relation
         for e in eval_samples
     )
     return correct / len(eval_samples)
@@ -96,6 +139,10 @@ def main() -> None:
     ap.add_argument("--out", type=Path, default=THRESHOLDS_PATH)
     ap.add_argument("--write", action="store_true",
                     help="write the thresholds file (default: report only)")
+    ap.add_argument("--score-only", action="store_true",
+                    help="score the SHIPPED thresholds on the held-out pairs and exit; "
+                         "skips calibrate() and leave_one_out(), which are O(n^4)/O(n^5) "
+                         "and impractical past ~150 samples")
     args = ap.parse_args()
 
     samples, manifest = load_samples(
@@ -103,6 +150,23 @@ def main() -> None:
         expect_embed_model=DEFAULT_EMBED_MODEL,
         expect_nli_model=DEFAULT_NLI_MODEL,
     )
+
+    if args.score_only:
+        # The pre-registered comparison is "what does the SHIPPED pipeline score
+        # on the frozen held-out pairs", so this reads thresholds from
+        # data/cartographer_thresholds.json rather than recalibrating. Nothing
+        # is written and no grid search runs.
+        shipped = load_thresholds()
+        eval_samples = load_eval_samples(args.samples)
+        held_out = _score_held_out(eval_samples, shipped)
+        print(f"samples: {len(samples)} {manifest.class_counts}")
+        print(f"same_story corpus: {manifest.same_story_corpus_size} docs, "
+              f"df_ceiling {manifest.df_ceiling}")
+        print(f"shipped thresholds: {shipped}")
+        print(f"held-out ({len(eval_samples)} eval pairs, never calibrated on) "
+              f"accuracy   {held_out:.3f}")
+        return
+
     thresholds = calibrate(samples)
     loo = leave_one_out(samples)
 

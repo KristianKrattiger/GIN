@@ -81,3 +81,19 @@ def test_ready_requires_story_too(tmp_path):
     store.append(_rec("g:0", "h:0", Relation.CONTRADICTS, "2026-07-25T00:00:04Z",
                       relation_class="story"))
     assert readiness(store, target).ready is True
+
+
+def test_node5_chunk_ids_resolve_in_the_default_index():
+    # The 24 node5 labels are unreachable until CORPUS_NODES registers node5:
+    # every consumer that resolves text by chunk id drops them as
+    # text_unresolved. Registration also moves the df corpus 236 -> 274 docs,
+    # which is why it is a measured change and not a one-line drive-by.
+    from gin.cartographer.relatedness import _rare_df_ceiling
+    from gin.curator.text_index import default_text_index
+
+    index = default_text_index()
+    assert "n5_doc_001:0" in index
+    assert "n5_doc_038:0" in index
+    assert index["n5_doc_001:0"].startswith("RIVERPORT")
+    assert len(index) == 274
+    assert _rare_df_ceiling(len(index)) == 9

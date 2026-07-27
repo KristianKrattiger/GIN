@@ -48,6 +48,10 @@ DEFAULT_MAX_P_CONTRA_CACHE = 5000
 
 _THRESHOLDS_PATH = Path(__file__).resolve().parents[2] / "data" / "cartographer_thresholds.json"
 
+# Sentinel so `stance_provider=None` can explicitly DISABLE stance (reverting
+# to the pre-2026-07-26 branch) while omitting it gets the real provider.
+_UNSET: Any = object()
+
 
 @dataclass(frozen=True)
 class Thresholds:
@@ -72,7 +76,12 @@ def load_thresholds(path: Optional[Path] = None) -> Thresholds:
 
 
 def classify_relation(
-    cos: float, p_contra: float, t: Thresholds, *, same_story: Optional[bool] = None
+    cos: float,
+    p_contra: float,
+    t: Thresholds,
+    *,
+    same_story: Optional[bool] = None,
+    stance: Optional[str] = None,
 ) -> tuple[Relation, str]:
     """Pure combined-detector decision. Returns (relation, channel).
 
@@ -89,13 +98,45 @@ def classify_relation(
     propositional channel is blocked only when stage 1 positively says the pair
     is NOT one story (the cross-topic numeric-claim artifact) — and the old
     mid-band default flips from CONTRADICTS to RELATED_UNTYPED (no edge).
+
+    ``stance`` is the per-fact quantity evidence from ``quantity.stance_for``:
+    "conflict" | "revision" | "partial" | "agreement" | quantity.UNALIGNED, or
+    None. It refines the same-story arm ONLY.
+
+    None and UNALIGNED are deliberately different meanings, not the same "no
+    evidence" bucket: None means the channel had no quantitative claim to judge
+    at all (at least one side states no quantity), so classify_relation falls
+    through to its pre-stance branch and reproduces this function's
+    pre-2026-07-26 behavior byte-for-byte -- the same contract same_story=None
+    carries -- which is what keeps the committed 39-sample calibration fixture
+    and the 14-pair bar pin valid without edits. UNALIGNED means the channel DID
+    have quantities on both sides and none of them aligned, so it falls to the
+    final `return Relation.RELATED_UNTYPED, "abstain"` below (it is not None,
+    not "conflict", not "agreement"): a pair the channel actually examined and
+    found no shared fact in gets no edge, rather than the old unconditional
+    CONTRADICTS. Collapsing the two into one value either emits false
+    CONTRADICTS edges on examined-and-empty pairs or discards the three gold
+    same-story contradicts pairs that state no quantities at all.
+
+    Why the arm needed evidence: measured on the 24 node5 labels, the
+    unconditional "same_story -> CONTRADICTS" scored precision 12/24. The NLI
+    channel cannot replace it (its two highest p_contra in that set are a
+    corroborates and a supersedes), so the evidence has to be per-fact. The
+    fallback is ABSTENTION rather than corroboration: a wrong CONTRADICTS edge
+    costs a knowledge graph more than a missing one.
     """
     if cos < t.gate_floor:
         return Relation.UNRELATED, "gate"
     if p_contra >= t.contra_threshold and same_story is not False:
         return Relation.CONTRADICTS, "nli"
     if same_story:
-        return Relation.CONTRADICTS, "band"
+        if stance is None:
+            return Relation.CONTRADICTS, "band"
+        if stance == "conflict":
+            return Relation.CONTRADICTS, "stance"
+        if stance == "agreement" and cos >= t.corroborate_ceiling:
+            return Relation.CORROBORATES, "band"
+        return Relation.RELATED_UNTYPED, "abstain"
     if cos >= t.corroborate_ceiling:
         return Relation.CORROBORATES, "band"
     return Relation.RELATED_UNTYPED, "band"
@@ -110,6 +151,7 @@ class CombinedRelationProposer:
         embed_cos: Optional[CosineScorer] = None,
         nli_scores: Optional[NliScorer] = None,
         same_story: Optional[Callable[[str, str], bool]] = None,
+        stance_provider: Optional[Callable[[str, str], Optional[str]]] = _UNSET,
         gate_floor: float = DEFAULT_GATE_FLOOR,
         corroborate_ceiling: float = DEFAULT_CORROBORATE_CEILING,
         contra_threshold: float = DEFAULT_CONTRA_THRESHOLD,
@@ -123,6 +165,14 @@ class CombinedRelationProposer:
         # Stage-1 same-story provider (see relatedness.make_same_story); the
         # scan wires this from the scanned corpus. None = no story evidence.
         self.same_story = same_story
+        # Stance is model-free, so there is no cost argument for leaving
+        # production on the evidence-free branch. Pass stance_provider=None to
+        # disable it explicitly.
+        if stance_provider is _UNSET:
+            from .quantity import stance_for
+
+            stance_provider = stance_for
+        self.stance_provider = stance_provider
         self.gate_floor = t.gate_floor
         self.corroborate_ceiling = t.corroborate_ceiling
         self.contra_threshold = t.contra_threshold
@@ -216,12 +266,24 @@ class CombinedRelationProposer:
             relation, channel = classify_relation(cos, 0.0, self.thresholds, same_story=False)
             return relation, {"cos": cos, "channel": channel, "same_story": False}
         p_contra = self._p_contra(a_text, b_text)
+        # Computed whenever `story` is true, even though classify_relation may
+        # have the NLI channel decide the pair first (p_contra >= contra_thresh
+        # takes priority over the stance arm below). In that case ev["stance"]
+        # still gets set on a channel: "nli" result -- the stance evidence was
+        # examined but discarded, not consulted for the decision.
+        stance = (
+            self.stance_provider(a_text, b_text)
+            if self.stance_provider is not None and story
+            else None
+        )
         relation, channel = classify_relation(
-            cos, p_contra, self.thresholds, same_story=story
+            cos, p_contra, self.thresholds, same_story=story, stance=stance
         )
         ev = {"cos": cos, "p_contra": p_contra, "channel": channel}
         if story is not None:
             ev["same_story"] = story
+        if stance is not None:
+            ev["stance"] = stance
         return relation, ev
 
     def assess_pair(self, a: LabeledChunk, b: LabeledChunk) -> Assessment:

@@ -1,7 +1,7 @@
 # Design: Same-Story Stance Channel — Making the CONTRADICTS Branch Evidence-Based
 
 **Date:** 2026-07-26
-**Status:** Approved (design), pending implementation plan
+**Status:** IMPLEMENTED and measured 2026-07-26 (branch `stance-channel`). Component 2 amended during execution (None vs UNALIGNED); Component 3's union-to-intersection change WITHDRAWN. See Results.
 **Sub-project:** E — the follow-on node5 was built to enable
 **Predecessor:** `docs/superpowers/specs/2026-07-25-same-story-corpus-node5-design.md`
 **Labels this rests on:** 24 curator labels over `corpus_node5.json`, committed at `ebceb46`
@@ -247,12 +247,14 @@ combined-detector tests valid without edits.
 
 With `stance` supplied, the `if same_story` arm becomes:
 
+**AMENDED during implementation — see Results.**
+
 ```
 same_story and stance == "conflict"                  -> CONTRADICTS, "stance"
 same_story and stance == "agreement"
         and cos >= corroborate_ceiling               -> CORROBORATES, "band"
 same_story and stance in {"revision", "partial",
-                          "agreement", None}         -> RELATED_UNTYPED, "abstain"
+                          "agreement", UNALIGNED}    -> RELATED_UNTYPED, "abstain"
 ```
 
 The NLI channel keeps its current priority and its current story gate. It is
@@ -352,6 +354,26 @@ instead of a mystery.
 Thresholds stay at the baked-39 values throughout, so the score moves only via
 `same_story` and `stance` flips on those 40 pairs — which is exactly the
 quantity of interest.
+
+### The pre-registered "known likely miss" did NOT occur
+
+This spec predicted `n5_doc_011↔012` (`September 3` vs `October 1`) would move to
+abstention and cost one point of `R`, on the grounds that its governing phrases
+share no content tokens. **That prediction was wrong.** The pair aligns and is
+typed CONTRADICTS correctly, which is why `R` is 1.000 rather than 11/12.
+
+It aligns on a measure Jaccard of **0.071** — a single shared stem, `repair`,
+across `remain closed until … September 3` and `repairs … finished before
+October 1`. At `ALIGN_FLOOR = 0.05` that clears.
+
+The symmetry is worth stating plainly, because it is the same fact seen twice:
+**the loose floor saved this real conflict and caused the one stance-arm false
+positive.** `n5_doc_023↔024` aligns a dockworker headcount against a commuter
+delay in minutes on the same kind of thin overlap. A floor tight enough to
+reject that pair would also reject this one. On this corpus the trade is
+favourable — one conflict kept for one false positive — but n=24 cannot say
+whether it stays favourable, and that is the generalization question this work
+leaves open rather than settles.
 
 ### Over-fitting control
 
@@ -497,3 +519,174 @@ None blocking. Deferred with artifacts rather than prose:
   inherited from node5's spec, still not a 4-way training class, and now
   additionally relevant because the stance channel distinguishes `revision`
   evidence explicitly.
+
+## Results (measured 2026-07-26)
+
+Implemented on branch `stance-channel`, commits `2490470..HEAD`. Two of this
+spec's components changed during execution and both changes are recorded below
+rather than quietly folded in.
+
+### Stage 2 — the stance channel
+
+Two figures, answering different questions. Reporting only one would either
+credit the stance channel with the NLI channel's errors or blame it for them.
+
+| | baseline (`ebceb46`) | stance arm isolated | end to end, real models |
+|---|---|---|---|
+| `P` within-event precision | 0.632 | **1.000** (tp 12, fp 0, fn 0) | **0.857** (tp 12, fp 2) |
+| `R` recall | 1.000 | **1.000** | **1.000** |
+| `P_all` incl. cross-event | 0.500 | **0.857** | **0.750** (tp 12, fp 4) |
+
+**Pre-registered bar: PASS** on both — `P` and `P_all` each strictly improve and
+`R` is 1.000, well above the 0.75 floor. Not one of the 12 real conflicts was
+lost. Reproduce with `scripts/eval_node5_stance.py` (end to end) and
+`tests/test_cartographer_stance_node5.py` (isolated).
+
+**The attribution is the finding.** Of the four residual false positives end to
+end, **three are the NLI channel, not the stance arm**:
+
+| pair | channel | `p_contra` | gold | stance |
+|---|---|---|---|---|
+| `n5_doc_007↔008` | nli | 0.980 | supersedes | revision |
+| `n5_doc_036↔037` | nli | 0.983 | corroborates | unaligned |
+| `n5_doc_023↔026` | nli | 0.692 | unrelated | None |
+| `n5_doc_023↔024` | stance | 0.615 | unrelated | conflict |
+
+The first two are **exactly the pairs this spec's own §"NLI cannot carry the
+branch" table identified as the two highest `p_contra` in the set**. The spec
+concluded NLI is not the signal for this class, then deliberately left NLI's
+priority over the band intact. The predicted cost materialised precisely: the
+stance channel correctly says `revision` and `unaligned`, and NLI overrules it.
+**Whether the stance channel should outrank NLI on same-story pairs is the
+sharpest question this work leaves open**, and it is a one-line change with its
+own eval to run — deliberately not made here, because the spec fixed NLI's
+priority and moving it is a separate decision.
+
+`n5_doc_023↔024` is the single stance-arm false positive, pre-registered: it
+needs stage 1's union anchor *and* `ALIGN_FLOOR = 0.05` at once. It is the
+concrete instance of the low-floor hazard this spec flagged.
+
+**A sharper statement of the same four rows, because `n5_doc_023↔026` appears
+twice above under different runs and that is easy to misread as double
+counting:** of the four end-to-end false positives, **two are NLI-only**
+(`007↔008`, `036↔037` — the band never gets a chance to fire because the NLI
+channel's priority preempts it), **one is stance-only** (`023↔024`), and
+**one is overdetermined** — `023↔026` fires through the NLI channel at
+`p_contra` 0.692 with the real models (the row above), *and* it fires through
+the `band` channel under `stance=None` when NLI is injected to abstain (the
+stage-1-anchor-findings write-up's isolated measurement). Both are genuine,
+independent routes to the same wrong edge on the same pair; it is attributable
+to both channels at once, not to whichever one happens to be measured first.
+
+### Over-fitting control
+
+Development (13 pairs, 7 events) `P` **0.900**; held out (6 pairs, 3 events) `P`
+**0.750**; gap **−0.150**, driven entirely by the `n5_doc_036↔037` NLI false
+positive. Recall is 1.000 on both halves.
+
+**Caveat, stated because it weakens the check:** the planning session's
+exploratory sweep included the held-out events, so this is a weaker independent
+check than the named split implies. `ALIGN_FLOOR` selection was still computed on
+the development pairs alone.
+
+### `ALIGN_FLOOR`
+
+Settled at **0.05**, selected on the 13 development pairs only. Development
+precision was **1.000 at every floor from 0.02 to 0.25**, so recall was the
+binding constraint and the `P` half of the bar cleared trivially — recorded so
+the headline `P` is not read as evidence the aligner is well constrained. At
+0.05 alignment is close to "same unit class plus one shared stem"; the `scope`
+and `revision` vetoes do the discriminating.
+
+### Amendment to Component 2 — `None` versus `UNALIGNED`
+
+Component 2 specified that `stance=None` should abstain. Implementation found
+`None` was overloaded: it meant both "no provider wired" (which must reproduce
+the pre-stance branch, or the baked 39-sample fixture and the 14-pair bar pin
+break) and "the provider ran and aligned nothing".
+
+Measurement then found that **three of the four gold `contradicts` pairs which
+pass the story gate state no quantities at all** — `hf_af_staff↔hf_af_tenants`
+and `hf_kc_inspection↔hf_kc_tenants` have zero mentions on both sides,
+`disc_mer_pr↔disc_mer_complaint` has zero on one. Housing habitability disputes
+and a securities PR versus a complaint contradict *qualitatively*. node5 is
+quantity-dense by construction and hid this entirely.
+
+Measured ad hoc during implementation (Task 9), before the rule was chosen; the
+committed `scripts/eval_node5_stance.py` implements only the adopted rule, so the
+two rejected rows are not reproducible from it:
+
+| rule | node5 `P` | `P_all` | gold contradicts |
+|---|---|---|---|
+| `None` → CONTRADICTS | 0.923 | 0.706 | 4/4 |
+| `None` → abstain (as specified) | 1.000 | 0.923 | **1/4** |
+| **`UNALIGNED` sentinel (adopted)** | **1.000** | 0.857 | **4/4** |
+
+The adopted rule: the channel may override the caller's default **only when it
+had quantitative claims on both sides to compare**. `None` means nothing to
+judge → defer to the pre-stance branch; `UNALIGNED` means it looked and found no
+shared fact → abstain. `classify_relation` needed no logic change — `UNALIGNED`
+already fell through to the abstain return.
+
+**The cost of that choice is visible and recorded:** preserving the `None` path
+also preserves the degenerate branch for quantity-free pairs, which is why
+`n5_doc_023↔026` is still typed CONTRADICTS through the `band` channel. Pinned
+by name in `tests/test_cartographer_stance_node5.py`.
+
+### Stage 1 — WITHDRAWN
+
+The `anchor_tokens` calendar-word exclusion shipped (`231d55d`). The
+union → intersection change **did not**: it regresses two pre-registered gold
+`contradicts` pairs, because `anchor_tokens` treats sentence-initial
+capitalization as carrying no entity signal and `Northwind Systems reported…`
+hides the entity that `The complaint alleges Northwind…` exposes. Full write-up
+and the reproducible design space:
+`docs/superpowers/specs/2026-07-26-stage1-anchor-findings.md` and
+`scripts/sweep_same_story.py`.
+
+Withdrawal was cheap because stage 2 absorbs most of stage 1's residue: four of
+five cross-event pairs still pass the story gate, and the stance channel abstains
+on two of them.
+
+### Frozen surfaces and regression
+
+- **14-pair escalation-bar pin** (`tests/test_cartographer_eval_pairs.py`): 7/7,
+  **unedited throughout**.
+- **45-pair eval set and the scan gold eval:** both hold, via the full suite
+  below. Named explicitly because this spec's success criteria list them
+  separately from the bar pin, and "the suite is green" is a weaker statement
+  than "these two surfaces were checked".
+- **Held-out 40-pair score, shipped thresholds:** 0.700 baseline → **0.725**
+  after node5 registration → **0.725** after the stance channel.
+
+  **The score is unchanged, but not for the reason a previous version of this
+  document gave.** That version said stance did not move the number because
+  "those pairs are largely not same-story, so the arm this work changed rarely
+  fires on them" — which is false on both halves. 9 of the 40 held-out pairs
+  ARE same-story, and stance is non-`None` on 5 of them, so the arm fires
+  often, not rarely. The real reason the score holds: **all 9 same-story
+  held-out pairs are gold `contradicts`**, and stance reads `conflict` on 5 of
+  them and `None` on the other 4 — `conflict` types CONTRADICTS through the
+  new stance channel, and `None` types CONTRADICTS through the pre-stance band
+  fallback, so both paths give the same, correct answer on every one of the 9.
+  That is a stronger claim than "the arm rarely fires," and it is worth stating
+  plainly that the old wording would have read exactly the same — "unchanged"
+  — even if the stance channel were badly broken, which is why it was worth
+  checking directly rather than trusting the unchanged headline number.
+  (This also required threading `stance` through `_score_held_out` in
+  `scripts/recalibrate_cheap_pipeline.py`, which previously called
+  `classify_relation` without it — so the number itself was correct by
+  coincidence, but not honestly measured, until that call was fixed.)
+- **`data/cartographer_thresholds.json`: byte-identical.** No task wrote it.
+- **`story_floor` (2) and `_rare_df_ceiling`:** unchanged.
+- Full suite **732 passed / 16 skipped / 0 failed** (was 665 at `ebceb46`).
+- `data/calibration/samples.json` regenerated: 150 rows, manifest
+  `stance_provider: quantity.stance_for`, corpus 274 docs, ceiling 9. Stance
+  distribution across rows: None 130, conflict 16, unaligned 3, partial 1.
+
+### Not measured, by design
+
+Any recalibrated threshold value. The 19 new calibration rows unblock
+`scripts/recalibrate_cheap_pipeline.py`, whose STATUS note now records that its
+precondition is satisfied — that is the next spec's work, and recalibrating under
+a just-changed pipeline would restate the change rather than evaluate it.

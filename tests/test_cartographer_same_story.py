@@ -20,7 +20,12 @@ from gin.cartographer.combined import (
     classify_relation,
 )
 from gin.cartographer.models import LabeledChunk, Relation
-from gin.cartographer.relatedness import make_same_story, shared_rare_token_count
+from gin.cartographer.relatedness import (
+    CALENDAR_WORDS,
+    anchor_tokens,
+    make_same_story,
+    shared_rare_token_count,
+)
 
 T = Thresholds(gate_floor=0.14, corroborate_ceiling=0.485, contra_threshold=0.686)
 
@@ -277,3 +282,33 @@ def test_wired_scan_proposals_are_story_gated():
     kestrel = keys.get(frozenset({"kestrel_inspection:0", "kestrel_tenants:0"}))
     assert kestrel is not None and kestrel.relation == Relation.CONTRADICTS
     assert frozenset({"port:0", "election:0"}) not in keys
+
+
+# --- calendar word exclusion (Task 4) -----------------------------------------
+
+
+def test_anchor_tokens_rejects_mid_sentence_weekdays():
+    # anchor_tokens tests mid-sentence capitalization as a proxy for proper
+    # nouns, and every weekday and month in English prose satisfies it. On the
+    # node5 labels "Monday" was the ONLY anchor holding n5_doc_007 (a hospital
+    # outbreak) to n5_doc_012 (a bridge closure) -- a calendar word anchoring
+    # a story.
+    text = "Engineers closed the Sable Bridge after inspectors found cracking Monday."
+    tokens = anchor_tokens(text)
+    assert "sable" in tokens
+    assert "bridge" in tokens
+    assert "monday" not in tokens
+
+
+def test_anchor_tokens_rejects_mid_sentence_months():
+    text = "Officials said the bridge will remain closed until at least September 3."
+    tokens = anchor_tokens(text)
+    assert "september" not in tokens
+    # A multi-digit number is still a story figure; a bare "3" was never
+    # entity-grade (the len >= 2 digit rule), so nothing is asserted about it.
+
+
+def test_calendar_words_covers_weekdays_and_months():
+    assert len(CALENDAR_WORDS) == 19
+    for word in ("monday", "sunday", "january", "may", "december"):
+        assert word in CALENDAR_WORDS
