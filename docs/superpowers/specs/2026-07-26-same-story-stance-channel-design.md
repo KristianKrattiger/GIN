@@ -353,6 +353,26 @@ Thresholds stay at the baked-39 values throughout, so the score moves only via
 `same_story` and `stance` flips on those 40 pairs — which is exactly the
 quantity of interest.
 
+### The pre-registered "known likely miss" did NOT occur
+
+This spec predicted `n5_doc_011↔012` (`September 3` vs `October 1`) would move to
+abstention and cost one point of `R`, on the grounds that its governing phrases
+share no content tokens. **That prediction was wrong.** The pair aligns and is
+typed CONTRADICTS correctly, which is why `R` is 1.000 rather than 11/12.
+
+It aligns on a measure Jaccard of **0.071** — a single shared stem, `repair`,
+across `remain closed until … September 3` and `repairs … finished before
+October 1`. At `ALIGN_FLOOR = 0.05` that clears.
+
+The symmetry is worth stating plainly, because it is the same fact seen twice:
+**the loose floor saved this real conflict and caused the one stance-arm false
+positive.** `n5_doc_023↔024` aligns a dockworker headcount against a commuter
+delay in minutes on the same kind of thin overlap. A floor tight enough to
+reject that pair would also reject this one. On this corpus the trade is
+favourable — one conflict kept for one false positive — but n=24 cannot say
+whether it stays favourable, and that is the generalization question this work
+leaves open rather than settles.
+
 ### Over-fitting control
 
 Node5 is synthetic and its patterns were authored by the same person who labeled
@@ -578,6 +598,10 @@ and `hf_kc_inspection↔hf_kc_tenants` have zero mentions on both sides,
 and a securities PR versus a complaint contradict *qualitatively*. node5 is
 quantity-dense by construction and hid this entirely.
 
+Measured ad hoc during implementation (Task 9), before the rule was chosen; the
+committed `scripts/eval_node5_stance.py` implements only the adopted rule, so the
+two rejected rows are not reproducible from it:
+
 | rule | node5 `P` | `P_all` | gold contradicts |
 |---|---|---|---|
 | `None` → CONTRADICTS | 0.923 | 0.706 | 4/4 |
@@ -614,6 +638,10 @@ on two of them.
 
 - **14-pair escalation-bar pin** (`tests/test_cartographer_eval_pairs.py`): 7/7,
   **unedited throughout**.
+- **45-pair eval set and the scan gold eval:** both hold, via the full suite
+  below. Named explicitly because this spec's success criteria list them
+  separately from the bar pin, and "the suite is green" is a weaker statement
+  than "these two surfaces were checked".
 - **Held-out 40-pair score, shipped thresholds:** 0.700 baseline → **0.725**
   after node5 registration → **0.725** after the stance channel. Stance did not
   move it, which is expected: those pairs are largely not same-story, so the arm

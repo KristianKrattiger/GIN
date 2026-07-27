@@ -31,6 +31,30 @@ Consequence: --write should not be used again until the calibration corpus
 contains same-story contradicts pairs (i.e. gold contradicts pairs where
 same_story=True actually occur). Until then, running with --write would
 silently regress the shipped thresholds.
+
+STATUS 2026-07-26: the precondition above is now SATISFIED, and --write is
+STILL not to be used from this session's work.
+
+What changed. Registering node5 in CORPUS_NODES took the calibration corpus to
+150 rows including 12 same-story contradicts, so the 33-unclassifiable-rows
+problem no longer holds. And combined.py's same-story arm no longer forces
+CONTRADICTS on story membership alone -- it now requires per-fact quantity
+stance evidence (gin/cartographer/quantity.py), so the "11 rows forced to
+CONTRADICTS regardless of threshold" mechanism is gone too. Both halves of the
+2026-07-25 reasoning are therefore obsolete as stated.
+
+Why --write is still wrong here. Recalibrating under a pipeline that changed in
+the same branch restates the change rather than evaluating it. The threshold
+decision was deliberately left to its own spec, to be made with this branch's
+numbers in hand rather than folded into them.
+
+Held-out movement under the SHIPPED thresholds, via --score-only (which skips
+calibrate()/leave_one_out(), both impractical at n=150): 0.700 at the 131-sample
+baseline -> 0.725 after node5 registration -> 0.725 after the stance channel.
+Stance did not move it, which is expected -- those 40 pairs are largely not
+same-story, so the arm this work changed rarely fires on them.
+
+See docs/superpowers/specs/2026-07-26-same-story-stance-channel-design.md.
 """
 from __future__ import annotations
 
