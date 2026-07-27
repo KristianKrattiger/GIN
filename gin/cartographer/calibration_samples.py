@@ -32,6 +32,14 @@ class Sample:
     # Stage-1 same-story signal: does the pair share >= 2 corpus-rare tokens?
     # Calibration feeds the classifier the signal it receives at scan time.
     same_story: bool = False
+    # Per-fact quantity stance (quantity.stance_for): "conflict" | "revision" |
+    # "partial" | "agreement" | "unaligned", or None. None and "unaligned" are
+    # NOT interchangeable -- None means the channel had no quantitative claim to
+    # judge and classify_relation falls through to its pre-stance branch, while
+    # "unaligned" means it looked and found no shared fact and the branch
+    # abstains. Defaulted so the committed 39-sample fixture, whose rows predate
+    # this field, keeps loading.
+    stance: Optional[str] = None
 
 
 @dataclass(frozen=True)
@@ -48,6 +56,9 @@ class EvalSample:
     p_contra: float
     relation: Relation
     same_story: bool = False
+    # See Sample.stance. None vs "unaligned" is a real distinction, not a
+    # missing value -- preserve it through serialization.
+    stance: Optional[str] = None
 
 
 @dataclass(frozen=True)
@@ -69,6 +80,12 @@ class SampleManifest:
     story_floor: int = 0
     df_ceiling: int | None = None
     require_anchor: bool = True
+    # Identity of the stance provider these rows were measured with. stance now
+    # decides the same-story arm outright, so a sample file measured under a
+    # different provider must not silently calibrate the live pipeline -- the
+    # same reasoning as the model ids and the same_story parameters above.
+    # "none" means the rows predate the stance channel.
+    stance_provider: str = "none"
 
     def to_json(self) -> dict:
         return asdict(self)
@@ -112,6 +129,7 @@ def write_samples(
                 "cos": s.cos,
                 "p_contra": s.p_contra,
                 "same_story": s.same_story,
+                "stance": s.stance,
                 "relation": s.relation.value,
             }
             for s in samples
@@ -123,6 +141,7 @@ def write_samples(
                 "cos": e.cos,
                 "p_contra": e.p_contra,
                 "same_story": e.same_story,
+                "stance": e.stance,
                 "relation": e.relation.value,
             }
             for e in eval_samples
@@ -161,6 +180,7 @@ def load_samples(
             p_contra=row["p_contra"],
             relation=Relation(row["relation"]),
             same_story=row["same_story"],
+            stance=row.get("stance"),
         )
         for row in payload["samples"]
     ]
@@ -192,6 +212,7 @@ def load_eval_samples(path: Optional[Path] = None) -> list[EvalSample]:
             p_contra=row["p_contra"],
             relation=Relation(row["relation"]),
             same_story=row["same_story"],
+            stance=row.get("stance"),
         )
         for row in payload.get("eval_samples", [])
     ]

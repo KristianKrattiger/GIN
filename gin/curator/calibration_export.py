@@ -19,8 +19,11 @@ from gin.cartographer.models import Relation
 from .store import Store
 from .text_index import default_text_index
 
-# (a_text, b_text) -> (cos, p_contra, same_story)
-SignalsFn = Callable[[str, str], tuple[float, float, bool]]
+# (a_text, b_text) -> (cos, p_contra, same_story, stance)
+# stance is quantity.stance_for's verdict, or None when the channel had no
+# quantitative claim to judge. None and "unaligned" are different answers, so
+# this stays Optional[str] rather than collapsing to a bool.
+SignalsFn = Callable[[str, str], tuple[float, float, bool, Optional[str]]]
 
 # Relations the threshold classifier can emit. SUPERSEDES is a graph relation,
 # not a detector output, so it is not a calibration target.
@@ -61,11 +64,12 @@ def export_calibration_rows(
         if src not in text or dst not in text:
             drops["text_unresolved"] += 1
             continue
-        cos, p_contra, same_story = signals_fn(text[src], text[dst])
+        cos, p_contra, same_story, stance = signals_fn(text[src], text[dst])
         measured = {
             "cos": float(cos),
             "p_contra": float(p_contra),
             "same_story": bool(same_story),
+            "stance": stance,
             "relation": relation.value,
         }
         if frozenset((src, dst)) in eval_keys:

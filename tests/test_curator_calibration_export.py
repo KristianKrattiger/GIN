@@ -15,8 +15,8 @@ def _rec(src, dst, relation, ts, relation_class=None):
 
 
 def _signals(a_text, b_text):
-    """Deterministic stand-in for embed + NLI; no models."""
-    return (0.5, 0.25, True)
+    """Deterministic stand-in for embed + NLI + stance; no models."""
+    return (0.5, 0.25, True, None)
 
 
 def _text(*ids):
@@ -63,8 +63,22 @@ def test_rows_carry_the_injected_signals(tmp_path):
     store.append(_rec("a:0", "b:0", Relation.CONTRADICTS, "2026-01-01T00:00:00Z"))
     report = export_calibration_rows(store, _signals, text_index=_text("a:0", "b:0"))
     assert report.rows[0] == {
-        "cos": 0.5, "p_contra": 0.25, "same_story": True, "relation": "contradicts",
+        "cos": 0.5, "p_contra": 0.25, "same_story": True, "stance": None,
+        "relation": "contradicts",
     }
+
+
+def test_rows_carry_a_non_null_stance_verdict_unchanged(tmp_path):
+    # stance is passed through verbatim rather than coerced: None and
+    # "unaligned" are different answers downstream, so the export must not
+    # normalise either into the other.
+    def signals(a_text, b_text):
+        return (0.5, 0.25, True, "unaligned")
+
+    store = Store(tmp_path / "l.jsonl")
+    store.append(_rec("a:0", "b:0", Relation.CONTRADICTS, "2026-01-01T00:00:00Z"))
+    report = export_calibration_rows(store, signals, text_index=_text("a:0", "b:0"))
+    assert report.rows[0]["stance"] == "unaligned"
 
 
 def test_empty_result_is_a_hard_error(tmp_path):

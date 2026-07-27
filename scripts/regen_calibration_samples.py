@@ -12,6 +12,7 @@ import subprocess
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Optional
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
@@ -30,6 +31,7 @@ from gin.cartographer.combined import (
     CombinedRelationProposer,
 )
 from gin.cartographer.models import Relation
+from gin.cartographer.quantity import stance_for
 from gin.cartographer.relatedness import (
     DEFAULT_STORY_FLOOR,
     _rare_df_ceiling,
@@ -72,11 +74,15 @@ def main() -> None:
         require_anchor=require_anchor,
     )
 
-    def signals(a_text: str, b_text: str) -> tuple[float, float, bool]:
+    def signals(a_text: str, b_text: str) -> tuple[float, float, bool, Optional[str]]:
+        story = same_story(a_text, b_text)
         return (
             proposer.embedding_cosine(a_text, b_text),
             proposer._p_contra(a_text, b_text),  # noqa: SLF001 - same scorer the classifier uses
-            same_story(a_text, b_text),
+            story,
+            # Only same-story pairs reach the stance arm, so only they need it
+            # measured. Mirrors CombinedRelationProposer.type_relation.
+            stance_for(a_text, b_text) if story else None,
         )
 
     report = export_calibration_rows(Store(args.log), signals, text_index=text)
@@ -84,6 +90,7 @@ def main() -> None:
         Sample(
             cos=r["cos"], p_contra=r["p_contra"],
             relation=Relation(r["relation"]), same_story=r["same_story"],
+            stance=r.get("stance"),
         )
         for r in report.rows
     ]
@@ -91,6 +98,7 @@ def main() -> None:
         EvalSample(
             src=r["src"], dst=r["dst"], cos=r["cos"], p_contra=r["p_contra"],
             relation=Relation(r["relation"]), same_story=r["same_story"],
+            stance=r.get("stance"),
         )
         for r in report.eval_rows
     ]
@@ -106,6 +114,7 @@ def main() -> None:
         story_floor=story_floor,
         df_ceiling=df_ceiling,
         require_anchor=require_anchor,
+        stance_provider="quantity.stance_for",
     )
     write_samples(args.out, manifest, samples, eval_samples)
     print(f"measured {len(samples)} calibration samples {report.class_counts}")
