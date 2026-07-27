@@ -180,8 +180,8 @@ All model-free, in `tests/test_cartographer_stance_branch.py`:
 - **New**, parametrized across `["revision", "partial", "agreement", UNALIGNED]`
   at a firing `p_contra`: all four resolve to `RELATED_UNTYPED, "abstain"`.
 - **New**: `stance="conflict"` at a firing `p_contra` still resolves via
-  `CONTRADICTS, "nli"` (not `"stance"`) — pins the moot-agreement case takes
-  the same channel attribution it does today.
+  `CONTRADICTS, "nli"` (not `"stance"`) — pins that the moot-agreement case
+  keeps the same channel attribution it has today.
 - **Unchanged, already covered**: `stance=None` at a firing `p_contra` stays
   `CONTRADICTS, "nli"` (existing parametrized row in
   `test_stance_none_reproduces_the_current_truth_table`) — noted here as
