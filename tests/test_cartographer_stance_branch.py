@@ -58,10 +58,29 @@ def test_agreement_below_the_ceiling_abstains():
     assert (relation, channel) == (Relation.RELATED_UNTYPED, "abstain")
 
 
-def test_nli_still_outranks_the_stance_branch():
-    # The NLI channel owns the legal/securities register it was calibrated on;
-    # stance evidence does not override a confident propositional contradiction.
+def test_stance_disagreement_overrules_a_firing_nli():
+    # Measured 2026-07-27: on the 24 node5 labels, every pair where NLI fires
+    # and stance disagrees is wrong (a supersedes and a corroborates, both
+    # scored CONTRADICTS by NLI alone); every pair where they agree is right.
+    # The stance channel now wins on disagreement instead of NLI.
     relation, channel = classify_relation(0.60, 0.90, T, same_story=True, stance="partial")
+    assert (relation, channel) == (Relation.RELATED_UNTYPED, "abstain")
+
+
+from gin.cartographer.quantity import UNALIGNED
+
+
+@pytest.mark.parametrize("stance", ["revision", "partial", "agreement", UNALIGNED])
+def test_any_disagreeing_stance_overrules_a_firing_nli(stance):
+    relation, channel = classify_relation(0.60, 0.90, T, same_story=True, stance=stance)
+    assert (relation, channel) == (Relation.RELATED_UNTYPED, "abstain")
+
+
+def test_agreeing_stance_leaves_nli_priority_untouched():
+    # stance == "conflict" agrees with a firing NLI, so the veto never
+    # applies -- channel stays "nli", not "stance", matching today's
+    # attribution exactly.
+    relation, channel = classify_relation(0.60, 0.90, T, same_story=True, stance="conflict")
     assert (relation, channel) == (Relation.CONTRADICTS, "nli")
 
 

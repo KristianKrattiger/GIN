@@ -124,16 +124,31 @@ def classify_relation(
     corroborates and a supersedes), so the evidence has to be per-fact. The
     fallback is ABSTENTION rather than corroboration: a wrong CONTRADICTS edge
     costs a knowledge graph more than a missing one.
+
+    When ``same_story`` is True and ``stance`` renders a decisive verdict that
+    disagrees with a firing NLI channel (stance is not None and not
+    "conflict", while p_contra >= contra_threshold), the stance channel wins
+    and the pair abstains to RELATED_UNTYPED instead of typing CONTRADICTS on
+    the NLI channel. Measured 2026-07-27 on the 24 node5 labels: every pair
+    where NLI fires and stance disagrees is wrong (a supersedes and a
+    corroborates, both scored CONTRADICTS by NLI alone); every pair where NLI
+    fires and stance agrees (stance == "conflict") is right. Agreement with a
+    firing NLI, or stance is None, leaves this function's prior behavior
+    exactly as it was -- the veto only ever fires on genuine disagreement.
     """
     if cos < t.gate_floor:
         return Relation.UNRELATED, "gate"
-    if p_contra >= t.contra_threshold and same_story is not False:
+    nli_contradicts = p_contra >= t.contra_threshold and same_story is not False
+    stance_disagrees = same_story and stance is not None and stance != "conflict"
+    if nli_contradicts and not stance_disagrees:
         return Relation.CONTRADICTS, "nli"
     if same_story:
         if stance is None:
             return Relation.CONTRADICTS, "band"
         if stance == "conflict":
             return Relation.CONTRADICTS, "stance"
+        if nli_contradicts:
+            return Relation.RELATED_UNTYPED, "abstain"
         if stance == "agreement" and cos >= t.corroborate_ceiling:
             return Relation.CORROBORATES, "band"
         return Relation.RELATED_UNTYPED, "abstain"
@@ -266,11 +281,13 @@ class CombinedRelationProposer:
             relation, channel = classify_relation(cos, 0.0, self.thresholds, same_story=False)
             return relation, {"cos": cos, "channel": channel, "same_story": False}
         p_contra = self._p_contra(a_text, b_text)
-        # Computed whenever `story` is true, even though classify_relation may
-        # have the NLI channel decide the pair first (p_contra >= contra_thresh
-        # takes priority over the stance arm below). In that case ev["stance"]
-        # still gets set on a channel: "nli" result -- the stance evidence was
-        # examined but discarded, not consulted for the decision.
+        # Computed whenever `story` is true. When stance is None or agrees
+        # with NLI (stance == "conflict"), NLI keeps priority and this may
+        # still return channel "nli" -- ev["stance"] is recorded whenever
+        # stance is not None, even on an "nli" result, since it was examined
+        # even when not decisive. When stance disagrees (not None, not
+        # "conflict") it overrules a firing NLI, and classify_relation
+        # returns channel "abstain" instead.
         stance = (
             self.stance_provider(a_text, b_text)
             if self.stance_provider is not None and story
