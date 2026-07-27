@@ -84,6 +84,15 @@ def main() -> None:
         # offline text index) so the shared lede is rare relative to the whole
         # corpus, the way it will be in production. Only set it when unset, same
         # guard as wire_same_story, so an injected provider is left untouched.
+        #
+        # NOTE: when these chunks are node5, this double-counts it --
+        # default_text_index() already contains node5 (registered in
+        # CORPUS_NODES, c039edd), so concatenating node5's texts on top pushes
+        # its document frequencies up and MASKS cross-event false positives.
+        # Known and deliberately left in place; see
+        # docs/superpowers/specs/2026-07-26-stage1-anchor-findings.md, "Known
+        # defect recorded but deliberately NOT fixed," and the identical note
+        # in scripts/verify_node5_surfacing.py.
         if proposer.same_story is None:
             proposer.same_story = make_same_story(
                 [ch.text for ch in chunks] + list(default_text_index().values())

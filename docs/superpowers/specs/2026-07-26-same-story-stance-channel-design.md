@@ -247,12 +247,14 @@ combined-detector tests valid without edits.
 
 With `stance` supplied, the `if same_story` arm becomes:
 
+**AMENDED during implementation — see Results.**
+
 ```
 same_story and stance == "conflict"                  -> CONTRADICTS, "stance"
 same_story and stance == "agreement"
         and cos >= corroborate_ceiling               -> CORROBORATES, "band"
 same_story and stance in {"revision", "partial",
-                          "agreement", None}         -> RELATED_UNTYPED, "abstain"
+                          "agreement", UNALIGNED}    -> RELATED_UNTYPED, "abstain"
 ```
 
 The NLI channel keeps its current priority and its current story gate. It is
@@ -564,6 +566,18 @@ priority and moving it is a separate decision.
 needs stage 1's union anchor *and* `ALIGN_FLOOR = 0.05` at once. It is the
 concrete instance of the low-floor hazard this spec flagged.
 
+**A sharper statement of the same four rows, because `n5_doc_023↔026` appears
+twice above under different runs and that is easy to misread as double
+counting:** of the four end-to-end false positives, **two are NLI-only**
+(`007↔008`, `036↔037` — the band never gets a chance to fire because the NLI
+channel's priority preempts it), **one is stance-only** (`023↔024`), and
+**one is overdetermined** — `023↔026` fires through the NLI channel at
+`p_contra` 0.692 with the real models (the row above), *and* it fires through
+the `band` channel under `stance=None` when NLI is injected to abstain (the
+stage-1-anchor-findings write-up's isolated measurement). Both are genuine,
+independent routes to the same wrong edge on the same pair; it is attributable
+to both channels at once, not to whichever one happens to be measured first.
+
 ### Over-fitting control
 
 Development (13 pairs, 7 events) `P` **0.900**; held out (6 pairs, 3 events) `P`
@@ -643,9 +657,26 @@ on two of them.
   separately from the bar pin, and "the suite is green" is a weaker statement
   than "these two surfaces were checked".
 - **Held-out 40-pair score, shipped thresholds:** 0.700 baseline → **0.725**
-  after node5 registration → **0.725** after the stance channel. Stance did not
-  move it, which is expected: those pairs are largely not same-story, so the arm
-  this work changed rarely fires on them.
+  after node5 registration → **0.725** after the stance channel.
+
+  **The score is unchanged, but not for the reason a previous version of this
+  document gave.** That version said stance did not move the number because
+  "those pairs are largely not same-story, so the arm this work changed rarely
+  fires on them" — which is false on both halves. 9 of the 40 held-out pairs
+  ARE same-story, and stance is non-`None` on 5 of them, so the arm fires
+  often, not rarely. The real reason the score holds: **all 9 same-story
+  held-out pairs are gold `contradicts`**, and stance reads `conflict` on 5 of
+  them and `None` on the other 4 — `conflict` types CONTRADICTS through the
+  new stance channel, and `None` types CONTRADICTS through the pre-stance band
+  fallback, so both paths give the same, correct answer on every one of the 9.
+  That is a stronger claim than "the arm rarely fires," and it is worth stating
+  plainly that the old wording would have read exactly the same — "unchanged"
+  — even if the stance channel were badly broken, which is why it was worth
+  checking directly rather than trusting the unchanged headline number.
+  (This also required threading `stance` through `_score_held_out` in
+  `scripts/recalibrate_cheap_pipeline.py`, which previously called
+  `classify_relation` without it — so the number itself was correct by
+  coincidence, but not honestly measured, until that call was fixed.)
 - **`data/cartographer_thresholds.json`: byte-identical.** No task wrote it.
 - **`story_floor` (2) and `_rare_df_ceiling`:** unchanged.
 - Full suite **732 passed / 16 skipped / 0 failed** (was 665 at `ebceb46`).

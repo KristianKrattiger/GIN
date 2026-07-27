@@ -20,7 +20,12 @@ from gin.cartographer.combined import (
     classify_relation,
 )
 from gin.cartographer.models import LabeledChunk, Relation
-from gin.cartographer.relatedness import make_same_story, shared_rare_token_count
+from gin.cartographer.relatedness import (
+    CALENDAR_WORDS,
+    anchor_tokens,
+    make_same_story,
+    shared_rare_token_count,
+)
 
 T = Thresholds(gate_floor=0.14, corroborate_ceiling=0.485, contra_threshold=0.686)
 
@@ -283,8 +288,6 @@ def test_wired_scan_proposals_are_story_gated():
 
 
 def test_anchor_tokens_rejects_mid_sentence_weekdays():
-    from gin.cartographer.relatedness import CALENDAR_WORDS, anchor_tokens
-
     # anchor_tokens tests mid-sentence capitalization as a proxy for proper
     # nouns, and every weekday and month in English prose satisfies it. On the
     # node5 labels "Monday" was the ONLY anchor holding n5_doc_007 (a hospital
@@ -298,8 +301,6 @@ def test_anchor_tokens_rejects_mid_sentence_weekdays():
 
 
 def test_anchor_tokens_rejects_mid_sentence_months():
-    from gin.cartographer.relatedness import anchor_tokens
-
     text = "Officials said the bridge will remain closed until at least September 3."
     tokens = anchor_tokens(text)
     assert "september" not in tokens
@@ -308,8 +309,6 @@ def test_anchor_tokens_rejects_mid_sentence_months():
 
 
 def test_calendar_words_covers_weekdays_and_months():
-    from gin.cartographer.relatedness import CALENDAR_WORDS
-
     assert len(CALENDAR_WORDS) == 19
     for word in ("monday", "sunday", "january", "may", "december"):
         assert word in CALENDAR_WORDS

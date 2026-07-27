@@ -85,6 +85,13 @@ class SampleManifest:
     # different provider must not silently calibrate the live pipeline -- the
     # same reasoning as the model ids and the same_story parameters above.
     # "none" means the rows predate the stance channel.
+    #
+    # NOT YET GATED: load_samples accepts expect_stance_provider but nothing
+    # currently passes it (the recalibration decision is the next spec's work,
+    # not this one's). Wiring it now against the committed 39-sample fixture
+    # (whose stance_provider is "none") would break loading that fixture. The
+    # parameter exists so the next spec can gate on it without another schema
+    # change.
     stance_provider: str = "none"
 
     def to_json(self) -> dict:
@@ -155,8 +162,20 @@ def load_samples(
     *,
     expect_embed_model: Optional[str] = None,
     expect_nli_model: Optional[str] = None,
+    expect_stance_provider: Optional[str] = None,
 ) -> tuple[list[Sample], SampleManifest]:
-    """Load samples + manifest. Model mismatch is a hard error, never a fallback."""
+    """Load samples + manifest. Model mismatch is a hard error, never a fallback.
+
+    ``expect_stance_provider`` gates ``SampleManifest.stance_provider`` the same
+    way ``expect_embed_model``/``expect_nli_model`` gate their fields: pass the
+    identity the live pipeline expects and a mismatch is a hard error rather
+    than a silent recalibration against rows measured under a different stance
+    rule. NOT YET WIRED into any caller -- the committed 39-sample fixture's
+    manifest records `stance_provider="none"`, so a live gate against it here
+    would break loading that fixture today. This parameter exists for the next
+    spec (recalibration under the stance channel) to use without another
+    schema change; it is exercised only by tests until then.
+    """
     path = DEFAULT_SAMPLES_PATH if path is None else Path(path)
     if not path.is_file():
         raise FileNotFoundError(
@@ -173,6 +192,14 @@ def load_samples(
         raise ValueError(
             f"NLI model mismatch: samples measured with {manifest.nli_model!r}, "
             f"pipeline uses {expect_nli_model!r}"
+        )
+    if (
+        expect_stance_provider is not None
+        and manifest.stance_provider != expect_stance_provider
+    ):
+        raise ValueError(
+            f"stance provider mismatch: samples measured with "
+            f"{manifest.stance_provider!r}, pipeline uses {expect_stance_provider!r}"
         )
     samples = [
         Sample(

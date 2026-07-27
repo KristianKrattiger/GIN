@@ -107,6 +107,22 @@ every cell rather than reporting a single winner.
 
 ## The finding that makes withdrawal cheap: stage 2 absorbs stage 1's residue
 
+**Note, added after amendment (2026-07-26):** the table and the single-error
+framing immediately below were measured under the `None → abstain` variant of
+Component 2 — the variant the parent spec's Results section ("Amendment to
+Component 2 — `None` versus `UNALIGNED`") later rejected in favor of the
+`UNALIGNED` sentinel. That rejected variant is exactly where the `P_all` 0.923
+figure below comes from. At the shipped state, `stance=None` falls through to
+the pre-stance band branch instead of abstaining — the price of keeping the
+three quantity-free gold contradicts pairs (housing habitability, the
+securities PR/complaint pair) alive — so the measured figure at head is
+`P_all` **0.857**, not 0.923, and there are **two** cross-event false positives,
+not one: `n5_doc_023↔024` (discussed below, through the `stance` channel) and
+`n5_doc_023↔026` (through the `band` channel, `stance=None`). This document
+predates that amendment. The conclusion in the paragraph below it — that the
+stage-1 fix is not required to clear the pre-registered bar — still holds at
+0.857.
+
 Measured with the stance channel over the **unfixed** stage 1 (union anchors,
 calendar fix only):
 
@@ -122,11 +138,13 @@ in them and abstains, so they never become CONTRADICTS edges. Stage 1's precisio
 problem is largely invisible downstream once the branch requires stance evidence —
 which is a result about where the defect actually mattered.
 
-## The one surviving error, and what it tells us
+## The two surviving errors, and what they tell us
+
+At the shipped state (`UNALIGNED` sentinel, `P_all` 0.857) there are **two**
+cross-event false positives, not one.
 
 `n5_doc_023:0 ↔ n5_doc_024:0` (Delacroix port strike vs Crosstown transit
-suspension) is the single false positive at `P_all` 0.923. It requires **both**
-weaknesses at once:
+suspension) requires **both** weaknesses at once:
 
 1. stage 1 passes it, because `Union Yard` in the transit report anchors against
    `the union local` in the strike report — the union-anchor defect; and
@@ -138,6 +156,16 @@ low-floor hazard** the plan pre-registered as its main generalization concern �
 at 0.05, alignment is close to "same unit class plus one shared stem", and here
 that produced a conflict between a dockworker headcount and a commuter delay in
 minutes. Worth keeping as a regression case for any future floor change.
+
+`n5_doc_023:0 ↔ n5_doc_026:0` is different in kind: stance reads `None` on this
+pair (at least one side states no quantity the channel can judge), so
+`classify_relation` falls through to the pre-stance band branch and types it
+CONTRADICTS on story membership alone — the original defect A, still reachable
+by design. This is the measured price of keeping `None` fall through to that
+branch rather than abstaining: the same `None` path is what preserves the three
+quantity-free gold contradicts pairs. There is no single fix that removes this
+one without also removing that path's benefit; it is a tradeoff, not a bug in
+the ordinary sense.
 
 ## What is left on the branch
 

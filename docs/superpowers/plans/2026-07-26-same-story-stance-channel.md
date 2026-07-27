@@ -36,7 +36,7 @@
 
 **Modify:**
 - `gin/curator/text_index.py:28` — `CORPUS_NODES` gains node5.
-- `gin/cartographer/relatedness.py` — `anchor_tokens` calendar exclusion; `make_same_story` union → intersection.
+- `gin/cartographer/relatedness.py` — `anchor_tokens` calendar exclusion; `make_same_story` union → intersection (WITHDRAWN — see Task 5).
 - `gin/cartographer/combined.py` — `classify_relation` stance parameter; proposer wiring.
 - `gin/cartographer/calibration_samples.py` — `stance` on `Sample`/`EvalSample`, provider id on `SampleManifest`.
 - `gin/curator/calibration_export.py` — `SignalsFn` returns a 4-tuple; rows carry `stance`.
@@ -2647,8 +2647,8 @@ Add to `docs/superpowers/specs/2026-07-26-same-story-stance-channel-design.md`:
 - **Over-fitting control:** development (13 pairs, 7 events) `P` <dp>; held out
   (6 pairs, 3 events) `P` <hp>; gap <gap>. The split was named in this spec
   before any held-out pair was scored.
-- **Stage 1:** cross-event false positives 5 → <n>, within-event same-story
-  <n>/19, `story_floor` and `df_ceiling` unchanged.
+- **Stage 1:** cross-event false positives 5 → 4, within-event same-story
+  19/19, `story_floor` and `df_ceiling` unchanged.
 - **Held-out 40-pair score, shipped thresholds:** 0.700 baseline →
   <after registration> → <after anchor fixes> → <after stance>.
 - **Frozen surfaces:** 45-pair eval set, 14-pair bar pin and the scan gold eval
@@ -2657,7 +2657,9 @@ Add to `docs/superpowers/specs/2026-07-26-same-story-stance-channel-design.md`:
 - **Not measured:** any recalibrated threshold value. The 19 new calibration
   rows unblock `recalibrate_cheap_pipeline.py`; that is the next spec.
 - **Known miss, pre-registered:** `n5_doc_011↔012` (`September 3` vs
-  `October 1`) — <abstained as expected / unexpectedly aligned>.
+  `October 1`) — unexpectedly aligned (the prediction that it would move to
+  abstention was wrong; it is typed CONTRADICTS correctly, which is why `R` is
+  1.000 rather than 11/12).
 - **`ALIGN_FLOOR`** settled at <CHOSEN>, selected on the 13 development pairs
   only. Dev precision was 1.000 at every floor tried, so recall was the binding
   constraint and the `P` half of the bar cleared trivially — recorded here so

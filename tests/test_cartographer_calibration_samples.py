@@ -89,6 +89,43 @@ def test_matching_models_load_cleanly(tmp_path):
     assert len(loaded) == 2
 
 
+def test_stance_provider_mismatch_is_a_hard_error(tmp_path):
+    path = tmp_path / "samples.json"
+    manifest = SampleManifest(
+        embed_model="embed-x", nli_model="nli-y", n_samples=2,
+        class_counts={"contradicts": 1, "unrelated": 1}, excluded_eval_pairs=45,
+        git_sha="abc1234", created_utc="2026-07-25T00:00:00Z",
+        stance_provider="quantity.stance_for",
+    )
+    write_samples(path, manifest, _samples(), _eval_samples())
+    with pytest.raises(ValueError, match="stance provider mismatch"):
+        load_samples(path, expect_stance_provider="something-else")
+
+
+def test_matching_stance_provider_loads_cleanly(tmp_path):
+    path = tmp_path / "samples.json"
+    manifest = SampleManifest(
+        embed_model="embed-x", nli_model="nli-y", n_samples=2,
+        class_counts={"contradicts": 1, "unrelated": 1}, excluded_eval_pairs=45,
+        git_sha="abc1234", created_utc="2026-07-25T00:00:00Z",
+        stance_provider="quantity.stance_for",
+    )
+    write_samples(path, manifest, _samples(), _eval_samples())
+    loaded, _ = load_samples(path, expect_stance_provider="quantity.stance_for")
+    assert len(loaded) == 2
+
+
+def test_stance_provider_check_is_skipped_when_not_requested(tmp_path):
+    # expect_stance_provider=None (the default) means "don't gate" -- the
+    # committed 39-sample fixture's manifest carries stance_provider="none"
+    # and must keep loading with no expectation passed.
+    path = tmp_path / "samples.json"
+    write_samples(path, _manifest(), _samples(), _eval_samples())
+    loaded, manifest = load_samples(path)
+    assert manifest.stance_provider == "none"
+    assert len(loaded) == 2
+
+
 def test_missing_file_names_the_regen_command(tmp_path):
     with pytest.raises(FileNotFoundError, match="regen_calibration_samples"):
         load_samples(tmp_path / "absent.json")

@@ -138,8 +138,8 @@ class QuantityMention:
     unit_class: str            # count | currency | percent | points | speed | area | date
     measure: frozenset[str]    # content tokens governing the numeral
     scope: frozenset[str]      # narrowing qualifiers from SCOPE_TOKENS
-    revised: bool              # sits in a "revised to X" construction
-    as_of: Optional[int]       # weekday ordinal of the clause's temporal marker
+    revised: bool              # SENTENCE contains a "revised to X" construction
+    as_of: Optional[int]       # weekday ordinal of the SENTENCE's temporal marker
     span: tuple[int, int]      # offsets in the full text, for rationales
 
 
@@ -221,6 +221,21 @@ def extract_mentions(text: str) -> tuple[QuantityMention, ...]:
         offset = text.index(sentence, cursor)
         cursor = offset + len(sentence)
 
+        # SENTENCE-scoped, not clause-scoped: both searches run over the whole
+        # `sentence`, and every mention extracted below (after `cut`, for
+        # REVISED_TO) is stamped with this one `as_of`/`revised` value even
+        # when the marker sits in a different clause from the mention.
+        # _CLAUSE_SPLIT / _measure_tokens's clause boundaries are NOT consulted
+        # here. Demonstrated bleed: "Winds initially reported at 90 mph were
+        # revised to 105 mph, and 65 shelters opened along the coast." marks
+        # BOTH the 105 mph mention AND the unrelated 65-shelters mention
+        # `revised=True`, because both are in the one sentence and after the
+        # "revised to" cut. This is a recorded limitation, not intended
+        # behavior -- see test_revision_marker_bleeds_across_a_sentence_known_limitation
+        # in tests/test_cartographer_quantity.py. It costs nothing on the
+        # current corpus only because both labeled mixed-fact pairs
+        # (n5_doc_005<->006, n5_doc_017<->020) put the revision clause in its
+        # own sentence.
         as_of_match = _AS_OF.search(sentence)
         as_of = CALENDAR_ORDINALS[as_of_match.group("day").lower()] if as_of_match else None
 
@@ -313,6 +328,30 @@ class StanceEvidence:
     partials: tuple[tuple[QuantityMention, QuantityMention], ...] = ()
     agreements: tuple[tuple[QuantityMention, QuantityMention], ...] = ()
 
+    def bucket(
+        self, kind: str
+    ) -> tuple[tuple[QuantityMention, QuantityMention], ...]:
+        """The evidence bucket for one STANCE_PRECEDENCE kind name.
+
+        The single source of truth for kind-name -> field, so that mapping is
+        not re-hardcoded wherever a caller needs to walk STANCE_PRECEDENCE in
+        order (stance_for below; scripts/eval_node5_stance.py).
+        """
+        return {
+            "conflict": self.conflicts,
+            "revision": self.revisions,
+            "partial": self.partials,
+            "agreement": self.agreements,
+        }[kind]
+
+    def first(self) -> tuple[tuple[QuantityMention, QuantityMention], ...]:
+        """The highest-precedence non-empty bucket, walking STANCE_PRECEDENCE."""
+        for kind in STANCE_PRECEDENCE:
+            found = self.bucket(kind)
+            if found:
+                return found
+        return ()
+
 
 def _jaccard(a: frozenset[str], b: frozenset[str]) -> float:
     if not a or not b:
@@ -356,11 +395,26 @@ def align(
 def judge(pair: tuple[QuantityMention, QuantityMention]) -> str:
     """Evidence kind for one aligned mention pair.
 
-    Order is fixed and total, so the result never depends on check sequence:
+    Order is fixed and total, so every pair reaches exactly one branch -- but
+    the result absolutely depends on check sequence, which is what makes the
+    fixed order load-bearing rather than incidental:
       1. equal values                      -> agreement
       2. scopes differ                     -> partial   (different denominators)
-      3. revised, or a strictly later as_of -> revision
+      3. revised, or as_of markers differ  -> revision
       4. otherwise                         -> conflict
+
+    Step 3 is `x.as_of != y.as_of` (both present), not "y strictly later than
+    x": the check is symmetric, which is fine because the pair's argument
+    order is arbitrary (align() does not orient a/b by which text is "later").
+    A directional check would need to know which side is more recent, which
+    this module does not track.
+
+    NOTE: `partial` is checked (step 2) BEFORE `revision` (step 3), so a
+    revision that also narrows scope -- the value changed AND the denominator
+    changed -- buckets as `partial`, not `revision`. Both outcomes abstain
+    (RELATED_UNTYPED), so this has no effect on any CONTRADICTS decision, but
+    a rationale built from the evidence would name the wrong reason for a
+    pair like that.
     """
     x, y = pair
     if x.value == y.value:
@@ -420,12 +474,10 @@ def stance_for(
     if not a_mentions or not b_mentions:
         return None
     ev = _evidence_from_mentions(a_mentions, b_mentions, floor)
-    for kind, bucket in (
-        ("conflict", ev.conflicts),
-        ("revision", ev.revisions),
-        ("partial", ev.partials),
-        ("agreement", ev.agreements),
-    ):
-        if bucket:
+    # STANCE_PRECEDENCE is the single source of truth for the ordering;
+    # ev.bucket(kind) is the single source of truth for kind -> field. Neither
+    # is re-hardcoded here.
+    for kind in STANCE_PRECEDENCE:
+        if ev.bucket(kind):
             return kind
     return UNALIGNED

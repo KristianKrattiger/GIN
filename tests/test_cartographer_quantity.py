@@ -200,8 +200,67 @@ def test_none_when_either_text_states_no_quantity():
     assert stance_for(qualitative, qualitative) is None
 
 
+def test_revision_marker_bleeds_across_a_sentence_known_limitation():
+    """extract_mentions searches REVISED_TO / _AS_OF over the whole SENTENCE,
+    not the clause, and stamps every mention after the "revised to" cut with
+    revised=True -- even one governed by an unrelated clause in the same
+    sentence.
+
+    This is a RECORDED LIMITATION, not intended behavior: the field comments
+    on QuantityMention.revised/as_of and the design spec both describe
+    clause-scoped semantics that the code does not implement. It is pinned
+    here rather than fixed because re-scoping extract_mentions to the clause
+    could move the pre-registered stance-channel numbers, and that
+    re-measurement is out of scope for a docstring/comment fix.
+
+    It costs nothing on the current corpus only because both labeled
+    mixed-fact conflicts (n5_doc_005<->006, n5_doc_017<->020) put their
+    revision clause in its own sentence. Here the revision clause and the
+    unrelated shelter count share one sentence, so the bleed marks the
+    shelter mention revised=True too -- and aligned against a text with a
+    genuinely conflicting shelter count, an unambiguous 65-vs-40 conflict
+    reads "revision" and the pair abstains instead of typing CONTRADICTS.
+    """
+    text = (
+        "Winds initially reported at 90 mph were revised to 105 mph, and 65 "
+        "shelters opened along the coast."
+    )
+    mentions = extract_mentions(text)
+    by_value = {m.value: m for m in mentions}
+    assert by_value[105.0].unit_class == "speed"
+    assert by_value[105.0].revised is True
+    assert by_value[65.0].unit_class == "count"
+    assert by_value[65.0].revised is True, (
+        "the bleed: 65 shelters is stamped revised=True despite being governed "
+        "by an unrelated clause"
+    )
+
+    other = "Sustained winds reached 90 mph. Emergency officials said 40 shelters had opened along the coast."
+    assert stance_for(text, other) == "revision", (
+        "an unambiguous 65-vs-40 shelter conflict reads as revision (and "
+        "abstains) because of the sentence-scoped bleed above"
+    )
+
+
 def test_precedence_is_conflict_first():
+    # Kept as a lightweight regression guard, but this alone is a tautology --
+    # reassigning the constant would still pass it. The behavioural check below
+    # is what actually exercises conflict > revision.
     assert STANCE_PRECEDENCE == ("conflict", "revision", "partial", "agreement")
+
+
+def test_conflict_outranks_revision_when_a_pair_yields_both():
+    # No labeled node5 pair exercises conflict > revision (the design spec
+    # notes this explicitly). Constructed here: one aligned fact conflicts
+    # (65 vs 40 shelters) while a DIFFERENT aligned fact is revised (winds
+    # revised to 105 vs 90 mph) -- verified below to actually produce one of
+    # each kind before relying on the precedence assertion.
+    a = "Winds were revised to 105 mph. Emergency officials said 65 shelters had opened."
+    b = "Sustained winds reached 90 mph. Emergency officials said 40 shelters had opened."
+    ev = evidence_for(a, b)
+    assert ev.conflicts, "the shelter divergence must be found as a conflict"
+    assert ev.revisions, "the wind-speed revision must be found as a revision"
+    assert stance_for(a, b) == "conflict"
 
 
 def test_an_incidental_agreement_cannot_swallow_a_real_conflict():

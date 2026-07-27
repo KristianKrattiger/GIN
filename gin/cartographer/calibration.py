@@ -53,7 +53,15 @@ def _midpoints(values: list[float]) -> list[float]:
 
 
 def _score(samples: list[Sample], t: Thresholds) -> int:
-    """Number of samples whose relation the thresholds classify correctly."""
+    """Number of samples whose relation the thresholds classify correctly.
+
+    Deliberately does NOT pass ``s.stance`` here. Feeding stance to the
+    threshold grid search is a real change to what calibrate() optimizes, and
+    that belongs to the next spec (the recalibration decision), not to this
+    fix. See scripts/recalibrate_cheap_pipeline.py's _score_held_out, which DOES
+    thread stance through -- that is a read against fixed, shipped thresholds,
+    not a search over new ones.
+    """
     return sum(
         1
         for s in samples
@@ -145,7 +153,13 @@ class LooResult:
 
 
 def leave_one_out(samples: list[Sample]) -> LooResult:
-    """Predict each sample with thresholds calibrated on all the others."""
+    """Predict each sample with thresholds calibrated on all the others.
+
+    Deliberately does NOT pass ``held.stance`` here, for the same reason as
+    _score above: threading stance into the fold predictions here is a search
+    decision about what leave_one_out validates, and that is deferred to the
+    next spec rather than folded into this one.
+    """
     preds: list[tuple[Relation, Relation]] = []
     folds: list[Thresholds] = []
     for i, held in enumerate(samples):

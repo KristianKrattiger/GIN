@@ -51,8 +51,15 @@ numbers in hand rather than folded into them.
 Held-out movement under the SHIPPED thresholds, via --score-only (which skips
 calibrate()/leave_one_out(), both impractical at n=150): 0.700 at the 131-sample
 baseline -> 0.725 after node5 registration -> 0.725 after the stance channel.
-Stance did not move it, which is expected -- those 40 pairs are largely not
-same-story, so the arm this work changed rarely fires on them.
+
+The score is unchanged, but not because stance rarely fires on these pairs --
+it is non-None on 5 of the 9 same-story held-out pairs, so it fires often. It
+is unchanged because all 9 same-story held-out pairs are gold contradicts, and
+stance reads "conflict" on 5 of them and None on the other 4 -- "conflict"
+types CONTRADICTS through the stance channel, and None types CONTRADICTS
+through the pre-stance band fallback, so both paths agree on every one of the
+9. See docs/superpowers/specs/2026-07-26-same-story-stance-channel-design.md's
+Results section for the full correction.
 
 See docs/superpowers/specs/2026-07-26-same-story-stance-channel-design.md.
 """
@@ -92,11 +99,22 @@ DISPUTED_PAIR = {"inst_em:0", "clim_pledges:0"}
 
 
 def _score_held_out(eval_samples: list[EvalSample], t: Thresholds) -> float:
-    """Fraction of held-out eval pairs the thresholds classify correctly."""
+    """Fraction of held-out eval pairs the thresholds classify correctly.
+
+    Passes each sample's ``stance`` through to classify_relation so this scores
+    the rule the pipeline actually runs, not the pre-stance branch. Verified
+    2026-07-26: the score is 0.725 either way on the current 40 held-out pairs
+    (9 are same-story; stance is non-None on 5 of those 9, and all 9 are gold
+    contradicts, so both the "conflict" and the "None -> band" paths already
+    gave the correct answer) -- so this change makes the reported number
+    honestly measured without moving it.
+    """
     if not eval_samples:
         return float("nan")
     correct = sum(
-        classify_relation(e.cos, e.p_contra, t, same_story=e.same_story)[0] == e.relation
+        classify_relation(
+            e.cos, e.p_contra, t, same_story=e.same_story, stance=e.stance
+        )[0] == e.relation
         for e in eval_samples
     )
     return correct / len(eval_samples)

@@ -90,6 +90,11 @@ def anchor_tokens(text: str) -> set[str]:
     entity signal — corpus-rare boilerplate ('remain in effect', 'Combined
     reservoir storage...') drove the residual scan false positives
     (run 20260712T091415Z).
+
+    DRIFT POINTER: `_scan()` in `scripts/sweep_same_story.py` mirrors this
+    function's classification logic (entity_grade) to expose extra signals for
+    the anchor-mode sweep. Editing this function's classification without
+    updating that mirror invalidates the sweep's numbers silently.
     """
     out: set[str] = set()
     for m in _ANCHOR_WORD.finditer(text):

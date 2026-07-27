@@ -76,7 +76,9 @@ def main() -> int:
         facts = ""
         if ev.get("stance"):
             e = evidence_for(texts[pair.src], texts[pair.dst])
-            bucket = e.conflicts or e.revisions or e.partials or e.agreements
+            # e.first() walks STANCE_PRECEDENCE via StanceEvidence.bucket, so
+            # the ordering is not re-hardcoded a third time here.
+            bucket = e.first()
             if bucket:
                 x, y = bucket[0]
                 facts = f"  [{x.value:g} vs {y.value:g} {x.unit_class}]"
