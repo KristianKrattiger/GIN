@@ -1,7 +1,7 @@
 # Design: Stance Channel Outranks NLI on Same-Story Disagreement
 
 **Date:** 2026-07-27
-**Status:** Proposed
+**Status:** IMPLEMENTED and measured 2026-07-27.
 **Sub-project:** F — the deferred decision from sub-project E
 **Predecessor:** `docs/superpowers/specs/2026-07-26-same-story-stance-channel-design.md`
 **Labels this rests on:** the same 24 curator labels over `corpus_node5.json`,
@@ -212,3 +212,116 @@ All model-free, in `tests/test_cartographer_stance_branch.py`:
 None blocking. If measurement (item 1 in the plan) surfaces a same-story
 disagreement pattern outside node5 not covered by this design, that is new
 evidence for a follow-on, not a reason to hold this one.
+
+## Results (measured 2026-07-27)
+
+Implemented in commit `194b14a`. Every pre-registered prediction in the
+Measurement plan landed exactly as predicted — none required rounding,
+reinterpretation, or a "close enough" judgment call. Reported below anyway,
+in full, per this track's practice of recording every number whichever way
+it moves.
+
+### The disagreement veto, end to end
+
+Real `all-MiniLM-L6-v2` + `nli-deberta-v3-xsmall`, `scripts/eval_node5_stance.py`:
+
+| | `ebceb46` baseline | pre-this-spec (E, shipped) | measured (this spec) |
+|---|---|---|---|
+| `P` within-event | 0.632 | 0.857 (tp 12, fp 2) | **1.000** (tp 12, fp 0, fn 0) |
+| `R` recall | 1.000 | 1.000 | **1.000** |
+| `P_all` incl. cross-event | 0.500 | 0.750 (tp 12, fp 4) | **0.857** (tp 12, fp 2) |
+
+The script's own printed "baseline" column is `node5_labels.BASELINE_P` /
+`BASELINE_R` / `BASELINE_P_ALL` — the pre-stance-channel `ebceb46` reference
+point, left unchanged per this spec's Decisions table, not redefined here.
+The "pre-this-spec" column above is E's own end-to-end row (its Results
+section) and is what this spec's Measurement plan and Success criteria are
+actually predicting against. Script's own verdict line:
+
+```
+  pre-registered bar: PASS  (P and P_all both improve, R >= 0.75)
+```
+
+Matches the plan's prediction exactly: `P` 0.857 → 1.000, `P_all` 0.750 →
+0.857, `R` stays 1.000.
+
+### False positives by channel
+
+Predicted: only `n5_doc_023:0<->n5_doc_024:0` (stance) and
+`n5_doc_023:0<->n5_doc_026:0` (nli) remaining. Measured, verbatim:
+
+```
+stance   gold=unrelated    p_contra=0.615 cos=0.259 stance=conflict  n5_doc_023:0 <-> n5_doc_024:0
+nli      gold=unrelated    p_contra=0.692 cos=0.261 stance=None  n5_doc_023:0 <-> n5_doc_026:0
+totals: {'stance': 1, 'nli': 1}
+```
+
+Exact match, by pair id and channel both. The count dropped from 4 (E's
+measurement) to 2, and the two that disappeared are, by elimination and
+consistent with this spec's own "Measured evidence" naming, `007↔008`
+(supersedes) and `036↔037` (corroborates) — the per-pair output confirms
+the corresponding `northgate_hospital_outbreak` (gold=supersedes,
+stance=revision) and `stadium_capacity_ruling` (gold=corroborates,
+stance=unaligned) rows now type `related_untyped`/`abstain` rather than
+`contradicts`/`nli`. (The script does not print doc ids for pairs that are
+no longer false positives, so this is a cross-referenced inference from
+the per-pair table, not a second verbatim doc-id line from this run — flagged
+here rather than stated as if the script printed it directly.)
+
+### Over-fitting control (dev/held-out split)
+
+Predicted: both halves reach `P` 1.000 (currently 0.900 / 0.750). Measured:
+
+```
+development (13 pairs, 7 events)   P 1.000  R 1.000
+held out    (6 pairs, 3 events)   P 1.000  R 1.000
+gap in P: +0.000
+```
+
+Exact match. E's Results section reported a −0.150 gap here, driven entirely
+by the `036↔037` NLI false positive landing in the held-out half; that gap is
+now zero because that pair no longer types CONTRADICTS at all.
+
+### Held-out 40-pair calibration score
+
+`scripts/recalibrate_cheap_pipeline.py --score-only`, verbatim:
+
+```
+samples: 150 {'related_untyped': 62, 'unrelated': 26, 'corroborates': 28, 'contradicts': 34}
+same_story corpus: 274 docs, df_ceiling 9
+shipped thresholds: Thresholds(gate_floor=0.14, corroborate_ceiling=0.486, contra_threshold=0.686)
+held-out (40 eval pairs, never calibrated on) accuracy   0.725
+```
+
+Predicted unchanged at 0.725. Measured: **0.725**. Exact match — confirms
+the spec's reasoning that none of the 9 same-story pairs in that 40-pair set
+had a stance value among this change's disagreement cases.
+
+### Frozen surfaces (from Task 2)
+
+Task 2 ran these against commit `194b14a` before this task recorded headline
+numbers; all matched plan predictions exactly:
+
+- Full suite: **742 passed / 16 skipped** (baseline 737 passed / 16 skipped
+  before Task 1's 5 new test cases).
+- `data/cartographer_thresholds.json`: byte-identical (`git status --short`
+  empty).
+- 14-pair escalation bar pin (`tests/test_cartographer_eval_pairs.py`):
+  **7 passed**, unchanged — confirms the structural argument that this test
+  never sets `same_story` or `stance`.
+- Isolated stance-arm test (`tests/test_cartographer_stance_node5.py`):
+  **3 passed**, with the same pinned false-positive pair/channel names as
+  before (`n5_doc_023:0<->n5_doc_024:0` as `"stance"`,
+  `n5_doc_023:0<->n5_doc_026:0` as `"band"`) — confirms, as predicted, that
+  this test's fixed `p_contra=0.05` injection never reaches the new veto
+  branch.
+
+### Deviations from prediction
+
+None. `P`, `R`, `P_all`, the dev/held-out split, the false-positive list by
+name and channel, the held-out-40 score, and the full-suite count all landed
+exactly on the values this spec's Measured evidence and Success criteria
+predicted. The two named false positives (`007↔008`, `036↔037`) are gone;
+the two pinned as unchanged (`023↔024`, `023↔026`) are unchanged, by name
+and by channel; recall did not move; the held-out calibration score did not
+move; nothing outside `tests/test_cartographer_stance_branch.py` broke.
