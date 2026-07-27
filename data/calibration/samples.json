@@ -10,912 +10,1063 @@
       "contradicts": 34
     },
     "excluded_eval_pairs": 40,
-    "git_sha": "0350c18",
-    "created_utc": "2026-07-26T11:21:45Z",
+    "git_sha": "cb9608c",
+    "created_utc": "2026-07-27T06:37:38Z",
     "same_story_corpus_size": 274,
     "story_floor": 2,
     "df_ceiling": 9,
-    "require_anchor": true
+    "require_anchor": true,
+    "stance_provider": "quantity.stance_for"
   },
   "samples": [
     {
       "cos": 0.22278493642807007,
       "p_contra": 0.7053484916687012,
       "same_story": false,
+      "stance": null,
       "relation": "related_untyped"
     },
     {
       "cos": -0.0970475897192955,
       "p_contra": 0.08380742371082306,
       "same_story": false,
+      "stance": null,
       "relation": "unrelated"
     },
     {
       "cos": 0.3364281952381134,
       "p_contra": 0.08468495309352875,
       "same_story": false,
+      "stance": null,
       "relation": "related_untyped"
     },
     {
       "cos": 0.25404834747314453,
       "p_contra": 0.013319049961864948,
       "same_story": false,
+      "stance": null,
       "relation": "related_untyped"
     },
     {
       "cos": 0.29412609338760376,
       "p_contra": 0.013388707302510738,
       "same_story": false,
+      "stance": null,
       "relation": "related_untyped"
     },
     {
       "cos": 0.04540325328707695,
       "p_contra": 0.009970232844352722,
       "same_story": false,
+      "stance": null,
       "relation": "unrelated"
     },
     {
       "cos": 0.06863346695899963,
       "p_contra": 0.23402397334575653,
       "same_story": false,
+      "stance": null,
       "relation": "unrelated"
     },
     {
       "cos": 0.0786859393119812,
       "p_contra": 0.03521337732672691,
       "same_story": false,
+      "stance": null,
       "relation": "unrelated"
     },
     {
       "cos": -0.030755728483200073,
       "p_contra": 0.009435468353331089,
       "same_story": false,
+      "stance": null,
       "relation": "unrelated"
     },
     {
       "cos": 0.16390977799892426,
       "p_contra": 0.128672793507576,
       "same_story": false,
+      "stance": null,
       "relation": "unrelated"
     },
     {
       "cos": 0.2633219361305237,
       "p_contra": 0.7703834772109985,
       "same_story": false,
+      "stance": null,
       "relation": "unrelated"
     },
     {
       "cos": 0.015765758231282234,
       "p_contra": 0.025248993188142776,
       "same_story": false,
+      "stance": null,
       "relation": "unrelated"
     },
     {
       "cos": 0.22269871830940247,
       "p_contra": 0.008782786317169666,
       "same_story": false,
+      "stance": null,
       "relation": "unrelated"
     },
     {
       "cos": 0.2188289761543274,
       "p_contra": 0.013417672365903854,
       "same_story": false,
+      "stance": null,
       "relation": "unrelated"
     },
     {
       "cos": 0.33890074491500854,
       "p_contra": 0.01681707426905632,
       "same_story": false,
+      "stance": null,
       "relation": "unrelated"
     },
     {
       "cos": -0.09021356701850891,
       "p_contra": 0.30426931381225586,
       "same_story": false,
+      "stance": null,
       "relation": "unrelated"
     },
     {
       "cos": 0.2556195557117462,
       "p_contra": 0.012182643637061119,
       "same_story": false,
+      "stance": null,
       "relation": "unrelated"
     },
     {
       "cos": 0.071830153465271,
       "p_contra": 0.8594074249267578,
       "same_story": false,
+      "stance": null,
       "relation": "unrelated"
     },
     {
       "cos": -0.010216198861598969,
       "p_contra": 0.018251705914735794,
       "same_story": false,
+      "stance": null,
       "relation": "unrelated"
     },
     {
       "cos": 0.24329888820648193,
       "p_contra": 0.4061317443847656,
       "same_story": false,
+      "stance": null,
       "relation": "related_untyped"
     },
     {
       "cos": 0.2348530888557434,
       "p_contra": 0.031526945531368256,
       "same_story": false,
+      "stance": null,
       "relation": "unrelated"
     },
     {
       "cos": 0.6544893980026245,
       "p_contra": 0.02546398714184761,
       "same_story": false,
+      "stance": null,
       "relation": "related_untyped"
     },
     {
       "cos": 0.621015191078186,
       "p_contra": 0.0019551694858819246,
       "same_story": false,
+      "stance": null,
       "relation": "related_untyped"
     },
     {
       "cos": 0.5647503733634949,
       "p_contra": 0.8317664265632629,
       "same_story": false,
+      "stance": null,
       "relation": "related_untyped"
     },
     {
       "cos": 0.6832244396209717,
       "p_contra": 0.044847503304481506,
       "same_story": false,
+      "stance": null,
       "relation": "related_untyped"
     },
     {
       "cos": 0.4465915858745575,
       "p_contra": 0.00850566104054451,
       "same_story": false,
+      "stance": null,
       "relation": "corroborates"
     },
     {
       "cos": 0.5406614542007446,
       "p_contra": 0.8296182751655579,
       "same_story": false,
+      "stance": null,
       "relation": "related_untyped"
     },
     {
       "cos": 0.5996161699295044,
       "p_contra": 0.9357791543006897,
       "same_story": false,
+      "stance": null,
       "relation": "related_untyped"
     },
     {
       "cos": 0.6340800523757935,
       "p_contra": 0.0016717810649424791,
       "same_story": false,
+      "stance": null,
       "relation": "related_untyped"
     },
     {
       "cos": 0.6792516112327576,
       "p_contra": 0.016812894493341446,
       "same_story": false,
+      "stance": null,
       "relation": "related_untyped"
     },
     {
       "cos": 0.6404778361320496,
       "p_contra": 0.08004721999168396,
       "same_story": false,
+      "stance": null,
       "relation": "related_untyped"
     },
     {
       "cos": 0.6804236173629761,
       "p_contra": 0.004253895953297615,
       "same_story": true,
+      "stance": "conflict",
       "relation": "related_untyped"
     },
     {
       "cos": 0.6604851484298706,
       "p_contra": 0.0010187291773036122,
       "same_story": false,
+      "stance": null,
       "relation": "related_untyped"
     },
     {
       "cos": 0.44826894998550415,
       "p_contra": 0.002564043505117297,
       "same_story": false,
+      "stance": null,
       "relation": "corroborates"
     },
     {
       "cos": 0.44622766971588135,
       "p_contra": 0.001948723685927689,
       "same_story": false,
+      "stance": null,
       "relation": "corroborates"
     },
     {
       "cos": 0.449532151222229,
       "p_contra": 0.004046122543513775,
       "same_story": false,
+      "stance": null,
       "relation": "corroborates"
     },
     {
       "cos": 0.6402071714401245,
       "p_contra": 0.0015193956205621362,
       "same_story": false,
+      "stance": null,
       "relation": "corroborates"
     },
     {
       "cos": 0.6405037045478821,
       "p_contra": 0.005093013867735863,
       "same_story": false,
+      "stance": null,
       "relation": "related_untyped"
     },
     {
       "cos": 0.44924768805503845,
       "p_contra": 0.21725468337535858,
       "same_story": false,
+      "stance": null,
       "relation": "corroborates"
     },
     {
       "cos": 0.4475994408130646,
       "p_contra": 0.006121773738414049,
       "same_story": false,
+      "stance": null,
       "relation": "related_untyped"
     },
     {
       "cos": 0.44857266545295715,
       "p_contra": 0.0033819349482655525,
       "same_story": false,
+      "stance": null,
       "relation": "related_untyped"
     },
     {
       "cos": 0.6699725389480591,
       "p_contra": 0.39903393387794495,
       "same_story": false,
+      "stance": null,
       "relation": "corroborates"
     },
     {
       "cos": 0.6428380608558655,
       "p_contra": 0.5022672414779663,
       "same_story": true,
+      "stance": "conflict",
       "relation": "related_untyped"
     },
     {
       "cos": 0.6146578192710876,
       "p_contra": 0.009859860874712467,
       "same_story": false,
+      "stance": null,
       "relation": "related_untyped"
     },
     {
       "cos": 0.6482020616531372,
       "p_contra": 0.027364682406187057,
       "same_story": false,
+      "stance": null,
       "relation": "related_untyped"
     },
     {
       "cos": 0.4466956555843353,
       "p_contra": 0.04985933005809784,
       "same_story": false,
+      "stance": null,
       "relation": "related_untyped"
     },
     {
       "cos": 0.7393711805343628,
       "p_contra": 0.005191910080611706,
       "same_story": false,
+      "stance": null,
       "relation": "corroborates"
     },
     {
       "cos": 0.8169263601303101,
       "p_contra": 0.7775138020515442,
       "same_story": false,
+      "stance": null,
       "relation": "corroborates"
     },
     {
       "cos": 0.5641664862632751,
       "p_contra": 0.9873846769332886,
       "same_story": false,
+      "stance": null,
       "relation": "corroborates"
     },
     {
       "cos": 0.6174060106277466,
       "p_contra": 0.9937353730201721,
       "same_story": false,
+      "stance": null,
       "relation": "corroborates"
     },
     {
       "cos": 0.7855837345123291,
       "p_contra": 0.30116134881973267,
       "same_story": false,
+      "stance": null,
       "relation": "related_untyped"
     },
     {
       "cos": 0.67680424451828,
       "p_contra": 0.006070361007004976,
       "same_story": false,
+      "stance": null,
       "relation": "related_untyped"
     },
     {
       "cos": 0.7632744908332825,
       "p_contra": 0.012414464727044106,
       "same_story": false,
+      "stance": null,
       "relation": "corroborates"
     },
     {
       "cos": 0.803643524646759,
       "p_contra": 0.2844732403755188,
       "same_story": false,
+      "stance": null,
       "relation": "corroborates"
     },
     {
       "cos": 0.6518535614013672,
       "p_contra": 0.007856851443648338,
       "same_story": false,
+      "stance": null,
       "relation": "related_untyped"
     },
     {
       "cos": 0.44908052682876587,
       "p_contra": 0.00474725104868412,
       "same_story": false,
+      "stance": null,
       "relation": "related_untyped"
     },
     {
       "cos": 0.6659829616546631,
       "p_contra": 0.9558382034301758,
       "same_story": false,
+      "stance": null,
       "relation": "corroborates"
     },
     {
       "cos": 0.5900048017501831,
       "p_contra": 0.9455716609954834,
       "same_story": false,
+      "stance": null,
       "relation": "related_untyped"
     },
     {
       "cos": 0.7393324375152588,
       "p_contra": 0.992032527923584,
       "same_story": true,
+      "stance": "conflict",
       "relation": "corroborates"
     },
     {
       "cos": 0.44917091727256775,
       "p_contra": 0.26581090688705444,
       "same_story": false,
+      "stance": null,
       "relation": "corroborates"
     },
     {
       "cos": 0.88431715965271,
       "p_contra": 0.6017009019851685,
       "same_story": false,
+      "stance": null,
       "relation": "related_untyped"
     },
     {
       "cos": 0.6496633291244507,
       "p_contra": 0.13708922266960144,
       "same_story": false,
+      "stance": null,
       "relation": "related_untyped"
     },
     {
       "cos": 0.6889277696609497,
       "p_contra": 0.06447519361972809,
       "same_story": false,
+      "stance": null,
       "relation": "related_untyped"
     },
     {
       "cos": 0.7205537557601929,
       "p_contra": 0.001473184791393578,
       "same_story": true,
+      "stance": null,
       "relation": "related_untyped"
     },
     {
       "cos": 0.6245263814926147,
       "p_contra": 0.006828757002949715,
       "same_story": true,
+      "stance": null,
       "relation": "related_untyped"
     },
     {
       "cos": 0.641812264919281,
       "p_contra": 0.004285087343305349,
       "same_story": false,
+      "stance": null,
       "relation": "corroborates"
     },
     {
       "cos": 0.7177035808563232,
       "p_contra": 0.0013660546392202377,
       "same_story": false,
+      "stance": null,
       "relation": "related_untyped"
     },
     {
       "cos": 0.5973731875419617,
       "p_contra": 0.002379324520006776,
       "same_story": true,
+      "stance": null,
       "relation": "corroborates"
     },
     {
       "cos": 0.629628598690033,
       "p_contra": 0.0013177809305489063,
       "same_story": false,
+      "stance": null,
       "relation": "related_untyped"
     },
     {
       "cos": 0.6737128496170044,
       "p_contra": 0.00954808946698904,
       "same_story": false,
+      "stance": null,
       "relation": "related_untyped"
     },
     {
       "cos": 0.6598094701766968,
       "p_contra": 0.2763701379299164,
       "same_story": false,
+      "stance": null,
       "relation": "related_untyped"
     },
     {
       "cos": 0.4895442724227905,
       "p_contra": 0.9324350357055664,
       "same_story": false,
+      "stance": null,
       "relation": "related_untyped"
     },
     {
       "cos": 0.44976115226745605,
       "p_contra": 0.012501196004450321,
       "same_story": false,
+      "stance": null,
       "relation": "related_untyped"
     },
     {
       "cos": 0.44877439737319946,
       "p_contra": 0.0026118510868400335,
       "same_story": false,
+      "stance": null,
       "relation": "related_untyped"
     },
     {
       "cos": 0.8257231712341309,
       "p_contra": 0.8466065526008606,
       "same_story": false,
+      "stance": null,
       "relation": "corroborates"
     },
     {
       "cos": 0.6304692029953003,
       "p_contra": 0.05363466963171959,
       "same_story": false,
+      "stance": null,
       "relation": "related_untyped"
     },
     {
       "cos": 0.4490250051021576,
       "p_contra": 0.0077348556369543076,
       "same_story": false,
+      "stance": null,
       "relation": "related_untyped"
     },
     {
       "cos": 0.726265549659729,
       "p_contra": 0.050424836575984955,
       "same_story": false,
+      "stance": null,
       "relation": "related_untyped"
     },
     {
       "cos": 0.7270746827125549,
       "p_contra": 0.006082977168262005,
       "same_story": false,
+      "stance": null,
       "relation": "related_untyped"
     },
     {
       "cos": 0.7023728489875793,
       "p_contra": 0.014106642454862595,
       "same_story": false,
+      "stance": null,
       "relation": "related_untyped"
     },
     {
       "cos": 0.6362218856811523,
       "p_contra": 0.004545462783426046,
       "same_story": false,
+      "stance": null,
       "relation": "related_untyped"
     },
     {
       "cos": 0.7088183760643005,
       "p_contra": 0.03076743707060814,
       "same_story": false,
+      "stance": null,
       "relation": "related_untyped"
     },
     {
       "cos": 0.4488174319267273,
       "p_contra": 0.011155756190419197,
       "same_story": false,
+      "stance": null,
       "relation": "related_untyped"
     },
     {
       "cos": 0.4497731029987335,
       "p_contra": 0.02025705948472023,
       "same_story": false,
+      "stance": null,
       "relation": "unrelated"
     },
     {
       "cos": 0.6266134977340698,
       "p_contra": 0.0032835931051522493,
       "same_story": false,
+      "stance": null,
       "relation": "related_untyped"
     },
     {
       "cos": 0.7178936004638672,
       "p_contra": 0.692338228225708,
       "same_story": false,
+      "stance": null,
       "relation": "related_untyped"
     },
     {
       "cos": 0.4486616849899292,
       "p_contra": 0.0019618587102741003,
       "same_story": false,
+      "stance": null,
       "relation": "corroborates"
     },
     {
       "cos": 0.5999126434326172,
       "p_contra": 0.005986301694065332,
       "same_story": true,
+      "stance": null,
       "relation": "corroborates"
     },
     {
       "cos": 0.6190996766090393,
       "p_contra": 0.003532158210873604,
       "same_story": false,
+      "stance": null,
       "relation": "related_untyped"
     },
     {
       "cos": -0.004168646410107613,
       "p_contra": 0.002289006020873785,
       "same_story": false,
+      "stance": null,
       "relation": "unrelated"
     },
     {
       "cos": 0.5091960430145264,
       "p_contra": 0.9868468642234802,
       "same_story": false,
+      "stance": null,
       "relation": "corroborates"
     },
     {
       "cos": 0.4460165798664093,
       "p_contra": 0.009451540187001228,
       "same_story": false,
+      "stance": null,
       "relation": "related_untyped"
     },
     {
       "cos": 0.02537456713616848,
       "p_contra": 0.009645895101130009,
       "same_story": false,
+      "stance": null,
       "relation": "unrelated"
     },
     {
       "cos": 0.4491223692893982,
       "p_contra": 0.0017606192268431187,
       "same_story": false,
+      "stance": null,
       "relation": "related_untyped"
     },
     {
       "cos": 0.6563006639480591,
       "p_contra": 0.0008290419937111437,
       "same_story": true,
+      "stance": null,
       "relation": "corroborates"
     },
     {
       "cos": 0.6004853248596191,
       "p_contra": 0.007053029723465443,
       "same_story": false,
+      "stance": null,
       "relation": "related_untyped"
     },
     {
       "cos": 0.6321221590042114,
       "p_contra": 0.034985803067684174,
       "same_story": true,
+      "stance": null,
       "relation": "corroborates"
     },
     {
       "cos": 0.44618576765060425,
       "p_contra": 0.013996496796607971,
       "same_story": false,
+      "stance": null,
       "relation": "related_untyped"
     },
     {
       "cos": 0.5758717656135559,
       "p_contra": 0.8130888342857361,
       "same_story": false,
+      "stance": null,
       "relation": "related_untyped"
     },
     {
       "cos": 0.7047919631004333,
       "p_contra": 0.0017078535165637732,
       "same_story": true,
+      "stance": null,
       "relation": "corroborates"
     },
     {
       "cos": 0.5071826577186584,
       "p_contra": 0.6860679984092712,
       "same_story": false,
+      "stance": null,
       "relation": "related_untyped"
     },
     {
       "cos": 0.4983377456665039,
       "p_contra": 0.8204853534698486,
       "same_story": false,
+      "stance": null,
       "relation": "related_untyped"
     },
     {
       "cos": 0.6537128686904907,
       "p_contra": 0.001426113536581397,
       "same_story": false,
+      "stance": null,
       "relation": "corroborates"
     },
     {
       "cos": 0.5113215446472168,
       "p_contra": 0.983878493309021,
       "same_story": false,
+      "stance": null,
       "relation": "related_untyped"
     },
     {
       "cos": 0.5991555452346802,
       "p_contra": 0.1839066445827484,
       "same_story": false,
+      "stance": null,
       "relation": "related_untyped"
     },
     {
       "cos": -0.05449943244457245,
       "p_contra": 0.3047308921813965,
       "same_story": false,
+      "stance": null,
       "relation": "unrelated"
     },
     {
       "cos": 0.027334339916706085,
       "p_contra": 0.6505690813064575,
       "same_story": false,
+      "stance": null,
       "relation": "unrelated"
     },
     {
       "cos": 0.7791308164596558,
       "p_contra": 0.9923508763313293,
       "same_story": false,
+      "stance": null,
       "relation": "contradicts"
     },
     {
       "cos": 0.5807721614837646,
       "p_contra": 0.985914945602417,
       "same_story": false,
+      "stance": null,
       "relation": "contradicts"
     },
     {
       "cos": 0.5695500373840332,
       "p_contra": 0.9776761531829834,
       "same_story": false,
+      "stance": null,
       "relation": "contradicts"
     },
     {
       "cos": 0.5192247629165649,
       "p_contra": 0.9463819265365601,
       "same_story": false,
+      "stance": null,
       "relation": "contradicts"
     },
     {
       "cos": 0.5514638423919678,
       "p_contra": 0.9749167561531067,
       "same_story": false,
+      "stance": null,
       "relation": "contradicts"
     },
     {
       "cos": 0.49195536971092224,
       "p_contra": 0.9705932140350342,
       "same_story": false,
+      "stance": null,
       "relation": "contradicts"
     },
     {
       "cos": 0.666207492351532,
       "p_contra": 0.9726806282997131,
       "same_story": false,
+      "stance": null,
       "relation": "contradicts"
     },
     {
       "cos": 0.5336505174636841,
       "p_contra": 0.9893280863761902,
       "same_story": false,
+      "stance": null,
       "relation": "contradicts"
     },
     {
       "cos": 0.5472488403320312,
       "p_contra": 0.9701162576675415,
       "same_story": false,
+      "stance": null,
       "relation": "contradicts"
     },
     {
       "cos": 0.5346530675888062,
       "p_contra": 0.9937840700149536,
       "same_story": false,
+      "stance": null,
       "relation": "contradicts"
     },
     {
       "cos": 0.5064570903778076,
       "p_contra": 0.9491479992866516,
       "same_story": false,
+      "stance": null,
       "relation": "contradicts"
     },
     {
       "cos": 0.6295373439788818,
       "p_contra": 0.9856858253479004,
       "same_story": false,
+      "stance": null,
       "relation": "contradicts"
     },
     {
       "cos": 0.5771424174308777,
       "p_contra": 0.9812353849411011,
       "same_story": false,
+      "stance": null,
       "relation": "contradicts"
     },
     {
       "cos": 0.5589852333068848,
       "p_contra": 0.9546653032302856,
       "same_story": false,
+      "stance": null,
       "relation": "related_untyped"
     },
     {
       "cos": 0.6042148470878601,
       "p_contra": 0.9679660797119141,
       "same_story": false,
+      "stance": null,
       "relation": "related_untyped"
     },
     {
       "cos": 0.5580459237098694,
       "p_contra": 0.9980751276016235,
       "same_story": false,
+      "stance": null,
       "relation": "contradicts"
     },
     {
       "cos": 0.8044604063034058,
       "p_contra": 0.9946516156196594,
       "same_story": false,
+      "stance": null,
       "relation": "contradicts"
     },
     {
       "cos": 0.532216489315033,
       "p_contra": 0.9521788358688354,
       "same_story": false,
+      "stance": null,
       "relation": "contradicts"
     },
     {
       "cos": 0.6552941203117371,
       "p_contra": 0.9886168837547302,
       "same_story": false,
+      "stance": null,
       "relation": "contradicts"
     },
     {
       "cos": 0.5355930328369141,
       "p_contra": 0.9884797930717468,
       "same_story": false,
+      "stance": null,
       "relation": "contradicts"
     },
     {
       "cos": 0.5636686086654663,
       "p_contra": 0.9882584810256958,
       "same_story": false,
+      "stance": null,
       "relation": "contradicts"
     },
     {
       "cos": 0.5395084619522095,
       "p_contra": 0.9849306344985962,
       "same_story": false,
+      "stance": null,
       "relation": "contradicts"
     },
     {
       "cos": 0.5754206776618958,
       "p_contra": 0.9943898320198059,
       "same_story": false,
+      "stance": null,
       "relation": "contradicts"
     },
     {
       "cos": 0.4921431541442871,
       "p_contra": 0.9654465913772583,
       "same_story": false,
+      "stance": null,
       "relation": "contradicts"
     },
     {
       "cos": 0.9646749496459961,
       "p_contra": 0.572275698184967,
       "same_story": true,
+      "stance": "conflict",
       "relation": "contradicts"
     },
     {
       "cos": 0.9478694200515747,
       "p_contra": 0.33190447092056274,
       "same_story": true,
+      "stance": "conflict",
       "relation": "contradicts"
     },
     {
       "cos": 0.9682399034500122,
       "p_contra": 0.26925715804100037,
       "same_story": true,
+      "stance": "conflict",
       "relation": "contradicts"
     },
     {
       "cos": 0.9785502552986145,
       "p_contra": 0.9602228999137878,
       "same_story": true,
+      "stance": "conflict",
       "relation": "contradicts"
     },
     {
       "cos": 0.8828489184379578,
       "p_contra": 0.49426427483558655,
       "same_story": true,
+      "stance": "partial",
       "relation": "corroborates"
     },
     {
       "cos": 0.11426464468240738,
       "p_contra": 0.016116037964820862,
-      "same_story": true,
+      "same_story": false,
+      "stance": null,
       "relation": "unrelated"
     },
     {
       "cos": 0.9872802495956421,
       "p_contra": 0.04255133867263794,
       "same_story": true,
+      "stance": "conflict",
       "relation": "contradicts"
     },
     {
       "cos": 0.33039531111717224,
       "p_contra": 0.02565012313425541,
       "same_story": true,
+      "stance": "unaligned",
       "relation": "unrelated"
     },
     {
       "cos": 0.9610235691070557,
       "p_contra": 0.008935127407312393,
       "same_story": true,
+      "stance": "conflict",
       "relation": "contradicts"
     },
     {
       "cos": 0.9834398031234741,
       "p_contra": 0.3214092552661896,
       "same_story": true,
+      "stance": "conflict",
       "relation": "contradicts"
     },
     {
       "cos": 0.9782382249832153,
       "p_contra": 0.9281650185585022,
       "same_story": true,
+      "stance": "conflict",
       "relation": "contradicts"
     },
     {
       "cos": 0.949001133441925,
       "p_contra": 0.008445320650935173,
       "same_story": true,
+      "stance": "conflict",
       "relation": "contradicts"
     },
     {
       "cos": 0.25884491205215454,
       "p_contra": 0.6145302653312683,
       "same_story": true,
+      "stance": "conflict",
       "relation": "unrelated"
     },
     {
       "cos": 0.2410680055618286,
       "p_contra": 0.08193745464086533,
       "same_story": true,
+      "stance": "unaligned",
       "relation": "unrelated"
     },
     {
       "cos": 0.26073890924453735,
       "p_contra": 0.6922063231468201,
       "same_story": true,
+      "stance": null,
       "relation": "unrelated"
     },
     {
       "cos": 0.9512008428573608,
       "p_contra": 0.1474834680557251,
       "same_story": true,
+      "stance": "conflict",
       "relation": "contradicts"
     },
     {
       "cos": 0.9631568193435669,
       "p_contra": 0.05927146226167679,
       "same_story": true,
+      "stance": "conflict",
       "relation": "contradicts"
     },
     {
       "cos": 0.920754611492157,
       "p_contra": 0.9827646613121033,
       "same_story": true,
+      "stance": "unaligned",
       "relation": "corroborates"
     },
     {
       "cos": 0.9611096978187561,
       "p_contra": 0.008380032144486904,
       "same_story": true,
+      "stance": "conflict",
       "relation": "contradicts"
     }
   ],
@@ -926,6 +1077,7 @@
       "cos": 0.5406614542007446,
       "p_contra": 0.8296182751655579,
       "same_story": false,
+      "stance": null,
       "relation": "corroborates"
     },
     {
@@ -934,6 +1086,7 @@
       "cos": 0.4820452928543091,
       "p_contra": 0.007373974192887545,
       "same_story": false,
+      "stance": null,
       "relation": "corroborates"
     },
     {
@@ -942,6 +1095,7 @@
       "cos": 0.02544567734003067,
       "p_contra": 0.24646683037281036,
       "same_story": false,
+      "stance": null,
       "relation": "unrelated"
     },
     {
@@ -950,6 +1104,7 @@
       "cos": 0.4895442724227905,
       "p_contra": 0.9324350357055664,
       "same_story": false,
+      "stance": null,
       "relation": "corroborates"
     },
     {
@@ -958,6 +1113,7 @@
       "cos": 0.6544893980026245,
       "p_contra": 0.02546398714184761,
       "same_story": false,
+      "stance": null,
       "relation": "corroborates"
     },
     {
@@ -966,6 +1122,7 @@
       "cos": 0.06068103760480881,
       "p_contra": 0.013845049776136875,
       "same_story": false,
+      "stance": null,
       "relation": "unrelated"
     },
     {
@@ -974,6 +1131,7 @@
       "cos": 0.48938795924186707,
       "p_contra": 0.011523408815264702,
       "same_story": false,
+      "stance": null,
       "relation": "corroborates"
     },
     {
@@ -982,6 +1140,7 @@
       "cos": 0.16971039772033691,
       "p_contra": 0.007034258916974068,
       "same_story": false,
+      "stance": null,
       "relation": "corroborates"
     },
     {
@@ -990,6 +1149,7 @@
       "cos": -0.03985198214650154,
       "p_contra": 0.01638675294816494,
       "same_story": false,
+      "stance": null,
       "relation": "unrelated"
     },
     {
@@ -998,6 +1158,7 @@
       "cos": 0.29084593057632446,
       "p_contra": 0.0897321105003357,
       "same_story": false,
+      "stance": null,
       "relation": "corroborates"
     },
     {
@@ -1006,6 +1167,7 @@
       "cos": 0.16912278532981873,
       "p_contra": 0.007171497214585543,
       "same_story": false,
+      "stance": null,
       "relation": "corroborates"
     },
     {
@@ -1014,6 +1176,7 @@
       "cos": 0.41496536135673523,
       "p_contra": 0.47315341234207153,
       "same_story": true,
+      "stance": null,
       "relation": "contradicts"
     },
     {
@@ -1022,6 +1185,7 @@
       "cos": 0.07290204614400864,
       "p_contra": 0.004921661224216223,
       "same_story": false,
+      "stance": null,
       "relation": "unrelated"
     },
     {
@@ -1030,6 +1194,7 @@
       "cos": 0.02446804940700531,
       "p_contra": 0.004178707022219896,
       "same_story": false,
+      "stance": null,
       "relation": "unrelated"
     },
     {
@@ -1038,6 +1203,7 @@
       "cos": 0.008582808077335358,
       "p_contra": 0.6992566585540771,
       "same_story": false,
+      "stance": null,
       "relation": "unrelated"
     },
     {
@@ -1046,6 +1212,7 @@
       "cos": 0.5519904494285583,
       "p_contra": 0.8987171649932861,
       "same_story": true,
+      "stance": "conflict",
       "relation": "contradicts"
     },
     {
@@ -1054,6 +1221,7 @@
       "cos": 0.11309853196144104,
       "p_contra": 0.007962032221257687,
       "same_story": false,
+      "stance": null,
       "relation": "unrelated"
     },
     {
@@ -1062,6 +1230,7 @@
       "cos": 0.019278887659311295,
       "p_contra": 0.007095969282090664,
       "same_story": false,
+      "stance": null,
       "relation": "unrelated"
     },
     {
@@ -1070,6 +1239,7 @@
       "cos": 0.02783918008208275,
       "p_contra": 0.007327968720346689,
       "same_story": false,
+      "stance": null,
       "relation": "unrelated"
     },
     {
@@ -1078,6 +1248,7 @@
       "cos": 0.13811421394348145,
       "p_contra": 0.027686860412359238,
       "same_story": false,
+      "stance": null,
       "relation": "unrelated"
     },
     {
@@ -1086,6 +1257,7 @@
       "cos": 0.9500914812088013,
       "p_contra": 0.9733647108078003,
       "same_story": true,
+      "stance": "conflict",
       "relation": "contradicts"
     },
     {
@@ -1094,6 +1266,7 @@
       "cos": 0.0147731713950634,
       "p_contra": 0.005395252723246813,
       "same_story": false,
+      "stance": null,
       "relation": "unrelated"
     },
     {
@@ -1102,6 +1275,7 @@
       "cos": 0.09130741655826569,
       "p_contra": 0.00852289516478777,
       "same_story": false,
+      "stance": null,
       "relation": "unrelated"
     },
     {
@@ -1110,6 +1284,7 @@
       "cos": 0.38971489667892456,
       "p_contra": 0.06821698695421219,
       "same_story": false,
+      "stance": null,
       "relation": "contradicts"
     },
     {
@@ -1118,6 +1293,7 @@
       "cos": 0.13368698954582214,
       "p_contra": 0.006467459257692099,
       "same_story": false,
+      "stance": null,
       "relation": "contradicts"
     },
     {
@@ -1126,6 +1302,7 @@
       "cos": 0.12419986724853516,
       "p_contra": 0.05033475160598755,
       "same_story": false,
+      "stance": null,
       "relation": "unrelated"
     },
     {
@@ -1134,6 +1311,7 @@
       "cos": 0.4182550013065338,
       "p_contra": 0.01025516726076603,
       "same_story": false,
+      "stance": null,
       "relation": "contradicts"
     },
     {
@@ -1142,6 +1320,7 @@
       "cos": 0.21073587238788605,
       "p_contra": 0.007931138388812542,
       "same_story": true,
+      "stance": null,
       "relation": "contradicts"
     },
     {
@@ -1150,6 +1329,7 @@
       "cos": 0.18513628840446472,
       "p_contra": 0.05185945704579353,
       "same_story": false,
+      "stance": null,
       "relation": "corroborates"
     },
     {
@@ -1158,6 +1338,7 @@
       "cos": 0.015611749142408371,
       "p_contra": 0.059489939361810684,
       "same_story": false,
+      "stance": null,
       "relation": "unrelated"
     },
     {
@@ -1166,6 +1347,7 @@
       "cos": 0.33893436193466187,
       "p_contra": 0.0029979136306792498,
       "same_story": true,
+      "stance": null,
       "relation": "contradicts"
     },
     {
@@ -1174,6 +1356,7 @@
       "cos": 0.02188313566148281,
       "p_contra": 0.24257995188236237,
       "same_story": false,
+      "stance": null,
       "relation": "unrelated"
     },
     {
@@ -1182,6 +1365,7 @@
       "cos": 0.970618486404419,
       "p_contra": 0.9555277824401855,
       "same_story": true,
+      "stance": "conflict",
       "relation": "contradicts"
     },
     {
@@ -1190,6 +1374,7 @@
       "cos": 0.9772020578384399,
       "p_contra": 0.9490382671356201,
       "same_story": true,
+      "stance": "conflict",
       "relation": "contradicts"
     },
     {
@@ -1198,6 +1383,7 @@
       "cos": 0.9622629880905151,
       "p_contra": 0.9878259301185608,
       "same_story": true,
+      "stance": "conflict",
       "relation": "contradicts"
     },
     {
@@ -1206,6 +1392,7 @@
       "cos": 0.7270746827125549,
       "p_contra": 0.006082977168262005,
       "same_story": false,
+      "stance": null,
       "relation": "corroborates"
     },
     {
@@ -1214,6 +1401,7 @@
       "cos": 0.3108978271484375,
       "p_contra": 0.9117265343666077,
       "same_story": true,
+      "stance": null,
       "relation": "contradicts"
     },
     {
@@ -1222,6 +1410,7 @@
       "cos": 0.38971489667892456,
       "p_contra": 0.06821698695421219,
       "same_story": false,
+      "stance": null,
       "relation": "contradicts"
     },
     {
@@ -1230,6 +1419,7 @@
       "cos": 0.4182550013065338,
       "p_contra": 0.01025516726076603,
       "same_story": false,
+      "stance": null,
       "relation": "contradicts"
     },
     {
@@ -1238,6 +1428,7 @@
       "cos": 0.13368698954582214,
       "p_contra": 0.006467459257692099,
       "same_story": false,
+      "stance": null,
       "relation": "contradicts"
     }
   ]
