@@ -282,6 +282,14 @@ Exact match. E's Results section reported a −0.150 gap here, driven entirely
 by the `036↔037` NLI false positive landing in the held-out half; that gap is
 now zero because that pair no longer types CONTRADICTS at all.
 
+**Caveat, carried from E and equally true here:** the planning session's
+exploratory sweep -- the "Measured evidence" section above, written before
+implementation -- already had visibility into all 24 labels, held-out events
+included. So this +0.000 gap is a weaker independent check than the named
+split implies, exactly as E's own Results section said of its −0.150 gap.
+Read it as consistent with the "Measured evidence" table, not as independent
+proof the veto generalizes beyond node5.
+
 ### Held-out 40-pair calibration score
 
 `scripts/recalibrate_cheap_pipeline.py --score-only`, verbatim:
@@ -306,9 +314,17 @@ numbers; all matched plan predictions exactly:
   before Task 1's 5 new test cases).
 - `data/cartographer_thresholds.json`: byte-identical (`git status --short`
   empty).
-- 14-pair escalation bar pin (`tests/test_cartographer_eval_pairs.py`):
-  **7 passed**, unchanged — confirms the structural argument that this test
-  never sets `same_story` or `stance`.
+- 45-pair eval set (plan item 3, first half) and 14-pair escalation bar pin
+  (plan item 4) -- both live in the one file
+  `tests/test_cartographer_eval_pairs.py` (its own module docstring: *"The
+  frozen eval surfaces: the 45-pair eval set and the 14-pair bar pin"*; 4 of
+  its 7 tests cover the eval set, 3 cover the bar pin): **7 passed**,
+  unchanged — confirms the structural argument that this test never sets
+  `same_story` or `stance`.
+- Scan gold eval (plan item 3, other half:
+  `tests/test_cartographer_scan_gold.py` + `tests/test_scan_precision.py`),
+  run separately here since it had not been separately reported before:
+  **19 passed** (8 + 11), unchanged.
 - Isolated stance-arm test (`tests/test_cartographer_stance_node5.py`):
   **3 passed**, with the same pinned false-positive pair/channel names as
   before (`n5_doc_023:0<->n5_doc_024:0` as `"stance"`,
@@ -325,3 +341,13 @@ predicted. The two named false positives (`007↔008`, `036↔037`) are gone;
 the two pinned as unchanged (`023↔024`, `023↔026`) are unchanged, by name
 and by channel; recall did not move; the held-out calibration score did not
 move; nothing outside `tests/test_cartographer_stance_branch.py` broke.
+
+### Side effect: escalation coverage in `scan.py` (not measured, noted here)
+
+`gin/cartographer/scan.py` (around lines 561–573) builds its escalation
+"covered" set from proposals typed CONTRADICTS. A pair the veto moves from
+CONTRADICTS to RELATED_UNTYPED no longer belongs to that set, so it becomes
+eligible for the escalation judge -- which defaults to `None`, so this has no
+live effect today. Arguably the correct behavior regardless: an abstention
+is exactly the kind of pair worth escalating for human review, not a
+regression to guard against.

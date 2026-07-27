@@ -8,9 +8,13 @@ Two figures matter and they answer different questions, so both are pinned here:
 * **Stance arm in isolation** (this module's main test). Cosine and NLI are
   injected so the NLI channel never fires, which isolates the branch this work
   changed. The stance arm contributes **zero** within-event false positives.
-* **End to end with real models** (`scripts/eval_node5_stance.py`). `P` 0.857,
-  `P_all` 0.750 -- lower, because the NLI channel keeps priority over the stance
-  arm by design and produces 3 of the 4 residual false positives. Not pinned
+* **End to end with real models** (`scripts/eval_node5_stance.py`). `P` 1.000,
+  `P_all` 0.857 -- as of sub-project F (2026-07-27), which let the stance
+  channel veto a firing NLI on same-story disagreement. Before that (E,
+  shipped), `P` was 0.857 / `P_all` 0.750, because NLI kept unconditional
+  priority over the stance arm and produced 3 of the 4 residual false
+  positives. Now 2 residual false positives remain: one stance-channel, one
+  via the `stance=None` pre-veto fallback (not "NLI priority"). Not pinned
   here: it needs models, so it lives in the script.
 
 Conflating the two would credit the stance channel with NLI's errors or blame it

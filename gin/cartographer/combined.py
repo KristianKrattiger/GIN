@@ -139,7 +139,7 @@ def classify_relation(
     if cos < t.gate_floor:
         return Relation.UNRELATED, "gate"
     nli_contradicts = p_contra >= t.contra_threshold and same_story is not False
-    stance_disagrees = same_story and stance is not None and stance != "conflict"
+    stance_disagrees = bool(same_story) and stance is not None and stance != "conflict"
     if nli_contradicts and not stance_disagrees:
         return Relation.CONTRADICTS, "nli"
     if same_story:

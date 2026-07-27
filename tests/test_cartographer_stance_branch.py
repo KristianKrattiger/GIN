@@ -70,6 +70,7 @@ def test_stance_disagreement_overrules_a_firing_nli():
 from gin.cartographer.quantity import UNALIGNED
 
 
+# "agreement" alone is order-sensitive (veto-before-vs-after the ceiling check) only because cos=0.60 here is deliberately above this file's corroborate_ceiling (0.486); do not lower it without checking that still holds.
 @pytest.mark.parametrize("stance", ["revision", "partial", "agreement", UNALIGNED])
 def test_any_disagreeing_stance_overrules_a_firing_nli(stance):
     relation, channel = classify_relation(0.60, 0.90, T, same_story=True, stance=stance)
@@ -82,6 +83,21 @@ def test_agreeing_stance_leaves_nli_priority_untouched():
     # attribution exactly.
     relation, channel = classify_relation(0.60, 0.90, T, same_story=True, stance="conflict")
     assert (relation, channel) == (Relation.CONTRADICTS, "nli")
+
+
+@pytest.mark.parametrize(
+    "same_story,expected",
+    [
+        (None, (Relation.CONTRADICTS, "nli")),
+        (False, (Relation.CORROBORATES, "band")),
+    ],
+)
+def test_disagreeing_stance_only_vetoes_when_same_story_is_positively_true(same_story, expected):
+    # The veto must require same_story literally True, not merely non-False
+    # (None) or falsy. A disagreeing, decisive stance ("partial") must not
+    # suppress a firing NLI unless stage 1 has positively confirmed one story.
+    relation, channel = classify_relation(0.60, 0.90, T, same_story=same_story, stance="partial")
+    assert (relation, channel) == expected
 
 
 def test_stance_is_ignored_when_stage_one_says_not_one_story():
