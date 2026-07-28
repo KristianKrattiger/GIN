@@ -86,7 +86,7 @@ def test_stance_arm_beats_the_pre_registered_floor():
     assert within == MetricScore(tp=12, fp=0, fn=0)
 
 
-def test_the_two_residual_false_positives_are_the_pre_registered_ones():
+def test_the_residual_false_positives_are_the_pre_registered_ones():
     """The one remaining false positive is cross-event and unrelated to the
     stance mechanism itself.
 

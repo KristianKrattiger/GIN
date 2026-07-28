@@ -140,6 +140,19 @@ which is a result about where the defect actually mattered.
 
 ## The two surviving errors, and what they tell us
 
+**Note, added after a second amendment (2026-07-27):** sub-project G
+(`docs/superpowers/specs/2026-07-27-quantity-hedge-word-stopword-design.md`)
+removed `n5_doc_023↔024` by adding the hedge-adverb "roughly" to
+`quantity.py`'s stopword list — the shared token that let stage 2
+manufacture its `conflict` in the first place. At head, `P_all` is **0.923**,
+not 0.857, and there is **one** cross-event false positive, not two: only
+`n5_doc_023↔026` remains (discussed below). The paragraphs immediately
+below are preserved as the historical record of a defect that existed and
+was fixed by a different route than the union-anchor redesign this document
+was written to evaluate — `023↔024` is now the regression case
+`tests/test_cartographer_quantity.py::test_roughly_does_not_align_two_unrelated_quantities`
+pins, exactly as the paragraph below already recommended keeping it for.
+
 At the shipped state (`UNALIGNED` sentinel, `P_all` 0.857) there are **two**
 cross-event false positives, not one.
 

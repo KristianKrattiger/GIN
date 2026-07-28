@@ -133,6 +133,7 @@ No other file changes. `type_relation`, `CombinedRelationProposer`,
 | Removing `roughly` breaks a currently-correct alignment elsewhere in node5 or the gold set | Investigate before reverting — report which pair and whether `roughly` was load-bearing for a real conflict (if so, this reveals `roughly` sometimes does carry content, which is new information, not a reason to silently special-case it) |
 | Held-out-40 calibration score moves | Report the direction and which pair; do not compensate by writing thresholds |
 | `023↔024`'s stance does not become `quantity.UNALIGNED` specifically (e.g. it stays `"conflict"`, or drops to `None`) | Stop. If `None`: at least one side's extraction broke, and the pair still resolves to CONTRADICTS via the same degenerate path as `023↔026` — the fix would not actually have worked despite removing the shared token. If still `"conflict"`: some other token is still aligning and the measured evidence above missed it. |
+| A future hedge-word addition is one-sided (appears on only one side of some pair, not both) | Check whether Jaccard *increases* for any pair near `ALIGN_FLOOR`, not just whether it decreases — one-sided removal shrinks the union without shrinking the intersection, which can create a new alignment rather than only losing one. No such case exists for `roughly` in this corpus (checked against the full 24-pair eval and the 746-test suite), but this is the check a future addition needs, not just "does removal lose a conflict." |
 
 ## Testing
 
@@ -264,6 +265,11 @@ counts below — no test logic changed in between):
   **3 passed**, re-pinned false-positive set now
   `{n5_doc_023:0<->n5_doc_026:0: "band"}` only — `023↔024` removed from the
   set entirely, as predicted.
+- `tests/test_cartographer_stance_branch.py`: the pinned count in
+  `test_examined_but_unaligned_same_story_pairs_abstain_end_to_end` moved
+  from 3 to 4 — `n5_doc_023<->024` now correctly lands in the UNALIGNED
+  bucket this test tracks. **27 passed** (unchanged test count, only the
+  pinned value moved).
 
 ### Deviations from prediction
 
