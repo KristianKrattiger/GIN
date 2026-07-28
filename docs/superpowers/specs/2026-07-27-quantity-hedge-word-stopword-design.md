@@ -1,7 +1,7 @@
 # Design: Strip "roughly" From Measure Tokens
 
 **Date:** 2026-07-27
-**Status:** Proposed
+**Status:** IMPLEMENTED and measured 2026-07-27.
 **Sub-project:** G — one of the two false positives sub-project F left as documented, out-of-scope costs
 **Predecessor:** `docs/superpowers/specs/2026-07-27-stance-nli-precedence-design.md`
 **Labels this rests on:** the same 24 curator labels over `corpus_node5.json`, committed at `ebceb46`. No new labels.
@@ -164,3 +164,116 @@ Model-free throughout — this needs no model calls.
 ## Open questions
 
 None blocking.
+
+## Results (measured 2026-07-27)
+
+Implemented in commit `8b3e81a` (`quantity.py: strip roughly as a hedge-adverb
+from measure tokens`), re-pinned in `f56e237`. Every pre-registered number in
+the Measurement plan landed exactly as predicted. The one place the plan left
+two possibilities open rather than a single predicted value — which channel
+claims the remaining `023↔026` false positive under real models — resolved to
+one of the two named options, for a measured reason (below), not a third
+outcome. Reported in full below, per this track's practice of recording every
+number whichever way it moves.
+
+### End-to-end node5, real models
+
+Real `all-MiniLM-L6-v2` + `nli-deberta-v3-xsmall`, `scripts/eval_node5_stance.py`:
+
+| | `ebceb46` baseline | pre-this-spec (F, shipped) | measured (this spec) |
+|---|---|---|---|
+| `P` within-event | 0.632 | 1.000 (tp 12, fp 0, fn 0) | **1.000** (tp 12, fp 0, fn 0) |
+| `R` recall | 1.000 | 1.000 | **1.000** |
+| `P_all` incl. cross-event | 0.500 | 0.857 (tp 12, fp 2) | **0.923** (tp 12, fp 1) |
+
+Matches this spec's own prediction exactly: `P_all` 0.857 → 0.923 (tp 12, fp 1
+— `023↔024` no longer typed CONTRADICTS), `P` and `R` unaffected at 1.000.
+Script's own verdict line:
+
+```
+  pre-registered bar: PASS  (P and P_all both improve, R >= 0.75)
+```
+
+The script always prints "P and P_all both improve" as its generic bar
+description; here only `P_all` actually moves — `P` was already at its
+ceiling of 1.000 coming in from sub-project F, and this spec's own Success
+criteria only required `P` and `R` not to regress, not to improve further.
+The bar passes on its real condition: `P_all` strictly improves, `R` holds at
+1.000.
+
+Dev/held-out split, unaffected and unchanged from sub-project F: both halves
+stay at `P` 1.000 / `R` 1.000, gap +0.000. This spec's Measurement plan didn't
+register a prediction for this split (F already closed the gap; this fix
+doesn't touch either pair that split turned on), so it's reported here for
+completeness, not as a pre-registered number.
+
+### False positives by channel
+
+Predicted: only `n5_doc_023:0<->n5_doc_026:0` remaining, channel `band` or
+`nli` depending on which fires first with real models (the design explicitly
+left this open rather than picking one). Measured, verbatim:
+
+```
+  nli      gold=unrelated    p_contra=0.692 cos=0.261 stance=None  n5_doc_023:0 <-> n5_doc_026:0
+  totals: {'nli': 1}
+```
+
+Channel is `nli`. Real `p_contra` (0.692) clears `contra_threshold` (0.686,
+per the shipped thresholds printed by the calibration run below) by a slim
+0.006 margin, so `nli_contradicts` is `True`; since `stance=None` makes
+`stance_disagrees` `False` by construction (`combined.py`'s guard requires
+`stance is not None`), `classify_relation`'s first branch returns
+`CONTRADICTS, "nli"` before the pair ever reaches the `stance is None ->
+"band"` fallback. The isolated test (`tests/test_cartographer_stance_node5.py`,
+injected `p_contra=0.05`) never clears that threshold, so it correctly
+continues to pin this same pair as `"band"` — the two tests measure different
+things (isolated stance arm vs. real end-to-end with real models), they are
+not disagreeing with each other. `023↔024` no longer appears anywhere in this
+list, which is the fix working. Total false positives: 1, down from 2 (F's
+measurement) — an exact match to the prediction's `tp 12, fp 1`.
+
+### Held-out 40-pair calibration score
+
+`scripts/recalibrate_cheap_pipeline.py --score-only`, verbatim:
+
+```
+samples: 150 {'related_untyped': 62, 'unrelated': 26, 'corroborates': 28, 'contradicts': 34}
+same_story corpus: 274 docs, df_ceiling 9
+shipped thresholds: Thresholds(gate_floor=0.14, corroborate_ceiling=0.486, contra_threshold=0.686)
+held-out (40 eval pairs, never calibrated on) accuracy   0.725
+```
+
+Predicted unchanged at 0.725. Measured: **0.725**. Exact match — confirms,
+rather than assumes, that none of the 9 same-story pairs in that 40-pair
+held-out set had `roughly` in an aligned measure that this change touches.
+
+### Frozen surfaces (from Task 2)
+
+Task 2 measured these; final state at commit `15b0812` (a pure docstring/
+comment cleanup on top of `f56e237`, the commit that actually produced the
+counts below — no test logic changed in between):
+
+- Full suite: **746 passed / 16 skipped** (baseline 744 passed / 16 skipped
+  before Task 1's 2 new test cases).
+- `data/cartographer_thresholds.json`: byte-identical (`git status --short`
+  empty).
+- 45-pair eval set, 14-pair escalation bar pin, and scan gold eval
+  (`tests/test_cartographer_eval_pairs.py` + `tests/test_cartographer_scan_gold.py`
+  + `tests/test_scan_precision.py`): **26 passed** (7 + 8 + 11), unchanged.
+- Isolated stance-arm test (`tests/test_cartographer_stance_node5.py`):
+  **3 passed**, re-pinned false-positive set now
+  `{n5_doc_023:0<->n5_doc_026:0: "band"}` only — `023↔024` removed from the
+  set entirely, as predicted.
+
+### Deviations from prediction
+
+None on any measured number. `P`, `R`, `P_all`, the false-positive count, and
+the held-out-40 score all landed exactly on the values this spec's Measured
+evidence and Measurement plan predicted. The only item the plan explicitly
+left as an open branch rather than a single predicted value — whether the
+real end-to-end run's remaining false positive types via `band` or `nli` —
+resolved to `nli`, one of the two anticipated outcomes, for the reason
+measured above (real `p_contra` clears `contra_threshold` by a 0.006 margin
+before the `band` fallback would otherwise be reached). `023↔026` stays
+exactly what this spec's own "Out of scope" section said it would: a
+documented, un-fixed stage-1 cost.
