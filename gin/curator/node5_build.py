@@ -77,9 +77,20 @@ def pair_inventory(manifest: list[dict]) -> dict[str, int]:
 
 
 def build_node5(
-    manifest: list[dict], *, min_conflicts: int = 20, min_negatives: int = 20
+    manifest: list[dict],
+    *,
+    min_conflicts: int = 20,
+    min_negatives: int = 20,
+    node_id: str = NODE_ID,
+    doc_prefix: str = "n5_doc",
+    url_tag: str = "node5",
 ) -> dict:
-    """Manifest -> corpus dict. Raises ValueError on malformed input or thin composition."""
+    """Manifest -> corpus dict. Raises ValueError on malformed input or thin composition.
+
+    ``node_id`` / ``doc_prefix`` / ``url_tag`` default to node5's values so
+    regeneration is byte-identical; later synthetic nodes (node6 onward) reuse
+    this builder by passing their own — see scripts/build_node6.py.
+    """
     _validate(manifest)
 
     inventory = pair_inventory(manifest)
@@ -99,15 +110,15 @@ def build_node5(
     for ev in manifest:
         for rep in ev["reports"]:
             index += 1
-            doc_id = f"n5_doc_{index:03d}"
+            doc_id = f"{doc_prefix}_{index:03d}"
             source = f"{ev['event']} ({rep['outlet']})"
             documents.append(
                 {
                     "doc_id": doc_id,
                     "global_id": compute_global_id(source, rep["outlet"], rep["published"]),
                     "source": source,
-                    "url": f"synthetic://node5/{ev['event']}/{rep['outlet']}",
-                    "node": NODE_ID,
+                    "url": f"synthetic://{url_tag}/{ev['event']}/{rep['outlet']}",
+                    "node": node_id,
                     "metadata": {
                         "outlet": rep["outlet"],
                         "published": rep["published"],
@@ -124,4 +135,4 @@ def build_node5(
                     ],
                 }
             )
-    return {"node_id": NODE_ID, "documents": documents}
+    return {"node_id": node_id, "documents": documents}

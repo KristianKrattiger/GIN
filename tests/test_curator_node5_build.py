@@ -126,3 +126,20 @@ def test_valid_kinds_are_the_four_from_the_spec():
     assert VALID_KINDS == frozenset(
         {"conflict", "corroboration", "update", "compatible_partial"}
     )
+
+
+def test_build_is_parametrizable_for_later_nodes():
+    """Node6 (and any later synthetic node) reuses this builder with its own
+    node id and doc prefix — scripts/build_node6.py depends on these params."""
+    corpus = build_node5(
+        _minimal_ok(),
+        min_conflicts=1,
+        min_negatives=1,
+        node_id="node_6_samestory",
+        doc_prefix="n6_doc",
+        url_tag="node6",
+    )
+    assert corpus["node_id"] == "node_6_samestory"
+    assert corpus["documents"][0]["doc_id"] == "n6_doc_001"
+    assert corpus["documents"][0]["chunks"][0]["chunk_id"] == "n6_doc_001_c000"
+    assert corpus["documents"][0]["url"].startswith("synthetic://node6/")
