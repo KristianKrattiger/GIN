@@ -54,6 +54,12 @@ def test_extracts_speed_area_and_thousands_separators():
     assert (cnt.value, cnt.unit_class) == (210_000.0, "count")
 
 
+def test_roughly_is_not_a_measure_token():
+    m = _only("Officials said the disruption delayed commuters by roughly "
+               "45 minutes during the morning rush.")
+    assert "roughly" not in m.measure
+
+
 def test_extracts_a_date_as_its_own_unit_class():
     m = _only("The bridge will remain closed until at least September 3.")
     assert m.unit_class == "date"
@@ -187,6 +193,22 @@ def test_unaligned_when_both_state_quantities_that_do_not_align():
     a = "The bloom covered about 8.5 square kilometers of the northern basin."
     b = "Jurors awarded the plaintiff $2.4 million in total damages."
     assert stance_for(a, b) == UNALIGNED
+
+
+def test_roughly_does_not_align_two_unrelated_quantities():
+    # Real node5 corpus sentences (n5_doc_023, n5_doc_024). Before this fix,
+    # the shared hedge-adverb "roughly" was the ENTIRE measure overlap
+    # (Jaccard 1/18 ~= 0.056, just above ALIGN_FLOOR), so an unrelated
+    # dockworker headcount and a transit delay in minutes spuriously aligned
+    # as a "conflict". Both sentences still state a quantity, they just no
+    # longer share a token -- same semantics as the UNALIGNED test above,
+    # not the None test below (neither is quantity-free).
+    dockworkers = ("Organizers said the action is part of a coordinated "
+                   "national walkout involving roughly 3,200 dockworkers "
+                   "at ports across the country.")
+    transit_delay = ("Officials said the disruption delayed commuters by "
+                      "roughly 45 minutes during the morning rush.")
+    assert stance_for(dockworkers, transit_delay) is UNALIGNED
 
 
 def test_none_when_either_text_states_no_quantity():

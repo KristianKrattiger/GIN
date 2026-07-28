@@ -76,6 +76,7 @@ be been being has have had said say says it its this that these those they
 their there then than not no nor so if while during after before over under
 about up out off down more most less least new newly than which who whom whose
 will would can could may might must shall should do does did done also very
+roughly
 """.split())
 
 # --- primitives -------------------------------------------------------------
