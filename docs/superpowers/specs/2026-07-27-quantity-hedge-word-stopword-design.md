@@ -56,10 +56,17 @@ membership, not `_content`/`_STOPWORDS`), so this change cannot affect scope,
 
 ## Goal
 
-Remove `roughly` as a measure-token, so two quantities from unrelated
-subjects no longer align on that word alone. `023↔024` should fall through
-to the same `stance=None` fallback path `023↔026` already does — not a new
-behavior, an existing documented one applied to one more pair.
+Remove `roughly` as a measure-token, so two unrelated quantities no longer
+align on that word alone. Verified directly, not assumed: once `roughly` is
+stripped, `023↔024`'s stance becomes `quantity.UNALIGNED` — both sides still
+state a quantity, they simply share no measure token anymore. `UNALIGNED`
+resolves to `RELATED_UNTYPED`/`"abstain"` in `classify_relation` regardless of
+whether NLI also fires, so the false positive is removed — but via a
+different path than `023↔026`. `023↔026` has `stance=None` (026 states no
+quantity at all), which still falls into the degenerate
+`CONTRADICTS`/`"band"` branch when NLI doesn't independently catch it —
+exactly why it stays a distinct, accepted cost rather than becoming a second
+instance of a pattern this fix already resolves.
 
 ## Decisions
 
@@ -125,7 +132,7 @@ No other file changes. `type_relation`, `CombinedRelationProposer`,
 |---|---|
 | Removing `roughly` breaks a currently-correct alignment elsewhere in node5 or the gold set | Investigate before reverting — report which pair and whether `roughly` was load-bearing for a real conflict (if so, this reveals `roughly` sometimes does carry content, which is new information, not a reason to silently special-case it) |
 | Held-out-40 calibration score moves | Report the direction and which pair; do not compensate by writing thresholds |
-| `023↔024`'s stance does not become `None` after the fix | Stop — re-extract the mentions and check whether some other token also aligns, which would mean the measured evidence above missed something |
+| `023↔024`'s stance does not become `quantity.UNALIGNED` specifically (e.g. it stays `"conflict"`, or drops to `None`) | Stop. If `None`: at least one side's extraction broke, and the pair still resolves to CONTRADICTS via the same degenerate path as `023↔026` — the fix would not actually have worked despite removing the shared token. If still `"conflict"`: some other token is still aligning and the measured evidence above missed it. |
 
 ## Testing
 
@@ -137,10 +144,10 @@ Model-free throughout — this needs no model calls.
   measure set without `"roughly"`), following the file's existing
   `test_extracts_*` naming convention.
 - Same file: a stance-level regression test asserting `stance_for` on the
-  real `n5_doc_023`/`n5_doc_024` text returns `None`, not `"conflict"` —
-  the direct pin of the fix, mirroring the file's existing
-  `test_unaligned_when_both_state_quantities_that_do_not_align` /
-  `test_none_when_either_text_states_no_quantity` style.
+  real `n5_doc_023`/`n5_doc_024` sentences returns `quantity.UNALIGNED`, not
+  `"conflict"` — the direct pin of the fix, mirroring the file's existing
+  `test_unaligned_when_both_state_quantities_that_do_not_align` (identical
+  semantics: both sides state a quantity, none of them align).
 - `tests/test_cartographer_stance_node5.py`: update the pinned
   false-positive set (currently asserts exactly `{023↔024: "stance",
   023↔026: "band"}`) to `{023↔026: "band"}` only.
