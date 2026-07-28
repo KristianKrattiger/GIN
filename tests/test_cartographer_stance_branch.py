@@ -194,8 +194,8 @@ def test_examined_but_unaligned_same_story_pairs_abstain_end_to_end():
 
     Before the split, a same-story pair whose quantities did not align returned
     None and fell through to the pre-stance branch, emitting a CONTRADICTS edge
-    on a pair the channel had examined and found nothing in. Three real corpus
-    pairs are in exactly that position -- two cross-event, and n5_doc_036 vs
+    on a pair the channel had examined and found nothing in. Four real corpus
+    pairs are in exactly that position -- three cross-event, and n5_doc_036 vs
     n5_doc_037, a `corroborates` pair whose figures describe different measures
     (total capacity including standing room vs fixed seats in the bowl).
 

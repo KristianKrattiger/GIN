@@ -111,7 +111,7 @@ def test_the_two_residual_false_positives_are_the_pre_registered_ones():
     assert false_positives == {
         frozenset(("n5_doc_023:0", "n5_doc_026:0")): "band",
     }
-    # Both are cross-event, so neither costs within-event precision.
+    # This is cross-event, so it doesn't cost within-event precision.
     within_event_fps = [
         p for p in node5_pairs()
         if p.within_event and frozenset((p.src, p.dst)) in false_positives
