@@ -234,4 +234,6 @@ def test_examined_but_unaligned_same_story_pairs_abstain_end_to_end():
     # Pinned so the test fails loudly if the corpus, the alignment floor, or the
     # extraction rules change which pairs land here, rather than passing on an
     # empty set.
-    assert len(unaligned) == 3, f"expected 3 UNALIGNED same-story pairs, got {unaligned}"
+    # Updated to 4 in sub-project G (2026-07-27): n5_doc_023 <-> 024 now correctly
+    # returns UNALIGNED after "roughly" was added to _STOPWORDS.
+    assert len(unaligned) == 4, f"expected 4 UNALIGNED same-story pairs, got {unaligned}"

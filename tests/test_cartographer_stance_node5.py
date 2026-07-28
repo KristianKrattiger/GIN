@@ -77,25 +77,28 @@ def test_stance_arm_beats_the_pre_registered_floor():
 
 
 def test_the_two_residual_false_positives_are_the_pre_registered_ones():
-    """Both are cross-event, and each illustrates a different known cost.
+    """The one remaining false positive is cross-event and unrelated to the
+    stance mechanism itself.
 
-    ``n5_doc_023 <-> 024`` fires through the **stance** channel and needs BOTH
-    known weaknesses at once: stage 1's union anchor passes it ("Union Yard" in
-    a transit report against "the union local" in a port-strike report), and at
-    ALIGN_FLOOR 0.05 two unrelated counts clear the measure-overlap test. It is
-    the concrete instance of the low-floor hazard the plan pre-registered, and
-    either fix removes it.
+    ``n5_doc_023 <-> 024`` was fixed in sub-project G (`docs/superpowers/specs/
+    2026-07-27-quantity-hedge-word-stopword-design.md`): the shared hedge-word
+    "roughly" was the entire measure overlap between an unrelated dockworker
+    headcount and a transit delay in minutes. Stripping it from
+    ``_STOPWORDS`` moves this pair's stance to ``UNALIGNED``, which correctly
+    abstains.
 
     ``n5_doc_023 <-> 026`` fires through the **band** channel with
     ``stance=None`` -- the pre-stance branch, reached because one side states no
     quantity. That is the deliberate price of the None-versus-UNALIGNED split:
     keeping the None path is what preserves the three gold contradicts pairs
     that contradict qualitatively, and the same path necessarily preserves the
-    degenerate branch for quantity-free pairs. Recorded as a measured cost of
-    that decision, not a defect.
+    degenerate branch for quantity-free pairs. This is a stage-1 defect (the
+    union/Union anchor collision), not a stance-layer one, and stays an
+    accepted, documented cost -- sub-project G's spec deliberately does not
+    address it.
 
-    Pinned by name and channel so a change that swaps one false positive for a
-    different one cannot hide behind an unchanged total.
+    Pinned by name and channel so a change that swaps this false positive for
+    a different one cannot hide behind an unchanged total.
     """
     texts = node5_texts()
     proposer = _isolated_proposer(texts)
@@ -106,7 +109,6 @@ def test_the_two_residual_false_positives_are_the_pre_registered_ones():
             false_positives[frozenset((pair.src, pair.dst))] = ev["channel"]
 
     assert false_positives == {
-        frozenset(("n5_doc_023:0", "n5_doc_024:0")): "stance",
         frozenset(("n5_doc_023:0", "n5_doc_026:0")): "band",
     }
     # Both are cross-event, so neither costs within-event precision.
