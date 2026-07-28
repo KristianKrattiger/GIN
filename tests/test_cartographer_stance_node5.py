@@ -9,13 +9,23 @@ Two figures matter and they answer different questions, so both are pinned here:
   injected so the NLI channel never fires, which isolates the branch this work
   changed. The stance arm contributes **zero** within-event false positives.
 * **End to end with real models** (`scripts/eval_node5_stance.py`). `P` 1.000,
-  `P_all` 0.857 -- as of sub-project F (2026-07-27), which let the stance
-  channel veto a firing NLI on same-story disagreement. Before that (E,
-  shipped), `P` was 0.857 / `P_all` 0.750, because NLI kept unconditional
-  priority over the stance arm and produced 3 of the 4 residual false
-  positives. Now 2 residual false positives remain: one stance-channel, one
-  via the `stance=None` pre-veto fallback (not "NLI priority"). Not pinned
-  here: it needs models, so it lives in the script.
+  `P_all` 0.923 -- as of sub-project G (2026-07-27), which stripped the
+  hedge-adverb "roughly" from measure tokens so it can no longer be the sole
+  token that spuriously aligns two unrelated quantities. Before that (F,
+  shipped), `P` was 1.000 / `P_all` was 0.857: "roughly" was the entire
+  measure overlap between an unrelated dockworker headcount and a transit
+  delay in minutes, so that pair aligned and typed CONTRADICTS via the
+  stance channel. Now 1 residual false positive remains: `n5_doc_023 <-> 026`,
+  reached via the pre-veto `stance is None` path -- 026 states no quantity at
+  all, so there is nothing for any stance-layer fix to act on. That is a
+  stage-1 defect (the union/Union anchor collision in `relatedness.py`), out
+  of scope for sub-project G, and not "NLI priority": with real models
+  `p_contra` clears `contra_threshold` and this types CONTRADICTS via the
+  `nli` channel; this module's fixed low injected `p_contra` never clears
+  that threshold, so here it falls through to the `stance is None -> band`
+  fallback instead -- same fact, different channel, depending on whether NLI
+  actually fires. Not pinned here: it needs models, so it lives in the
+  script.
 
 Conflating the two would credit the stance channel with NLI's errors or blame it
 for them. The isolation test is the one that regresses if the stance rule breaks.
