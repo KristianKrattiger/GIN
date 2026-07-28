@@ -75,27 +75,21 @@ def main() -> None:
             sys.exit(f"error: {exc}")
         from gin.cartographer.relatedness import make_same_story
         from gin.curator.same_story import SameStoryCandidateSource
-        from gin.curator.text_index import default_text_index
+        from gin.curator.text_index import df_corpus_texts
 
         # Each event's shared lede appears in that event's 3-4 reports, giving
         # its tokens document frequency 3-4 within this corpus's chunks alone --
         # not rare enough to anchor the very event it repeats across. Build the
-        # predicate over a realistic corpus (these chunks plus the standard
-        # offline text index) so the shared lede is rare relative to the whole
-        # corpus, the way it will be in production. Only set it when unset, same
-        # guard as wire_same_story, so an injected provider is left untouched.
-        #
-        # NOTE: when these chunks are node5, this double-counts it --
-        # default_text_index() already contains node5 (registered in
-        # CORPUS_NODES, c039edd), so concatenating node5's texts on top pushes
-        # its document frequencies up and MASKS cross-event false positives.
-        # Known and deliberately left in place; see
-        # docs/superpowers/specs/2026-07-26-stage1-anchor-findings.md, "Known
-        # defect recorded but deliberately NOT fixed," and the identical note
-        # in scripts/verify_node5_surfacing.py.
+        # predicate over a realistic corpus (the standard offline text index
+        # plus any chunks it lacks) so the shared lede is rare relative to the
+        # whole corpus, the way it will be in production. df_corpus_texts skips
+        # chunks already in the index, so a registered corpus (node5 since
+        # c039edd) is never counted twice -- doubled document frequencies mask
+        # cross-event false positives. Only set it when unset, same guard as
+        # wire_same_story, so an injected provider is left untouched.
         if proposer.same_story is None:
             proposer.same_story = make_same_story(
-                [ch.text for ch in chunks] + list(default_text_index().values())
+                df_corpus_texts(ch.text for ch in chunks)
             )
         source = SameStoryCandidateSource(chunks, proposer=proposer)
         print(f"same-story source over {len(source.chunks())} corpus chunks")

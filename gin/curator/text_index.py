@@ -15,6 +15,7 @@ from __future__ import annotations
 
 from functools import lru_cache
 from pathlib import Path
+from typing import Iterable
 
 import yaml
 
@@ -53,6 +54,27 @@ def default_text_index() -> dict[str, str]:
         index[chunk.chunk_id] = chunk.text
     index.update(news_corpus_chunks())
     return index
+
+
+def df_corpus_texts(chunk_texts: Iterable[str]) -> list[str]:
+    """Texts for building the same-story df corpus without double counting.
+
+    The predicate wants document frequencies over the whole offline corpus,
+    but CORPUS_NODES corpora are already inside ``default_text_index()`` —
+    concatenating a registered node's texts on top doubles its document
+    frequencies, pushes its tokens above the rare ceiling, and masks
+    cross-event false positives (it reported the union anchor at 0/5 on node5
+    when the truth was 4/5; see docs/superpowers/specs/
+    2026-07-26-stage1-anchor-findings.md). Only texts absent from the index
+    are added, each once.
+    """
+    texts = list(default_text_index().values())
+    seen = set(texts)
+    for text in chunk_texts:
+        if text not in seen:
+            texts.append(text)
+            seen.add(text)
+    return texts
 
 
 @lru_cache(maxsize=1)
