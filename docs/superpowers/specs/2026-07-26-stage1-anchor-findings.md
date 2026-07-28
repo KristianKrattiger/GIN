@@ -1,7 +1,9 @@
 # Findings: the stage-1 anchor fix is withdrawn, and stage 2 does not need it
 
 **Date:** 2026-07-26
-**Status:** Stage-1 change NOT shipped. Recorded for a future redesign.
+**Status:** SUPERSEDED 2026-07-28 — variant D shipped (user's direction), see
+"Amendment: variant D shipped" at the end of this document. The analysis below
+is the record of why D was chosen over the alternatives.
 **Branch:** `stance-channel`
 **Decision:** user, 2026-07-26 — "stop and reconsider the whole stage-1 fix"
 **Parent spec:** `docs/superpowers/specs/2026-07-26-same-story-stance-channel-design.md`
@@ -213,3 +215,32 @@ words). Each was added to fix a measured false-positive class, and the
 sentence-initial rule is now demonstrably over-broad. Whether an
 entity-recognition step belongs here at all, rather than a widening stack of
 capitalization rules, is the question this withdrawal leaves open.
+
+## Amendment: variant D shipped (2026-07-28)
+
+User's direction, 2026-07-28: fix the double-counting defect, then ship D.
+Both landed the same day, reversing this document's withdrawal decision — the
+robustness evidence above (flat across ceilings 6–12) is what justified
+shipping D rather than waiting for the full `anchor_tokens` redesign, which
+remains open.
+
+1. **The double-counting defect is fixed.** `df_corpus_texts()`
+   (`gin/curator/text_index.py`) builds the df corpus from
+   `default_text_index()` plus only the texts the index lacks;
+   `verify_node5_surfacing.py` and `curator_serve.py` both use it. Pinned by
+   `tests/test_curator_text_index.py`.
+2. **`make_same_story` now uses the mixed anchor test** (variant D): the
+   anchor must be entity-grade in one text and at least capitalized in the
+   other. One refinement over the D measured above: the weak side is
+   capitalized **or entity-grade**, so a story figure like `11` (never
+   capitalized) can corroborate an anchor. Re-measured with the production
+   predicate over `default_text_index()` alone: within-event **19/19**,
+   cross-event FP **0/5**, gold contradicts **4/4**, gold FP **0**, flat
+   across ceilings 6–12 — identical to the cap-only D row.
+3. **The last node5 false positive is gone.** `n5_doc_023 ↔ 026` — the
+   `Union Yard` / `the union local` collision this document root-caused —
+   no longer passes stage 1, so neither the band fallback nor real-model NLI
+   can type it. The isolated harness pins an empty false-positive set
+   (`tests/test_cartographer_stance_node5.py`); three cross-event pairs that
+   previously reached the stance layer and abstained now stop at stage 1
+   (`tests/test_cartographer_stance_branch.py`).

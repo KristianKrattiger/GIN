@@ -194,10 +194,13 @@ def test_examined_but_unaligned_same_story_pairs_abstain_end_to_end():
 
     Before the split, a same-story pair whose quantities did not align returned
     None and fell through to the pre-stance branch, emitting a CONTRADICTS edge
-    on a pair the channel had examined and found nothing in. Four real corpus
-    pairs are in exactly that position -- three cross-event, and n5_doc_036 vs
-    n5_doc_037, a `corroborates` pair whose figures describe different measures
-    (total capacity including standing room vs fixed seats in the bowl).
+    on a pair the channel had examined and found nothing in. One real corpus
+    pair is in exactly that position -- n5_doc_036 vs n5_doc_037, a
+    `corroborates` pair whose figures describe different measures (total
+    capacity including standing room vs fixed seats in the bowl). Three
+    cross-event pairs used to land here too; the variant-D anchor test
+    (entity-grade in one text, capitalized in the other) now rejects them at
+    stage 1, so they never reach the stance layer at all.
 
     Asserting stance is UNALIGNED rather than merely "not conflict" is what makes
     this non-vacuous: under the collapsed behaviour these pairs return None and
@@ -234,6 +237,9 @@ def test_examined_but_unaligned_same_story_pairs_abstain_end_to_end():
     # Pinned so the test fails loudly if the corpus, the alignment floor, or the
     # extraction rules change which pairs land here, rather than passing on an
     # empty set.
-    # Updated to 4 in sub-project G (2026-07-27): n5_doc_023 <-> 024 now correctly
-    # returns UNALIGNED after "roughly" was added to _STOPWORDS.
-    assert len(unaligned) == 4, f"expected 4 UNALIGNED same-story pairs, got {unaligned}"
+    # Was 4 as of sub-project G (2026-07-27); dropped to 1 when the variant-D
+    # anchor test removed the three cross-event pairs from same-story entirely
+    # (2026-07-28). Only the within-event corroborates pair remains.
+    assert unaligned == [("n5_doc_036:0", "n5_doc_037:0")], (
+        f"expected only the within-event corroborates pair, got {unaligned}"
+    )

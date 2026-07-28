@@ -14,12 +14,15 @@ scored against BOTH corpora that constrain the predicate -- optimising node5's
 cross-event false positives alone is precisely what produced the withdrawn fix.
 
 Anchor modes:
-  union      (anchor(a) | anchor(b)) & rare   -- the shipped behaviour
+  union      (anchor(a) | anchor(b)) & rare   -- shipped until 2026-07-28
   inter      (anchor(a) & anchor(b)) & rare   -- WITHDRAWN: costs the legal pairs
   inter_cap  as inter, but a sentence-initial capitalised word counts as
              entity-grade when the NEXT word is also capitalised, so
              "Northwind Systems" qualifies and "Combined reservoir" does not
-  mixed      entity-grade on one side, merely capitalised on the other
+  mixed      entity-grade on one side, capitalised-or-entity-grade on the other
+             -- THE SHIPPED BEHAVIOUR (variant D, 2026-07-28), measured here
+             with the production capitalized_tokens so the row is the real
+             predicate
 
 Columns:
   n5_in    node5 within-event pairs still firing     (19 = no real story lost)
@@ -31,8 +34,9 @@ Columns:
 
 The df corpus is default_text_index() ALONE. It already contains node5 since
 c039edd; adding node5 texts on top -- as verify_node5_surfacing.py and
-curator_serve.py still do -- doubles node5's document frequencies and MASKS
-cross-event false positives. That reported union at 0/5 when the truth is 4/5.
+curator_serve.py did until df_corpus_texts() -- doubles node5's document
+frequencies and MASKS cross-event false positives. That reported union at 0/5
+when the truth is 4/5.
 """
 from __future__ import annotations
 
@@ -52,6 +56,7 @@ from gin.cartographer.relatedness import (
     _doc_freq,
     _rare_df_ceiling,
     anchor_tokens,
+    capitalized_tokens,
 )
 from gin.corpus.relevance import _norm_tokens, _normalize_token
 from gin.curator.node5_labels import node5_pairs, node5_texts
@@ -106,21 +111,18 @@ def _anchors_with_initial_names(text: str) -> set[str]:
     }
 
 
-def _capitalized(text: str) -> set[str]:
-    return {
-        tok for tok, _eg, cap, _initial in _scan(text)
-        if cap and tok not in CALENDAR_WORDS
-    }
-
-
 MODES = {
     "union": lambda a, b, rare: bool((anchor_tokens(a) | anchor_tokens(b)) & rare),
     "inter": lambda a, b, rare: bool((anchor_tokens(a) & anchor_tokens(b)) & rare),
     "inter_cap": lambda a, b, rare: bool(
         (_anchors_with_initial_names(a) & _anchors_with_initial_names(b)) & rare
     ),
+    # Shipped (variant D): capitalized_tokens is cap-or-entity-grade, so a
+    # story figure like '11' corroborates an anchor even though digits are
+    # never capitalised.
     "mixed": lambda a, b, rare: bool(
-        ((anchor_tokens(a) & _capitalized(b)) | (_capitalized(a) & anchor_tokens(b)))
+        ((anchor_tokens(a) & capitalized_tokens(b))
+         | (capitalized_tokens(a) & anchor_tokens(b)))
         & rare
     ),
 }
@@ -174,7 +176,8 @@ def main() -> int:
                 print(f"{mode:>10} {floor:>6} {ceiling:>5} "
                       f"{n5_in:>6} {n5_fp:>6} {gold_c:>7} {gold_fp:>8}")
 
-    print("\nThe shipped cell is  union / floor 2 / ceil 9.")
+    print("\nThe shipped cell is  mixed / floor 2 / ceil 9  (variant D, 2026-07-28;")
+    print("union / floor 2 / ceil 9 before that).")
     print("Read every candidate against BOTH gold_c and n5_fp: the withdrawn fix")
     print("reached n5_fp 0 by dropping gold_c from 4 to 2, which is why scoring")
     print("node5 alone is not enough to justify an anchor change.")

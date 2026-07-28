@@ -124,6 +124,37 @@ def test_multi_digit_number_is_an_anchor_but_decimal_fragment_is_not():
     assert same_story(corpus[2], corpus[3]) is False
 
 
+def test_union_anchor_collision_is_not_a_story():
+    """Variant D (stage-1 anchor findings): the anchor must be entity-grade in
+    one text and at least capitalized in the other. 'Union Yard' (proper noun)
+    colliding with 'the union local' (common noun) was the collision that held
+    n5_doc_023 to n5_doc_026 — the last node5 cross-event false positive."""
+    corpus = [
+        "Crews staged at Union Yard while pickets formed along the fence.",
+        "The union local said pickets would continue through the weekend.",
+        "The city budget passed after a second reading.",
+        "Harvest totals rose across the northern valley.",
+    ]
+    same_story = make_same_story(corpus)
+    assert same_story(corpus[0], corpus[1]) is False
+
+
+def test_sentence_initial_entity_still_anchors_against_midsentence_use():
+    """The legal-register pairs the withdrawn intersection fix regressed:
+    'Northwind Systems reported...' is sentence-initial (not entity-grade) but
+    still capitalized, and the complaint names Northwind mid-sentence. Variant
+    D must keep this pair alive — entity-grade on one side, capitalized on the
+    other."""
+    corpus = [
+        "Northwind Systems reported record third quarter revenue this week.",
+        "The complaint alleges Northwind materially overstated quarterly revenue.",
+        "The transit line opened early on weekdays.",
+        "Retail hiring slowed before the holidays.",
+    ]
+    same_story = make_same_story(corpus)
+    assert same_story(corpus[0], corpus[1]) is True
+
+
 # --- stage-2 classification with the story precondition ----------------------
 
 

@@ -81,8 +81,8 @@ CALENDAR_WORDS = frozenset(
 )
 
 
-def anchor_tokens(text: str) -> set[str]:
-    """Normalized tokens with at least one entity-grade occurrence in ``text``.
+def _classified_occurrences(text: str):
+    """Yield ``(normalized_token, entity_grade, capitalized)`` per word.
 
     An occurrence is entity-grade when it is a mid-sentence capitalized word
     (proper noun), an all-caps word (dateline), or a multi-digit number (story
@@ -92,11 +92,10 @@ def anchor_tokens(text: str) -> set[str]:
     (run 20260712T091415Z).
 
     DRIFT POINTER: `_scan()` in `scripts/sweep_same_story.py` mirrors this
-    function's classification logic (entity_grade) to expose extra signals for
-    the anchor-mode sweep. Editing this function's classification without
-    updating that mirror invalidates the sweep's numbers silently.
+    classification logic (entity_grade) to expose extra signals for the
+    anchor-mode sweep. Editing this classification without updating that
+    mirror invalidates the sweep's numbers silently.
     """
-    out: set[str] = set()
     for m in _ANCHOR_WORD.finditer(text):
         word = m.group(0)
         before = text[: m.start()]
@@ -110,11 +109,34 @@ def anchor_tokens(text: str) -> set[str]:
             or (len(word) > 2 and word.isupper())
             or (word[0].isupper() and not word.isupper() and not sentence_initial)
         )
-        if entity_grade:
-            token = _normalize_token(word.lower())
-            if token not in CALENDAR_WORDS:
-                out.add(token)
-    return out
+        yield _normalize_token(word.lower()), entity_grade, word[0].isupper()
+
+
+def anchor_tokens(text: str) -> set[str]:
+    """Normalized tokens with at least one entity-grade occurrence in ``text``.
+
+    See ``_classified_occurrences`` for what counts as entity-grade.
+    """
+    return {
+        token for token, entity_grade, _cap in _classified_occurrences(text)
+        if entity_grade and token not in CALENDAR_WORDS
+    }
+
+
+def capitalized_tokens(text: str) -> set[str]:
+    """Tokens with at least one capitalized or entity-grade occurrence.
+
+    The weak side of ``make_same_story``'s mixed anchor test (variant D of the
+    stage-1 anchor findings): a token that is entity-grade in one text needs
+    only this much corroboration in the other. Sentence-initial capitalization
+    qualifies here — 'Northwind Systems reported…' opens its sentence with the
+    real story entity — and so does an entity-grade occurrence that is not
+    capitalized (a story figure like '11'). A superset of ``anchor_tokens``.
+    """
+    return {
+        token for token, entity_grade, capitalized in _classified_occurrences(text)
+        if (capitalized or entity_grade) and token not in CALENDAR_WORDS
+    }
 
 
 def make_same_story(
@@ -127,9 +149,15 @@ def make_same_story(
     """Stage-1 same-story predicate: do the two chunks cover one story?
 
     True when the pair shares >= ``story_floor`` corpus-rare tokens, at least
-    one of which is entity-grade (see ``anchor_tokens``). Precomputes document
-    frequencies once; the returned callable is the injectable story signal for
-    the relation detector's contradicts channels.
+    one of which is entity-grade in one text and at least capitalized in the
+    other (variant D, docs/superpowers/specs/2026-07-26-stage1-anchor-findings.md).
+    The union test it replaces let 'Union Yard' in one text anchor against
+    'the union local' in the other — a proper noun colliding with a common
+    noun was the last node5 cross-event false positive. Requiring entity-grade
+    in BOTH texts (plain intersection) instead regresses the legal-register
+    pairs, whose entity opens its sentence and so is never entity-grade there.
+    Precomputes document frequencies once; the returned callable is the
+    injectable story signal for the relation detector's contradicts channels.
     """
     df = _doc_freq(corpus_texts)
     ceiling = df_ceiling if df_ceiling is not None else _rare_df_ceiling(len(corpus_texts))
@@ -141,7 +169,9 @@ def make_same_story(
             return False
         if not require_anchor:
             return True
-        return bool((anchor_tokens(a_text) | anchor_tokens(b_text)) & rare)
+        a_anchor, b_anchor = anchor_tokens(a_text), anchor_tokens(b_text)
+        a_cap, b_cap = capitalized_tokens(a_text), capitalized_tokens(b_text)
+        return bool(((a_anchor & b_cap) | (a_cap & b_anchor)) & rare)
 
     return same_story
 

@@ -49,13 +49,14 @@ def main() -> int:
     proposer = CombinedRelationProposer()
     # default_text_index() ALONE, and this matters. It already contains node5
     # since CORPUS_NODES registered it (c039edd), so adding node5's texts on top
-    # -- as verify_node5_surfacing.py and curator_serve.py still do -- doubles
-    # node5's document frequencies, lifts its tokens above the rare ceiling, and
-    # MASKS cross-event false positives. Measured both ways here: the doubled
-    # corpus (312 docs, ceiling 10) reports P_all 0.857 with 0 cross-event false
-    # positives, while the real corpus (274 docs, ceiling 9) reports P_all 0.750
-    # with 2. Reporting the flattering number would be an artifact of a known
-    # bug, so this script does not inherit it.
+    # -- as verify_node5_surfacing.py and curator_serve.py did before
+    # df_corpus_texts() -- doubles node5's document frequencies, lifts its
+    # tokens above the rare ceiling, and MASKS cross-event false positives.
+    # Measured both ways during sub-project F: the doubled corpus (312 docs,
+    # ceiling 10) reported P_all 0.857 with 0 cross-event false positives,
+    # while the real corpus (274 docs, ceiling 9) reported P_all 0.750 with 2.
+    # Reporting the flattering number would be an artifact of a known bug, so
+    # this script never inherited it.
     proposer.same_story = make_same_story(list(default_text_index().values()))
 
     # (pair, typed_contradicts, evidence_dict) once, reused by every report.
@@ -133,10 +134,10 @@ def main() -> int:
     print("  firing NLI is no longer automatically right. NLI's two highest")
     print("  p_contra in this set -- a corroborates (0.983) and a supersedes")
     print("  (0.980) -- were exactly the disagreeing-stance pairs; the veto now")
-    print("  fixes both, so neither shows up here. The one nli-channel false")
-    print("  positive left has stance=None, the fallback path the veto cannot")
-    print("  reach (it requires a decisive, non-conflict stance) -- not NLI")
-    print("  priority at work.")
+    print("  fixes both, so neither shows up here. The last stance=None false")
+    print("  positive (n5_doc_023 <-> 026, the path the veto cannot reach) was")
+    print("  removed upstream by the variant-D anchor test (2026-07-28): the")
+    print("  pair no longer counts as same-story, so nothing types it.")
 
     print("\n=== 4-way confusion (reported, NOT gated) ===")
     matrix = Counter((p.relation.value, t.value) for p, t, _e in rows)

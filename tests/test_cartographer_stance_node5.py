@@ -9,23 +9,17 @@ Two figures matter and they answer different questions, so both are pinned here:
   injected so the NLI channel never fires, which isolates the branch this work
   changed. The stance arm contributes **zero** within-event false positives.
 * **End to end with real models** (`scripts/eval_node5_stance.py`). `P` 1.000,
-  `P_all` 0.923 -- as of sub-project G (2026-07-27), which stripped the
-  hedge-adverb "roughly" from measure tokens so it can no longer be the sole
-  token that spuriously aligns two unrelated quantities. Before that (F,
-  shipped), `P` was 1.000 / `P_all` was 0.857: "roughly" was the entire
-  measure overlap between an unrelated dockworker headcount and a transit
-  delay in minutes, so that pair aligned and typed CONTRADICTS via the
-  stance channel. Now 1 residual false positive remains: `n5_doc_023 <-> 026`,
-  reached via the pre-veto `stance is None` path -- 026 states no quantity at
-  all, so there is nothing for any stance-layer fix to act on. That is a
-  stage-1 defect (the union/Union anchor collision in `relatedness.py`), out
-  of scope for sub-project G, and not "NLI priority": with real models
-  `p_contra` clears `contra_threshold` and this types CONTRADICTS via the
-  `nli` channel; this module's fixed low injected `p_contra` never clears
-  that threshold, so here it falls through to the `stance is None -> band`
-  fallback instead -- same fact, different channel, depending on whether NLI
-  actually fires. Not pinned here: it needs models, so it lives in the
-  script.
+  `R` 1.000, `P_all` **1.000** (tp 12, fp 0) -- as of the variant-D anchor
+  test (2026-07-28), which removed the last false positive. The history, each
+  step measured: sub-project F shipped at `P_all` 0.857 with two cross-event
+  false positives; sub-project G (2026-07-27) stripped the hedge-adverb
+  "roughly" from measure tokens, removing `n5_doc_023 <-> 024` (0.923); the
+  variant-D mixed anchor test (entity-grade in one text, at least capitalized
+  in the other, docs/superpowers/specs/2026-07-26-stage1-anchor-findings.md)
+  removed `n5_doc_023 <-> 026`, whose 'Union Yard' / 'the union local'
+  collision was the stage-1 defect that let a quantity-free pair reach the
+  typing channels at all. Not pinned here: it needs models, so it lives in
+  the script.
 
 Conflating the two would credit the stance channel with NLI's errors or blame it
 for them. The isolation test is the one that regresses if the stance rule breaks.
@@ -86,9 +80,8 @@ def test_stance_arm_beats_the_pre_registered_floor():
     assert within == MetricScore(tp=12, fp=0, fn=0)
 
 
-def test_the_residual_false_positives_are_the_pre_registered_ones():
-    """The one remaining false positive is cross-event and unrelated to the
-    stance mechanism itself.
+def test_no_residual_false_positives_remain():
+    """Every historical node5 false positive now has a pinned fix.
 
     ``n5_doc_023 <-> 024`` was fixed in sub-project G (`docs/superpowers/specs/
     2026-07-27-quantity-hedge-word-stopword-design.md`): the shared hedge-word
@@ -97,18 +90,17 @@ def test_the_residual_false_positives_are_the_pre_registered_ones():
     ``_STOPWORDS`` moves this pair's stance to ``UNALIGNED``, which correctly
     abstains.
 
-    ``n5_doc_023 <-> 026`` fires through the **band** channel with
-    ``stance=None`` -- the pre-stance branch, reached because one side states no
-    quantity. That is the deliberate price of the None-versus-UNALIGNED split:
-    keeping the None path is what preserves the three gold contradicts pairs
-    that contradict qualitatively, and the same path necessarily preserves the
-    degenerate branch for quantity-free pairs. This is a stage-1 defect (the
-    union/Union anchor collision), not a stance-layer one, and stays an
-    accepted, documented cost -- sub-project G's spec deliberately does not
-    address it.
+    ``n5_doc_023 <-> 026`` -- the last one, previously typed through the band
+    channel with ``stance=None`` because 026 states no quantity -- was a
+    stage-1 defect, not a stance-layer one: 'Union Yard' (proper noun) in one
+    text anchored against 'the union local' (common noun) in the other, so the
+    pair counted as one story. The variant-D anchor test shipped 2026-07-28
+    (entity-grade in one text, at least capitalized in the other -- see
+    docs/superpowers/specs/2026-07-26-stage1-anchor-findings.md) rejects the
+    pair at stage 1, so it never reaches any typing channel.
 
-    Pinned by name and channel so a change that swaps this false positive for
-    a different one cannot hide behind an unchanged total.
+    Pinned as an exact empty dict, with the channel recorded per pair, so a
+    new false positive cannot hide behind an aggregate ratio.
     """
     texts = node5_texts()
     proposer = _isolated_proposer(texts)
@@ -118,15 +110,7 @@ def test_the_residual_false_positives_are_the_pre_registered_ones():
         if typed is Relation.CONTRADICTS and not pair.gold_contradicts:
             false_positives[frozenset((pair.src, pair.dst))] = ev["channel"]
 
-    assert false_positives == {
-        frozenset(("n5_doc_023:0", "n5_doc_026:0")): "band",
-    }
-    # This is cross-event, so it doesn't cost within-event precision.
-    within_event_fps = [
-        p for p in node5_pairs()
-        if p.within_event and frozenset((p.src, p.dst)) in false_positives
-    ]
-    assert within_event_fps == []
+    assert false_positives == {}
 
 
 def test_every_gold_contradicts_pair_is_still_found():
