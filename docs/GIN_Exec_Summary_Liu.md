@@ -1,10 +1,3 @@
----
-title: "GIN — Executive Summary (Measured Results)"
-prepared_for: Prof. Liu
-date: 2026-09-03
-status: measured only — Phases 1–3; no aspirational material
----
-
 # GIN — Executive Summary
 
 **GIN (Grounded Intelligence Network)** is a federation of independent reasoning nodes that ground every claim in a traceable corpus and hold disagreement between sources visible instead of averaging it away. Below is what has actually been built and measured — nothing aspirational.
