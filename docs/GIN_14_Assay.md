@@ -76,10 +76,22 @@ publishes exactly this line on every ledger, and it is the single thing that
 converts "we verified our quotes" from an assurance into something a reader can
 recount.
 
-The outcomes and the reason vocabulary in this document are
-*illustrative, not normative*. This document is in the conceptual register; it
-draws the boundary, it does not specify a wire format. A normative specification
-waits for an implementation.
+Sketched concretely — to fix the boundary, not to specify bytes:
+
+- **in** — a set of documents (content and an identifier each), a query, a
+  confidence threshold, and whether an unresolved conflict should be reported or
+  refused.
+- **out, grounded answer** — the claim, and for each load-bearing phrase the
+  document and the character offsets a reader can slice to check it; plus the
+  confidence and the audit line.
+- **out, divergence report** — the same shape, but two or more claims, each with
+  its citations, marked as in conflict.
+- **out, refusal** — a reason code from §4, the confidence, and the near-miss
+  spans with the score each earned.
+
+That sketch and the reason vocabulary of §4 are *illustrative, not normative*.
+This document is in the conceptual register; it draws the boundary, it does not
+specify a wire format. A normative specification waits for an implementation.
 
 ## 3 — Agnostic to model, source, and task
 
