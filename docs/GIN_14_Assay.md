@@ -19,7 +19,7 @@ register: conceptual
 ## 1 — Three verticals, one constraint
 
 The GIN series has, until now, described one system. This document adds a second
-and a third thing that are the same system at a different scale, and names what
+and a third vertical that are the same system at a different scale, and names what
 all three share.
 
 The shared claim is small: **every emitted claim traces to a span that provably
@@ -29,11 +29,12 @@ Everything else in the series is downstream of that sentence.
 
 GIN is that claim scaled. Around the constraint it wraps federation
 ([[GIN_03_Node_Identity]]), a governing institution ([[GIN_10_Epistemic_Council]]),
-constrained decoding that enforces grounding geometrically ([[GIN_04_SEAR]]), and a
-tiered corpus that ranges from cold content-addressed blobs to hot vector search.
-The wrapping is most of the engineering and all of the politics.
+constrained decoding that enforces grounding at generation time ([[GIN_04_SEAR]]),
+and a tiered corpus from cold content-addressed blobs upward. The wrapping is most
+of the engineering and all of the politics.
 
-Receipts is that claim shipped thin. It points a fan of cloud browsers at one
+Receipts is that claim shipped thin (a working tool; hosted ledgers at
+kristiankrattiger.github.io/receipts). It points a fan of cloud browsers at one
 vendor's marketing and at independent writing about it, lets a model propose which
 claims corroborate or contradict which, and then runs a deterministic gate that
 re-derives every quoted span from the bytes that were actually fetched and
@@ -60,12 +61,14 @@ Assay takes a set of documents and a query and returns one of three things:
   a reason and the spans that came closest.
 
 Every response carries a **confidence**. Refusal is not a fourth outcome bolted
-on; it is the band below a threshold the caller sets. A caller who wants only
-near-certain answers sets the bar high and receives more refusals; a caller
-triaging leads sets it low. The spans that were rejected for falling under the bar
-stay attached to the refusal, because a refusal that shows its work — here are the
-three passages we considered and the score each earned — is worth more than a bare
-no, and it is what lets the guarantee be checked rather than trusted.
+on; it is the band below a threshold the caller sets — the reason codes of §4 say
+*why* a response landed there, and one of them (`CONFLICTING_UNRESOLVABLE`) is a
+caller-mode outcome rather than a low score. A caller who wants only near-certain
+answers sets the bar high and receives more refusals; a caller triaging leads
+sets it low. The spans that were rejected for falling under the bar stay attached
+to the refusal, because a refusal that shows its work — here are the three
+passages we considered and the score each earned — is worth more than a bare no,
+and it is what lets the guarantee be checked rather than trusted.
 
 The response also carries an **audit line**: how many candidate claims were
 proposed, how many admitted, how many denied and under which reason. Receipts
@@ -73,9 +76,10 @@ publishes exactly this line on every ledger, and it is the single thing that
 converts "we verified our quotes" from an assurance into something a reader can
 recount.
 
-The request and response shapes in this section are *illustrative, not normative*.
-This document is in the conceptual register; it draws the boundary, it does not
-specify a wire format. A normative specification waits for an implementation.
+The outcomes and the reason vocabulary in this document are
+*illustrative, not normative*. This document is in the conceptual register; it
+draws the boundary, it does not specify a wire format. A normative specification
+waits for an implementation.
 
 ## 3 — Agnostic to model, source, and task
 
@@ -100,9 +104,11 @@ are one operation seen from different sides: a query and a corpus resolve to
 grounded spans or to a refusal. The Assay does not have four modes for these; it
 has one.
 
-Domain-agnosticism is not a fourth axis because it is already a house rule. GIN
-runs no per-region code; Receipts adds a domain with a JSON file and no engine
-change. The Assay inherits that, and would be remarked on only if it broke it.
+Domain-agnosticism is not a fourth axis because it is already a house rule.
+Receipts adds a domain with a JSON file and no engine change; GIN's nodes are
+architecturally uniform and differ in corpus, not in code
+([[GIN_03_Node_Identity]]). The Assay inherits that, and would be remarked on only
+if it broke it.
 
 ## 4 — The loud refusal
 
@@ -161,8 +167,15 @@ Every one of those is deliberate, and together they are the definition. GIN is t
 Assay plus the machinery that makes grounded reasoning survivable at global scale
 and accountable to someone. Receipts is the Assay plus the machinery for reading
 sources that fight back. The Assay is what is common to both once the machinery is
-removed — and a thing that portable is a thing a third party can pick up without
-adopting a federation or a browser fleet.
+removed — and something that portable is something a third party can pick up
+without adopting a federation or a browser fleet.
+
+One consequence is worth stating plainly: the Assay is faithful to the corpus it
+is handed and has no opinion about how that corpus was assembled. GIN's honest
+limit — structural fidelity reproduces the capture, it does not vouch for it
+([[GIN_04_SEAR]], [[GIN_07_Governance_Validity]]) — applies here in full, with
+none of the governance that answers it. Portability and that exposure are the
+same property.
 
 ## 7 — Who it is for
 
@@ -188,8 +201,10 @@ node can hold both and choose per query.
 corpus; grounding is true by the time a token exists. The Assay lets the model
 emit anything and then deletes what does not verify; grounding is true by the time
 a response is returned. The enforcement point is different — during decoding
-versus after it — and the cost profile is different, but the guarantee delivered
-to the reader is identical: no claim without a span.
+versus after it — and so is the robustness: the engineering register grades
+decode-time enforcement hard and post-hoc enforcement soft
+([[GIN_ENG_01_SEAR_PoC_Spec]]). What the reader may rely on is the same in both:
+no claim without a span.
 
 So the Assay is not a lightweight SEAR. It is the contract stated independently of
 how it is kept, with SEAR as the enforcement that needs an open model and post-hoc

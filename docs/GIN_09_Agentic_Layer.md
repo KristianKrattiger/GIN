@@ -77,7 +77,7 @@ Two principles govern the controls. First, **the behavioural criteria are publis
 
 ## Related
 
-[[GIN_00_Reader]] · [[GIN_02_Productive_Divergence]] · [[GIN_04_SEAR]] · [[GIN_07_Governance_Validity]] · [[GIN_10_Epistemic_Council]]
+[[GIN_00_Reader]] · [[GIN_02_Productive_Divergence]] · [[GIN_04_SEAR]] · [[GIN_07_Governance_Validity]] · [[GIN_10_Epistemic_Council]] · [[GIN_14_Assay]]
 
 ## Back to Vault
 
