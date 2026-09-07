@@ -75,7 +75,7 @@ The internet is already balkanized — through the splinternet and through conce
 
 ## Related
 
-[[GIN_00_Reader]] · [[GIN_02_Productive_Divergence]] · [[GIN_04_SEAR]] · [[GIN_09_Agentic_Layer]] · [[GIN_10_Epistemic_Council]] · [[GIN_08_Adversarial_Analysis]]
+[[GIN_00_Reader]] · [[GIN_02_Productive_Divergence]] · [[GIN_04_SEAR]] · [[GIN_09_Agentic_Layer]] · [[GIN_10_Epistemic_Council]] · [[GIN_08_Adversarial_Analysis]] · [[GIN_14_Assay]]
 
 ## Back to Vault
 

@@ -73,7 +73,7 @@ SEAR is the *remnant* principle from [[CALICHE_INDEX|Caliche]] rendered as infer
 
 ## Related
 
-[[GIN_00_Reader]] · [[GIN_02_Productive_Divergence]] · [[GIN_03_Node_Identity]] · [[GIN_07_Governance_Validity]] · [[GIN_09_Agentic_Layer]] · [[GIN_13_Temporal_Sensor_Grounding]] · [[CALICHE_INDEX]]
+[[GIN_00_Reader]] · [[GIN_02_Productive_Divergence]] · [[GIN_03_Node_Identity]] · [[GIN_07_Governance_Validity]] · [[GIN_09_Agentic_Layer]] · [[GIN_13_Temporal_Sensor_Grounding]] · [[GIN_14_Assay]] · [[CALICHE_INDEX]]
 
 ## Back to Vault
 
