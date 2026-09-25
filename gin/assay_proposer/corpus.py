@@ -16,9 +16,10 @@ from sear.corpus import SENTENCE_BOUNDARY, Corpus
 
 MAX_QUOTE_WORDS = 40
 
-# Mirrors slots.MAX_QUOTE_TOKENS. Lives here, not in slots.py, so this module can
-# forbid a sentence whose token count would overrun the quote decode's token
-# budget without slots.py importing corpus.py importing slots.py back.
+# The only definition of this -- slots.py imports it from here. Lives here,
+# not in slots.py, so this module can forbid a sentence whose token count
+# would overrun the quote decode's token budget without slots.py importing
+# corpus.py importing slots.py back.
 MAX_QUOTE_TOKENS = 160
 
 # The only definition of this -- slots.py imports it from here. A span can
