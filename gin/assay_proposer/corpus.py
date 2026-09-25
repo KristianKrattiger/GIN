@@ -38,13 +38,27 @@ class LineCorpus:
     forbidden_starts: set[tuple[int, int]]
 
 
-def _sentence_offsets(line: str) -> list[tuple[int, int]]:
-    """(start, end) character offsets of each sentence, split as sear.corpus splits."""
-    starts = [0] + [m.end() for m in SENTENCE_BOUNDARY.finditer(line)]
-    return [
-        (s, starts[i + 1] if i + 1 < len(starts) else len(line))
-        for i, s in enumerate(starts)
-    ]
+def _sentences(line: str, tokenize: Callable[[bytes], list[int]]) -> list[tuple[int, int, str]]:
+    """(token_start, token_end_inclusive, sentence_text) for each sentence of one line.
+
+    sear.corpus counts a sentence's start as the tokens before it *including*
+    the whitespace that separates it. A subword tokenizer makes that trailing
+    space its own token, but in the full line the space fuses with the next
+    word (" Acme"), so SEAR's start lands one token late, mid-word. Counting
+    the prefix only up to the punctuation gives the token where the next
+    sentence, with its leading space, begins.
+    """
+    toks = tokenize(line.encode("utf-8"))
+    bounds = [(0, 0)]  # (text_start, token_start)
+    for m in SENTENCE_BOUNDARY.finditer(line):
+        bounds.append((m.end(), len(tokenize(line[: m.start()].encode("utf-8")))))
+    out: list[tuple[int, int, str]] = []
+    for i, (text_start, tok_start) in enumerate(bounds):
+        text_end = bounds[i + 1][0] if i + 1 < len(bounds) else len(line)
+        tok_end = bounds[i + 1][1] - 1 if i + 1 < len(bounds) else len(toks) - 1
+        if tok_start <= tok_end and tok_start < len(toks):
+            out.append((tok_start, tok_end, line[text_start:text_end]))
+    return out
 
 
 def build_line_corpus(
@@ -63,13 +77,21 @@ def build_line_corpus(
 
     corpus = Corpus.from_chunks(chunks, tokenize=tokenize)
 
+    starts: set[tuple[int, int]] = set()
+    ends: set[tuple[int, int]] = set()
+    end_by_start: dict[tuple[int, int], int] = {}
     forbidden: set[tuple[int, int]] = set()
     for d, (_name, line) in enumerate(chunks):
-        for start, end in _sentence_offsets(line):
-            if len(line[start:end].split()) > MAX_QUOTE_WORDS:
-                # The same token position sear.corpus records as this sentence's start.
-                pos = len(tokenize(line[:start].encode("utf-8"))) if start else 0
-                forbidden.add((d, pos))
+        for tok_start, tok_end, text in _sentences(line, tokenize):
+            starts.add((d, tok_start))
+            ends.add((d, tok_end))
+            end_by_start[(d, tok_start)] = tok_end
+            if len(text.split()) > MAX_QUOTE_WORDS:
+                forbidden.add((d, tok_start))
+    # Override SEAR's own boundaries, which are one token late under subword tokenizers (see _sentences).
+    corpus.sentence_starts = starts
+    corpus.sentence_ends = ends
+    corpus.sentence_end_by_start = end_by_start
 
     return LineCorpus(
         corpus=corpus,

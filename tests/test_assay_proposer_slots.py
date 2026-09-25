@@ -1,4 +1,5 @@
 """Tests for gin.assay_proposer.slots, driven by a word-level stand-in for llama_cpp.Llama."""
+import re
 from dataclasses import dataclass
 
 import numpy as np
@@ -207,3 +208,20 @@ def test_choice_constraint_allows_only_listed_sequences_then_eos():
     assert allowed([0, 0, 5]) == {6, 7}
     assert allowed([0, 0, 5, 6]) == {1}
     assert allowed([0, 0, 8]) == {1}
+
+
+class SubwordFakeLlm(FakeLlm):
+    """FakeLlm with GPT-style subword tokens: a word carries its leading space."""
+
+    def tokenize(self, b, add_bos=True, special=False):
+        return [self._id(p) for p in re.findall(r" ?[A-Za-z0-9%]+| ?[^\sA-Za-z0-9]|\s+", b.decode("utf-8"))]
+
+    def detokenize(self, ids):
+        return "".join(self.inv[i] for i in ids if i != self.EOS).encode("utf-8")
+
+
+def test_a_second_sentence_on_a_line_is_quoted_whole_under_a_subword_tokenizer():
+    llm = SubwordFakeLlm([" Acme is down.", "unsupported", "t", "s", "r", "0.50", "no"])
+    out = propose_pass(llm, _render, system="S", user="U",
+                       excerpts=[Ex("vendor", "claimant", "Acme is up. Acme is down.")])
+    assert out[0]["from"]["quote"] == "Acme is down."
