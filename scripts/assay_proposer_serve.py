@@ -8,6 +8,16 @@ Usage:
 Receipts reaches it with --client sear, SEAR_HOST=http://127.0.0.1:8766 and
 SEAR_MODEL set to the id printed at startup (sear/<gguf file stem>). Binds
 127.0.0.1 only: a local sidecar with no peers, so no mTLS.
+
+app.py's propose lock serializes passes but does not cancel one already in
+flight: if Receipts is interrupted mid-request, a queued or in-progress pass
+keeps decoding under the lock until it finishes on its own -- there is
+nothing here to stop it early. Restarting the sidecar is what clears it.
+
+--n-ctx may need raising for large passes: a long excerpt set plus a full
+proposal turn can outgrow the default context window. When it does, llama.cpp
+reports a context overflow, which comes back to Receipts as a failed pass
+with that overflow as the reason given, not a hang or a silent truncation.
 """
 from __future__ import annotations
 
