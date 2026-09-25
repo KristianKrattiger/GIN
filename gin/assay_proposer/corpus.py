@@ -9,6 +9,7 @@ to the heading under it) unreachable rather than caught afterwards.
 """
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from typing import Callable, Iterable, Protocol
 
@@ -29,6 +30,46 @@ MAX_QUOTE_TOKENS = 160
 # its line (forcing EOS with too little copied, which _quote rejects) or, if
 # a next sentence follows on the same line, bleeds into it instead.
 MIN_SPAN_TOKENS = 4
+
+# Receipts' isCoherentQuote (src/assay/bookkeeper/anchor.ts), mirrored so a
+# quote it would deny at admission is never a legal start here. Its newline
+# rule needs no mirror: a SEAR doc is one line. Keep these in step with it.
+_TAIL_OPENERS = frozenset({"than", "which", "whom", "whose", "nor"})
+_MAX_NAME_WORDS = 5
+_LEADING_OPENERS = re.compile(r"""^["'“‘(\[{\s]+""")
+_FIRST_WORD = re.compile(r"^[^\W_]+'?[^\W_]*")
+# Not in Receipts: Hacker News (Algolia) search results render each hit's
+# byline as its own line -- "63 points|akerl_|5 years ago|154 comments" --
+# which has letters, is no bare name, and so passes isCoherentQuote.
+_HN_METADATA = re.compile(r"^\d+ points?\|[^|]*\|[^|]* ago\|\d+ comments?$")
+
+
+def _is_bare_name(text: str) -> bool:
+    words = text.split()
+    if not words or len(words) > _MAX_NAME_WORDS:
+        return False
+    saw_cased = False
+    for word in words:
+        letter = next((c for c in word if c.isalpha()), None)
+        if letter is None or letter.lower() == letter.upper():
+            continue  # no letter, or a caseless script: no evidence either way
+        saw_cased = True
+        if letter != letter.upper():
+            return False  # a lowercase word: a statement
+    return saw_cased
+
+
+def is_coherent_quote(text: str) -> bool:
+    """Whether a sentence reads as a self-contained claim Receipts would admit."""
+    text = text.strip()
+    if not any(c.isalpha() for c in text):
+        return False
+    first = _FIRST_WORD.match(_LEADING_OPENERS.sub("", text))
+    if first and first.group(0).lower() in _TAIL_OPENERS:
+        return False
+    if _is_bare_name(text):
+        return False
+    return not _HN_METADATA.match(text)
 
 
 class ExcerptLike(Protocol):
@@ -106,6 +147,7 @@ def build_line_corpus(
                 len(text.split()) > MAX_QUOTE_WORDS
                 or token_count >= MAX_QUOTE_TOKENS
                 or token_count < MIN_SPAN_TOKENS
+                or not is_coherent_quote(text)
             ):
                 forbidden.add((d, tok_start))
     # Override SEAR's own boundaries, which are one token late under subword tokenizers (see _sentences).

@@ -129,3 +129,53 @@ def test_a_trailing_space_does_not_become_a_whitespace_only_sentence_under_a_sub
     lc = build_line_corpus([Ex("vendor", "claimant", "Acme is up. ")], _subword_tok)
     assert lc.corpus.sentence_starts == {(0, 0)}
     assert lc.corpus.sentence_ends == {(0, 3)}
+
+
+# --- quotes Receipts would reject at admission must not be legal starts here ---
+# A 7B proposer, free to quote any line, collapsed onto the cheapest ones on the
+# real Tesla corpus: a stat tile ("14,139,575,106"), a label ("5-Star Safety
+# Ratings"), Hacker News search metadata. Receipts' isCoherentQuote denied most
+# of them after the fact; forbidding them up front is what leaves the model a
+# real sentence to copy. A byte tokenizer keeps these short spans over
+# MIN_SPAN_TOKENS so that rule is not what forbids them.
+_byte_tok = lambda b: list(b)
+
+
+def _forbidden_texts(text: str, tokenize=_byte_tok) -> bool:
+    return build_line_corpus([Ex("vendor", "claimant", text)], tokenize).forbidden_starts == {(0, 0)}
+
+
+def test_a_span_with_no_letter_cannot_start_a_quote():
+    assert _forbidden_texts("14,139,575,106")
+
+
+def test_a_bare_name_cannot_start_a_quote():
+    assert _forbidden_texts("5-Star Safety Ratings")
+    assert _forbidden_texts("Full Self-Driving (Supervised)")
+
+
+def test_a_title_case_headline_past_the_name_length_may_be_quoted():
+    assert not _forbidden_texts("Vercel Confirms Breach As Hackers Claim")
+
+
+def test_a_short_phrase_with_a_lowercase_word_may_be_quoted():
+    assert not _forbidden_texts("Available for $99/mo")
+
+
+def test_a_caseless_script_is_not_judged_a_bare_name():
+    assert not _forbidden_texts("東京は速い都市です")
+
+
+def test_a_sentence_tail_cannot_start_a_quote():
+    assert _forbidden_texts("Than a human driver when engaged.")
+    assert not _forbidden_texts("When enabled, the system slows the car down.")
+
+
+def test_hacker_news_search_metadata_cannot_start_a_quote():
+    assert _forbidden_texts("63 points|akerl_|5 years ago|154 comments", _tok)
+    assert _forbidden_texts("1 point|ra7|1 day ago|1 comment", _tok)
+
+
+def test_coherence_is_judged_per_sentence_not_per_line():
+    lc = build_line_corpus([Ex("vendor", "claimant", "Acme is fast today. Than a human driver.")], _tok)
+    assert lc.forbidden_starts == {(0, 4)}
