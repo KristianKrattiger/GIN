@@ -26,7 +26,7 @@ from .corpus import MAX_QUOTE_TOKENS, ExcerptLike, LineCorpus, build_line_corpus
 RELATION_TYPES = ["contradicts", "corroborates", "updates", "unsupported"]
 CONFIDENCES = [f"{i / 20:.2f}" for i in range(1, 21)]  # 0.05 .. 1.00
 MIN_SPAN_TOKENS = 4
-FREE_TEXT_TOKENS = {"topic": 16, "statement": 32, "rationale": 64}
+FREE_TEXT_TOKENS = {"topic": 16, "statement": 64, "rationale": 64}
 
 SCAFFOLD_NOTE = (
     "\n\nAnswer one proposal at a time by filling in the labelled fields. "

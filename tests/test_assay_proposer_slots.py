@@ -6,7 +6,7 @@ import numpy as np
 import pytest
 
 from gin.assay_proposer.corpus import MAX_QUOTE_WORDS
-from gin.assay_proposer.slots import ChoiceConstraint, _complete, _Loud, propose_pass
+from gin.assay_proposer.slots import FREE_TEXT_TOKENS, ChoiceConstraint, _complete, _Loud, propose_pass
 from sear.processor import NEG_INF
 
 
@@ -329,3 +329,9 @@ def test_complete_seeds_each_call_freshly_instead_of_repeating():
     assert len(seen_seeds) == 2
     assert all(isinstance(s, int) for s in seen_seeds)
     assert seen_seeds[0] != seen_seeds[1]
+
+
+def test_the_statement_free_text_cap_is_raised_to_64_tokens():
+    # A one-line rationale/statement can run longer than the topic; 32 tokens
+    # was tight enough to truncate a real statement.
+    assert FREE_TEXT_TOKENS == {"topic": 16, "statement": 64, "rationale": 64}
