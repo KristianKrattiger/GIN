@@ -66,3 +66,15 @@ def test_an_invalid_proposal_from_propose_fn_reports_its_reason():
     r = client.post("/v1/propose", json=BODY)
     assert r.status_code == 500
     assert "ValidationError" in r.json()["detail"]
+
+
+def test_a_deliberate_http_exception_from_propose_fn_passes_through():
+    from fastapi import HTTPException
+
+    def propose_fn(req):
+        raise HTTPException(status_code=429, detail="busy")
+
+    client = TestClient(create_app(propose_fn, "sear/test"))
+    r = client.post("/v1/propose", json=BODY)
+    assert r.status_code == 429
+    assert r.json()["detail"] == "busy"

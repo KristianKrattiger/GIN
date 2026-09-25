@@ -39,7 +39,9 @@ def main() -> int:
     llm, render, model_id = load_model(args.model, n_ctx=args.n_ctx, n_gpu_layers=args.n_gpu_layers)
 
     def propose_fn(req):
-        user = next(m.content for m in reversed(req.messages) if m.role == "user")
+        user = next((m.content for m in reversed(req.messages) if m.role == "user"), None)
+        if user is None:
+            raise ValueError("request carries no user message")
         return propose_pass(
             llm, render, system=req.system, user=user, excerpts=req.excerpts,
             temperature=args.temperature, max_proposals=args.max_proposals,
