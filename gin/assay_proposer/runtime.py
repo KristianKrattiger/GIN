@@ -17,6 +17,32 @@ def model_id_for(model_path: str) -> str:
     return f"{SEAR_MODEL_PREFIX}{PureWindowsPath(model_path).stem}"
 
 
+def make_render(formatter: Any) -> Callable[[str, str], str]:
+    """Render one (system, user) turn with a model's own chat template.
+
+    Some templates -- Mistral v0.3's own included -- require roles to strictly
+    alternate starting with "user" and reject a leading system message outright,
+    raising ValueError("Conversation roles must alternate user/assistant/...")
+    from the template's raise_exception() (see llama_cpp.llama_chat_format's
+    Jinja2ChatFormatter, which runs the template through jinja2's sandboxed
+    Environment.render()). Fall back to folding the system prompt into the
+    single user turn those templates do accept.
+    """
+
+    def render(system: str, user: str) -> str:
+        try:
+            return formatter(messages=[
+                {"role": "system", "content": system},
+                {"role": "user", "content": user},
+            ]).prompt
+        except ValueError:
+            return formatter(messages=[
+                {"role": "user", "content": f"{system}\n\n{user}"},
+            ]).prompt
+
+    return render
+
+
 def load_model(
     model_path: str,
     *,
@@ -41,10 +67,4 @@ def load_model(
         add_generation_prompt=True,
     )
 
-    def render(system: str, user: str) -> str:
-        return formatter(messages=[
-            {"role": "system", "content": system},
-            {"role": "user", "content": user},
-        ]).prompt
-
-    return llm, render, model_id_for(model_path)
+    return llm, make_render(formatter), model_id_for(model_path)
