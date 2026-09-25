@@ -20,12 +20,11 @@ import numpy as np
 
 from sear.processor import IN_SPAN, NEG_INF, ExtractiveCopyConstraint
 
-from .corpus import ExcerptLike, LineCorpus, build_line_corpus
+from .corpus import MAX_QUOTE_TOKENS, ExcerptLike, LineCorpus, build_line_corpus
 
 RELATION_TYPES = ["contradicts", "corroborates", "updates", "unsupported"]
 CONFIDENCES = [f"{i / 20:.2f}" for i in range(1, 21)]  # 0.05 .. 1.00
 MIN_SPAN_TOKENS = 4
-MAX_QUOTE_TOKENS = 96
 FREE_TEXT_TOKENS = {"topic": 16, "statement": 32, "rationale": 64}
 
 SCAFFOLD_NOTE = (

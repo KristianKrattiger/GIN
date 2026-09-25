@@ -2,7 +2,7 @@
 import re
 from dataclasses import dataclass
 
-from gin.assay_proposer.corpus import MAX_QUOTE_WORDS, build_line_corpus
+from gin.assay_proposer.corpus import MAX_QUOTE_TOKENS, MAX_QUOTE_WORDS, build_line_corpus
 
 _VOCAB: dict[str, int] = {}
 
@@ -62,6 +62,18 @@ def test_a_sentence_over_the_word_limit_cannot_start_a_quote():
     # the same position sear.corpus records as that sentence's start.
     assert lc.forbidden_starts == {(0, 3)}
     assert (0, 3) in lc.corpus.sentence_starts
+
+
+def test_a_sentence_within_the_word_limit_but_over_the_token_cap_cannot_start_a_quote():
+    # Well within MAX_QUOTE_WORDS, but a token-per-byte tokenizer (standing in
+    # for something like Qwen's digit-per-token tokenization) puts it over
+    # MAX_QUOTE_TOKENS -- a quote decode capped at that many tokens would be
+    # truncated mid-sentence, so the sentence must never be a legal start.
+    byte_tok = lambda b: list(b)
+    at_word_limit = " ".join(["word"] * MAX_QUOTE_WORDS) + "."
+    assert len(byte_tok(at_word_limit.encode("utf-8"))) >= MAX_QUOTE_TOKENS
+    lc = build_line_corpus([Ex("vendor", "claimant", at_word_limit)], byte_tok)
+    assert lc.forbidden_starts == {(0, 0)}
 
 
 def test_a_sentence_at_the_limit_may_be_quoted():

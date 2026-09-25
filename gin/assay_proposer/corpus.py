@@ -16,6 +16,11 @@ from sear.corpus import SENTENCE_BOUNDARY, Corpus
 
 MAX_QUOTE_WORDS = 40
 
+# Mirrors slots.MAX_QUOTE_TOKENS. Lives here, not in slots.py, so this module can
+# forbid a sentence whose token count would overrun the quote decode's token
+# budget without slots.py importing corpus.py importing slots.py back.
+MAX_QUOTE_TOKENS = 160
+
 
 class ExcerptLike(Protocol):
     docId: str
@@ -87,7 +92,8 @@ def build_line_corpus(
             starts.add((d, tok_start))
             ends.add((d, tok_end))
             end_by_start[(d, tok_start)] = tok_end
-            if len(text.split()) > MAX_QUOTE_WORDS:
+            token_count = tok_end - tok_start + 1
+            if len(text.split()) > MAX_QUOTE_WORDS or token_count >= MAX_QUOTE_TOKENS:
                 forbidden.add((d, tok_start))
     # Override SEAR's own boundaries, which are one token late under subword tokenizers (see _sentences).
     corpus.sentence_starts = starts
