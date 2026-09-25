@@ -310,3 +310,22 @@ def test_a_pipe_inside_a_sentence_does_not_close_the_span_there():
     excerpts = [Ex("vendor", "claimant", sentence)]
     _, out = _run([sentence, "unsupported", "t", "s", "r", "0.50", "no"], excerpts=excerpts)
     assert out[0]["from"]["quote"] == sentence
+
+
+def test_complete_seeds_each_call_freshly_instead_of_repeating():
+    seen_seeds = []
+
+    class SeedRecordingFakeLlm:
+        def token_eos(self) -> int:
+            return 1
+
+        def create_completion(self, prompt, max_tokens=16, temperature=0.8, seed=None, **_):
+            seen_seeds.append(seed)
+            return {"choices": [{"text": "", "finish_reason": "stop"}]}
+
+    llm = SeedRecordingFakeLlm()
+    _complete(llm, "p", max_tokens=4, temperature=0.1)
+    _complete(llm, "p", max_tokens=4, temperature=0.1)
+    assert len(seen_seeds) == 2
+    assert all(isinstance(s, int) for s in seen_seeds)
+    assert seen_seeds[0] != seen_seeds[1]

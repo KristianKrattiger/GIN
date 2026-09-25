@@ -14,6 +14,7 @@ SEAR closed, never generated, so the model cannot mislabel its source.
 """
 from __future__ import annotations
 
+import random
 from typing import Any, Callable, Iterable, Optional
 
 import numpy as np
@@ -165,7 +166,11 @@ def _complete(
     processor=None,
     stop: Optional[list[str]] = None,
 ) -> tuple[str, str]:
-    kwargs: dict[str, Any] = {"max_tokens": max_tokens, "temperature": temperature}
+    # create_completion's own default seeds from a fixed LLAMA_DEFAULT_SEED chain,
+    # so a freshly started sidecar would repeat its outputs run to run.
+    kwargs: dict[str, Any] = {
+        "max_tokens": max_tokens, "temperature": temperature, "seed": random.getrandbits(32),
+    }
     loud: Optional[_Loud] = None
     if processor is not None:
         from llama_cpp import LogitsProcessorList  # lazy, as gin/corpus/generate.py does
