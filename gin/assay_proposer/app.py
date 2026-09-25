@@ -33,8 +33,12 @@ def create_app(propose_fn: ProposeFn, model_id: str) -> FastAPI:
     def propose(req: ProposeRequest) -> ProposeResponse:
         if req.model != model_id:
             raise HTTPException(status_code=409, detail=f"this proposer serves {model_id}, not {req.model}")
-        with lock:
-            raw = propose_fn(req)
-        return ProposeResponse(model=model_id, proposals=[Proposal.model_validate(p) for p in raw])
+        try:
+            with lock:
+                raw = propose_fn(req)
+            proposals = [Proposal.model_validate(p) for p in raw]
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"{type(e).__name__}: {e}") from e
+        return ProposeResponse(model=model_id, proposals=proposals)
 
     return app

@@ -48,3 +48,21 @@ def test_a_request_without_excerpts_is_rejected():
     client = TestClient(create_app(lambda req: [], "sear/test"))
     body = {k: v for k, v in BODY.items() if k != "excerpts"}
     assert client.post("/v1/propose", json=body).status_code == 422
+
+
+def test_an_exception_from_propose_fn_reports_its_reason():
+    def propose_fn(req):
+        raise RuntimeError("boom")
+
+    client = TestClient(create_app(propose_fn, "sear/test"))
+    r = client.post("/v1/propose", json=BODY)
+    assert r.status_code == 500
+    assert "RuntimeError: boom" in r.json()["detail"]
+
+
+def test_an_invalid_proposal_from_propose_fn_reports_its_reason():
+    missing_from = {k: v for k, v in PROPOSAL.items() if k != "from"}
+    client = TestClient(create_app(lambda req: [missing_from], "sear/test"))
+    r = client.post("/v1/propose", json=BODY)
+    assert r.status_code == 500
+    assert "ValidationError" in r.json()["detail"]
