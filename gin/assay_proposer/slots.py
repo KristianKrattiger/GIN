@@ -195,7 +195,14 @@ def _quote(
         lc.corpus,
         prompt_len=n,
         eos_id=llm.token_eos(),
-        delim_id=llm.tokenize(b"|", add_bos=False)[-1],
+        # A real corpus token that happened to share an id with tokenize(b"|")
+        # would be treated as a structural close and cut the span mid-sentence
+        # (sear/processor.py's IN_SPAN branch checks `tok in self.structural`
+        # before checking whether tok continues the span). eos_id can't collide
+        # with a real corpus token, and fix 1's wrapper already makes EOS the
+        # only allowed token once a close is legal, so delim_id and eos_id can
+        # safely be the same id here; finalize() still yields the closed span.
+        delim_id=llm.token_eos(),
         min_span_len=MIN_SPAN_TOKENS,
         focus_doc_indices=focus,
         forbidden_starts=lc.forbidden_starts,

@@ -300,3 +300,13 @@ class SwallowingFakeLlm:
 def test_complete_reraises_an_exception_a_ctypes_callback_would_otherwise_swallow():
     with pytest.raises(RuntimeError, match="boom"):
         _complete(SwallowingFakeLlm(), "prompt", max_tokens=4, temperature=0.1, processor=_Boom())
+
+
+def test_a_pipe_inside_a_sentence_does_not_close_the_span_there():
+    # "|" doubles as SEAR's structural delimiter token; if a corpus token happens
+    # to share its id, the old delim_id wrongly treats it as a close, cutting the
+    # quote mid-sentence.
+    sentence = "Acme reports 40 | 60 split between the two segments today."
+    excerpts = [Ex("vendor", "claimant", sentence)]
+    _, out = _run([sentence, "unsupported", "t", "s", "r", "0.50", "no"], excerpts=excerpts)
+    assert out[0]["from"]["quote"] == sentence
