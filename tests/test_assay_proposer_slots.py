@@ -334,6 +334,35 @@ def test_a_pipe_inside_a_sentence_does_not_close_the_span_there():
     assert out[0]["from"]["quote"] == sentence
 
 
+def test_a_too_short_sentence_alone_on_a_line_no_longer_dead_ends_the_pass():
+    # Reviewer's repro: "Autopark" is a whole line and a whole sentence, one
+    # token long. SEAR let a span start there with no length check; it then
+    # ran out of doc at span_len 1 (< MIN_SPAN_TOKENS), only EOS was left
+    # allowed, and _quote rejected the closed span as too short -- from_doc
+    # decoded to None and propose_pass broke immediately, returning [].
+    excerpts = [Ex("vendor", "claimant", "Autopark\nAcme uptime is 99.99% everywhere.")]
+    _, out = _run(["Autopark", "unsupported", "t", "s", "r", "0.50", "no"], excerpts=excerpts)
+    assert out[0]["from"]["quote"] == "Acme uptime is 99.99% everywhere."
+
+
+def test_a_too_short_sentence_never_gets_quoted_by_bleeding_into_the_next_one():
+    # Reviewer's repro: on "Yes. Acme is fast. Acme is cheap." a span starting
+    # at "Yes." (one token) couldn't legally close there either, so it bled
+    # into the next sentence instead, closing at "Yes. Acme is fast." (four
+    # tokens -- long enough once the second sentence's tokens are folded in).
+    # Every sentence on that line is under MIN_SPAN_TOKENS, so none of them
+    # may start a quote any more; the decoder must fall through to the other
+    # claimant line instead.
+    excerpts = [Ex(
+        "vendor", "claimant",
+        "Yes. Acme is fast. Acme is cheap.\n"
+        "Acme reports strong uptime across every region this quarter.",
+    )]
+    _, out = _run(["Yes. Acme is fast.", "unsupported", "t", "s", "r", "0.50", "no"], excerpts=excerpts)
+    assert not out[0]["from"]["quote"].startswith("Yes")
+    assert out[0]["from"]["quote"] == "Acme reports strong uptime across every region this quarter."
+
+
 def test_complete_seeds_each_call_freshly_instead_of_repeating():
     seen_seeds = []
 

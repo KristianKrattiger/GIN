@@ -21,6 +21,14 @@ MAX_QUOTE_WORDS = 40
 # budget without slots.py importing corpus.py importing slots.py back.
 MAX_QUOTE_TOKENS = 160
 
+# The only definition of this -- slots.py imports it from here. A span can
+# never legally close under this many tokens (sear/processor.py's
+# _span_close_permitted requires span_len >= min_span_len), so a sentence
+# shorter than it can never finish a quote: it either dead-ends at the end of
+# its line (forcing EOS with too little copied, which _quote rejects) or, if
+# a next sentence follows on the same line, bleeds into it instead.
+MIN_SPAN_TOKENS = 4
+
 
 class ExcerptLike(Protocol):
     docId: str
@@ -93,7 +101,11 @@ def build_line_corpus(
             ends.add((d, tok_end))
             end_by_start[(d, tok_start)] = tok_end
             token_count = tok_end - tok_start + 1
-            if len(text.split()) > MAX_QUOTE_WORDS or token_count >= MAX_QUOTE_TOKENS:
+            if (
+                len(text.split()) > MAX_QUOTE_WORDS
+                or token_count >= MAX_QUOTE_TOKENS
+                or token_count < MIN_SPAN_TOKENS
+            ):
                 forbidden.add((d, tok_start))
     # Override SEAR's own boundaries, which are one token late under subword tokenizers (see _sentences).
     corpus.sentence_starts = starts
