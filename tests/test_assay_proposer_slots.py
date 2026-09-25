@@ -160,6 +160,28 @@ def test_an_empty_claim_slot_ends_the_pass():
     assert len(llm.prompts) == 1
 
 
+def test_the_to_quote_is_actually_decoded_and_attributed_among_several_independent_docs():
+    # The existing "missing to" coverage (below) only exercises the case where
+    # lc.independent is empty, so _quote's `if not focus: return None` returns
+    # before ever decoding anything. This drives a real independent-quote decode,
+    # with a second, unquoted independent doc in the focus set to confirm the
+    # closed span is attributed to the right one.
+    excerpts = [
+        Ex("vendor", "claimant", "Acme uptime is 99.99% everywhere."),
+        Ex("status", "independent", "Acme reported four outages this quarter."),
+        Ex("blog", "independent", "Acme's support team is well regarded."),
+    ]
+    _, out = _run(
+        [
+            "Acme uptime is 99.99% everywhere.", "contradicts",
+            "Acme reported four outages this quarter.",
+            "t", "s", "r", "0.50", "no",
+        ],
+        excerpts=excerpts,
+    )
+    assert out[0]["to"] == {"docId": "status", "quote": "Acme reported four outages this quarter."}
+
+
 def test_a_missing_independent_quote_drops_only_that_proposal():
     only_claimant = [Ex("vendor", "claimant", "Acme uptime is 99.99% everywhere.\nAcme support answers in one hour.")]
     _, out = _run(
