@@ -4,8 +4,10 @@
     python scripts/assay_proposer_smoke.py --model models/Qwen2.5-7B-Instruct-Q6_K.gguf
 
 This is the only check of slots.prompt_token_count against a real tokenizer:
-if llama.cpp counts the prompt differently, the first constrained slot raises
-instead of misattributing a quote. Exit 0 = every quote verified; 1 = a quote
+if llama.cpp counts the prompt differently, the first constrained slot's
+_PromptLengthGuard raises, _Loud stops decoding right there, and _complete
+re-raises once create_completion returns -- instead of the mismatch silently
+misattributing a quote. Exit 0 = every quote verified; 1 = a quote
 failed; 2 = the model proposed nothing, so nothing was checked.
 """
 from __future__ import annotations

@@ -6,7 +6,7 @@ import numpy as np
 import pytest
 
 from gin.assay_proposer.corpus import MAX_QUOTE_WORDS
-from gin.assay_proposer.slots import ChoiceConstraint, propose_pass
+from gin.assay_proposer.slots import ChoiceConstraint, _complete, _Loud, propose_pass
 from sear.processor import NEG_INF
 
 
@@ -262,3 +262,41 @@ def test_a_quote_from_the_second_sentence_does_not_bleed_into_a_third():
         excerpts=excerpts,
     )
     assert out[0]["from"]["quote"] == "Acme support answered every ticket within an hour."
+
+
+class _Boom:
+    def __call__(self, input_ids, scores):
+        raise RuntimeError("boom")
+
+
+def test_loud_masks_to_eos_only_and_records_the_inner_exception_without_raising():
+    loud = _Loud(_Boom(), eos_id=1)
+    scores = np.array([5.0, 5.0, 5.0], dtype=np.float32)
+    out = loud(np.array([0], dtype=np.intc), scores)  # does not raise
+    assert isinstance(loud.error, RuntimeError) and str(loud.error) == "boom"
+    assert out[1] == 5.0
+    assert out[0] <= NEG_INF / 2 and out[2] <= NEG_INF / 2
+
+
+class SwallowingFakeLlm:
+    """Stands in for llama-cpp-python 0.3.30's ctypes C callback, which prints
+    and drops any exception a logits processor raises inside it -- decoding
+    would otherwise carry on with unmasked logits."""
+
+    def token_eos(self) -> int:
+        return 1
+
+    def create_completion(self, prompt, max_tokens=16, temperature=0.8, logits_processor=None, stop=None, **_):
+        ids = np.array([0], dtype=np.intc)
+        scores = np.ones(4, dtype=np.float32)
+        for lp in logits_processor or []:
+            try:
+                lp(ids, scores)
+            except Exception:
+                pass  # the ctypes callback swallows it here
+        return {"choices": [{"text": "", "finish_reason": "stop"}]}
+
+
+def test_complete_reraises_an_exception_a_ctypes_callback_would_otherwise_swallow():
+    with pytest.raises(RuntimeError, match="boom"):
+        _complete(SwallowingFakeLlm(), "prompt", max_tokens=4, temperature=0.1, processor=_Boom())

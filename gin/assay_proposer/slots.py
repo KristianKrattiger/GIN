@@ -76,11 +76,16 @@ class ChoiceConstraint:
 
 
 class _PromptLengthGuard:
-    """Fail loudly if llama.cpp's prompt token count differs from ours.
+    """Raise if llama.cpp's prompt token count differs from ours.
 
     SEAR treats every input id past prompt_len as generated; an off-by-one
     would feed it a prompt token as the first quoted token and silently
-    misattribute the quote.
+    misattribute the quote. Raising here does not by itself stop that:
+    llama-cpp-python 0.3.30 runs logits processors inside a ctypes callback
+    that prints and drops any exception raised in them, so decoding would
+    carry on with unmasked logits. _Loud (below) is what actually makes this
+    loud -- it catches the exception, forces EOS so decoding stops at once,
+    and _complete re-raises it once create_completion returns.
     """
 
     def __init__(self, inner, prompt_len: int):
@@ -122,6 +127,35 @@ class _StopAtSentenceEnd:
         return mask
 
 
+class _Loud:
+    """Make a logits processor's exceptions actually stop decoding.
+
+    llama-cpp-python 0.3.30 runs logits processors inside a ctypes C callback
+    (llama_cpp/_internals.py's CustomSampler.apply_wrapper), and ctypes prints
+    and drops any exception raised there -- decoding continues with unmasked
+    logits. That would let _PromptLengthGuard's RuntimeError, or any SEAR bug,
+    pass unnoticed: at best the pass silently returns [], at worst finalize()
+    closes a partial span and hands back a fragment as if it were a real quote.
+
+    This wrapper catches the first exception the inner processor raises, masks
+    everything but EOS from then on so decoding stops immediately, and remembers
+    the exception so _complete can re-raise it once create_completion returns.
+    """
+
+    def __init__(self, inner, eos_id: int):
+        self.inner = inner
+        self.eos_id = eos_id
+        self.error: Optional[BaseException] = None
+
+    def __call__(self, input_ids, scores):
+        if self.error is None:
+            try:
+                return self.inner(input_ids, scores)
+            except Exception as e:
+                self.error = e
+        return _mask(scores, {self.eos_id})
+
+
 def _complete(
     llm: Any,
     prompt: str,
@@ -132,13 +166,17 @@ def _complete(
     stop: Optional[list[str]] = None,
 ) -> tuple[str, str]:
     kwargs: dict[str, Any] = {"max_tokens": max_tokens, "temperature": temperature}
+    loud: Optional[_Loud] = None
     if processor is not None:
         from llama_cpp import LogitsProcessorList  # lazy, as gin/corpus/generate.py does
 
-        kwargs["logits_processor"] = LogitsProcessorList([processor])
+        loud = _Loud(processor, llm.token_eos())
+        kwargs["logits_processor"] = LogitsProcessorList([loud])
     if stop is not None:
         kwargs["stop"] = stop
     choice = llm.create_completion(prompt, **kwargs)["choices"][0]
+    if loud is not None and loud.error is not None:
+        raise loud.error
     return choice["text"], choice.get("finish_reason") or "stop"
 
 
