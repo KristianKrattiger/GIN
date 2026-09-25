@@ -1,4 +1,4 @@
-"""Tests for gin.assay_proposer.slots, driven by a word-level stand-in for llama_cpp.Llama."""
+"""Tests for gin.assay_proposer.slots, driven by word-level and subword stand-ins for llama_cpp.Llama."""
 import re
 from dataclasses import dataclass
 

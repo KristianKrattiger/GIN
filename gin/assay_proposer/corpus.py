@@ -56,8 +56,9 @@ def _sentences(line: str, tokenize: Callable[[bytes], list[int]]) -> list[tuple[
     for i, (text_start, tok_start) in enumerate(bounds):
         text_end = bounds[i + 1][0] if i + 1 < len(bounds) else len(line)
         tok_end = bounds[i + 1][1] - 1 if i + 1 < len(bounds) else len(toks) - 1
-        if tok_start <= tok_end and tok_start < len(toks):
-            out.append((tok_start, tok_end, line[text_start:text_end]))
+        text = line[text_start:text_end]
+        if tok_start <= tok_end and tok_start < len(toks) and text.strip():
+            out.append((tok_start, tok_end, text))
     return out
 
 

@@ -90,3 +90,12 @@ def test_an_over_long_second_sentence_is_forbidden_at_its_first_word_under_a_sub
     long = " ".join(["word"] * (MAX_QUOTE_WORDS + 1)) + "."
     lc = build_line_corpus([Ex("vendor", "claimant", f"Short one here. {long}")], _subword_tok)
     assert lc.forbidden_starts == {(0, 4)}
+
+
+def test_a_trailing_space_does_not_become_a_whitespace_only_sentence_under_a_subword_tokenizer():
+    # _subword_tok("Acme is up. ") -> ["Acme", " is", " up", ".", " "]: the trailing
+    # space is its own token (index 4), separate from the sentence's real content
+    # (tokens 0-3). Only the real sentence should be recorded.
+    lc = build_line_corpus([Ex("vendor", "claimant", "Acme is up. ")], _subword_tok)
+    assert lc.corpus.sentence_starts == {(0, 0)}
+    assert lc.corpus.sentence_ends == {(0, 3)}
