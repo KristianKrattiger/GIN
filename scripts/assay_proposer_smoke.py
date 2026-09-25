@@ -8,7 +8,8 @@ if llama.cpp counts the prompt differently, the first constrained slot's
 _PromptLengthGuard raises, _Loud stops decoding right there, and _complete
 re-raises once create_completion returns -- instead of the mismatch silently
 misattributing a quote. Exit 0 = every quote verified; 1 = a quote
-failed; 2 = the model proposed nothing, so nothing was checked.
+failed; 2 = the model proposed nothing, so nothing was checked; 3 = every
+quote verified, but one quote pair got more than one relation type.
 """
 from __future__ import annotations
 
@@ -47,6 +48,7 @@ def main() -> int:
     ap.add_argument("--n-ctx", type=int, default=4096)
     args = ap.parse_args()
 
+    from gin.assay_proposer.consistency import conflicting_pairs
     from gin.assay_proposer.corpus import MAX_QUOTE_WORDS
     from gin.assay_proposer.runtime import load_model
     from gin.assay_proposer.schema import Excerpt
@@ -100,6 +102,11 @@ def main() -> int:
     if not proposals:
         print("the model proposed nothing; nothing was checked")
         return 2
+    conflicts = conflicting_pairs(proposals)
+    if conflicts:
+        print("CONFLICT: quotes verified, but a pair got more than one relation type:\n  " + "\n  ".join(
+            f"{c['types']} on {c['from']['quote']!r} -> {c['to']['quote']!r}" for c in conflicts))
+        return 3
     print(f"OK: {len(proposals)} proposal(s) in {seconds}s, every quote copied from a line of the right role")
     return 0
 
