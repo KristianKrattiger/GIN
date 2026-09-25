@@ -15,9 +15,18 @@ keeps decoding under the lock until it finishes on its own -- there is
 nothing here to stop it early. Restarting the sidecar is what clears it.
 
 --n-ctx may need raising for large passes: a long excerpt set plus a full
-proposal turn can outgrow the default context window. When it does, llama.cpp
-reports a context overflow, which comes back to Receipts as a failed pass
-with that overflow as the reason given, not a hang or a silent truncation.
+proposal turn can outgrow the default context window, and llama.cpp handles
+that two different ways depending on how it's overgrown. A prompt that is
+already too long on its own fails loudly: create_completion raises
+ValueError("Requested tokens ... exceed context window ...") before decoding
+starts, which comes back to Receipts as a failed pass with that error as the
+reason given. A prompt that fits but would run past n_ctx before max_tokens
+is reached is not rejected -- llama.cpp silently clamps max_tokens down to
+what's left instead. There the decode does not fail outright: a quote slot
+just finishes early with finish_reason "length" and _quote returns None (on
+the from-slot this ends the pass with no error at all), and a choice slot can
+come back empty and fail with "choice decode produced '', not one of [...]".
+Both are symptoms of the same silent truncation, not of a bug in the slot.
 """
 from __future__ import annotations
 
