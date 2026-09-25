@@ -225,3 +225,40 @@ def test_a_second_sentence_on_a_line_is_quoted_whole_under_a_subword_tokenizer()
     out = propose_pass(llm, _render, system="S", user="U",
                        excerpts=[Ex("vendor", "claimant", "Acme is up. Acme is down.")])
     assert out[0]["from"]["quote"] == "Acme is down."
+
+
+def test_a_quote_stops_at_the_first_sentence_end_even_when_the_model_wants_to_keep_writing():
+    # Reviewer's repro: the model's natural continuation after the first sentence
+    # end is the corpus's next token (the start of sentence 2), and that beats the
+    # masked "stop" the model actually wished for. The quote must still stop at the
+    # first sentence.
+    line = (
+        "Acme uptime held steady across every region this entire quarter without exception. "
+        "Acme support answered every single ticket within one hour during the same quarter."
+    )
+    excerpts = [Ex("vendor", "claimant", line)]
+    _, out = _run(
+        [line, "unsupported", "t", "s", "r", "0.50", "no"],
+        excerpts=excerpts,
+    )
+    assert out[0]["from"]["quote"] == (
+        "Acme uptime held steady across every region this entire quarter without exception."
+    )
+
+
+def test_a_quote_from_the_second_sentence_does_not_bleed_into_a_third():
+    line = (
+        "Acme uptime held steady this quarter. "
+        "Acme support answered every ticket within an hour. "
+        "Acme shipped three releases without incident."
+    )
+    excerpts = [Ex("vendor", "claimant", line)]
+    wish = (
+        "Acme support answered every ticket within an hour. "
+        "Acme shipped three releases without incident."
+    )
+    _, out = _run(
+        [wish, "unsupported", "t", "s", "r", "0.50", "no"],
+        excerpts=excerpts,
+    )
+    assert out[0]["from"]["quote"] == "Acme support answered every ticket within an hour."

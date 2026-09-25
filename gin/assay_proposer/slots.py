@@ -18,7 +18,7 @@ from typing import Any, Callable, Iterable, Optional
 
 import numpy as np
 
-from sear.processor import NEG_INF, ExtractiveCopyConstraint
+from sear.processor import IN_SPAN, NEG_INF, ExtractiveCopyConstraint
 
 from .corpus import ExcerptLike, LineCorpus, build_line_corpus
 
@@ -100,6 +100,29 @@ class _PromptLengthGuard:
         return self.inner(input_ids, scores)
 
 
+class _StopAtSentenceEnd:
+    """Force EOS the instant a copied span may legally close at a sentence end.
+
+    ExtractiveCopyConstraint's IN_SPAN mode allows the corpus's next token (the
+    start of the following sentence) alongside the close option once a close is
+    legal. A real model's natural next token after a sentence-ending "." is a
+    newline, which SEAR masks out; copying straight into the next sentence is
+    left as the only attractive option, so quotes run past their first sentence.
+    This wrapper collapses the choice: once the inner constraint's span-close is
+    permitted, EOS is the only allowed token, so a quote always stops there.
+    """
+
+    def __init__(self, inner: ExtractiveCopyConstraint):
+        self.inner = inner
+
+    def __call__(self, input_ids, scores):
+        mask = self.inner(input_ids, scores)
+        if self.inner.mode == IN_SPAN and self.inner._span_close_permitted():
+            scores = np.asarray(scores, dtype=np.float32)
+            return _mask(scores, {self.inner.eos_id})
+        return mask
+
+
 def _complete(
     llm: Any,
     prompt: str,
@@ -145,7 +168,7 @@ def _quote(
     )
     _text, finish = _complete(
         llm, prompt, max_tokens=MAX_QUOTE_TOKENS, temperature=temperature,
-        processor=_PromptLengthGuard(constraint, n),
+        processor=_PromptLengthGuard(_StopAtSentenceEnd(constraint), n),
     )
     if finish == "length":
         return None  # cut off mid-span: a fragment, not a quote
