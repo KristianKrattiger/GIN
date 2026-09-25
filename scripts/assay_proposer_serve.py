@@ -63,7 +63,7 @@ def main() -> int:
             raise ValueError("request carries no user message")
         return propose_pass(
             llm, render, system=req.system, user=user, excerpts=req.excerpts,
-            temperature=args.temperature, max_proposals=args.max_proposals,
+            temperature=args.temperature, max_proposals=args.max_proposals, mode=req.mode,
         )
 
     print(f"assay proposer: serving {model_id} on http://127.0.0.1:{args.port}", flush=True)

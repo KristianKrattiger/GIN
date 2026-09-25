@@ -23,6 +23,8 @@ class ProposeRequest(BaseModel):
     system: str
     messages: list[Message] = Field(min_length=1)
     excerpts: list[Excerpt]
+    # The pass's task in Receipts (see slots.propose_pass); absent = claim-first over every type.
+    mode: Optional[Literal["relational", "unsupported"]] = None
 
 
 class Span(BaseModel):

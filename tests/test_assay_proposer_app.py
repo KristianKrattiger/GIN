@@ -78,3 +78,12 @@ def test_a_deliberate_http_exception_from_propose_fn_passes_through():
     r = client.post("/v1/propose", json=BODY)
     assert r.status_code == 429
     assert r.json()["detail"] == "busy"
+
+
+def test_a_pass_mode_is_optional_passed_through_and_validated():
+    seen = []
+    client = TestClient(create_app(lambda req: seen.append(req) or [], "sear/test"))
+    assert client.post("/v1/propose", json=BODY).status_code == 200
+    assert client.post("/v1/propose", json={**BODY, "mode": "relational"}).status_code == 200
+    assert [r.mode for r in seen] == [None, "relational"]
+    assert client.post("/v1/propose", json={**BODY, "mode": "everything"}).status_code == 422

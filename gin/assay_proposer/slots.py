@@ -15,7 +15,7 @@ SEAR closed, never generated, so the model cannot mislabel its source.
 from __future__ import annotations
 
 import random
-from typing import Any, Callable, Iterable, Optional
+from typing import Any, Callable, Iterable, Literal, Optional
 
 import numpy as np
 
@@ -24,6 +24,8 @@ from sear.processor import IN_SPAN, NEG_INF, ExtractiveCopyConstraint
 from .corpus import MAX_QUOTE_TOKENS, MIN_SPAN_TOKENS, ExcerptLike, LineCorpus, build_line_corpus
 
 RELATION_TYPES = ["contradicts", "corroborates", "updates", "unsupported"]
+RELATIONAL_TYPES = RELATION_TYPES[:3]
+PassMode = Literal["relational", "unsupported"]
 CONFIDENCES = [f"{i / 20:.2f}" for i in range(1, 21)]  # 0.05 .. 1.00
 FREE_TEXT_TOKENS = {"topic": 16, "statement": 64, "rationale": 64}
 
@@ -193,8 +195,14 @@ def _quote(
     prompt: str,
     focus: frozenset[int],
     temperature: float,
-) -> Optional[tuple[str, str]]:
-    """(docId, quote) for one span copied from the focus lines, or None if none was closed."""
+    used: frozenset[tuple[int, int]] = frozenset(),
+) -> Optional[tuple[str, str, set[tuple[int, int]]]]:
+    """(docId, quote, starts) for one span copied from the focus lines, or None if none was closed.
+
+    starts is every (line, token) where the copied sentence begins -- more than
+    one when the same sentence occurs on several lines. used adds starts a
+    caller has ruled out to the corpus's own forbidden ones.
+    """
     if not focus:
         return None
     n = prompt_token_count(llm, prompt)
@@ -212,7 +220,7 @@ def _quote(
         delim_id=llm.token_eos(),
         min_span_len=MIN_SPAN_TOKENS,
         focus_doc_indices=focus,
-        forbidden_starts=lc.forbidden_starts,
+        forbidden_starts=lc.forbidden_starts | used,
         span_must_start_at_sentence=True,
         span_must_close_at_sentence_end=True,
         stop_after_first_extract=True,
@@ -228,7 +236,7 @@ def _quote(
         return None
     seg = extracts[0]
     quote = llm.detokenize(seg.token_ids).decode("utf-8", errors="replace").strip()
-    return lc.sources[seg.sources[0][0]].doc_id, quote
+    return lc.sources[seg.sources[0][0]].doc_id, quote, {(d, s) for d, s, _e in seg.sources}
 
 
 def _choose(llm: Any, prompt: str, choices: list[str], temperature: float) -> str:
@@ -259,30 +267,75 @@ def propose_pass(
     excerpts: Iterable[ExcerptLike],
     temperature: float = 0.8,
     max_proposals: int = 8,
+    mode: Optional[PassMode] = None,
 ) -> list[dict]:
+    """Propose relations over one pass's excerpts.
+
+    mode is the pass's task in Receipts. "relational": one independent source
+    against the claimant, so its sentence is decoded first and the claim it
+    bears on second -- every pass carries the same claimant excerpts, and
+    claim-first let a small model open every pass with the same favourite
+    sentence whatever the source said (27 of 87 proposals, 9 distinct claims,
+    on the live Tesla corpus). Its relation cannot be "unsupported", which the
+    task forbids. "unsupported": the type is fixed, so it is not decoded.
+    None keeps the original claim-first order over every relation type.
+    """
     lc = build_line_corpus(excerpts, lambda b: llm.tokenize(b, add_bos=False))
     base = render_prompt(system, user + SCAFFOLD_NOTE)
     turn = ""
     proposals: list[dict] = []
-    for n in range(1, max_proposals + 1):
-        turn += f"Proposal {n}\nClaimant quote: "
-        claim = _quote(llm, lc, base + turn, lc.claimant, temperature)
-        if claim is None:
-            break
-        from_doc, from_quote = claim
-        turn += f"{from_quote}\nRelation: "
-        rtype = _choose(llm, base + turn, RELATION_TYPES, temperature)
-        turn += f"{rtype}\n"
+    # Receipts admits one row per claim, so a claimant sentence this pass has
+    # already quoted -- kept or dropped for want of evidence -- is spent. Left
+    # open, a small model re-quotes its favourite line proposal after proposal
+    # (27 of 45 on the live Tesla corpus), each repeat denied as DUPLICATE.
+    # Independent sentences stay open: one report can speak to several claims.
+    used_claims: set[tuple[int, int]] = set()
 
+    def claimant_quote() -> Optional[tuple[str, str]]:
+        nonlocal turn, used_claims
+        turn += "Claimant quote: "
+        claim = _quote(llm, lc, base + turn, lc.claimant, temperature, frozenset(used_claims))
+        if claim is None:
+            return None
+        used_claims |= claim[2]
+        turn += f"{claim[1]}\n"
+        return claim[0], claim[1]
+
+    def relation(choices: list[str]) -> str:
+        nonlocal turn
+        turn += "Relation: "
+        rtype = _choose(llm, base + turn, choices, temperature)
+        turn += f"{rtype}\n"
+        return rtype
+
+    for n in range(1, max_proposals + 1):
+        turn += f"Proposal {n}\n"
         to: Optional[dict] = None
-        if rtype != "unsupported":
+        if mode == "relational":
             turn += "Independent quote: "
             evidence = _quote(llm, lc, base + turn, lc.independent, temperature)
             if evidence is None:
-                turn += "none\n"
-            else:
-                to = {"docId": evidence[0], "quote": evidence[1]}
-                turn += f"{evidence[1]}\n"
+                break
+            to = {"docId": evidence[0], "quote": evidence[1]}
+            turn += f"{evidence[1]}\n"
+            claim = claimant_quote()
+            if claim is None:
+                break
+            rtype = relation(RELATIONAL_TYPES)
+        else:
+            claim = claimant_quote()
+            if claim is None:
+                break
+            rtype = "unsupported" if mode == "unsupported" else relation(RELATION_TYPES)
+            if rtype != "unsupported":
+                turn += "Independent quote: "
+                evidence = _quote(llm, lc, base + turn, lc.independent, temperature)
+                if evidence is None:
+                    turn += "none\n"
+                else:
+                    to = {"docId": evidence[0], "quote": evidence[1]}
+                    turn += f"{evidence[1]}\n"
+        from_doc, from_quote = claim
 
         if rtype == "unsupported" or to is not None:
             fields: dict[str, str] = {}

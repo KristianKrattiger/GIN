@@ -386,3 +386,119 @@ def test_the_statement_free_text_cap_is_raised_to_64_tokens():
     # A one-line rationale/statement can run longer than the topic; 32 tokens
     # was tight enough to truncate a real statement.
     assert FREE_TEXT_TOKENS == {"topic": 16, "statement": 64, "rationale": 64}
+
+
+def test_a_claimant_sentence_is_quoted_at_most_once_per_pass():
+    # On the live Tesla corpus Qwen2.5-7B opened 27 of 45 proposals with the same
+    # claimant sentence, and Receipts denied the repeats as DUPLICATE: it admits
+    # one row per claim. So once a pass has quoted a claimant sentence, the next
+    # proposal must find another one -- and when none is left, the pass is done.
+    llm, out = _run([
+        "Acme uptime is 99.99% everywhere.", "unsupported", "t", "s", "r", "0.50", "yes",
+        "Acme uptime is 99.99% everywhere.", "unsupported", "t", "s", "r", "0.50", "yes",
+        "Acme uptime is 99.99% everywhere.",
+    ])
+    assert [p["from"]["quote"] for p in out] == [
+        "Acme uptime is 99.99% everywhere.",
+        "Acme support answers in one hour.",
+    ]
+    assert llm.wishes == []
+
+
+def test_a_claimant_sentence_tried_without_evidence_is_not_offered_again():
+    only_claimant = [Ex("vendor", "claimant", "Acme uptime is 99.99% everywhere.\nAcme support answers in one hour.")]
+    _, out = _run(
+        [
+            "Acme uptime is 99.99% everywhere.", "contradicts", "yes",
+            "Acme uptime is 99.99% everywhere.", "unsupported", "t", "s", "r", "0.50", "no",
+        ],
+        excerpts=only_claimant,
+    )
+    assert [p["from"]["quote"] for p in out] == ["Acme support answers in one hour."]
+
+
+def test_an_independent_sentence_may_back_several_claims():
+    _, out = _run([
+        "Acme uptime is 99.99% everywhere.", "contradicts", "Acme reported four outages this quarter.",
+        "t", "s", "r", "0.50", "yes",
+        "Acme support answers in one hour.", "contradicts", "Acme reported four outages this quarter.",
+        "t", "s", "r", "0.50", "no",
+    ])
+    assert [p["to"]["quote"] for p in out] == ["Acme reported four outages this quarter."] * 2
+
+
+# --- evidence first: a relational pass is about one independent source ---
+# Every pass carries the same claimant excerpts, so picking the claim first let a
+# small model open every pass with the same favourite sentence (27 of 87 on the
+# live Tesla corpus, 9 distinct claims in all), whatever the pass's source said.
+# A relational pass decodes that source's sentence first and then the claim it
+# bears on, so what differs between passes is what drives the choice.
+
+def _run_mode(wishes, mode, excerpts=EXCERPTS, max_proposals=8):
+    llm = FakeLlm(wishes)
+    out = propose_pass(llm, _render, system="S", user="U", excerpts=excerpts,
+                       max_proposals=max_proposals, mode=mode)
+    return llm, out
+
+
+def test_a_relational_pass_decodes_the_independent_quote_before_the_claim():
+    llm, out = _run_mode([
+        "Acme reported four outages this quarter.", "Acme uptime is 99.99% everywhere.", "contradicts",
+        "uptime", "uptime guarantee", "outages contradict it", "0.90", "no",
+    ], "relational")
+    assert out == [{
+        "type": "contradicts",
+        "topic": "uptime",
+        "statement": "uptime guarantee",
+        "from": {"docId": "vendor", "quote": "Acme uptime is 99.99% everywhere."},
+        "to": {"docId": "status", "quote": "Acme reported four outages this quarter."},
+        "rationale": "outages contradict it",
+        "confidence": 0.9,
+    }]
+    assert llm.prompts[0].endswith("Independent quote: ")
+    assert llm.prompts[1].endswith("Claimant quote: ")
+    assert llm.prompts[2].endswith("Relation: ")
+    assert llm.wishes == []
+
+
+def test_a_relational_pass_cannot_propose_unsupported():
+    _, out = _run_mode([
+        "Acme reported four outages this quarter.", "Acme uptime is 99.99% everywhere.", "unsupported",
+        "t", "s", "r", "0.50", "no",
+    ], "relational")
+    assert out[0]["type"] == "contradicts"  # "unsupported" masked; the first listed choice wins the tie
+    assert out[0]["to"] is not None
+
+
+def test_a_relational_pass_still_spends_each_claim_once():
+    llm, out = _run_mode([
+        "Acme reported four outages this quarter.", "Acme uptime is 99.99% everywhere.", "contradicts",
+        "t", "s", "r", "0.50", "yes",
+        "Acme reported four outages this quarter.", "Acme uptime is 99.99% everywhere.", "contradicts",
+        "t", "s", "r", "0.50", "yes",
+        "Acme reported four outages this quarter.", "Acme uptime is 99.99% everywhere.",
+    ], "relational")
+    assert [p["from"]["quote"] for p in out] == [
+        "Acme uptime is 99.99% everywhere.",
+        "Acme support answers in one hour.",
+    ]
+    assert [p["to"]["quote"] for p in out] == ["Acme reported four outages this quarter."] * 2
+    assert llm.wishes == []
+
+
+def test_a_relational_pass_with_no_independent_line_proposes_nothing():
+    only_claimant = [Ex("vendor", "claimant", "Acme uptime is 99.99% everywhere.")]
+    llm, out = _run_mode(["Acme uptime is 99.99% everywhere."], "relational", excerpts=only_claimant)
+    assert out == []
+    assert len(llm.prompts) == 0  # an empty focus never reaches the model
+
+
+def test_an_unsupported_pass_fixes_the_type_and_asks_no_relation():
+    llm, out = _run_mode([
+        "Acme uptime is 99.99% everywhere.", "t", "s", "r", "0.50", "no",
+    ], "unsupported")
+    assert [p["type"] for p in out] == ["unsupported"]
+    assert out[0]["to"] is None
+    assert not any(p.endswith("Relation: ") for p in llm.prompts)
+    assert not any(p.endswith("Independent quote: ") for p in llm.prompts)
+    assert llm.wishes == []
