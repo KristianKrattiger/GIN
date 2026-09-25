@@ -121,6 +121,9 @@ class _StopAtSentenceEnd:
 
     def __call__(self, input_ids, scores):
         mask = self.inner(input_ids, scores)
+        # _span_close_permitted is a private method of the pinned sear/ module, not
+        # part of its public interface; if a future sear/ change renames or changes
+        # its meaning, the slot tests (e.g. the sentence-stop ones) will catch it.
         if self.inner.mode == IN_SPAN and self.inner._span_close_permitted():
             scores = np.asarray(scores, dtype=np.float32)
             return _mask(scores, {self.inner.eos_id})
