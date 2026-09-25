@@ -27,7 +27,10 @@ EXCERPTS = [
     {
         "docId": "tesla", "role": "claimant", "label": "Tesla Vehicle Safety Report",
         "text": "Tesla vehicles with FSD (Supervised) engaged experience fewer collisions than those driven without.\n"
-                "Eight external cameras provide a 360-degree view of the environment around the vehicle.",
+                "Eight external cameras provide a 360-degree view of the environment around the vehicle.\n"
+                "Full Self-Driving is available across North America, Europe and parts of Asia today. "
+                "The system does not yet operate reliably in heavy snow or dense fog. "
+                "Tesla plans to widen availability further next year.",
     },
     {
         "docId": "hn", "role": "independent", "label": "Hacker News - FSD",
@@ -44,9 +47,11 @@ def main() -> int:
     ap.add_argument("--n-ctx", type=int, default=4096)
     args = ap.parse_args()
 
+    from gin.assay_proposer.corpus import MAX_QUOTE_WORDS
     from gin.assay_proposer.runtime import load_model
     from gin.assay_proposer.schema import Excerpt
     from gin.assay_proposer.slots import propose_pass
+    from sear.corpus import SENTENCE_BOUNDARY
 
     llm, render, model_id = load_model(args.model, n_ctx=args.n_ctx, n_gpu_layers=args.n_gpu_layers)
     excerpts = [Excerpt(**e) for e in EXCERPTS]
@@ -64,17 +69,30 @@ def main() -> int:
 
     lines = {e.docId: e.text.split("\n") for e in excerpts}
     roles = {e.docId: e.role for e in excerpts}
+
+    def line_sentences(line: str) -> list[str]:
+        return [s.strip() for s in SENTENCE_BOUNDARY.split(line) if s.strip()]
+
+    def matching_line(quote: str, doc_lines: list[str]) -> str | None:
+        return next((line for line in doc_lines if quote in line), None)
+
     failures = []
     for p in proposals:
-        if roles.get(p["from"]["docId"]) != "claimant":
-            failures.append(f"from is not a claimant doc: {p['from']}")
-        elif not any(p["from"]["quote"] in line for line in lines[p["from"]["docId"]]):
-            failures.append(f"from quote not copied from its doc: {p['from']}")
-        if p["to"] is not None:
-            if roles.get(p["to"]["docId"]) != "independent":
-                failures.append(f"to is not an independent doc: {p['to']}")
-            elif not any(p["to"]["quote"] in line for line in lines[p["to"]["docId"]]):
-                failures.append(f"to quote not copied from its doc: {p['to']}")
+        for field, want_role in (("from", "claimant"), ("to", "independent")):
+            span = p[field]
+            if span is None:
+                continue
+            if roles.get(span["docId"]) != want_role:
+                failures.append(f"{field} is not a {want_role} doc: {span}")
+                continue
+            line = matching_line(span["quote"], lines[span["docId"]])
+            if line is None:
+                failures.append(f"{field} quote not copied from its doc: {span}")
+                continue
+            if len(span["quote"].split()) > MAX_QUOTE_WORDS:
+                failures.append(f"{field} quote is over {MAX_QUOTE_WORDS} words: {span}")
+            if span["quote"].strip() not in line_sentences(line):
+                failures.append(f"{field} quote is not exactly one sentence of its line: {span}")
 
     if failures:
         print("FAIL:\n  " + "\n  ".join(failures))
