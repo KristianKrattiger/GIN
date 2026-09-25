@@ -55,6 +55,7 @@ def build_line_corpus(
     sources: list[LineSource] = []
     for ci, ex in enumerate(excerpts):
         for li, line in enumerate(ex.text.split("\n")):
+            line = line.rstrip("\r")
             if not line.strip():
                 continue
             chunks.append((f"{ex.docId}#{ci}:{li}", line))

@@ -50,3 +50,12 @@ def test_a_sentence_at_the_limit_may_be_quoted():
     at_limit = " ".join(["word"] * MAX_QUOTE_WORDS) + "."
     lc = build_line_corpus([Ex("vendor", "claimant", at_limit)], _tok)
     assert lc.forbidden_starts == set()
+
+
+def test_crlf_line_endings_do_not_leave_a_carriage_return_token():
+    byte_tok = lambda b: list(b)
+    lc = build_line_corpus([Ex("vendor", "claimant", "Acme is fast.\r\nAcme is cheap.\r\n")], byte_tok)
+    assert len(lc.corpus.docs) == 2
+    assert 13 not in lc.corpus.docs[0]
+    assert 13 not in lc.corpus.docs[1]
+    assert bytes(lc.corpus.docs[0]) == b"Acme is fast."
